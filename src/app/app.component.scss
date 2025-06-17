@@ -76,7 +76,7 @@
 
 }
 
- ///*** MOBILE *** ///
+///*** MOBILE *** ///
 @media (max-width: 768px) {
   .toolbar-mobile {
     position: sticky;
@@ -118,5 +118,35 @@
       height: 24px;
       cursor: pointer;
     }
+  }
+
+  .sidenav-content {
+    padding: 1rem;
+
+    .sidenav-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+
+    .sidenav-categoria {
+      font-weight: 600;
+      margin-top: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    button {
+      width: 100%;
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.95rem;
+      text-transform: none;
+    }
+  }
+
+  .mobile-page-container {
+    padding: 1rem;
+    padding-bottom: 80px; // spazio per non coprire i contenuti col footer sticky
   }
 }

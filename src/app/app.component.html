@@ -60,12 +60,39 @@
 <ng-container *ngIf="isMobile">
   <mat-sidenav-container class="sidenav-container">
 
-    <!-- Definisci il sidenav con #sidenav -->
+    <!-- Sidenav mobile -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
-      <!-- Contenuto del menu mobile -->
-      <p>Qui il menu mobile</p>
+      <div class="sidenav-content">
+        <h3 class="sidenav-title">Menu</h3>
+
+        <ng-container *ngFor="let categoria of categorie">
+          <div class="sidenav-categoria">{{ categoria }}</div>
+
+          <ng-container *ngIf="strutturaCategorie[categoria].length > 0; else soloCategoria">
+            <button
+              mat-button
+              *ngFor="let sotto of strutturaCategorie[categoria]"
+              (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
+              {{ sotto | titlecase }}
+            </button>
+          </ng-container>
+
+          <ng-template #soloCategoria>
+            <button mat-button (click)="goTo(categoria); sidenav.close()">
+              Vai a {{ categoria }}
+            </button>
+          </ng-template>
+        </ng-container>
+
+        <mat-divider></mat-divider>
+
+        <button mat-button (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
+        <button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>
+        <button mat-button (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
+      </div>
     </mat-sidenav>
 
+    <!-- Contenuto principale -->
     <mat-sidenav-content>
       <mat-toolbar class="toolbar-mobile" color="primary">
         <img class="logo" src="assets/home/images/Logo.png" alt="Logo" (click)="goTo('/home')" />
@@ -75,30 +102,30 @@
         <span class="spacer"></span>
       </mat-toolbar>
 
-      <!-- Contenuto della pagina -->
       <div class="mobile-page-container">
         <router-outlet></router-outlet>
       </div>
 
-        <footer class="footer-mobile">
-          <div class="footer-content">
-            <a href="https://www.instagram.com/a_chic_napoli/" target="_blank" rel="noopener">
-              <img class="instagram-class" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" />
-            </a>
+      <footer class="footer-mobile">
+        <div class="footer-content">
+          <a href="https://www.instagram.com/a_chic_napoli/" target="_blank" rel="noopener">
+            <img class="instagram-class" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" />
+          </a>
 
-            <a href="https://www.tiktok.com/@achic04" target="_blank" rel="noopener">
-              <img class="tiktok-class" src="/assets/images/tiktok.jpg" />
-            </a>
+          <a href="https://www.tiktok.com/@achic04" target="_blank" rel="noopener">
+            <img class="tiktok-class" src="/assets/images/tiktok.jpg" />
+          </a>
 
-            <img
-              class="email-class"
-              src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
-              alt="Email"
-              (click)="goToContatti('/contatti')" />
-          </div>
-        </footer>
+          <img
+            class="email-class"
+            src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
+            alt="Email"
+            (click)="goToContatti('/contatti')" />
+        </div>
+      </footer>
     </mat-sidenav-content>
-
+    
   </mat-sidenav-container>
 </ng-container>
+
 
