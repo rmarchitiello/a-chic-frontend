@@ -76,9 +76,8 @@
 
 }
 
-
+ ///*** MOBILE *** ///
 @media (max-width: 768px) {
-  ///*** MOBILE *** ///
   .toolbar-mobile {
     position: sticky;
     top: 0;
@@ -98,5 +97,26 @@
       flex: 1;
     }
   }
-}
 
+  .footer-mobile {
+    padding: 1rem;
+    text-align: center;
+    background-color: #f1f1f1;
+    border-top: 1px solid #ddd;
+    position: sticky;
+    bottom: 0;
+    z-index: 999;
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    img {
+      height: 24px;
+      cursor: pointer;
+    }
+  }
+}

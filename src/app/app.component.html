@@ -79,6 +79,24 @@
       <div class="mobile-page-container">
         <router-outlet></router-outlet>
       </div>
+
+        <footer class="footer-mobile">
+          <div class="footer-content">
+            <a href="https://www.instagram.com/a_chic_napoli/" target="_blank" rel="noopener">
+              <img class="instagram-class" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" />
+            </a>
+
+            <a href="https://www.tiktok.com/@achic04" target="_blank" rel="noopener">
+              <img class="tiktok-class" src="/assets/images/tiktok.jpg" />
+            </a>
+
+            <img
+              class="email-class"
+              src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"
+              alt="Email"
+              (click)="goToContatti('/contatti')" />
+          </div>
+        </footer>
     </mat-sidenav-content>
 
   </mat-sidenav-container>
