@@ -69,6 +69,13 @@ menuMap: { [categoria: string]: string } = {};
   // Stato apertura menu mobile
   mobileMenuOpen = false;
 
+  // traccio quale categoria è espansa 
+  categoriaEspansa: string | null = null;
+
+
+  toggleCategoria(categoria: string) {
+  this.categoriaEspansa = this.categoriaEspansa === categoria ? null : categoria;
+}
   constructor(
     private router: Router,
     private cloudinaryService: CloudinaryService,

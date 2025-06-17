@@ -63,31 +63,29 @@
     <!-- Sidenav mobile -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
-        <h3 class="sidenav-title">Menu</h3>
 
         <ng-container *ngFor="let categoria of categorie">
-          <div class="sidenav-categoria">{{ categoria }}</div>
-
-          <ng-container *ngIf="strutturaCategorie[categoria].length > 0; else soloCategoria">
+          <div 
+                class="sidenav-categoria"
+                [class.attiva]="categoriaEspansa === categoria"
+                (click)="toggleCategoria(categoria)">
+                {{ categoria }}
+          </div>
+        <!-- Se è la categoria espansa, mostra le sottocategorie -->
+          <div *ngIf="categoriaEspansa === categoria">
             <button
-              mat-button
-              *ngFor="let sotto of strutturaCategorie[categoria]"
-              (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
-              {{ sotto | titlecase }}
+                class="sotto-categoria"
+                *ngFor="let sotto of strutturaCategorie[categoria]"
+                (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
+                {{ sotto | titlecase }}
             </button>
-          </ng-container>
-
-          <ng-template #soloCategoria>
-            <button mat-button (click)="goTo(categoria); sidenav.close()">
-              Vai a {{ categoria }}
-            </button>
-          </ng-template>
+          </div>
         </ng-container>
 
         <mat-divider></mat-divider>
 
         <button mat-button (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
-        <button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>
+        <!--<button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>-->
         <button mat-button (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
       </div>
     </mat-sidenav>
