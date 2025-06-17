@@ -59,7 +59,6 @@
 <!-- Toolbar alternativa per mobile con toolbar fissa -->
 <ng-template #mobileToolbar>
   <mat-sidenav-container class="sidenav-container">
-    
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
         <h3 class="sidenav-title">Menu</h3>
@@ -90,8 +89,7 @@
       </div>
     </mat-sidenav>
 
-    <!-- Toolbar mobile FISSA -->
-    <mat-sidenav-content>
+    <mat-sidenav-content class="mobile-wrapper">
       <mat-toolbar color="primary" class="toolbar-mobile">
         <span class="logo" (click)="goTo('/home')">A-Chic</span>
         <button mat-icon-button (click)="sidenav.toggle()">
@@ -100,12 +98,12 @@
         <span class="spacer"></span>
       </mat-toolbar>
 
-      <!-- Spazio sotto la toolbar per evitare sovrapposizione -->
-<!-- Spazio sotto la toolbar per evitare sovrapposizione -->
-<div class="mobile-page-content">
-  <router-outlet></router-outlet>
-
-  <footer class="footer-mobile">
+<!-- Contenitore flessibile -->
+<div class="mobile-page-container">
+  <div class="mobile-page-content">
+    <router-outlet></router-outlet>
+  </div>
+  <footer class="footer-mobile" *ngIf="showFooterMobile && isMobile">
     <div class="footer-content">
       <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>
       <span class="separator">|</span>
