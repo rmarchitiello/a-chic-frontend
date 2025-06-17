@@ -4,6 +4,7 @@ import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
 import { ChiSiamoComponent } from './pages/chi-siamo/chi-siamo.component';
 import { RecensioniComponent } from './pages/recensioni/recensioni.component';
 import { ContattiComponent } from './pages/contatti/contatti.component';
+import { CookiePolicyComponent } from './pages/cookie-policy/cookie-policy.component';
 
 
 export const routes: Routes = [
@@ -12,6 +13,7 @@ export const routes: Routes = [
   { path: 'chi-siamo', component: ChiSiamoComponent },
   { path: 'recensioni', component: RecensioniComponent },
   { path: 'contatti', component: ContattiComponent },
+  { path: 'cookie-policy', component: CookiePolicyComponent },
 
   // route con 1 parametro: solo categoria
   { path: ':categoria', component: CloudinaryComponent },
