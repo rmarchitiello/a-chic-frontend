@@ -44,6 +44,35 @@
     }
   }
 
+  .footer-desktop {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  background-color: #f9f9f9;
+  color: #555;
+  border-top: 1px solid #ddd;
+
+  .footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem; // 👈 spazio tra i link e separatore
+  }
+
+  a {
+    text-decoration: underline;
+    color: #1976d2;
+    cursor: pointer;
+
+    &:hover {
+      color: #0d47a1;
+    }
+  }
+
+  .separator {
+    color: #999;
+  }
+}
+
   // Toolbar mobile
   .toolbar-mobile {
     position: fixed;
@@ -142,5 +171,35 @@
 
   .toolbar-mobile {
     display: flex !important;
+  }
+}
+
+.footer-mobile {
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  text-align: center;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+
+  .footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+
+    a {
+      text-decoration: underline;
+      color: #1976d2;
+      cursor: pointer;
+
+      &:hover {
+        color: #0d47a1;
+      }
+    }
+
+    .separator {
+      color: #999;
+    }
   }
 }

@@ -77,6 +77,14 @@ menuMap: { [categoria: string]: string } = {};
 
   menuRefs: { [categoria: string]: any } = {};
 
+  goToCookie(cookies: string){
+    this.router.navigate([cookies]);
+  }
+
+   goToPrivacy(privacyes: string){
+    this.router.navigate([privacyes]);
+  }
+
 setMenuRef(categoria: string, ref: any): boolean {
   this.menuRefs[categoria] = ref;
   return true;

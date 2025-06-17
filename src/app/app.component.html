@@ -45,16 +45,15 @@
     <button mat-button class="button-contatti" (click)="goTo('/chi-siamo')">Chi Siamo</button>
   </mat-toolbar>
     <div class="desktop-page-content">
-      <footer class="footer-desktop" *ngIf="!isMobile">
-        <div class="footer-content">
-          <a routerLink="/cookie-policy">Cookie Policy</a>
-            <span class="separator">|</span>
-          <a routerLink="/privacy-policy">Privacy Policy</a>
-        </div>
-      </footer>
-
-    <router-outlet></router-outlet>
-  </div>
+      <router-outlet></router-outlet>
+    </div>
+        <footer class="footer-desktop" *ngIf="!isMobile">
+          <div class="footer-content">
+            <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>
+              <span class="separator">|</span>
+            <a (click)="goToPrivacy('/privacy-policy')">Privacy Policy</a>
+          </div>
+        </footer>
 </ng-container>
 
 <!-- Toolbar alternativa per mobile con toolbar fissa -->
@@ -102,9 +101,19 @@
       </mat-toolbar>
 
       <!-- Spazio sotto la toolbar per evitare sovrapposizione -->
-      <div class="mobile-page-content">
-        <router-outlet></router-outlet>
-      </div>
+<!-- Spazio sotto la toolbar per evitare sovrapposizione -->
+<div class="mobile-page-content">
+  <router-outlet></router-outlet>
+
+  <footer class="footer-mobile">
+    <div class="footer-content">
+      <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>
+      <span class="separator">|</span>
+      <a (click)="goToPrivacy('/privacy-policy')">Privacy Policy</a>
+    </div>
+  </footer>
+</div>
+
     </mat-sidenav-content>
   </mat-sidenav-container>
 </ng-template>
