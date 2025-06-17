@@ -63,30 +63,41 @@
     <!-- Sidenav mobile -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
+<ng-container *ngFor="let categoria of categorie">
+  <div
+    class="sidenav-categoria"
+    [class.attiva]="categoriaEspansa === categoria"
+    (click)="toggleCategoria(categoria)">
+    {{ categoria }}
+  </div>
 
-        <ng-container *ngFor="let categoria of categorie">
-          <div 
-                class="sidenav-categoria"
-                [class.attiva]="categoriaEspansa === categoria"
-                (click)="toggleCategoria(categoria)">
-                {{ categoria }}
-          </div>
-        <!-- Se è la categoria espansa, mostra le sottocategorie -->
-          <div *ngIf="categoriaEspansa === categoria">
-            <button
-                class="sotto-categoria"
-                *ngFor="let sotto of strutturaCategorie[categoria]"
-                (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
-                {{ sotto | titlecase }}
-            </button>
-          </div>
-        </ng-container>
+  <div *ngIf="categoriaEspansa === categoria">
+    <div *ngFor="let sotto of strutturaCategorie[categoria]">
+      <button
+        
+        class="sotto-categoria"
+        (click)="toggleSottoCategoria(sotto)">
+        {{ sotto | titlecase }}
+      </button>
+
+      <!-- Terzo livello: filtri -->
+      <div *ngIf="sottoCategoriaEspansa === sotto">
+        <button
+          class="filtro-categoria"
+          *ngFor="let filtro of filtriSottoCategorie[sotto]"
+          (click)="goTo(categoria, sotto); sidenav.close()">
+          {{ filtro | titlecase }}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
 
         <mat-divider></mat-divider>
 
-        <button mat-button (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
-        <!--<button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>-->
-        <button mat-button (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
+        <button  class="link-button" (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
+        <!--<button class="link-button" (click)="goTo('/contatti'); sidenav.close()">Contatti</button>-->
+        <button  class="link-button" (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
       </div>
     </mat-sidenav>
 

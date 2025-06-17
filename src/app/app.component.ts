@@ -72,9 +72,17 @@ menuMap: { [categoria: string]: string } = {};
   // traccio quale categoria è espansa 
   categoriaEspansa: string | null = null;
 
+  //i filtri delle sottocategorie
+  sottoCategoriaEspansa: string | null = null;
 
-  toggleCategoria(categoria: string) {
-  this.categoriaEspansa = this.categoriaEspansa === categoria ? null : categoria;
+
+toggleCategoria(cat: string): void {
+  this.categoriaEspansa = this.categoriaEspansa === cat ? null : cat;
+  this.sottoCategoriaEspansa = null; // reset quando cambio categoria
+}
+
+toggleSottoCategoria(sotto: string): void {
+  this.sottoCategoriaEspansa = this.sottoCategoriaEspansa === sotto ? null : sotto;
 }
   constructor(
     private router: Router,
