@@ -1,5 +1,5 @@
 <!-- Toolbar principale per desktop -->
-<ng-container *ngIf="!isMobile; else mobileToolbar">
+<ng-container *ngIf="!isMobile">
   <mat-toolbar color="primary" class="toolbar">
     <span class="logo" (click)="goTo('/home')">A-Chic</span>
 
@@ -56,70 +56,31 @@
         </footer>
 </ng-container>
 
-<!-- Toolbar alternativa per mobile con toolbar fissa -->
-<ng-template #mobileToolbar>
+<!-- Test scroll su mobile -->
+<ng-container *ngIf="isMobile">
   <mat-sidenav-container class="sidenav-container">
+
+    <!-- Definisci il sidenav con #sidenav -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
-      <div class="sidenav-content">
-        <h3 class="sidenav-title">Menu</h3>
-
-        <ng-container *ngFor="let categoria of categorie">
-          <div class="sidenav-categoria">{{ categoria }}</div>
-          <ng-container *ngIf="strutturaCategorie[categoria].length > 0; else soloCategoria">
-            <button
-              mat-button
-              *ngFor="let sotto of strutturaCategorie[categoria]"
-              (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
-              {{ sotto | titlecase }}
-            </button>
-          </ng-container>
-
-          <ng-template #soloCategoria>
-            <button mat-button (click)="goTo(categoria); sidenav.close()">
-              Vai a {{ categoria }}
-            </button>
-          </ng-template>
-        </ng-container>
-
-        <mat-divider></mat-divider>
-
-        <button mat-button (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
-        <button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>
-        <button mat-button (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
-      </div>
+      <!-- Contenuto del menu mobile -->
+      <p>Qui il menu mobile</p>
     </mat-sidenav>
 
-    <mat-sidenav-content class="mobile-wrapper">
-      <mat-toolbar color="primary" class="toolbar-mobile">
-        <img class="logo" src="assets/home/images/Logo.png" (click)="goTo('/home')"/>
+    <mat-sidenav-content>
+      <mat-toolbar class="toolbar-mobile" color="primary">
+        <img class="logo" src="assets/home/images/Logo.png" alt="Logo" (click)="goTo('/home')" />
         <button mat-icon-button (click)="sidenav.toggle()">
           <mat-icon>menu</mat-icon>
         </button>
         <span class="spacer"></span>
       </mat-toolbar>
 
-<!-- Contenitore flessibile -->
-<div class="mobile-page-container">
-    <router-outlet></router-outlet>
-  <footer class="footer-mobile" *ngIf="isMobile">
-    <div class="footer-content">
-      <a href="https://www.instagram.com/a_chic_napoli/" target="_blank" rel="noopener">
-        <img class="instagram-class" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"/>
-      </a>
-          <span></span>
-          <span></span>
-
-      <a href="https://www.tiktok.com/@achic04" target="_blank" rel="noopener">
-        <img class="tiktok-class" src="/assets/images/tiktok.jpg"/>
-      </a>  
-          <span></span>  
-          <span></span>
-
-        <img (click)="goToContatti('/contatti')"class="email-class" src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg"/>
-    </div>
-  </footer>
-</div>
-
+      <!-- Contenuto della pagina -->
+      <div class="mobile-page-container">
+        <router-outlet></router-outlet>
+      </div>
     </mat-sidenav-content>
+
   </mat-sidenav-container>
-</ng-template>
+</ng-container>
+

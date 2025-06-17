@@ -74,152 +74,29 @@
     }
   }
 
-  // Toolbar mobile
-  .toolbar-mobile {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 90px;
-    z-index: 1000;
+}
 
+
+@media (max-width: 768px) {
+  ///*** MOBILE *** ///
+  .toolbar-mobile {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: space-between;
     padding: 0 1rem;
-    background-color: #ffffff;
-    color: #333;
+    height: 56px;
+    background-color: white;
 
     .logo {
-        position: absolute;           // Tolgo il logo dal flusso flex normale
-        left: 50%;                    // Lo posiziono a metà larghezza della toolbar
-        transform: translateX(-50%);  // Correggo lo spostamento per centrarlo perfettamente
-        height: 90px;  // puoi provare anche 56px o 64px
-        width: 220px;                  // Mantiene le proporzioni dell’immagine
-
-    }
-
-    button {
-      color: #333;
+      height: 40px;
     }
 
     .spacer {
       flex: 1;
     }
   }
-
-  // Container per mobile (contenuto + footer)
-  .mobile-page-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding-top: 56px; // spazio per la toolbar fissa
-
-
-  }
-
-  // Footer mobile (NON fisso, ma sempre in fondo se c’è spazio)
-  .footer-mobile {
-  position: fixed;           // 👈 lo fissa nella finestra
-  bottom: 0;                 // 👈 lo incolla al fondo
-  left: 0;
-  right: 0;
-  z-index: 1000;             // 👈 sopra gli altri elementi
-  background-color: #ffffff; // 👈 stesso della toolbar
-  border-top: 1px solid #ddd;
-  padding: 1rem 0;
-  font-size: 0.9rem;
-  text-align: center;
-
-  .footer-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-
-    a {
-      text-decoration: underline;
-      color: #1976d2;
-      cursor: pointer;
-
-      &:hover {
-        color: #0d47a1;
-      }
-    }
-    
-      .instagram-class,
-      .tiktok-class,
-      .email-class {
-        max-height: 24px;
-        width: auto;
-        display: flex;
-        align-items: center;
-    }
-
-  }
 }
 
-
-  // Sidenav per mobile
-  .sidenav-container {
-    height: 100vh;
-
-    .mat-sidenav {
-      width: 260px;
-      background-color: #fff;
-      padding: 1rem;
-
-      .sidenav-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: #222;
-      }
-
-      .sidenav-categoria {
-        font-weight: 600;
-        margin-top: 1.2rem;
-        margin-bottom: 0.4rem;
-        font-size: 1rem;
-        color: #000;
-      }
-
-      button[mat-button] {
-        display: block;
-        width: 100%;
-        text-align: left;
-        padding-left: 1.5rem;
-        font-size: 0.95rem;
-        color: #444;
-        border-radius: 4px;
-
-        &:hover {
-          background-color: #e0e0e0;
-        }
-      }
-    }
-  }
-
-  // Barra ricerca mobile (se esiste)
-  .barra-ricerca-top {
-    width: 100%;
-    padding: 1rem;
-    background-color: #f5f5f5;
-
-    input {
-      font-size: 14px;
-    }
-  }
-}
-
-// Media query per mobile
-@media (max-width: 768px) {
-  .toolbar {
-    display: none !important;
-  }
-
-  .toolbar-mobile {
-    display: flex !important;
-  }
-}
