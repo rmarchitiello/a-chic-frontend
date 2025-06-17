@@ -4,12 +4,12 @@ import { MatListModule } from '@angular/material/list';
 import {  Router } from '@angular/router';
 
 @Component({
-  selector: 'app-cookie-policy',
+  selector: 'app-privacy-policy',
   imports: [MatCardModule,MatListModule],
-  templateUrl: './cookie-policy.component.html',
-  styleUrl: './cookie-policy.component.scss'
+  templateUrl: './privacy-policy.component.html',
+  styleUrl: './privacy-policy.component.scss'
 })
-export class CookiePolicyComponent {
+export class PrivacyPolicyComponent {
 
 
   email: string =   'achicnapoli@gmail.com';
@@ -20,11 +20,10 @@ export class CookiePolicyComponent {
 
   goHome(){
             this.router.navigate(['/home']);
-
 }
 
-
+  goToCookie(cookies: string){
+            this.router.navigate(['/cookie-policy']);
 }
 
-
-
+}

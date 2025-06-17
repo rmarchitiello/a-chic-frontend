@@ -45,6 +45,14 @@
     <button mat-button class="button-contatti" (click)="goTo('/chi-siamo')">Chi Siamo</button>
   </mat-toolbar>
     <div class="desktop-page-content">
+      <footer class="footer-desktop" *ngIf="!isMobile">
+        <div class="footer-content">
+          <a routerLink="/cookie-policy">Cookie Policy</a>
+            <span class="separator">|</span>
+          <a routerLink="/privacy-policy">Privacy Policy</a>
+        </div>
+      </footer>
+
     <router-outlet></router-outlet>
   </div>
 </ng-container>

@@ -5,6 +5,7 @@ import { ChiSiamoComponent } from './pages/chi-siamo/chi-siamo.component';
 import { RecensioniComponent } from './pages/recensioni/recensioni.component';
 import { ContattiComponent } from './pages/contatti/contatti.component';
 import { CookiePolicyComponent } from './pages/cookie-policy/cookie-policy.component';
+import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.component';
 
 
 export const routes: Routes = [
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'recensioni', component: RecensioniComponent },
   { path: 'contatti', component: ContattiComponent },
   { path: 'cookie-policy', component: CookiePolicyComponent },
+  { path: 'privacy-policy', component: PrivacyPolicyComponent },
 
   // route con 1 parametro: solo categoria
   { path: ':categoria', component: CloudinaryComponent },
