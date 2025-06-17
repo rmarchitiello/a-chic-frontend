@@ -331,3 +331,56 @@ mat-nav-list button {
     transform: translateY(6px);
   }
 }
+
+
+.dropdown-audio {
+  width: 100%;
+  max-width: 240px;
+
+  label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #333;
+    margin-bottom: 4px;
+    display: inline-block;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    appearance: none;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 16px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: border 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #999;
+    }
+  }
+}
+
+.bottone-play {
+  font-size: 0.75rem;           // più piccolo
+  padding: 2px 10px;            // meno spazio interno
+  min-width: auto;
+  height: 30px;                 // altezza ridotta
+  line-height: 1;
+  text-transform: none;
+  border-radius: 16px;          // più piccolo e tondeggiante
+  color: #333;
+  background-color: #e0e0e0;    // colore neutro (opzionale)
+  margin-top: 8px;
+
+  &:hover {
+    background-color: #d5d5d5;
+  }
+}

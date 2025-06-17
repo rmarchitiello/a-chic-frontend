@@ -89,17 +89,19 @@
             <mat-panel-title>Scelta melodia</mat-panel-title>
           </mat-expansion-panel-header>
           <div class="dettagli-borsa">
-            <mat-form-field appearance="fill" class="dropdown-audio">
-              <mat-label>Seleziona melodia</mat-label>
-              <mat-select [(value)]="selectedAudioUrl" (selectionChange)="onAudioChange()">
-                <mat-option *ngFor="let audio of assetAudioUrl" [value]="audio.url">
-                  {{ audio.nome_canzone }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="primary" (click)="togglePlayback()">
-              {{ isPlaying ? '⏸️ Pausa' : '▶️ Play' }}
-            </button>
+<div class="dropdown-audio-native">
+  <label for="melodia">Seleziona melodia</label>
+  <select id="melodia" [(ngModel)]="selectedAudioUrl" (change)="onAudioChange()">
+    <option value="">-- Seleziona una melodia --</option>
+    <option *ngFor="let audio of assetAudioUrl" [value]="audio.url">
+      {{ audio.nome_canzone }}
+    </option>
+  </select>
+</div>
+<button mat-raised-button class="bottone-play" (click)="togglePlayback()">
+  {{ isPlaying ? '⏸️ Pausa' : '▶️ Play' }}
+</button>
+
           </div>
         </mat-expansion-panel>
       </mat-accordion>

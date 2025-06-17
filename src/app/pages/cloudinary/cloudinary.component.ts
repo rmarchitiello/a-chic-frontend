@@ -19,6 +19,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-cloudinary',
@@ -33,7 +34,8 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatToolbarModule,
     MatListModule,
     MatIconModule,
-    MatExpansionModule
+    MatExpansionModule,
+    FormsModule
   ],
   templateUrl: './cloudinary.component.html',
   styleUrl: './cloudinary.component.scss'
