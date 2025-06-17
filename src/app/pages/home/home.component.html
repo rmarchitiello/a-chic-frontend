@@ -1,0 +1,50 @@
+
+<div class="fade-wrapper" @fadeIn>
+<!-- CAROSELLO -->
+  <div class="carousel-container">
+
+
+  <!-- <div class="image-wrapper">
+      TITOLO SOVRAPPOSTO 
+      <div class="carousel-title-overlay"> 
+        Le nostre creazioni
+      </div>
+
+       IMMAGINI 
+      <img *ngFor="let img of images; let i = index"
+          [src]="img"
+          [class.active]="i === currentIndex"
+          alt="Borsa artigianale" />
+    </div> -->
+
+
+  </div>
+
+
+  <!-- MODELLI IN EVIDENZA -->
+  <section class="modelli-evidenza">
+    <div class="card-grid">
+      <mat-card *ngFor="let modello of modelli">
+        <img (click)="goToComponentCloudinary(modello.routeCloudinary,modello.filterType)" mat-card-image [src]="modello.img" alt="Modello borsa"   style="cursor: pointer"/>
+        <mat-card-title>{{ modello.nome }}</mat-card-title>
+        <mat-card-subtitle>{{ modello.descrizione }}</mat-card-subtitle>
+      </mat-card>
+    </div>
+  </section>
+
+
+
+<!-- VIDEO PROMOZIONALE -->
+<section class="video-container">
+  <div *ngFor="let gruppo of videoRighe" class="video-riga">
+    <div *ngFor="let video of gruppo" class="video-evidenza">
+      <video #videoElement autoplay muted loop playsinline preload="metadata" class="video-responsive">
+        <source [src]="video.url" type="video/mp4" />
+      </video>
+    </div>
+  </div>
+</section>
+</div>
+
+
+

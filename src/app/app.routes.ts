@@ -1,0 +1,24 @@
+import { Routes } from '@angular/router';
+import { HomeComponent } from './pages/home/home.component';
+import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
+import { ChiSiamoComponent } from './pages/chi-siamo/chi-siamo.component';
+import { RecensioniComponent } from './pages/recensioni/recensioni.component';
+import { ContattiComponent } from './pages/contatti/contatti.component';
+
+
+export const routes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'chi-siamo', component: ChiSiamoComponent },
+  { path: 'recensioni', component: RecensioniComponent },
+  { path: 'contatti', component: ContattiComponent },
+
+  // route con 1 parametro: solo categoria
+  { path: ':categoria', component: CloudinaryComponent },
+  // route con 2 parametri: categoria + sottoCategoria
+  { path: ':categoria/:sottoCategoria', component: CloudinaryComponent },
+
+
+];
+
+

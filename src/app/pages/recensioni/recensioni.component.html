@@ -1,0 +1,9 @@
+<div class="recensioni-layout">
+  <mat-card
+    *ngFor="let img of recensioni; let i = index"
+    class="recensione-card"
+    [class.active]="visibleIndexes.includes(i)"
+  >
+    <img mat-card-image [src]="img" alt="Recensione cliente" />
+  </mat-card>
+</div>

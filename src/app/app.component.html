@@ -1,0 +1,102 @@
+<!-- Toolbar principale per desktop -->
+<ng-container *ngIf="!isMobile; else mobileToolbar">
+  <mat-toolbar color="primary" class="toolbar">
+    <span class="logo" (click)="goTo('/home')">A-Chic</span>
+
+    <ng-container *ngFor="let categoria of categorie">
+      <ng-container *ngIf="strutturaCategorie[categoria] as sottoCategorie">
+        <ng-container *ngIf="sottoCategorie.length > 0">
+          <button mat-button [matMenuTriggerFor]="menuRefs[categoria]">{{ categoria }}</button>
+
+          <mat-menu #menu="matMenu" [hasBackdrop]="true">
+            <button *ngFor="let sotto of sottoCategorie" mat-menu-item (click)="goTo(categoria, sotto, filtriSottoCategorie)">
+              {{ sotto | titlecase }}
+            </button>
+          </mat-menu>
+          <ng-container *ngIf="setMenuRef(categoria, menu)"></ng-container>
+        </ng-container>
+
+        <button *ngIf="sottoCategorie.length === 0" mat-button (click)="goTo(categoria)">
+          {{ categoria }}
+        </button>
+      </ng-container>
+    </ng-container>
+
+    <span class="spacer"></span>
+
+    <mat-form-field appearance="fill" class="barra-ricerca-toolbar" floatLabel="auto">
+      <input
+        type="text"
+        matInput
+        placeholder="Cerca..."
+        [formControl]="searchControl"
+        [matAutocomplete]="auto" />
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="vaiAllaCategoria($event.option.value)">
+        <mat-option *ngFor="let opzione of filteredOpzioni" [value]="opzione">
+          {{ opzione }}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+
+    <span class="spacer"></span>
+
+    <button mat-button class="button-contatti" (click)="goTo('/recensioni')">Recensioni</button>
+    <button mat-button class="button-contatti" (click)="goTo('/contatti')">Contatti</button>
+    <button mat-button class="button-contatti" (click)="goTo('/chi-siamo')">Chi Siamo</button>
+  </mat-toolbar>
+    <div class="desktop-page-content">
+    <router-outlet></router-outlet>
+  </div>
+</ng-container>
+
+<!-- Toolbar alternativa per mobile con toolbar fissa -->
+<ng-template #mobileToolbar>
+  <mat-sidenav-container class="sidenav-container">
+    
+    <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
+      <div class="sidenav-content">
+        <h3 class="sidenav-title">Menu</h3>
+
+        <ng-container *ngFor="let categoria of categorie">
+          <div class="sidenav-categoria">{{ categoria }}</div>
+          <ng-container *ngIf="strutturaCategorie[categoria].length > 0; else soloCategoria">
+            <button
+              mat-button
+              *ngFor="let sotto of strutturaCategorie[categoria]"
+              (click)="goTo(categoria, sotto, filtriSottoCategorie); sidenav.close()">
+              {{ sotto | titlecase }}
+            </button>
+          </ng-container>
+
+          <ng-template #soloCategoria>
+            <button mat-button (click)="goTo(categoria); sidenav.close()">
+              Vai a {{ categoria }}
+            </button>
+          </ng-template>
+        </ng-container>
+
+        <mat-divider></mat-divider>
+
+        <button mat-button (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
+        <button mat-button (click)="goTo('/contatti'); sidenav.close()">Contatti</button>
+        <button mat-button (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
+      </div>
+    </mat-sidenav>
+
+    <!-- Toolbar mobile FISSA -->
+    <mat-sidenav-content>
+      <mat-toolbar color="primary" class="toolbar-mobile">
+        <span class="logo" (click)="goTo('/home')">A-Chic</span>
+        <button mat-icon-button (click)="sidenav.toggle()">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="spacer"></span>
+      </mat-toolbar>
+
+      <!-- Spazio sotto la toolbar per evitare sovrapposizione -->
+      <div class="mobile-page-content">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</ng-template>
