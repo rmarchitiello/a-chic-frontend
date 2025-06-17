@@ -1,16 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../src/environments/environments';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class CloudinaryService {
-  private protocol = 'http';
-  private host = 'localhost';
-  private port = '3000';
-  private baseUri = '/cloudinary';
 
+  private baseUrl = environment.apiBaseUrl + 'cloudinary';
   private images = '/images';
   private config = '/get-config';
 
@@ -18,14 +17,15 @@ export class CloudinaryService {
 
   // Recupera tutte le immagini
   getImmagini(): Observable<any> {
-    const url = `${this.protocol}://${this.host}:${this.port}${this.baseUri}${this.images}`;
+    const url = `${this.baseUrl}${this.images}`;
     return this.http.get<any>(url);
   }
 
   // Recupera la configurazione per una categoria
   getConfig(sottoCategoria: string): Observable<any> {
     const categoriaCapitalizzata = capitalizeFirstLetter(sottoCategoria);
-    const url = `${this.protocol}://${this.host}:${this.port}${this.baseUri}${this.config}`;
+    const url = `${this.baseUrl}${this.config}`;
+
     const params = new HttpParams().set('sottoCategoria', categoriaCapitalizzata);
 
     return this.http.get<any>(url, { params });

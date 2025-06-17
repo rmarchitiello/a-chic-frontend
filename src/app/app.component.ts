@@ -37,6 +37,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+  title = 'a-chic';
   // Mappa per collegare categoria → nome riferimento mat-menu
 menuMap: { [categoria: string]: string } = {};
 
