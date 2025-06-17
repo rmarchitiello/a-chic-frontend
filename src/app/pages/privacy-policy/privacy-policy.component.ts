@@ -23,7 +23,7 @@ export class PrivacyPolicyComponent {
 }
 
   goToCookie(cookies: string){
-            this.router.navigate(['/cookie-policy']);
+            this.router.navigate([cookies]);
 }
 
 }

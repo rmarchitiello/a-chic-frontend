@@ -21,7 +21,6 @@ export class EmailService {
 
   inviaEmail(payload: EmailPayload): Observable<any> {
     const url = `${this.baseUri}`;
-    console.log("email ", url)
     return this.http.post(url, payload);
   }
 }
