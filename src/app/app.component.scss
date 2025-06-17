@@ -131,26 +131,26 @@
 
     .sidenav-categoria {
       font-weight: 600;
-      font-size: 1.0rem; // AUMENTATO
+      font-size: 1.05rem;
       margin-top: 1.2rem;
       margin-bottom: 0.5rem;
       color: #333;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s, color 0.3s;
       padding: 0.5rem;
       border-radius: 4px;
       font-family: 'Montserrat', sans-serif;
 
-
       &.attiva {
         background-color: #d7f2f4;
+        color: #000;
         font-weight: bold;
       }
     }
 
     .sotto-categoria {
       padding-left: 1.5rem;
-      font-size: 0.90rem;
+      font-size: 0.95rem;
       color: #444;
       background: none;
       border: none;
@@ -159,6 +159,7 @@
       width: 100%;
       margin-bottom: 0.3rem;
       font-family: 'Montserrat', sans-serif;
+
       &:hover {
         color: #222;
       }
@@ -166,7 +167,7 @@
 
     .filtro-categoria {
       padding-left: 2.5rem;
-      font-size: 0.80rem;
+      font-size: 0.85rem;
       color: #666;
       background: none;
       border: none;
@@ -175,6 +176,7 @@
       width: 100%;
       margin-bottom: 0.25rem;
       font-family: 'Montserrat', sans-serif;
+
       &:hover {
         color: #000;
       }
@@ -183,10 +185,11 @@
 
   .mobile-page-container {
     padding: 1rem;
-    padding-bottom: 80px; // per il footer sticky
+    padding-bottom: 80px; // per lasciare spazio al footer sticky
   }
 }
 
+/// Pulsanti tipo "Recensioni", "Chi Siamo" ecc.
 .link-button {
   width: 100%;
   text-align: center;
@@ -196,9 +199,10 @@
   background-color: #e3ecf5;
   border-radius: 20px;
   margin: 0.4rem 0;
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: #333;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
 
   &:hover {
     background-color: #c9dbeb;

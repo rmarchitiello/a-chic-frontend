@@ -13,7 +13,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { filter } from 'rxjs/operators';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
+
 
 @Component({
   selector: 'app-root',
@@ -35,7 +42,14 @@ import { filter } from 'rxjs/operators';
     MatSidenavModule
   ],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
+    animations: [
+    trigger('expandCollapse', [
+      state('void', style({ height: '0px', opacity: 0 })),
+      state('*', style({ height: '*', opacity: 1 })),
+      transition('void <=> *', animate('250ms ease-in-out'))
+    ])
+  ]
 })
 export class AppComponent implements OnInit {
   title = 'a-chic';

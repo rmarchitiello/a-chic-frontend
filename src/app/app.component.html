@@ -71,7 +71,9 @@
     {{ categoria }}
   </div>
 
-  <div *ngIf="categoriaEspansa === categoria">
+  <div *ngIf="categoriaEspansa === categoria"
+          [@expandCollapse]
+          class="sotto-container">
     <div *ngFor="let sotto of strutturaCategorie[categoria]">
       <button
         
@@ -81,7 +83,9 @@
       </button>
 
       <!-- Terzo livello: filtri -->
-      <div *ngIf="sottoCategoriaEspansa === sotto">
+      <div *ngIf="sottoCategoriaEspansa === sotto"
+                [@expandCollapse]
+                class="filtro-container">
         <button
           class="filtro-categoria"
           *ngFor="let filtro of filtriSottoCategorie[sotto]"
