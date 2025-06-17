@@ -1,5 +1,5 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
-import { RouterOutlet, Router,NavigationEnd  } from '@angular/router';
+import { RouterOutlet, Router  } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from './services/cloudinary.service';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -78,8 +78,11 @@ menuMap: { [categoria: string]: string } = {};
 
   menuRefs: { [categoria: string]: any } = {};
 
-  //mostro il footer su mobile solo nella home
-  showFooterMobile: boolean = true;
+  goToContatti(contatti: string){
+        this.router.navigate([contatti]);
+
+  }
+
 
   goToCookie(cookies: string){
     this.router.navigate([cookies]);
@@ -96,14 +99,7 @@ setMenuRef(categoria: string, ref: any): boolean {
 
   ngOnInit(): void {
 
-      // Mostra footer solo su /home
-  this.router.events
-    .pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe((event: NavigationEnd) => {
-      const url = (event as NavigationEnd).urlAfterRedirects;
-      this.showFooterMobile = url === '/home'; // oppure usa includes() per più rotte
-      this.cdr.markForCheck();
-    });
+
 
 
     // Inizializza menuMap con nomi unici per i menu (es. Borse → menu_Borse)

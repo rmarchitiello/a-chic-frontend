@@ -80,22 +80,23 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 56px;
+    height: 90px;
     z-index: 1000;
 
     display: flex;
     align-items: center;
     justify-content: flex-start;
     padding: 0 1rem;
-    background-color: #f5f5f5;
+    background-color: #ffffff;
     color: #333;
 
     .logo {
-      font-weight: bold;
-      font-size: 1.2rem;
-      margin-right: 0.5rem;
-      cursor: pointer;
-      color: #333;
+        position: absolute;           // Tolgo il logo dal flusso flex normale
+        left: 50%;                    // Lo posiziono a metà larghezza della toolbar
+        transform: translateX(-50%);  // Correggo lo spostamento per centrarlo perfettamente
+        height: 90px;  // puoi provare anche 56px o 64px
+        width: 220px;                  // Mantiene le proporzioni dell’immagine
+
     }
 
     button {
@@ -114,41 +115,51 @@
     min-height: 100vh;
     padding-top: 56px; // spazio per la toolbar fissa
 
-    .mobile-page-content {
-      flex: 1; // spinge il footer in fondo
-    }
+
   }
 
   // Footer mobile (NON fisso, ma sempre in fondo se c’è spazio)
   .footer-mobile {
-    padding: 1rem 0;
-    font-size: 0.9rem;
-    text-align: center;
-    background-color: #f5f5f5;
-    border-top: 1px solid #ddd;
+  position: fixed;           // 👈 lo fissa nella finestra
+  bottom: 0;                 // 👈 lo incolla al fondo
+  left: 0;
+  right: 0;
+  z-index: 1000;             // 👈 sopra gli altri elementi
+  background-color: #ffffff; // 👈 stesso della toolbar
+  border-top: 1px solid #ddd;
+  padding: 1rem 0;
+  font-size: 0.9rem;
+  text-align: center;
 
-    .footer-content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.6rem;
-      flex-wrap: wrap;
+  .footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
 
-      a {
-        text-decoration: underline;
-        color: #1976d2;
-        cursor: pointer;
+    a {
+      text-decoration: underline;
+      color: #1976d2;
+      cursor: pointer;
 
-        &:hover {
-          color: #0d47a1;
-        }
-      }
-
-      .separator {
-        color: #999;
+      &:hover {
+        color: #0d47a1;
       }
     }
+    
+      .instagram-class,
+      .tiktok-class,
+      .email-class {
+        max-height: 24px;
+        width: auto;
+        display: flex;
+        align-items: center;
+    }
+
   }
+}
+
 
   // Sidenav per mobile
   .sidenav-container {
