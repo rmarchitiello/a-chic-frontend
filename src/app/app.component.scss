@@ -76,7 +76,7 @@
 
 }
 
- ///*** MOBILE *** ///
+///*** MOBILE *** ///
 @media (max-width: 768px) {
   .toolbar-mobile {
     position: sticky;
@@ -98,33 +98,9 @@
     }
   }
 
-  .footer-mobile {
-    position: sticky; // NON fixed, per supportare scomparsa barra Safari
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    z-index: 999;
-    padding: 1rem;
-    text-align: center;
-    background-color: #f1f1f1;
-    border-top: 1px solid #ddd;
-
-    .footer-content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    img {
-      height: 24px;
-      cursor: pointer;
-    }
-  }
-
   .mobile-page-container {
     padding: 0;
+    padding-bottom: 90px; // lascia spazio al footer fisso
     -webkit-overflow-scrolling: touch;
     overflow-y: auto;
   }

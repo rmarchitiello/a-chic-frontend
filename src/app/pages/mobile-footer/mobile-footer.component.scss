@@ -1,0 +1,25 @@
+.footer-mobile {
+  position: fixed; // Mantiene il footer visibile durante lo scroll
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 0.5rem;
+  background-color: #f1f1f1;
+  border-top: 1px solid #ddd;
+  z-index: 1000;
+  text-align: center;
+  backdrop-filter: blur(6px); // opzionale: effetto vetro
+  -webkit-backdrop-filter: blur(6px); // compatibilità Safari
+
+  .footer-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  img {
+    height: 24px;
+    cursor: pointer;
+  }
+}

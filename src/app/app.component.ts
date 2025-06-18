@@ -22,6 +22,8 @@ import {
 } from '@angular/animations';
 import { ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
+import { MobileFooterComponent } from './pages/mobile-footer/mobile-footer.component';
+
 
 @Component({
   selector: 'app-root',
@@ -40,7 +42,8 @@ import { MatSidenav } from '@angular/material/sidenav';
     ReactiveFormsModule,
     RouterOutlet,
     MatExpansionModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MobileFooterComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
