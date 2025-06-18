@@ -30,15 +30,14 @@ import { CloudinaryService } from '../../services/cloudinary.service';
     MatCardModule
   ],
 animations: [
-  trigger('fadeIn', [
+  trigger('fadeInOut', [
     transition(':enter', [
-      style({ opacity: 0 }),       // iniziale
-      animate('800ms ease-out', style({ opacity: 1 })) // finale
-    ]),
-    transition('* => *', [
       style({ opacity: 0 }),
-      animate('800ms ease-out', style({ opacity: 1 }))
-    ])
+      animate('600ms ease-out', style({ opacity: 1 })),
+    ]),
+    transition(':leave', [
+      animate('600ms ease-out', style({ opacity: 0 })),
+    ]),
   ])
 ]
 

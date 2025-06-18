@@ -27,9 +27,19 @@
 <!-- MODELLI IN EVIDENZA MOBILE-->
 <section *ngIf="isMobile" class="modelli-evidenza">
   <div class="card-grid">
-      <mat-card>
-        <img  [src]="caroselloImmagini[currentIndex]" alt="Carosello Immagine" class="img-responsive" />
-      </mat-card>
+    <!--     *ngIf="caroselloImmagini[currentIndex]"
+ carosello animato dissolvenza praticamente rimuovo vecchia immagine e metto la nuova con animazione fadein piu che altro non fa vedere il div-->
+<div class="carousel-container">
+  <img
+    *ngFor="let img of caroselloImmagini; let i = index"
+    [src]="img"
+    [class.active]="i === currentIndex"
+    class="carousel-image"
+    alt="Carosello Immagine"
+  />
+</div>
+
+
     <mat-card *ngFor="let modello of modelliVideoInEvidenza">
       <video
         autoplay

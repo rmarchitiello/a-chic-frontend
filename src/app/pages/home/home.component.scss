@@ -84,12 +84,29 @@ mat-card-subtitle {
   mat-card-subtitle {
     font-size: 0.85rem;
   }
-.img-responsive {
+.carousel-container {
+  position: relative;
+  width: 100%;
+  height: 300px; /* o l’altezza che vuoi */
+  overflow: hidden;
+}
+
+.carousel-image {
+  position: absolute;
+  top: 0; left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* fa riempire l'intero contenitore tagliando se serve */
-  display: block;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1s ease-in-out;
+  pointer-events: none; /* evita interazioni sulle immagini nascoste */
 }
+
+.carousel-image.active {
+  opacity: 1;
+  pointer-events: auto; /* solo l’immagine visibile è interattiva */
+}
+
   
 
 }
