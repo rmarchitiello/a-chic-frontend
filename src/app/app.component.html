@@ -92,7 +92,7 @@
         <button
           class="filtro-categoria"
           *ngFor="let filtro of filtriSottoCategorie[sotto]"
-          (click)="goTo(categoria, sotto); sidenav.close()">
+          (click)="goToMobileQueryParamFilter(categoria, sotto, filtro); sidenav.close()">
           {{ filtro | titlecase }}
         </button>
       </div>

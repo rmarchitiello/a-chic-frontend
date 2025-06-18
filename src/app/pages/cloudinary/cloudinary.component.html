@@ -112,7 +112,7 @@
       <div class="contenuto-principale" #scrollArea (scroll)="onCustomScroll($event)">
         
         <!-- Filtri attivi -->
-        <div *ngIf="filtriAttivi.length > 0 && filtriRicevuti.length !== 0" class="filtri-attivi">
+        <div *ngIf="filtriAttivi.length > 0 && filtriRicevuti.length !== 0 && !isMobile" class="filtri-attivi">
           <ng-container *ngFor="let filtro of filtriAttivi">
             <span
               class="filtro-chip"

@@ -84,19 +84,32 @@ export class CloudinaryComponent implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       this.filtroSelezionato = 'Tutte';
       this.stopAudio();
+      //recupera dall uri la categoria /borse/conchiglia dall ap route categoria = borsa
       this.categoria = params.get('categoria');
+      console.log("cat, ", this.categoria);
+
       this.sottoCategoria = params.get('sottoCategoria');
+      console.log("sotocat, ", this.sottoCategoria);
+      if(!this.isMobile){
       this.caricaImmagini();
       this.caricaConfigurazioni(this.sottoCategoria);
+      }
     });
 
     this.route.queryParams.subscribe(queryParams => {
       this.filtroSelezionato = 'Tutte';
       const raw = queryParams['filtri'];
       const filtriRicevuti = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+      
       this.filtriRicevuti = filtriRicevuti;
+      console.log("Cloudinary filtri ricevuti ", this.filtriRicevuti);
       this.filtriAttivi = ['Tutte', ...filtriRicevuti.filter(f => f !== 'Tutte')];
+      console.log("filtro selezionato: ", this.filtroSelezionato);
       if (!this.filtroSelezionato) this.filtroSelezionato = 'Tutte';
+      console.log("Mobile: ", this.isMobile)
+      if(this.isMobile){
+        this.caricaImmagini();
+      }
     });
   }
 
@@ -159,7 +172,10 @@ export class CloudinaryComponent implements OnInit, OnDestroy {
     this.cloudinaryService.getImmagini().subscribe({
       next: (data: Record<string, any[]>) => {
         let immaginiDaMostrare: any[] = [];
-
+        if(this.isMobile){
+          this.filtroSelezionato = this.filtriRicevuti[0];
+          console.log("aassdddd: ", this.filtroSelezionato);
+        }
         if (this.filtroSelezionato === 'Tutte') {
           immaginiDaMostrare = Object.keys(data)
             .filter(key =>
@@ -167,6 +183,7 @@ export class CloudinaryComponent implements OnInit, OnDestroy {
               key.toLowerCase().startsWith(`${basePath}/`)
             )
             .flatMap(key => data[key]);
+            console.log("ovvioooo")
         } else {
           const chiaveFiltroCompleta = `${basePath}/${this.filtroSelezionato}`.toLowerCase();
           const chiaveReale = Object.keys(data).find(
@@ -178,6 +195,7 @@ export class CloudinaryComponent implements OnInit, OnDestroy {
         }
 
         this.immagini = immaginiDaMostrare;
+        console.log("imagesss: ", this.immagini)
         this.currentIndex = 0;
         this.immaginiVisibili = [];
         this.tutteCaricate = false;

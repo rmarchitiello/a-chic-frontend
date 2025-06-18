@@ -250,6 +250,18 @@ this.categorie.forEach(categoria => {
 
     this.router.navigate([path], { queryParams });
   }
+  
+  goToMobileQueryParamFilter(categoria: string, sottoCategoria?: string, filtro?: string){
+    let path: string;
+
+    path = sottoCategoria
+        ? `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`
+        : `/${categoria.toLowerCase()}`;
+
+        const queryParams = filtro?.length ? { filtri: filtro } : {};
+        console.log("Url filter invocato: ", path, "query param: ", queryParams);
+        this.router.navigate([path], { queryParams });
+  }
 
   // Selezione autocomplete
   vaiAllaCategoria(percorso: string): void {
