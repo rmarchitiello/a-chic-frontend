@@ -178,14 +178,18 @@ this.categorie.forEach(categoria => {
       next: (data: Record<string, any[]>) => {
         this.categorieSottoCategorie = Object.keys(data);
 
-        // Estrai le categorie principali (escludi "recensioni")
-        this.categorie = [
-          ...new Set(
-            this.categorieSottoCategorie
-              .map(k => k.split('/')[0])
-              .filter(c => c.toLowerCase() !== 'recensioni')
-          )
-        ];
+        // Estrai le categorie principali (escludi "recensioni") cosi non lo metto nelle categorie
+this.categorie = [
+  ...new Set(
+    this.categorieSottoCategorie
+      .map(k => k.split('/')[0])
+      .filter(c => {
+        const lower = c.toLowerCase();
+        return lower !== 'recensioni' && lower !== 'carosello';
+      })
+  )
+];
+
 
         // Estrai tutte le sotto-categorie uniche
         this.sottoCategorie = [

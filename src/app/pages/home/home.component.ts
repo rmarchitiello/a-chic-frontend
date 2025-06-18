@@ -46,13 +46,13 @@ animations: [
 export class HomeComponent implements OnInit, OnDestroy {
 
 
-  caroselloImmagini: string[] = [
-    '/assets/home/images/carosello/1.jpg',
-    '/assets/home/images/carosello/2.jpg',
-    '/assets/home/images/carosello/3.jpg',
-    '/assets/home/images/carosello/4.jpg',
-    '/assets/home/images/carosello/5.jpg'
-  ];
+caroselloImmagini: {
+  display_name?: string;
+  format?: string;
+  height?: number;
+  width?: number;
+  url?: string;
+}[] = [];
 
 
 
@@ -128,6 +128,8 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
 
     this.cloudinaryService.getImmagini().subscribe({
       next: (data: Record<string, any[]>) => {
+        this.caroselloImmagini = data['Carosello'];
+        console.log("Carosello immagini: ", this.caroselloImmagini);
         this.categorieSottoCategorie = Object.keys(data);
 
         // Estrai le categorie principali (escludi "recensioni")
@@ -135,8 +137,10 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
           ...new Set(
             this.categorieSottoCategorie
               .map(k => k.split('/')[0])
-              .filter(c => c.toLowerCase() !== 'recensioni')
-          )
+                  .filter(c => {
+                  const lower = c.toLowerCase();
+                return lower !== 'recensioni' && lower !== 'carosello';
+                 })          )
         ];
 
         console.log("Categorie: ", this.categorie);

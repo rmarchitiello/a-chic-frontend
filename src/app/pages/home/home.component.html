@@ -24,7 +24,7 @@
 </section>
 
 
-<!-- MODELLI IN EVIDENZA MOBILE-->
+<!-- MODELLI IN EVIDENZA MOBILE IL CAROSELLO LO CARICO ONLINE SUL CLOUD-->
 <section *ngIf="isMobile" class="modelli-evidenza">
   <div class="card-grid">
     <!--     *ngIf="caroselloImmagini[currentIndex]"
@@ -32,7 +32,7 @@
 <div class="carousel-container">
   <img
     *ngFor="let img of caroselloImmagini; let i = index"
-    [src]="img"
+    [src]="img.url"
     [class.active]="i === currentIndex"
     class="carousel-image"
     alt="Carosello Immagine"
