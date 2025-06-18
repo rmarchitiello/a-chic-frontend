@@ -17,6 +17,15 @@
     background: none;
     border: none;
     cursor: pointer;
+    color: black;  // testo o icona in nero
+    font-weight: bold; // se vuoi più impatto
+    padding: 4px 8px;
+    border-radius: 4px; // leggermente arrotondato
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #e0e0e0; // effetto hover chiaro
+    }
   }
 
   mat-icon {
