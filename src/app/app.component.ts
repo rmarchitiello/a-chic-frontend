@@ -245,8 +245,10 @@ this.categorie.forEach(categoria => {
     }
 
     const filtriAttivi = sottoCategoria && filtri ? filtri[sottoCategoria] : undefined;
-    const queryParams = filtriAttivi?.length ? { filtri: filtriAttivi } : {};
-
+    console.log("i filtri attivi sono: ", filtriAttivi);
+    const queryParams = filtriAttivi?.length
+        ? { filtri: ['Tutte', ...filtriAttivi] }
+        : { filtri: ['Tutte'] };
 
     this.router.navigate([path], { queryParams });
   }
