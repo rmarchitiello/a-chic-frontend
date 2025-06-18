@@ -86,25 +86,25 @@ mat-card-subtitle {
   }
 .carousel-container {
   position: relative;
-  width: 100%;
-  height: 300px; /* o l’altezza che vuoi */
+  width: 100vw;      /* tutta la larghezza della viewport */
+  height: 100vh;     /* tutta l’altezza della viewport */
   overflow: hidden;
 }
 
 .carousel-image {
   position: absolute;
   top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* riempie tutta l’area mantenendo proporzioni */
   opacity: 0;
   transition: opacity 1s ease-in-out;
-  pointer-events: none; /* evita interazioni sulle immagini nascoste */
+  pointer-events: none;
 }
 
 .carousel-image.active {
   opacity: 1;
-  pointer-events: auto; /* solo l’immagine visibile è interattiva */
+  pointer-events: auto;
 }
 
   
