@@ -1,26 +1,30 @@
+/* ============================
+   STILI DESKTOP (DEFAULT)
+   ============================ */
+
 /* Sezione modelli in evidenza */
 .modelli-evidenza {
   max-width: 100%;
-  margin: 0; // nessun margine sopra o sotto
-  padding: 0; // nessun padding interno
+  margin: 0; /* nessun margine sopra o sotto */
+  padding: 0; /* nessun padding interno */
   text-align: center;
 }
 
 /* Griglia responsive per le card */
 .card-grid {
   display: grid;
-  grid-template-columns: 1fr; // una colonna per mobile
-  gap: 0; // nessuno spazio tra le card
+  grid-template-columns: 1fr; /* una colonna per default (mobile-like) */
+  gap: 0; /* nessuno spazio tra le card */
 }
 
 /* Card stile vetrina verticale */
 mat-card {
-  aspect-ratio: 3 / 4; // formato verticale (come da esempio foto)
+  aspect-ratio: 3 / 4; /* formato verticale */
   width: 100%;
   border-radius: 0;
   box-shadow: none;
   overflow: hidden;
-  background-color: black; // evita bordi bianchi
+  background-color: black; /* evita bordi bianchi */
   padding: 0;
   position: relative;
   margin: 0;
@@ -30,7 +34,7 @@ mat-card {
 .video-responsive {
   width: 100%;
   height: 100%;
-  object-fit: cover; // riempie completamente
+  object-fit: cover; /* riempie completamente */
   object-position: center center;
   border-radius: 0;
   background-color: black;
@@ -60,16 +64,23 @@ mat-card-subtitle {
   font-size: 0.95rem;
 }
 
-/* Adattamenti mobile */
+
+/* ============================
+   STILI MOBILE
+   max-width: 768px
+   ============================ */
 @media (max-width: 768px) {
+  /* Adatta la griglia a una colonna singola */
   .card-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Riduci la dimensione del titolo */
   mat-card-title {
     font-size: 1rem;
   }
 
+  /* Riduci la dimensione del sottotitolo */
   mat-card-subtitle {
     font-size: 0.85rem;
   }
