@@ -67,7 +67,9 @@
   <div
     class="sidenav-categoria"
     [class.attiva]="categoriaEspansa === categoria"
-    (click)="toggleCategoria(categoria)">
+    
+    (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goTo(categoria)"> <!-- se la categoria non ha sottocategrie allora vai alla categoria -->
+
     {{ categoria }}
   </div>
 
@@ -78,7 +80,8 @@
       <button
         
         class="sotto-categoria"
-        (click)="toggleSottoCategoria(sotto)">
+        (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goTo(categoria, sotto)"
+>
         {{ sotto | titlecase }}
       </button>
 

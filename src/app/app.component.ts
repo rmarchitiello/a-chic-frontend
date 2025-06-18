@@ -71,6 +71,11 @@ menuMap: { [categoria: string]: string } = {};
   // Mappa categoria → sottocategorie
   strutturaCategorie: { [key: string]: string[] } = {};
 
+
+    // Mappa sottocategorie → sottoSottoCategorie(filtri)
+  strutturaSottoCategorie: { [key: string]: string[] } = {};
+
+
   // Controllo barra di ricerca
   searchControl = new FormControl('');
 
@@ -190,6 +195,7 @@ this.categorie.forEach(categoria => {
         Object.keys(tempFiltri).forEach(key => {
           this.filtriSottoCategorie[key] = Array.from(tempFiltri[key]);
         });
+        console.log("filtri sott: ", this.filtriSottoCategorie)
 
         // Costruisci struttura: categoria → sottocategorie
         const struttura: Record<string, Set<string>> = {};
@@ -203,6 +209,7 @@ this.categorie.forEach(categoria => {
         for (const cat in struttura) {
           this.strutturaCategorie[cat] = Array.from(struttura[cat]);
         }
+        console.log("strutturaaa: ", this.filtriSottoCategorie);
 
         // Inizializza filtro autocomplete
         this.searchControl.valueChanges.subscribe(val => {
@@ -233,6 +240,8 @@ this.categorie.forEach(categoria => {
       path = sottoCategoria
         ? `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`
         : `/${categoria.toLowerCase()}`;
+        console.log("aaaa", this.filtriSottoCategorie)
+        console.log("path costruito: ", path);
     }
 
     const filtriAttivi = sottoCategoria && filtri ? filtri[sottoCategoria] : undefined;
