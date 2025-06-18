@@ -4,7 +4,7 @@
     <mat-card *ngFor="let modello of modelliVideoInEvidenza">
       <video
         autoplay
-        muted
+        [muted]="true"
         loop
         playsinline
         preload="metadata"
