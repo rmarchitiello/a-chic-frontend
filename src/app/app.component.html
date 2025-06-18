@@ -68,7 +68,7 @@
     class="sidenav-categoria"
     [class.attiva]="categoriaEspansa === categoria"
     
-    (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goTo(categoria)"> <!-- se la categoria non ha sottocategrie allora vai alla categoria -->
+    (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)"> <!-- se la categoria non ha sottocategrie allora vai alla categoria -->
 
     {{ categoria }}
   </div>
@@ -80,7 +80,7 @@
       <button
         
         class="sotto-categoria"
-        (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goTo(categoria, sotto)"
+        (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)"
 >
         {{ sotto | titlecase }}
       </button>

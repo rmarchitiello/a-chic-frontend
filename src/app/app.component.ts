@@ -20,7 +20,8 @@ import {
   animate,
   transition
 } from '@angular/animations';
-
+import { ViewChild } from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +53,8 @@ import {
   ]
 })
 export class AppComponent implements OnInit {
+    @ViewChild('sidenav') sidenav!: MatSidenav;
+
   title = 'a-chic';
   // Mappa per collegare categoria → nome riferimento mat-menu
 menuMap: { [categoria: string]: string } = {};
@@ -117,6 +120,19 @@ toggleSottoCategoria(sotto: string): void {
 
   }
 
+  //dato che se ho la categoria e la sottoCategoria e devo fare questo controllo         (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goTo(categoria, sotto)"
+  //html non mi permette di aggiungere sindav.close quindi per chiuderla ho creato un metodo se c e categoria e sottocategoria vai e chiudi sidenav
+goToAndCloseSideNav(categoria: string, sottoCategoria?: string ){
+    if(categoria && sottoCategoria){
+      this.goTo(categoria,sottoCategoria);
+    }
+    else{
+      this.goTo(categoria);
+    }
+    this.sidenav.close();
+
+    
+}
 
   goToCookie(cookies: string){
     this.router.navigate([cookies]);
