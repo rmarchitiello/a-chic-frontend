@@ -161,3 +161,37 @@
     background-color: #c0e8ea;
   }
 }
+
+.sotto-categoria {
+    padding-left: 1.5rem;
+    font-size: 1.2rem;
+    color: #444;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.3rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #222;
+    }
+  }
+
+  .filtro-categoria {
+    padding-left: 2.5rem;
+    font-size: 1rem;
+    color: #666;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.25rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #000;
+    }
+  }
