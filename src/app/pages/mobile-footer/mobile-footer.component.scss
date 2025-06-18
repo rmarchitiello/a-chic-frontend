@@ -2,6 +2,7 @@
   position: fixed; // Mantiene il footer visibile durante lo scroll
   bottom: 0;
   left: 0;
+  height: 0%;
   width: 100%;
   padding: 1rem 0.5rem;
   background-color: #f1f1f1;
@@ -14,7 +15,7 @@
   .footer-content {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; /* allinea verticalmente le icone */
     gap: 1.5rem;
   }
 
@@ -22,4 +23,19 @@
     height: 24px;
     cursor: pointer;
   }
+
+.instagram-class,
+.tiktok-class{
+  height: 28px;
+  cursor: pointer;
+  margin: 0;
+  margin-top: -14px; /* solleva ancora di più le icone */
+}
+.email-class {
+  height: 31px;
+  cursor: pointer;
+  margin: 0;
+  margin-top: -14px; /* solleva ancora di più le icone */
+}
+
 }
