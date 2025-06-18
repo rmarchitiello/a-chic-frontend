@@ -1,152 +1,44 @@
-<!-- Toolbar mobile visibile solo su mobile e se ci sono configurazioni o è carillon -->
-<mat-toolbar color="primary" class="toolbar-mobile-cloud"
-  *ngIf="isMobile && (configurazioni.length > 0 || sottoCategoria?.toLowerCase() === 'carillon')">
-  <div class="toolbar-info-wrapper">
-    <span class="titolo-sezione">Info</span>
-    <button mat-icon-button class="info-toggle-btn" (click)="toggleSidebar()" aria-label="Apri dettagli">
-      <mat-icon>info</mat-icon>
-    </button>
+<!-- DESKTOP-->
+ <ng-container *ngIf="!isMobile">
+  <h1>SITO IN MANUTENZIONE</h1>
+ </ng-container>
+
+
+ <!-- MOBILE-->
+  <!-- DESKTOP-->
+<!-- Solo per dispositivi mobili -->
+<ng-container *ngIf="isMobile">
+  <!-- Contenitore principale per le immagini su mobile -->
+  <div class="mobile-immagini-wrapper">
+    
+    <!-- Griglia di immagini: 2 colonne x 2 righe = 4 immagini per blocco -->
+    <div class="contenitore-cards">
+      <!-- Ciclo sulle immagini visibili attualmente -->
+      <ng-container *ngFor="let item of immaginiVisibili">
+        <mat-card class="image-card">
+          <!-- Visualizzazione dell'immagine -->
+          <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+        </mat-card>
+      </ng-container>
+    </div>
   </div>
-</mat-toolbar>
+  <!-- Navigazione tra le pagine (solo se ci sono più immagini) -->
+<div class="paginazione-mobile" *ngIf="numeroDiPagine > 1">
+  <!-- Freccia sinistra -->
+  <button mat-icon-button (click)="paginaPrecedente()" [disabled]="paginaCorrente === 1">
+    <mat-icon>chevron_left</mat-icon>
+  </button>
 
-<!-- Wrapper principale -->
-<div class="pagina-wrapper">
-  <mat-sidenav-container class="sidenav-container">
+  <!-- Numero pagina -->
+  <span class="numero-pagina">
+    Pagina {{ paginaCorrente }} / {{ numeroDiPagine }}
+  </span>
 
-    <!-- Sidebar desktop -->
-    <mat-sidenav *ngIf="!isMobile && (configurazioni.length > 0 || sottoCategoria?.toLowerCase() === 'carillon')"
-                 mode="side" opened>
-      <mat-toolbar color="primary">Modello</mat-toolbar>
-      <mat-accordion>
-        <ng-container *ngIf="configurazioni.length > 0">
-          <mat-expansion-panel *ngFor="let conf of configurazioni">
-            <mat-expansion-panel-header>
-              <mat-panel-title>{{ conf.tipo }}</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="dettagli-borsa">
-              <div class="info-riga" *ngIf="conf.dettagli?.altezza && conf.dettagli?.lunghezza && conf.dettagli?.profondita">
-                <mat-icon>straighten</mat-icon>
-                <span>{{ conf.dettagli.altezza }} x {{ conf.dettagli.lunghezza }} x {{ conf.dettagli.profondita }}</span>
-              </div>
-              <div class="info-riga info-estesa" *ngIf="conf.dettagli?.altre_info">
-                <mat-icon>info</mat-icon>
-                <div class="testo-info">{{ conf.dettagli.altre_info }}</div>
-              </div>
-            </div>
-          </mat-expansion-panel>
-        </ng-container>
-
-        <mat-expansion-panel *ngIf="sottoCategoria?.toLowerCase() === 'carillon'">
-          <mat-expansion-panel-header>
-            <mat-panel-title>Scelta melodia</mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="dettagli-borsa">
-            <mat-form-field appearance="fill" class="dropdown-audio">
-              <mat-label>Seleziona melodia</mat-label>
-              <mat-select [(value)]="selectedAudioUrl" (selectionChange)="onAudioChange()">
-                <mat-option *ngFor="let audio of assetAudioUrl" [value]="audio.url">
-                  {{ audio.nome_canzone }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <button mat-raised-button color="primary" (click)="togglePlayback()">
-              {{ isPlaying ? '⏸️ Pausa' : '▶️ Play' }}
-            </button>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </mat-sidenav>
-
-    <!-- Sidebar mobile -->
-    <mat-sidenav
-      #sidebarSidenav
-      mode="over"
-      [(opened)]="sidebarOpen"
-      class="sidebar-modello"
-      position="start"
-      *ngIf="isMobile && (configurazioni.length > 0 || sottoCategoria?.toLowerCase() === 'carillon')">
-      <mat-accordion>
-        <ng-container *ngIf="configurazioni.length > 0">
-          <mat-expansion-panel *ngFor="let conf of configurazioni">
-            <mat-expansion-panel-header>
-              <mat-panel-title>{{ conf.tipo }}</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="dettagli-borsa">
-              <div class="info-riga" *ngIf="conf.dettagli?.altezza && conf.dettagli?.lunghezza && conf.dettagli?.profondita">
-                <mat-icon>straighten</mat-icon>
-                <span>{{ conf.dettagli.altezza }} x {{ conf.dettagli.lunghezza }} x {{ conf.dettagli.profondita }}</span>
-              </div>
-              <div class="info-riga info-estesa" *ngIf="conf.dettagli?.altre_info">
-                <mat-icon>info</mat-icon>
-                <div class="testo-info">{{ conf.dettagli.altre_info }}</div>
-              </div>
-            </div>
-          </mat-expansion-panel>
-        </ng-container>
-
-        <mat-expansion-panel *ngIf="sottoCategoria?.toLowerCase() === 'carillon'">
-          <mat-expansion-panel-header>
-            <mat-panel-title>Scelta melodia</mat-panel-title>
-          </mat-expansion-panel-header>
-          <div class="dettagli-borsa">
-<div class="dropdown-audio-native">
-  <label for="melodia">Seleziona melodia</label>
-  <select id="melodia" [(ngModel)]="selectedAudioUrl" (change)="onAudioChange()">
-    <option value="">-- Seleziona una melodia --</option>
-    <option *ngFor="let audio of assetAudioUrl" [value]="audio.url">
-      {{ audio.nome_canzone }}
-    </option>
-  </select>
+  <!-- Freccia destra -->
+  <button mat-icon-button (click)="paginaSuccessiva()" [disabled]="paginaCorrente === numeroDiPagine">
+    <mat-icon>chevron_right</mat-icon>
+  </button>
 </div>
-<button mat-raised-button class="bottone-play" (click)="togglePlayback()">
-  {{ isPlaying ? '⏸️ Pausa' : '▶️ Play' }}
-</button>
+</ng-container>
 
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
-    </mat-sidenav>
 
-    <!-- Contenuto principale scrollabile -->
-    <mat-sidenav-content class="scroll-container">
-      <div class="contenuto-principale" #scrollArea (scroll)="onCustomScroll($event)">
-        
-        <!-- Filtri attivi -->
-        <div *ngIf="filtriAttivi.length > 0 && filtriRicevuti.length !== 0 && !isMobile" class="filtri-attivi">
-          <ng-container *ngFor="let filtro of filtriAttivi">
-            <span
-              class="filtro-chip"
-              [ngClass]="{
-                selezionato: filtro === filtroSelezionato,
-                opaco: filtroSelezionato && filtro !== filtroSelezionato
-              }"
-              (click)="onFiltroClick(filtro)">
-              {{ filtro }}
-            </span>
-          </ng-container>
-        </div>
-
-        <!-- Immagini -->
-        <div *ngIf="immaginiVisibili.length > 0">
-          <div class="contenitore-cards">
-            <ng-container *ngFor="let item of immaginiVisibili">
-              <mat-card class="borsa-card">
-                <img mat-card-image [src]="item.url" [alt]="item.display_name" />
-              </mat-card>
-            </ng-container>
-          </div>
-
-          <div class="freccia-scroll" *ngIf="!tutteCaricate">
-            <span class="freccia">▼ ▼ ▼</span>
-          </div>
-        </div>
-
-        <!-- Spazio extra -->
-        <div class="spazio-scroll"></div>
-
-        <!-- Audio invisibile -->
-        <audio #audioPlayer></audio>
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-</div>

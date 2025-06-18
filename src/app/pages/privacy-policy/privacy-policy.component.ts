@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import {  Router } from '@angular/router';
@@ -9,7 +9,7 @@ import {  Router } from '@angular/router';
   templateUrl: './privacy-policy.component.html',
   styleUrl: './privacy-policy.component.scss'
 })
-export class PrivacyPolicyComponent {
+export class PrivacyPolicyComponent implements OnInit{
 
 
   email: string =   'achicnapoli@gmail.com';
@@ -25,5 +25,10 @@ export class PrivacyPolicyComponent {
   goToCookie(cookies: string){
             this.router.navigate([cookies]);
 }
+
+  ngOnInit(): void {
+        window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
+
+  }
 
 }

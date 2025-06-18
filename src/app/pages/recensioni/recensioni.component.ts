@@ -17,6 +17,8 @@ export class RecensioniComponent implements OnInit {
   constructor(private cloudinaryService: CloudinaryService) {}
 
   ngOnInit(): void {
+        window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
+
     this.cloudinaryService.getImmagini().subscribe(response => {
       const immagini = response?.Recensioni;
 

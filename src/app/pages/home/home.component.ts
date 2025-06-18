@@ -114,6 +114,7 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
   }
 
   ngOnInit(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
 
     //timer per avviare il carosello
       this.intervalId = setInterval(() => this.nextImage(), 2000);

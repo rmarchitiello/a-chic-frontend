@@ -2,7 +2,6 @@
     Component,
     OnInit,
     OnDestroy,
-    HostListener,
     ViewChild,
     ElementRef
   } from '@angular/core';
@@ -46,21 +45,34 @@
     immaginiVisibili: any[] = [];
     categoria: string | null = null;
     sottoCategoria: string | null = null;
-    currentIndex = 0;
-    step = 3;
-    tutteCaricate = false;
-    isLoading = false;
     configurazioni: any[] = [];
     selectedAudioUrl: string | null = null;
     isPlaying = false;
-    sidebarOpen = false;
     isMobile = false;
     filtroSelezionato: string = 'Tutte';
     filtriAttivi: string[] = [];
     filtriRicevuti: string[] = [];
 
+    //paginazione prendo le prime 10 foto
+    minIndexfotoPerPagina: number = 0;  //con questi due dico prendimi le prime 10 foto
+    fotoPerPagina: number = 10;
+    numeroDiPagine: number = 0; // da calcolare in carica immagini divisione tra foto trovate tutte / quante foto voglio vedere
+    paginaCorrente: number = 1; //setto la pagina corrente ovvio 1 perche mi serve nel metodo carica altri per incrementare la pagina
     @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
+paginaPrecedente(): void {
+  if (this.paginaCorrente > 1) {
+    this.paginaCorrente--;
+    this.caricaAltreImmagini();
+  }
+}
+
+paginaSuccessiva(): void {
+  if (this.paginaCorrente < this.numeroDiPagine) {
+    this.paginaCorrente++;
+    this.caricaAltreImmagini();
+  }
+}
     assetAudioUrl: any[] = [
       { nome_canzone: 'Over The Raimbow', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144292/Over_The_Raimbow_o6gs3v_nnaa92.mp3' },
       { nome_canzone: 'Harry Potter', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144294/Harry_Potter_ymoryk_nc4rxa.mp3' },
@@ -78,7 +90,7 @@
 
 
 ngOnInit(): void {
-  // Rileva se il dispositivo è mobile
+
   this.isMobile = window.innerWidth <= 768;
   window.addEventListener('resize', () => {
     this.isMobile = window.innerWidth <= 768;
@@ -90,7 +102,8 @@ ngOnInit(): void {
     this.route.queryParams
   ]).subscribe(([params, queryParams]) => {
     console.log('Evento route attivo');
-
+        // Scrollo in cima alla finestra
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
     // Ferma l'audio se attivo
     this.stopAudio();
 
@@ -119,42 +132,16 @@ ngOnInit(): void {
 
 
 
+
+
     ngOnDestroy(): void {
       this.stopAudio();
     }
 
-    // Scroll desktop
-    @HostListener('window:scroll', [])
-    onWindowScroll(): void {
-      const scrollTop = window.scrollY;
-      const viewportHeight = window.innerHeight;
-      const fullHeight = document.body.scrollHeight;
-      const isBottom = scrollTop + viewportHeight >= fullHeight - 100;
-      if (isBottom && !this.tutteCaricate && !this.isLoading) {
-        this.caricaAltri();
-      }
-    }
 
-    // Scroll mobile all'interno del mat-sidenav-content
-    onCustomScroll(event: Event): void {
-      const element = event.target as HTMLElement;
-      const scrollTop = element.scrollTop;
-      const viewportHeight = element.clientHeight;
-      const scrollHeight = element.scrollHeight;
-      const isBottom = scrollTop + viewportHeight >= scrollHeight - 100;
-      if (isBottom && !this.tutteCaricate && !this.isLoading) {
-        this.caricaAltri();
-      }
-    }
 
-    toggleSidebar(): void {
-      this.sidebarOpen = !this.sidebarOpen;
-    }
 
-    onFiltroClick(filtro: string): void {
-      this.filtroSelezionato = filtro;
-      this.caricaImmagini();
-    }
+
 
     caricaConfigurazioni(sottoCategoria: any): void {
       this.cloudinaryService.getConfig(sottoCategoria).subscribe({
@@ -184,7 +171,6 @@ ngOnInit(): void {
   this.cloudinaryService.getImmagini().subscribe({
     next: (data: Record<string, any[]>) => {
       let immaginiDaMostrare: any[] = [];
-      console.log("immagini caricate: ", JSON.stringify(data))
       // Se siamo su mobile, selezioniamo il primo filtro ricevuto
       if (this.isMobile) {
         this.filtroSelezionato = this.filtriRicevuti[0] || 'Tutte';
@@ -222,45 +208,38 @@ ngOnInit(): void {
 
       // Salva le immagini trovate
       this.immagini = immaginiDaMostrare;
-      console.log('Immagini assegnate al componente:', this.immagini.length);
+          
+      console.log('Immagini assegnate al componente: ', this.immagini.length);
 
-      // Reset dell’indice e visibilità
-      this.currentIndex = 0;
-      this.immaginiVisibili = [];
-      this.tutteCaricate = false;
+      console.log("Immagini da scaricate: ", JSON.stringify(this.immagini));
 
-      // Carica le prime immagini
-      this.caricaAltri();
+      //Paginazione mostro le prime 10 foto
+      this.immaginiVisibili = this.immagini.slice(this.minIndexfotoPerPagina, this.fotoPerPagina);
+      console.log("Immagini paginate assegnate: ", JSON.stringify(this.immaginiVisibili.length));
+      console.log("Immagini paginate: ", JSON.stringify(this.immaginiVisibili));
+      this.numeroDiPagine = Math.ceil(this.immagini.length / this.fotoPerPagina)
+      console.log("Pagine Calcolate: ", this.numeroDiPagine);
 
-      // Verifica se la pagina ha spazio per altre immagini
-      setTimeout(() => {
-        const fullHeight = document.body.scrollHeight;
-        const viewportHeight = window.innerHeight;
 
-        if (fullHeight <= viewportHeight && !this.tutteCaricate && !this.isLoading) {
-          console.log('Lo spazio visibile è ancora disponibile, carico altre immagini...');
-          this.caricaAltri();
-        }
-      }, 100);
+
     },
 
     error: err => console.error('Errore nel recupero delle immagini da Cloudinary:', err)
   });
 }
 
+caricaAltreImmagini(){  //1 e la pagina precedente 
+      const inizio = (this.paginaCorrente - 1) * this.fotoPerPagina
+      const fine = this.paginaCorrente * this.fotoPerPagina
+      this.immaginiVisibili = this.immagini.slice(inizio, fine);
 
-    caricaAltri(): void {
-      this.isLoading = true;
-      const prossimi = this.immagini.slice(this.currentIndex, this.currentIndex + this.step);
-      this.immaginiVisibili.push(...prossimi);
-      this.currentIndex += this.step;
-      if (this.currentIndex >= this.immagini.length) {
-        this.tutteCaricate = true;
-      }
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 200);
-    }
+      console.log("Immagini successive pagina: ", JSON.stringify(this.immaginiVisibili));
+
+        // Scrollo in cima alla finestra
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+}
+
 
     togglePlayback(): void {
       const player = this.audioPlayer.nativeElement;
@@ -276,12 +255,15 @@ ngOnInit(): void {
       }
     }
 
-    stopAudio(): void {
-      const player = this.audioPlayer.nativeElement;
-      player.pause();
-      player.currentTime = 0;
-      this.isPlaying = false;
-    }
+stopAudio(): void {
+  // Evita errore se il player non è inizializzato
+  if (!this.audioPlayer) return;
+
+  const player = this.audioPlayer.nativeElement;
+  player.pause();
+  player.currentTime = 0;
+  this.isPlaying = false;
+}
 
     onAudioChange(): void {
       this.stopAudio();
