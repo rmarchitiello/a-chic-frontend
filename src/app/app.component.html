@@ -59,8 +59,8 @@
 <!-- Test scroll su mobile -->
 <ng-container *ngIf="isMobile">
 
-  <!-- HEADER SEMPRE VISIBILE -->
-  <app-mobile-header></app-mobile-header>
+  <!-- HEADER SEMPRE VISIBILE (dove menuToggle e l evento del componente figli che quando viene premuto in mobile header component scaturisce sidenav.toggle)-->
+  <app-mobile-header (menuToggle)="sidenav.toggle()"></app-mobile-header>
 
   <!-- SIDENAV + CONTENUTO -->
   <mat-sidenav-container class="sidenav-container">

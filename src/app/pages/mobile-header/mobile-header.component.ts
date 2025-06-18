@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component,EventEmitter, Output  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,8 +18,15 @@ import { Router } from '@angular/router';
   styleUrl: './mobile-header.component.scss'
 })
 export class MobileHeaderComponent {
+  
+  // emette un evento da passare a un component
+  /* Quando in mobile component clicco il menu,   <button mat-icon-button (click)="toggleMenu()">
+viene chiamato toggle menu che emette un evento come websocket*/
+  @Output() menuToggle = new EventEmitter<void>();
 
   toggleMenu(): void {
+        this.menuToggle.emit(); // Notifica al genitore: "cliccato il menu!"
+
 }
 
   constructor(private router: Router) {} 
