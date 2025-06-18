@@ -1,11 +1,7 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
-  AfterViewChecked,
-  ViewChildren,
-  QueryList,
-  ElementRef
+  OnDestroy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,7 +44,9 @@ animations: [
 
 })
 
-export class HomeComponent implements OnInit, OnDestroy, AfterViewChecked {
+export class HomeComponent implements OnInit, OnDestroy {
+
+
   images: string[] = [
     '/assets/home/images/1.jpg',
     '/assets/home/images/2.jpg',
@@ -61,27 +59,25 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewChecked {
     '/assets/home/images/9.jpg',
   ];
 
-  videiConsigliati: any[] = [
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144761/borsa-uncinetto_z5hzsp.mp4' },
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144772/Estate_conchiglia_bianca_wct3ey_rfr0kt.mp4' },
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144759/borsa-conchiglia-video_dhpzyx.mp4' },
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144769/clutch3_lkiy6q_jzo8mw.mp4' },
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144766/clutch2_nsthjx_ybhzzm.mp4' },
-    { url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/q_auto,f_auto/v1750144764/clutch_axwzaj_srg3pv.mp4' }
-  ];
 
-  videoRighe: any[][] = [];
 
-  modelli = [
+  modelliVideoInEvidenza = [
     {
-      img: '/assets/home/images/modello-conchiglia.jpg',
+      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750238268/Estate_Conchiglia_Bianca_Wct3ey_Rfr0kt_dtffzm.mp4',
       routeCloudinary: '/borse/conchiglia',
       filterType: 'Conchiglia',
       nome: 'Modello Conchiglia',
       descrizione: 'Perfetta per il mare e le giornate estive'
     },
     {
-      img: '/assets/home/images/modello-clutch.jpg',
+      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750189434/video_r2bh68.mp4',
+      routeCloudinary: '/borse/pochette',
+      filterType: 'Pochette',
+      nome: 'Modello Clutch',
+      descrizione: 'Elegante, sobria, sempre alla moda'
+    },
+    {
+      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750189434/video_r2bh68.mp4',
       routeCloudinary: '/borse/pochette',
       filterType: 'Pochette',
       nome: 'Modello Clutch',
@@ -104,7 +100,6 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
   intervalId!: ReturnType<typeof setInterval>;
   playedOnce = false;
 
-  @ViewChildren('videoElement') videoElements!: QueryList<ElementRef<HTMLVideoElement>>;
 // Tutte le combinazioni categoria/sottocategoria (es. "Borse/Clutch")
   categorieSottoCategorie: string[] = [];
 
@@ -120,9 +115,18 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
   // Mappa categoria → sottocategorie
   strutturaCategorie: { [key: string]: string[] } = {};
 
+      isMobile = false;
 
 
   ngOnInit(): void {
+
+      // Rileva se il dispositivo è mobile
+  this.isMobile = window.innerWidth <= 768;
+  window.addEventListener('resize', () => {
+    this.isMobile = window.innerWidth <= 768;
+  });
+
+
     this.cloudinaryService.getImmagini().subscribe({
       next: (data: Record<string, any[]>) => {
         this.categorieSottoCategorie = Object.keys(data);
@@ -193,30 +197,8 @@ Object.keys(tempFiltri).forEach(key => {
 
     this.intervalId = setInterval(() => this.nextImage(), 4000);
 
-    // Pre-calcola righe da 3 video
-    const chunkSize = 3;
-    for (let i = 0; i < this.videiConsigliati.length; i += chunkSize) {
-      this.videoRighe.push(this.videiConsigliati.slice(i, i + chunkSize));
-    }
   }
 
-  ngAfterViewChecked(): void {
-    if (!this.playedOnce && this.videoElements.length > 0) {
-      this.playedOnce = true;
-      setTimeout(() => {
-        this.videoElements.forEach(ref => {
-          const video = ref.nativeElement;
-          video.muted = true;
-          video.autoplay = true;
-          video.playsInline = true;
-          video.load(); // forza preload
-          video.play().catch(err => {
-            console.warn('⚠️ Video non riprodotto automaticamente:', err);
-          });
-        });
-      }, 100); // piccolo ritardo per sicurezza
-    }
-  }
 
   ngOnDestroy(): void {
     clearInterval(this.intervalId);

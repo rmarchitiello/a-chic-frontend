@@ -1,19 +1,19 @@
-  @media (max-width: 768px) {
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: auto;
-      min-height: 100vh;
-      overflow-x: hidden;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      touch-action: manipulation;
-      font-family: 'Montserrat', sans-serif; // 👈 AGGIUNTA QUI
-
-    }
-
-    .mat-sidenav-content {
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch;
-    }
+@media (max-width: 768px) {
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+    font-family: 'Montserrat', sans-serif;
   }
+
+  .mat-sidenav-content {
+    display: block;
+    min-height: 100vh;
+    overflow: visible;
+  }
+}
