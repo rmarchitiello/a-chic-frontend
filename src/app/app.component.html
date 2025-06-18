@@ -58,76 +58,63 @@
 
 <!-- Test scroll su mobile -->
 <ng-container *ngIf="isMobile">
+
+  <!-- HEADER SEMPRE VISIBILE -->
+  <app-mobile-header></app-mobile-header>
+
+  <!-- SIDENAV + CONTENUTO -->
   <mat-sidenav-container class="sidenav-container">
 
-    <!-- Sidenav mobile -->
+    <!-- SIDENAV MOBILE -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
-<ng-container *ngFor="let categoria of categorie">
-  <div
-    class="sidenav-categoria"
-    [class.attiva]="categoriaEspansa === categoria"
-    
-    (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)"> <!-- se la categoria non ha sottocategrie allora vai alla categoria -->
+        <ng-container *ngFor="let categoria of categorie">
+          <div
+            class="sidenav-categoria"
+            [class.attiva]="categoriaEspansa === categoria"
+            (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)">
+            {{ categoria }}
+          </div>
 
-    {{ categoria }}
-  </div>
+          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container">
+            <div *ngFor="let sotto of strutturaCategorie[categoria]">
+              <button class="sotto-categoria"
+                      (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)">
+                {{ sotto | titlecase }}
+              </button>
 
-  <div *ngIf="categoriaEspansa === categoria"
-          [@expandCollapse]
-          class="sotto-container">
-    <div *ngFor="let sotto of strutturaCategorie[categoria]">
-      <button
-        
-        class="sotto-categoria"
-        (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)"
->
-        {{ sotto | titlecase }}
-      </button>
-
-      <!-- Terzo livello: filtri -->
-      <div *ngIf="sottoCategoriaEspansa === sotto"
-                [@expandCollapse]
-                class="filtro-container">
-        <button
-          class="filtro-categoria"
-          *ngFor="let filtro of filtriSottoCategorie[sotto]"
-          (click)="goToMobileQueryParamFilter(categoria, sotto, filtro); sidenav.close()">
-          {{ filtro | titlecase }}
-        </button>
-      </div>
-    </div>
-  </div>
-</ng-container>
+              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container">
+                <button
+                  class="filtro-categoria"
+                  *ngFor="let filtro of filtriSottoCategorie[sotto]"
+                  (click)="goToMobileQueryParamFilter(categoria, sotto, filtro); sidenav.close()">
+                  {{ filtro | titlecase }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
 
         <mat-divider></mat-divider>
 
-        <button  class="link-button" (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
-        <!--<button class="link-button" (click)="goTo('/contatti'); sidenav.close()">Contatti</button>-->
-        <button  class="link-button" (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
+        <button class="link-button" (click)="goTo('/recensioni'); sidenav.close()">Recensioni</button>
+        <button class="link-button" (click)="goTo('/chi-siamo'); sidenav.close()">Chi Siamo</button>
       </div>
     </mat-sidenav>
 
-    <!-- Contenuto principale -->
+    <!-- CONTENUTO PRINCIPALE -->
     <mat-sidenav-content>
-      <mat-toolbar class="toolbar-mobile" color="primary">
-        <img class="logo" src="assets/home/images/Logo.png" alt="Logo" (click)="goTo('/home')" />
-        <button mat-icon-button (click)="sidenav.toggle()">
-          <mat-icon>menu</mat-icon>
-        </button>
-        <span class="spacer"></span>
-      </mat-toolbar>
-
       <div class="mobile-page-container">
         <router-outlet></router-outlet>
       </div>
-
-
-
     </mat-sidenav-content>
+
   </mat-sidenav-container>
-    <app-mobile-footer />
+
+  <!-- FOOTER SEMPRE VISIBILE -->
+  <app-mobile-footer></app-mobile-footer>
 
 </ng-container>
+
 
 

@@ -23,6 +23,7 @@ import {
 import { ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MobileFooterComponent } from './pages/mobile-footer/mobile-footer.component';
+import { MobileHeaderComponent } from './pages/mobile-header/mobile-header.component';
 
 
 @Component({
@@ -43,7 +44,8 @@ import { MobileFooterComponent } from './pages/mobile-footer/mobile-footer.compo
     RouterOutlet,
     MatExpansionModule,
     MatSidenavModule,
-    MobileFooterComponent
+    MobileFooterComponent,
+    MobileHeaderComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
