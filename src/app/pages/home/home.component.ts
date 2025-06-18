@@ -75,13 +75,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       filterType: 'Pochette',
       nome: 'Modello Clutch',
       descrizione: 'Elegante, sobria, sempre alla moda'
-    },
-    {
-      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750189434/video_r2bh68.mp4',
-      routeCloudinary: '/borse/pochette',
-      filterType: 'Pochette',
-      nome: 'Modello Clutch',
-      descrizione: 'Elegante, sobria, sempre alla moda'
     }
   ];
   constructor(private router: Router, private cloudinaryService: CloudinaryService,
