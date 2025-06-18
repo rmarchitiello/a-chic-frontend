@@ -84,4 +84,13 @@ mat-card-subtitle {
   mat-card-subtitle {
     font-size: 0.85rem;
   }
+.img-responsive {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* fa riempire l'intero contenitore tagliando se serve */
+  display: block;
 }
+  
+
+}
+

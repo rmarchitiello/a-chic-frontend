@@ -47,17 +47,14 @@ animations: [
 export class HomeComponent implements OnInit, OnDestroy {
 
 
-  images: string[] = [
-    '/assets/home/images/1.jpg',
-    '/assets/home/images/2.jpg',
-    '/assets/home/images/3.jpg',
-    '/assets/home/images/4.jpg',
-    '/assets/home/images/5.jpg',
-    '/assets/home/images/6.jpg',
-    '/assets/home/images/7.jpg',
-    '/assets/home/images/8.jpg',
-    '/assets/home/images/9.jpg',
+  caroselloImmagini: string[] = [
+    '/assets/home/images/carosello/1.jpg',
+    '/assets/home/images/carosello/2.jpg',
+    '/assets/home/images/carosello/3.jpg',
+    '/assets/home/images/carosello/4.jpg',
+    '/assets/home/images/carosello/5.jpg'
   ];
+
 
 
 
@@ -111,7 +108,17 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
       isMobile = false;
 
 
+        // OGNI 4 secondi per oppure il tempo definito sotto dal timer chiama nextImage che cambia sempre current index cosi nel template mostro solo un immagine alla volta
+    nextImage(): void {
+    if (this.caroselloImmagini.length === 0) return;
+    this.currentIndex = (this.currentIndex + 1) % this.caroselloImmagini.length;
+  }
+
   ngOnInit(): void {
+
+    //timer per avviare il carosello
+      this.intervalId = setInterval(() => this.nextImage(), 2000);
+
 
       // Rileva se il dispositivo è mobile
   this.isMobile = window.innerWidth <= 768;
@@ -194,11 +201,8 @@ Object.keys(tempFiltri).forEach(key => {
 
 
   ngOnDestroy(): void {
-    clearInterval(this.intervalId);
+      clearInterval(this.intervalId);
   }
 
-  nextImage(): void {
-    if (this.images.length === 0) return;
-    this.currentIndex = (this.currentIndex + 1) % this.images.length;
-  }
+
 }

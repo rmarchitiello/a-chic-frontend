@@ -27,6 +27,9 @@
 <!-- MODELLI IN EVIDENZA MOBILE-->
 <section *ngIf="isMobile" class="modelli-evidenza">
   <div class="card-grid">
+      <mat-card>
+        <img  [src]="caroselloImmagini[currentIndex]" alt="Carosello Immagine" class="img-responsive" />
+      </mat-card>
     <mat-card *ngFor="let modello of modelliVideoInEvidenza">
       <video
         autoplay
