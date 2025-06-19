@@ -15,10 +15,11 @@
     <div class="contenitore-cards">
       <!-- Ciclo sulle immagini visibili attualmente -->
       <ng-container *ngFor="let item of immaginiVisibili">
-        <mat-card class="image-card">
+        <mat-card class="image-card" (click)="onImmagineClick(item)">
           <!-- Visualizzazione dell'immagine -->
           <img mat-card-image [src]="item.url" [alt]="item.display_name" />
         </mat-card>
+        <app-dettagli (chiudiDettaglio)="immagineSelezionata = null" *ngIf="immagineSelezionata" [dettaglio]="immagineSelezionata"></app-dettagli> <!-- qua sto dicendo passa dettaglio al figlio dettagli component  (una volta inizializzato sopra e mostra il suo template)-->
       </ng-container>
     </div>
   </div>

@@ -20,6 +20,7 @@
   import { MatExpansionModule } from '@angular/material/expansion';
   import { FormsModule } from '@angular/forms';
   import { combineLatest } from 'rxjs';
+  import { DettagliComponent } from '../../pages/dettagli/dettagli.component';
 
   @Component({
     selector: 'app-cloudinary',
@@ -35,7 +36,8 @@
       MatListModule,
       MatIconModule,
       MatExpansionModule,
-      FormsModule
+      FormsModule,
+      DettagliComponent
     ],
     templateUrl: './cloudinary.component.html',
     styleUrl: './cloudinary.component.scss'
@@ -53,12 +55,17 @@
     filtriAttivi: string[] = [];
     filtriRicevuti: string[] = [];
 
+
+
+
+
     //paginazione prendo le prime 10 foto
     minIndexfotoPerPagina: number = 0;  //con questi due dico prendimi le prime 10 foto
     fotoPerPagina: number = 10;
     numeroDiPagine: number = 0; // da calcolare in carica immagini divisione tra foto trovate tutte / quante foto voglio vedere
     paginaCorrente: number = 1; //setto la pagina corrente ovvio 1 perche mi serve nel metodo carica altri per incrementare la pagina
     @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
+
 
 paginaPrecedente(): void {
   if (this.paginaCorrente > 1) {
@@ -88,6 +95,26 @@ paginaSuccessiva(): void {
       private route: ActivatedRoute
     ) {}
 
+
+
+/* Passo a dettagli component tramite input param nel senso non uso routing per passare i dettagli 
+a DettagliComponent che è il componente figlio di ClaudinaryComponent, ma uso @Input */
+
+immagineSelezionata: any = null; //variabile da passare a DettagliComponent per l'immagine selezionata
+
+//al click dell immagine passo la singola immagine a questa funzione
+onImmagineClick(item: any){
+  console.log("Immagine cliccata: ", JSON.stringify(item));
+  this.immagineSelezionata = item; //salvo l'immagine selezionata in una variabile
+}
+/*ora devo passare l'immagine selezionata al figlio e come si fa ? devo passarla dal template
+Ovvero, nel DettagliComponent definisco @Input nomeVariabile!: any in pratica è come se DettagliComponent sta 
+esponendo un campo che il Padre gli deve mandare
+Il campo figlio di chiama @Input() dettaglio!: { display_name: string; url: string };
+ora nel template devo passare dettaglio
+        <app-dettagli [dettaglio]="immagineSelezionata"></app-dettagli>
+Ovvero in DettagliComponent ci sarà una variabile dettaglio che vale immagineSelezionata passata dal padre nel template
+*/
 
 ngOnInit(): void {
 

@@ -1,0 +1,94 @@
+/* =======================================================
+   STILI MOBILE - max-width: 768px
+   ======================================================= */
+@media (max-width: 768px) {
+
+.dettagli-overlay {
+  position: fixed;
+  inset: 0;                               // Copre tutta la viewport
+  background-color: rgba(0, 0, 0, 0.5);   // Sfondo scuro
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;                 // Posiziona il pannello in basso
+  z-index: 1000;
+  padding-bottom: 0;                     // Rimuove padding inutile
+}
+
+/* Pannello che si apre dal basso */
+.dettagli-panel {
+  background-color: #fff;
+  width: 100%;
+  height: 78vh;                          // <--- Alza il pannello (da 95vh a 88vh)
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  position: relative;
+  padding: 2rem 1rem 2rem;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.4s ease-out;
+  overflow: hidden;
+}
+
+
+  /* Pulsante X */
+  .close-button {
+    position: absolute;
+    top: 1.2rem;
+    right: 1rem;
+    z-index: 10;
+    animation: fadeSlideIn 0.4s ease-out;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+
+    mat-icon {
+      font-size: 24px;
+      color: #555;
+    }
+
+    &:hover {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+
+    &:active {
+      transform: scale(0.95);
+      opacity: 0.6;
+    }
+  }
+
+  /* Immagine senza margini laterali */
+  .dettagli-panel img {
+    display: block;
+    width: 100vw;
+    height: auto;
+    object-fit: cover;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  /* Titolo sotto immagine */
+  .dettagli-panel h2 {
+    font-size: 1.2rem;
+    font-family: 'Montserrat', sans-serif;
+    margin: 1rem 0;
+    text-align: center;
+  }
+
+  /* Animazioni */
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(0); }
+    to   { transform: translateY(100%); }
+  }
+
+  .dettagli-panel.chiusura {
+    animation: slideDown 0.4s ease-in forwards;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
