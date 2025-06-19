@@ -52,28 +52,31 @@
      PULSANTE "CHIUDI" — FUORI DAL PANNELLO, IN ALTO A DESTRA
      ====================================================== */
 .chiudi-testuale {
-  position: fixed;
-  top: 16.5rem;            // ✅ Posizione verticale regolata da te
-  right: 1.25rem;          // ✅ Allineato a destra
-  background: transparent; // ✅ Nessun colore di sfondo
-  border: none;            // ✅ Nessun bordo
-  color: #e9e5e5;             // ✅ Testo grigio scuro
+  position: absolute;
+  top: 0;                       // Punto di riferimento: bordo superiore
+  right: 1rem;
+  transform: translateY(-1.25rem); // ✅ Spinge il bottone sopra la curva
+  background: transparent;
+  border: none;
+  color: #fcfafa;
   font-size: 0.95rem;
   font-weight: 500;
   font-family: 'Montserrat', sans-serif;
-  z-index: 2500;           // Sopra il pannello
+  z-index: 10;
   cursor: pointer;
   padding: 0.25rem;
 
   &:hover {
     opacity: 0.7;
-    text-decoration: underline; // Sottolineatura su hover
+    text-decoration: underline;
   }
 
   &:active {
     opacity: 0.5;
   }
 }
+
+
 
 
 
@@ -90,7 +93,7 @@
     padding: 1rem 1rem 1rem;    // Meno padding interno per più spazio utile
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.4s ease-out;
-    overflow-y: auto;          // Abilita scroll se il contenuto è troppo lungo
+    overflow: visible;          // Abilita scroll se il contenuto è troppo lungo
   }
 
   /* =====================================
