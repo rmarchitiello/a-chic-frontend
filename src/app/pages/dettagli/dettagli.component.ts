@@ -52,6 +52,7 @@ export class DettagliComponent implements OnInit {
 constructor(private breakpointObserver: BreakpointObserver) {}
 
   ngOnInit(): void {
+    //intercetta se lo schermo è mobile o desktop
   this.breakpointObserver
     .observe(['(max-width: 768px)'])
     .subscribe(result => {
