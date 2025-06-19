@@ -117,15 +117,16 @@
   /* =========================================================
      IMMAGINE CENTRATA E PIÙ IN ALTO — SPAZIO PER TESTI SOTTO
      ========================================================= */
-  .dettagli-panel img {
-    display: block;
-    width: 100%;              // Immagine larga quanto il pannello
-    max-width: 90%;           // Evita che tocchi i bordi
-    max-height: 35vh;         // Altezza contenuta per evitare che occupi tutto
-    object-fit: contain;      // Non taglia i bordi, proporzioni intere
-    margin: 0 auto 1rem;      // Nessun margine sopra, solo sotto
-    border-radius: 0;
-  }
+.dettagli-panel img {
+  display: block;
+  width: 96%;              // ✅ Occupa quasi tutta la larghezza del pannello
+  max-width: 96%;          // ✅ Evita che si allarghi oltre i limiti
+  max-height: 35vh;        // ✅ Mantiene l'altezza contenuta
+  object-fit: contain;     // ✅ Mostra tutta l’immagine senza tagliarla
+  margin: -0.7rem auto 1rem; // ✅ Leggermente sollevata e centrata
+  border-radius: 0;        // ✅ Nessun arrotondamento
+}
+
 
   /* ===========================
      TITOLO SOTTO L'IMMAGINE
