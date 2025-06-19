@@ -106,6 +106,11 @@ immagineSelezionata: any = null; //variabile da passare a DettagliComponent per 
 onImmagineClick(item: any){
   console.log("Immagine cliccata: ", JSON.stringify(item));
   this.immagineSelezionata = item; //salvo l'immagine selezionata in una variabile
+
+    // Blocca lo scroll del body
+  document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden';
+
 }
 /*ora devo passare l'immagine selezionata al figlio e come si fa ? devo passarla dal template
 Ovvero, nel DettagliComponent definisco @Input nomeVariabile!: any in pratica è come se DettagliComponent sta 
@@ -116,11 +121,17 @@ ora nel template devo passare dettaglio
 Ovvero in DettagliComponent ci sarà una variabile dettaglio che vale immagineSelezionata passata dal padre nel template
 */
 
+//questo serve per eliminare il ghosting tra l animazione del pannello che scompare e il tag html <app-dettagli questo perche il comando di eliminare il tag ovvero quando immagine selezionata e null e tra 400 secondi e non subito
 handleChiudiDettaglio() {
-  // ritarda la rimozione per permettere l'animazione completa
+  // Attendi la fine dell'animazione
   setTimeout(() => {
     this.immagineSelezionata = null;
-  }, 400); // deve corrispondere esattamente alla durata dell'animazione
+
+    // Riabilita lo scroll del body
+    document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+
+  }, 400); // tempo identico all'animazione di chiusura
 }
 
 ngOnInit(): void {
