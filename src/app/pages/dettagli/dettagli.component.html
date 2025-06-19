@@ -4,9 +4,8 @@
     [ngClass]="{ chiusura: panelClosing }"
     (click)="$event.stopPropagation()"
   >
-    <button mat-icon-button class="close-button" (click)="closeWindow()" aria-label="Chiudi dettaglio">
-      <mat-icon fontIcon="close">close</mat-icon>
-    </button>
+  <button class="chiudi-testuale" (click)="closeWindow()">Chiudi</button>
+
 
     <img [src]="dettaglio.url" [alt]="dettaglio.display_name" />
     <h2>{{ dettaglio.display_name }}</h2>

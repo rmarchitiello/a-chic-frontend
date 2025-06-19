@@ -6,7 +6,6 @@
 .dettagli-overlay {
   position: fixed;
   inset: 0;                               // Copre tutta la viewport
-  background-color: rgba(0, 0, 0, 0.5);   // Sfondo scuro
   display: flex;
   justify-content: center;
   align-items: flex-end;                 // Posiziona il pannello in basso
@@ -29,30 +28,31 @@
 }
 
 
-  /* Pulsante X */
-  .close-button {
-    position: absolute;
-    top: 0rem;
-    right: 1rem;
-    z-index: 10;
-    animation: fadeSlideIn 0.4s ease-out;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+ /* Pulsante testuale "Chiudi" in alto a destra */
+.chiudi-testuale {
+  position: absolute;
+  top: 0.5rem;                // distanza dall'alto
+  right: 1rem;                // distanza dal lato destro
+  background: transparent;   // nessuno sfondo
+  border: none;              // nessun bordo
+  color: #555;               // colore neutro, personalizzabile
+  font-size: 0.95rem;        // testo piccolo
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  z-index: 10;
+  cursor: pointer;
+  padding: 0.25rem;
 
-    mat-icon {
-      font-size: 24px;
-      color: #555;
-    }
-
-    &:hover {
-      transform: scale(1.2);
-      opacity: 0.8;
-    }
-
-    &:active {
-      transform: scale(0.95);
-      opacity: 0.6;
-    }
+  &:hover {
+    opacity: 0.7;
+    text-decoration: underline;
   }
+
+  &:active {
+    opacity: 0.5;
+  }
+}
+
 
   /* Immagine senza margini laterali */
   .dettagli-panel img {
