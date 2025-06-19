@@ -16,7 +16,7 @@
     display: flex;
     justify-content: center;
     align-items: flex-end;              // Allinea il pannello in basso
-    padding-bottom: 1.5rem;             // Aggiunge spazio sotto per staccarlo dalla toolbar
+    padding-bottom: 1.5rem;             // Spazio sotto il pannello bianco
     z-index: 2000;                      // Sopra tutti gli altri elementi
 
     // Transizioni fluide per blur e sfondo
@@ -30,8 +30,8 @@
      OVERLAY ATTIVO — sfoca e oscura
      =============================== */
   .dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.4); // Sfondo semi-trasparente scuro
-    backdrop-filter: blur(4px);          // Applica sfocatura
+    background-color: rgba(0, 0, 0, 0.4); // Sfondo scuro semi-trasparente
+    backdrop-filter: blur(4px);          // Sfocatura attiva
     -webkit-backdrop-filter: blur(4px);
   }
 
@@ -39,7 +39,7 @@
      OVERLAY IN CHIUSURA — rimuove effetto graduale
      ============================================== */
   .dettagli-overlay.chiusura {
-    background-color: rgba(0, 0, 0, 0);        // Sfondo torna trasparente
+    background-color: rgba(0, 0, 0, 0);        // Torna trasparente
     backdrop-filter: blur(0px);                // Rimuove sfocatura
     -webkit-backdrop-filter: blur(0px);
     transition:
@@ -48,20 +48,49 @@
       background-color 0.4s ease-in;
   }
 
+  /* ======================================================
+     PULSANTE "CHIUDI" — FUORI DAL PANNELLO, IN ALTO A DESTRA
+     ====================================================== */
+.chiudi-testuale {
+  position: fixed;
+  top: 16.5rem;            // ✅ Posizione verticale regolata da te
+  right: 1.25rem;          // ✅ Allineato a destra
+  background: transparent; // ✅ Nessun colore di sfondo
+  border: none;            // ✅ Nessun bordo
+  color: #e9e5e5;             // ✅ Testo grigio scuro
+  font-size: 0.95rem;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  z-index: 2500;           // Sopra il pannello
+  cursor: pointer;
+  padding: 0.25rem;
+
+  &:hover {
+    opacity: 0.7;
+    text-decoration: underline; // Sottolineatura su hover
+  }
+
+  &:active {
+    opacity: 0.5;
+  }
+}
+
+
+
   /* =====================================
      PANNELLO CHE SI SOLLEVA DAL BASSO
      ===================================== */
   .dettagli-panel {
     background-color: #fff;
     width: 100%;
-    height: 58vh; // Altezza ridotta per evitare che superi la toolbar
+    height: 58vh;               // Altezza ridotta per lasciare spazio all'immagine
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     position: relative;
-    padding: 2rem 1rem 2rem;
+    padding: 1rem 1rem 1rem;    // Meno padding interno per più spazio utile
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.4s ease-out; // Animazione di entrata
-    overflow-y: auto; // Permette lo scroll interno se necessario
+    animation: slideUp 0.4s ease-out;
+    overflow-y: auto;          // Abilita scroll se il contenuto è troppo lungo
   }
 
   /* =====================================
@@ -72,7 +101,7 @@
   }
 
   /* ======================================
-     ANIMAZIONE IN USCITA CON OPACITÀ
+     ANIMAZIONE DI USCITA CON OPACITÀ
      ====================================== */
   @keyframes slideDownFade {
     0% {
@@ -85,42 +114,16 @@
     }
   }
 
-  /* =====================================
-     PULSANTE "CHIUDI" IN ALTO A DESTRA
-     ===================================== */
-  .chiudi-testuale {
-    position: absolute;
-    top: 0.5rem;
-    right: 1rem;
-    background: transparent;
-    border: none;
-    color: #555;
-    font-size: 0.95rem;
-    font-weight: 500;
-    font-family: 'Montserrat', sans-serif;
-    z-index: 10;
-    cursor: pointer;
-    padding: 0.25rem;
-
-    &:hover {
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-
-    &:active {
-      opacity: 0.5;
-    }
-  }
-
-  /* =============================
-     IMMAGINE A LARGHEZZA FISSA
-     ============================= */
+  /* =========================================================
+     IMMAGINE CENTRATA E PIÙ IN ALTO — SPAZIO PER TESTI SOTTO
+     ========================================================= */
   .dettagli-panel img {
     display: block;
-    width: 100%;             // Larghezza massima del contenitore
-    max-height: 50vh;        // Impedisce che l’immagine occupi tutto lo spazio
-    object-fit: cover;       // Mantiene proporzioni riempiendo il contenitore
-    margin: 0;
+    width: 100%;              // Immagine larga quanto il pannello
+    max-width: 90%;           // Evita che tocchi i bordi
+    max-height: 35vh;         // Altezza contenuta per evitare che occupi tutto
+    object-fit: contain;      // Non taglia i bordi, proporzioni intere
+    margin: 0 auto 1rem;      // Nessun margine sopra, solo sotto
     border-radius: 0;
   }
 
