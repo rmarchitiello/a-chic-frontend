@@ -2,6 +2,7 @@ import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-dettagli',
@@ -9,13 +10,15 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,          // Per *ngIf, *ngClass, ecc.
     MatIconModule,         // Per eventuali icone Angular Material (es. mat-icon)
-    MatButtonModule        // Per eventuali pulsanti con stile Material
+    MatButtonModule,        // Per eventuali pulsanti con stile Material
   ],
   templateUrl: './dettagli.component.html',  // Template HTML associato
   styleUrl: './dettagli.component.scss'      // Stili CSS/SCSS associati
 })
 export class DettagliComponent implements OnInit {
 
+
+  
   // ======================================================
   // INPUT ricevuto dal componente padre (dati dell’immagine)
   // ======================================================
@@ -44,8 +47,20 @@ export class DettagliComponent implements OnInit {
   // ngOnInit — eseguito quando il componente viene montato
   // Attiva l’effetto blur/sfocatura subito dopo il rendering
   // ======================================================
+
+      isMobile = false;
+constructor(private breakpointObserver: BreakpointObserver) {}
+
   ngOnInit(): void {
-    // Usa un piccolo delay per permettere alla classe `.attiva`
+  this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .subscribe(result => {
+      this.isMobile = result.matches;
+    });
+
+
+    // Usa un piccolo delay per pe
+    // rmettere alla classe `.attiva`
     // di essere applicata dopo il rendering iniziale, così da far
     // partire la transizione CSS in modo fluido
     setTimeout(() => {
