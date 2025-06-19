@@ -15,10 +15,11 @@
     -webkit-backdrop-filter: blur(0px); // Compatibilità Safari
     display: flex;
     justify-content: center;
-    align-items: flex-end;              // Pannello si posiziona in basso
+    align-items: flex-end;              // Allinea il pannello in basso
+    padding-bottom: 1.5rem;             // Aggiunge spazio sotto per staccarlo dalla toolbar
     z-index: 2000;                      // Sopra tutti gli altri elementi
 
-    // Transizioni fluide per il blur e lo sfondo
+    // Transizioni fluide per blur e sfondo
     transition:
       backdrop-filter 0.4s ease-out,
       -webkit-backdrop-filter 0.4s ease-out,
@@ -29,7 +30,7 @@
      OVERLAY ATTIVO — sfoca e oscura
      =============================== */
   .dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0); // Sfondo semi-trasparente scuro
+    background-color: rgba(0, 0, 0, 0.4); // Sfondo semi-trasparente scuro
     backdrop-filter: blur(4px);          // Applica sfocatura
     -webkit-backdrop-filter: blur(4px);
   }
@@ -53,14 +54,14 @@
   .dettagli-panel {
     background-color: #fff;
     width: 100%;
-    height: 78vh; // Altezza visibile, non totale
+    height: 58vh; // Altezza ridotta per evitare che superi la toolbar
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     position: relative;
     padding: 2rem 1rem 2rem;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.4s ease-out;   // Animazione di apertura
-    overflow: hidden;
+    animation: slideUp 0.4s ease-out; // Animazione di entrata
+    overflow-y: auto; // Permette lo scroll interno se necessario
   }
 
   /* =====================================
@@ -112,13 +113,13 @@
   }
 
   /* =============================
-     IMMAGINE A PIENA LARGHEZZA
+     IMMAGINE A LARGHEZZA FISSA
      ============================= */
   .dettagli-panel img {
     display: block;
-    width: 100vw; // Larghezza totale viewport
-    height: auto;
-    object-fit: cover; // Mantiene proporzioni e copertura
+    width: 100%;             // Larghezza massima del contenitore
+    max-height: 50vh;        // Impedisce che l’immagine occupi tutto lo spazio
+    object-fit: cover;       // Mantiene proporzioni riempiendo il contenitore
     margin: 0;
     border-radius: 0;
   }
