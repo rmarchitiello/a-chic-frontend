@@ -25,6 +25,10 @@ viene chiamato toggle menu che emette un evento come websocket*/
   @Output() menuToggle = new EventEmitter<void>();
 
   toggleMenu(): void {
+      // Scrolla dopo aggiornamento DOM
+  setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 100); // leggero delay per assicurare il rendering
         this.menuToggle.emit(); // Notifica al genitore: "cliccato il menu!"
 
 }
