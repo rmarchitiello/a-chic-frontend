@@ -1,50 +1,76 @@
 /* ------------------------ */
-/*  SEZIONE MOBILE          */
+/*  SEZIONE MOBILE CLOUDINARY */
 /* ------------------------ */
 @media (max-width: 768px) {
-  
-  /* Contenitore principale scrollabile */
-  .mobile-immagini-wrapper {
-    height: 100vh;                     // Occupa tutta l’altezza visibile
-    overflow-y: auto;                  // Abilita lo scroll verticale
-    padding: 1rem;                     // Spazio interno per respirare
-    background-color: #ffffff;         // Sfondo bianco
-    -webkit-overflow-scrolling: touch; // Scroll fluido iOS
+
+  // Reset mobile generale coerente con homepage
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; // Scroll fluido su iOS
+    touch-action: manipulation;
+    font-family: 'Montserrat', sans-serif;
   }
 
-  /* Layout a griglia: 2 colonne */
+  // Contenitore principale scrollabile per le immagini
+  .mobile-immagini-wrapper {
+    min-height: 100vh;                   // Altezza minima viewport
+    overflow-y: auto;                    // Abilita lo scroll verticale
+    padding: 1rem;                       // Spazio interno
+    background-color: #ffffff;           // Sfondo bianco
+    -webkit-overflow-scrolling: touch;   // Scroll fluido iOS
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Griglia di immagini: 2 colonne su mobile
   .contenitore-cards {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); // 2 colonne uguali
-    gap: 1rem;                             // Spazio tra le immagini
-    margin-top: 3rem; 
-
+    grid-template-columns: repeat(2, 1fr); // Due colonne uguali
+    gap: 1rem;                              // Spazio tra le immagini
+    margin-top: 2rem;                       // Spazio sopra la griglia
   }
 
-  /* Card uniforme senza bordi */
+  // Card immagine senza bordi e proporzionata
   .image-card {
     width: 100%;
-    aspect-ratio: 1 / 1;         // Mantiene forma quadrata
+    aspect-ratio: 1 / 1;          // Mantiene forma quadrata
     padding: 0;
     margin: 0;
     border: none;
-    box-shadow: none;            // Niente ombre
-    border-radius: 0;            // Niente angoli arrotondati
+    box-shadow: none;             // Nessuna ombra
+    border-radius: 0;             // Nessun bordo arrotondato
     overflow: hidden;
-    
   }
 
-  /* Immagine piena e proporzionata */
+  // Immagine interna alla card
   .image-card img {
     width: 100%;
     height: 100%;
-    object-fit: cover;           // Ritaglia per riempire senza deformare
+    object-fit: cover;            // Riempie la card mantenendo proporzioni
     display: block;
   }
 
+  // Paginazione mobile: frecce e numero pagina
+  .paginazione-mobile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 1rem;
+  }
 
+  .numero-pagina {
+    font-size: 0.85rem;
+    color: #555;
+    font-family: 'Montserrat', sans-serif;
+  }
 
-  /* Animazione per la freccia */
+  // Animazione opzionale per eventuali frecce visive
   @keyframes bounce {
     0%, 100% {
       transform: translateY(0);
@@ -54,18 +80,3 @@
     }
   }
 }
-
-.paginazione-mobile {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1.5rem;
-  gap: 1rem;
-}
-
-.numero-pagina {
-  font-size: 0.85rem;
-  color: #555;
-  font-family: 'Montserrat', sans-serif;
-}
-

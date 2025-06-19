@@ -235,8 +235,10 @@ caricaAltreImmagini(){  //1 e la pagina precedente
 
       console.log("Immagini successive pagina: ", JSON.stringify(this.immaginiVisibili));
 
-        // Scrollo in cima alla finestra
+  // Scrolla dopo aggiornamento DOM
+  setTimeout(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 100); // leggero delay per assicurare il rendering
 
 }
 
