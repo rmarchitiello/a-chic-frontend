@@ -1,13 +1,19 @@
-<div class="dettagli-overlay">
+<!-- Overlay principale con sfocatura -->
+<div class="dettagli-overlay" [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }">
+  
+  <!-- Pannello con dettaglio immagine -->
   <div
     class="dettagli-panel"
     [ngClass]="{ chiusura: panelClosing }"
     (click)="$event.stopPropagation()"
   >
-  <button class="chiudi-testuale" (click)="closeWindow()">Chiudi</button>
+    <!-- Pulsante testuale in alto a destra -->
+    <button class="chiudi-testuale" (click)="closeWindow()">Chiudi</button>
 
-
+    <!-- Immagine in evidenza -->
     <img [src]="dettaglio.url" [alt]="dettaglio.display_name" />
+
+    <!-- Nome immagine -->
     <h2>{{ dettaglio.display_name }}</h2>
   </div>
 </div>

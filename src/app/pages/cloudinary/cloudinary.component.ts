@@ -116,6 +116,13 @@ ora nel template devo passare dettaglio
 Ovvero in DettagliComponent ci sarà una variabile dettaglio che vale immagineSelezionata passata dal padre nel template
 */
 
+handleChiudiDettaglio() {
+  // ritarda la rimozione per permettere l'animazione completa
+  setTimeout(() => {
+    this.immagineSelezionata = null;
+  }, 400); // deve corrispondere esattamente alla durata dell'animazione
+}
+
 ngOnInit(): void {
 
   this.isMobile = window.innerWidth <= 768;

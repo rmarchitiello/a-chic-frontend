@@ -19,8 +19,12 @@
           <!-- Visualizzazione dell'immagine -->
           <img mat-card-image [src]="item.url" [alt]="item.display_name" />
         </mat-card>
-        <app-dettagli (chiudiDettaglio)="immagineSelezionata = null" *ngIf="immagineSelezionata" [dettaglio]="immagineSelezionata"></app-dettagli> <!-- qua sto dicendo passa dettaglio al figlio dettagli component  (una volta inizializzato sopra e mostra il suo template)-->
       </ng-container>
+      <app-dettagli
+  *ngIf="immagineSelezionata"
+  [dettaglio]="immagineSelezionata"
+  (chiudiDettaglio)="handleChiudiDettaglio()"
+/>
     </div>
   </div>
   <!-- Navigazione tra le pagine (solo se ci sono più immagini) -->

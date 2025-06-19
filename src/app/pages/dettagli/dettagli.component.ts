@@ -1,38 +1,70 @@
-import { Component, Input, Output,OnInit, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon'; // ✅ importa qui
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-dettagli',
-  imports: [CommonModule, MatIconModule, MatButtonModule],
-  templateUrl: './dettagli.component.html',
-  styleUrl: './dettagli.component.scss'
+  standalone: true, // Il componente è standalone (senza modulo dedicato)
+  imports: [
+    CommonModule,          // Per *ngIf, *ngClass, ecc.
+    MatIconModule,         // Per eventuali icone Angular Material (es. mat-icon)
+    MatButtonModule        // Per eventuali pulsanti con stile Material
+  ],
+  templateUrl: './dettagli.component.html',  // Template HTML associato
+  styleUrl: './dettagli.component.scss'      // Stili CSS/SCSS associati
 })
-export class DettagliComponent {
+export class DettagliComponent implements OnInit {
 
+  // ======================================================
+  // INPUT ricevuto dal componente padre (dati dell’immagine)
+  // ======================================================
+  @Input() dettaglio!: {
+    display_name: string;   // Nome visualizzato (es. titolo immagine)
+    url: string;            // URL immagine da visualizzare
+  };
 
+  // ======================================================
+  // OUTPUT emesso verso il padre quando il pannello viene chiuso
+  // ======================================================
+  @Output() chiudiDettaglio = new EventEmitter<void>();
 
-//espongo questo campo al padre
-@Input() dettaglio!: { display_name: string; url: string };
+  // ======================================================
+  // Stato usato per attivare l’animazione di chiusura del pannello
+  // ======================================================
+  panelClosing = false;
 
-//Quando si utilizza l approccio input e output, se il padre deve ricevere se l'evento è sttato ricevuto dal figlio si usa Output
-//quindi output serve per dire al padre si ho ricevuto
-@Output() chiudiDettaglio = new EventEmitter<void>();
+  // ======================================================
+  // Stato usato per attivare l’effetto sfocatura e overlay
+  // Serve per attivare la classe `.attiva` sull’overlay
+  // ======================================================
+  attivo = false;
 
+  // ======================================================
+  // ngOnInit — eseguito quando il componente viene montato
+  // Attiva l’effetto blur/sfocatura subito dopo il rendering
+  // ======================================================
+  ngOnInit(): void {
+    // Usa un piccolo delay per permettere alla classe `.attiva`
+    // di essere applicata dopo il rendering iniziale, così da far
+    // partire la transizione CSS in modo fluido
+    setTimeout(() => {
+      this.attivo = true; // Applica la classe CSS `.attiva` all’overlay
+    }, 10); // 10ms sono sufficienti a differire al frame successivo
+  }
 
-// nel template dei dettagli c e il pulsante chiudi per chiudere la windows che chiama chiudi dettagli emit cioe
-//quanod premo il pulsane emetto un evento di output verso il padre il padre ha (chiudiDettaglio)="metto quello che voglio in questo caso setto la variabile immagine selezionata a false cosi si chiude il template"
-panelClosing = false; // serve a controllare la classe dinamica
+  // ======================================================
+  // closeWindow — chiamato al click sul bottone "Chiudi"
+  // Rimuove la classe attiva, fa partire l’animazione di uscita
+  // e notifica il componente padre dopo 400ms
+  // ======================================================
+  closeWindow(): void {
+    this.panelClosing = true;  // Aggiunge la classe `.chiusura` per animare
+    this.attivo = false;       // Rimuove effetto blur e oscuramento sfondo
 
-closeWindow() {
-  this.panelClosing = true;
-  setTimeout(() => {
-    this.chiudiDettaglio.emit(); // notifica il padre dopo l'animazione
-  }, 400); // durata in ms dell'animazione
-}
-
-
-
-
+    // Attende il completamento dell’animazione prima di chiudere
+    setTimeout(() => {
+      this.chiudiDettaglio.emit(); // Notifica al padre che può rimuovere il componente
+    }, 400); // Deve corrispondere alla durata dell’animazione in SCSS
+  }
 }

@@ -3,68 +3,129 @@
    ======================================================= */
 @media (max-width: 768px) {
 
-.dettagli-overlay {
-  position: fixed;
-  inset: 0;                               // Copre tutta la viewport
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;                 // Posiziona il pannello in basso
-  z-index: 1000;
-  padding-bottom: 0;                     // Rimuove padding inutile
-}
+  /* ================================================
+     OVERLAY DI SFONDO — copre l'intera viewport
+     con transizione e sfocatura graduale
+     ================================================ */
+  .dettagli-overlay {
+    position: fixed;
+    inset: 0; // Copre tutta l’area della finestra
+    background-color: rgba(0, 0, 0, 0); // Sfondo inizialmente trasparente
+    backdrop-filter: blur(0px);         // Nessuna sfocatura all’inizio
+    -webkit-backdrop-filter: blur(0px); // Compatibilità Safari
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;              // Pannello si posiziona in basso
+    z-index: 2000;                      // Sopra tutti gli altri elementi
 
-/* Pannello che si apre dal basso */
-.dettagli-panel {
-  background-color: #fff;
-  width: 100%;
-  height: 78vh;                          // <--- Alza il pannello (da 95vh a 88vh)
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  position: relative;
-  padding: 2rem 1rem 2rem;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.4s ease-out;
-  overflow: hidden;
-}
-
-
- /* Pulsante testuale "Chiudi" in alto a destra */
-.chiudi-testuale {
-  position: absolute;
-  top: 0.5rem;                // distanza dall'alto
-  right: 1rem;                // distanza dal lato destro
-  background: transparent;   // nessuno sfondo
-  border: none;              // nessun bordo
-  color: #555;               // colore neutro, personalizzabile
-  font-size: 0.95rem;        // testo piccolo
-  font-weight: 500;
-  font-family: 'Montserrat', sans-serif;
-  z-index: 10;
-  cursor: pointer;
-  padding: 0.25rem;
-
-  &:hover {
-    opacity: 0.7;
-    text-decoration: underline;
+    // Transizioni fluide per il blur e lo sfondo
+    transition:
+      backdrop-filter 0.4s ease-out,
+      -webkit-backdrop-filter 0.4s ease-out,
+      background-color 0.4s ease-out;
   }
 
-  &:active {
-    opacity: 0.5;
+  /* ===============================
+     OVERLAY ATTIVO — sfoca e oscura
+     =============================== */
+  .dettagli-overlay.attiva {
+    background-color: rgba(0, 0, 0, 0); // Sfondo semi-trasparente scuro
+    backdrop-filter: blur(4px);          // Applica sfocatura
+    -webkit-backdrop-filter: blur(4px);
   }
-}
 
+  /* ==============================================
+     OVERLAY IN CHIUSURA — rimuove effetto graduale
+     ============================================== */
+  .dettagli-overlay.chiusura {
+    background-color: rgba(0, 0, 0, 0);        // Sfondo torna trasparente
+    backdrop-filter: blur(0px);                // Rimuove sfocatura
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+      backdrop-filter 0.4s ease-in,
+      -webkit-backdrop-filter 0.4s ease-in,
+      background-color 0.4s ease-in;
+  }
 
-  /* Immagine senza margini laterali */
+  /* =====================================
+     PANNELLO CHE SI SOLLEVA DAL BASSO
+     ===================================== */
+  .dettagli-panel {
+    background-color: #fff;
+    width: 100%;
+    height: 78vh; // Altezza visibile, non totale
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    position: relative;
+    padding: 2rem 1rem 2rem;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.4s ease-out;   // Animazione di apertura
+    overflow: hidden;
+  }
+
+  /* =====================================
+     CLASSE PER ANIMAZIONE DI CHIUSURA
+     ===================================== */
+  .dettagli-panel.chiusura {
+    animation: slideDownFade 0.4s ease-in forwards;
+  }
+
+  /* ======================================
+     ANIMAZIONE IN USCITA CON OPACITÀ
+     ====================================== */
+  @keyframes slideDownFade {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+  }
+
+  /* =====================================
+     PULSANTE "CHIUDI" IN ALTO A DESTRA
+     ===================================== */
+  .chiudi-testuale {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+    z-index: 10;
+    cursor: pointer;
+    padding: 0.25rem;
+
+    &:hover {
+      opacity: 0.7;
+      text-decoration: underline;
+    }
+
+    &:active {
+      opacity: 0.5;
+    }
+  }
+
+  /* =============================
+     IMMAGINE A PIENA LARGHEZZA
+     ============================= */
   .dettagli-panel img {
     display: block;
-    width: 100vw;
+    width: 100vw; // Larghezza totale viewport
     height: auto;
-    object-fit: cover;
+    object-fit: cover; // Mantiene proporzioni e copertura
     margin: 0;
     border-radius: 0;
   }
 
-  /* Titolo sotto immagine */
+  /* ===========================
+     TITOLO SOTTO L'IMMAGINE
+     =========================== */
   .dettagli-panel h2 {
     font-size: 1.2rem;
     font-family: 'Montserrat', sans-serif;
@@ -72,23 +133,35 @@
     text-align: center;
   }
 
-  /* Animazioni */
+  /* ==========================
+     ANIMAZIONI DI ENTRATA
+     ========================== */
   @keyframes slideUp {
-    from { transform: translateY(100%); }
-    to   { transform: translateY(0); }
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
 
   @keyframes slideDown {
-    from { transform: translateY(0); }
-    to   { transform: translateY(100%); }
-  }
-
-  .dettagli-panel.chiusura {
-    animation: slideDown 0.4s ease-in forwards;
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
+    }
   }
 
   @keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
