@@ -21,7 +21,7 @@ import {
     MatButtonModule,        // Per eventuali pulsanti con stile Material
   ],
     animations: [
-    trigger('slideFade', [
+    trigger('slideAnimation', [
       state('in', style({ opacity: 1, transform: 'translateX(0)' })),
       state('out-left', style({ opacity: 0, transform: 'translateX(-40px)' })),
       state('out-right', style({ opacity: 0, transform: 'translateX(40px)' })),
@@ -83,7 +83,7 @@ immagineVisibile = false;
 
 
   // Variabile che rappresenta lo stato dell'animazione corrente
-  animationState: 'in' | 'out-left' | 'out-right' = 'in';
+animationState: 'in' | 'out-left' | 'out-right' | '' = 'in';
 
 
 //vediamo come fare lo swipe da mobile

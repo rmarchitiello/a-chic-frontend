@@ -10,9 +10,9 @@
   .dettagli-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
+    background-color: rgba(0, 0, 0, 0);              // Inizialmente trasparente
+    backdrop-filter: blur(0px);                      // Sfocatura disattivata
+    -webkit-backdrop-filter: blur(0px);              // Compatibilità Safari
     display: flex;
     justify-content: center;
     align-items: flex-end;
@@ -28,13 +28,13 @@
      OVERLAY ATTIVO — sfoca e oscura
      =============================== */
   .dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.4);            // Sfondo scuro
+    backdrop-filter: blur(4px);                      // Sfocatura attivata
     -webkit-backdrop-filter: blur(4px);
   }
 
   /* ==============================================
-     OVERLAY IN CHIUSURA — rimuove effetto graduale
+     OVERLAY IN CHIUSURA — effetto graduale in uscita
      ============================================== */
   .dettagli-overlay.chiusura {
     background-color: rgba(0, 0, 0, 0);
@@ -47,7 +47,7 @@
   }
 
   /* ======================================================
-     PULSANTE "CHIUDI" — FUORI DAL PANNELLO
+     PULSANTE "CHIUDI" — in alto a destra, fuori dal pannello
      ====================================================== */
   .chiudi-testuale {
     position: absolute;
@@ -90,8 +90,18 @@
     overflow: visible;
   }
 
+  /* Pannello in uscita — scivola verso il basso */
   .dettagli-panel.chiusura {
     animation: slideDownFade 0.4s ease-in forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
   }
 
   @keyframes slideDownFade {
@@ -106,9 +116,16 @@
   }
 
   /* =========================================================
-     IMMAGINE CENTRATA CON SPAZIO SOTTO PER INDICATORI
+     CONTENITORE IMMAGINE CON TRANSIZIONE ANGULAR
      ========================================================= */
-  .dettagli-panel img {
+  .swipe-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .animated-image {
     display: block;
     width: 96%;
     max-width: 96%;
@@ -118,67 +135,8 @@
     border-radius: 0;
   }
 
-  /* =========================================================
-     ANIMAZIONE CON SLIDE SINISTRA/DESTRA
-     ========================================================= */
-  .swipe-container img {
-    transition: transform 0.4s ease, opacity 0.4s ease;
-    opacity: 1;
-  }
-
-  /* Animazione uscita a sinistra */
-  .out-left {
-    animation: slideOutLeft 0.4s ease forwards;
-  }
-
-  /* Animazione uscita a destra */
-  .out-right {
-    animation: slideOutRight 0.4s ease forwards;
-  }
-
-  /* Animazione entrata da destra */
-  .in {
-    animation: slideIn 0.4s ease forwards;
-  }
-
-  /* KEYFRAMES - uscita verso sinistra */
-  @keyframes slideOutLeft {
-    0% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    100% {
-      transform: translateX(-100%);
-      opacity: 0;
-    }
-  }
-
-  /* KEYFRAMES - uscita verso destra */
-  @keyframes slideOutRight {
-    0% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    100% {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-  }
-
-  /* KEYFRAMES - entrata da destra */
-  @keyframes slideIn {
-    0% {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    100% {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-
   /* =====================================================
-     INDICATORI (PALLINI) PER LE IMMAGINI MULTIPLE
+     INDICATORI (PALLINI) PER LE IMMAGINI
      ===================================================== */
   .indicator-wrapper {
     display: flex;
@@ -194,39 +152,8 @@
     }
 
     .attiva {
-      color: #000;
+      color: #000; // Pallino attivo in nero
     }
   }
 
-  /* ==========================
-     ANIMAZIONI DI ENTRATA PANEL
-     ========================== */
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideDown {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(100%);
-    }
-  }
-
-  @keyframes fadeSlideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
 }

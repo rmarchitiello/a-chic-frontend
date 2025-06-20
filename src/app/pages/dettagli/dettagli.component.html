@@ -24,10 +24,13 @@
   (touchend)="onTouchEnd($event)"
 >
   <img
+    [@slideAnimation]="animationState"
     [src]="totaleImmagini[currentIndexOtherImage]"
-    [ngClass]="animationState"
+    class="animated-image"
+    (animationend)="animationState = ''"
   />
 </div>
+
 
 
 
