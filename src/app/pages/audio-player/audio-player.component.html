@@ -1,0 +1,34 @@
+<!-- DESKTOP -->
+<div *ngIf="!isMobile" class="audio-player-container"></div>
+
+<!-- MOBILE -->
+<div *ngIf="isMobile"
+     class="audio-player-overlay"
+     [ngClass]="{ 'attiva': attivo, 'chiusura': chiusura }"
+     (click)="closePlayer()">
+
+  <!-- Click interno non chiude il pannello -->
+  <div class="audio-player-panel"
+       [ngClass]="{ 'attiva': attivo, 'chiusura': chiusura }"
+       (click)="$event.stopPropagation()">
+
+    <button class="close-button" (click)="closePlayer()"></button>
+
+    <h2 class="titolo-melodie">Melodie disponibili</h2>
+
+    <mat-list>
+      <mat-list-item *ngFor="let audio of assetCarllonAudioUrl; let i = index">
+        <div class="melodia-row">
+          <span>{{ audio.nome_canzone }}</span>
+          <button mat-icon-button color="primary" (click)="togglePlay(audio.url, i)">
+            <mat-icon>{{ currentIndex === i && isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+    </mat-list>
+<audio
+  #audioPlayer                
+  (ended)="onEnded()">
+</audio>
+  </div>
+</div>

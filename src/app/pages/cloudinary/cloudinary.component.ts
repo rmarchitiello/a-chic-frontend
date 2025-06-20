@@ -22,6 +22,9 @@
   import { combineLatest } from 'rxjs';
   import { DettagliComponent } from '../../pages/dettagli/dettagli.component';
   import { BreakpointObserver } from '@angular/cdk/layout';
+  import { AudioPlayerComponent } from '../../pages/audio-player/audio-player.component';
+  import { Router, NavigationEnd } from '@angular/router';
+  import { filter } from 'rxjs/operators';   // RxJS ≤ 7.7
 
   @Component({
     selector: 'app-cloudinary',
@@ -38,7 +41,8 @@
       MatIconModule,
       MatExpansionModule,
       FormsModule,
-      DettagliComponent
+      DettagliComponent,
+      AudioPlayerComponent
     ],
     templateUrl: './cloudinary.component.html',
     styleUrl: './cloudinary.component.scss'
@@ -62,6 +66,16 @@ altreImmaginiSelezionate: string[] = [];
 
 //passo al figlio
 descrizioneImmagineFrontale: string = '';
+
+//per mostrare l'audio template nuovo
+mostraAudioPlayer: boolean = false;
+
+//se clicco l'audio mostra il template nuovo
+onAudioIconClick(event: Event) {
+  event.stopPropagation(); // 🔒 Impedisce di aprire anche i dettagli
+  this.immagineSelezionata = null;     // ✅ Chiudi dettagli se aperti
+  this.mostraAudioPlayer = !this.mostraAudioPlayer;
+}
 
 
     //paginazione prendo le prime 10 foto
@@ -97,7 +111,8 @@ paginaSuccessiva(): void {
     constructor(
       private cloudinaryService: CloudinaryService,
       private route: ActivatedRoute,
-      private breakpointObserver: BreakpointObserver
+      private breakpointObserver: BreakpointObserver,
+      private router: Router
 
     ) {}
 
@@ -107,9 +122,27 @@ paginaSuccessiva(): void {
 a DettagliComponent che è il componente figlio di ClaudinaryComponent, ma uso @Input */
 
 immagineSelezionata: any | null = null; //variabile da passare a DettagliComponent per l'immagine selezionata
+chiudiAudioSeAperto(): void {
+  if (this.mostraAudioPlayer) {
+    this.mostraAudioPlayer = false;
+  }
+}
+handleChiudiPlayer() {
+  setTimeout(() => {
+    this.mostraAudioPlayer = false; // rimuove solo dopo l’animazione
+  }, 400); // deve combaciare con la durata della slideDownFade
+}
 
 //al click dell immagine passo la singola immagine a questa funzione
 onImmagineClick(item: any): void {
+  if (this.mostraAudioPlayer) {
+    this.mostraAudioPlayer = false; 
+    return; // 
+  }
+
+  
+
+  
   console.log("Immagine cliccata:", item);
   this.descrizioneImmagineFrontale = item.descrizione;
   console.log("descrizioneee: ", this.descrizioneImmagineFrontale);
@@ -157,7 +190,34 @@ handleChiudiDettaglio() {
   }, 400); // tempo identico all'animazione di chiusura
 }
 
+//disabilito audio icon carillon
+  disabledAudioCarillon = false;
+  private setDisabled(fullUrl: string) {
+    // rimuovo query-string e fragment
+    const path = fullUrl.split('?')[0].split('#')[0]; // ⇒ "/baby/carillon"
+
+    /*  disabilito l’icona se NON sono in /baby/carillon  */
+    this.disabledAudioCarillon = path !== '/baby/carillon';
+  }
+
+
+
 ngOnInit(): void {
+
+  //disabilito il tasto audio se carillon
+    //  calcolo iniziale
+    this.setDisabled(this.router.url);
+    // ricalcolo ad ogni cambio di url (quando resti nello stesso componente)
+this.router.events
+  .pipe(
+    filter((e): e is NavigationEnd => e instanceof NavigationEnd) // 👈 type-guard
+  )
+  .subscribe(e => this.setDisabled(e.urlAfterRedirects));
+
+//verifico se carillon nonn disabilitare
+const categoria = this.route.snapshot.paramMap.get('categoria') ?? '';
+this.disabledAudioCarillon = categoria.toLowerCase().includes('carillon');
+
 
 //rilevo disp mobile anziche pc
   this.breakpointObserver
@@ -169,9 +229,11 @@ ngOnInit(): void {
   // Unisce parametri di route e query parametri
   combineLatest([
     this.route.paramMap,
+    
     this.route.queryParams
   ]).subscribe(([params, queryParams]) => {
     console.log('Evento route attivo');
+    console.log(this.route.paramMap,)
         // Scrollo in cima alla finestra
     window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
     // Ferma l'audio se attivo
