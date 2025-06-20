@@ -9,17 +9,15 @@
      ================================================ */
   .dettagli-overlay {
     position: fixed;
-    inset: 0; // Copre tutta l’area della finestra
-    background-color: rgba(0, 0, 0, 0); // Sfondo inizialmente trasparente
-    backdrop-filter: blur(0px);         // Nessuna sfocatura all’inizio
-    -webkit-backdrop-filter: blur(0px); // Compatibilità Safari
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
     display: flex;
     justify-content: center;
-    align-items: flex-end;              // Allinea il pannello in basso
-    padding-bottom: 1.5rem;             // Spazio sotto il pannello bianco
-    z-index: 2000;                      // Sopra tutti gli altri elementi
-
-    // Transizioni fluide per blur e sfondo
+    align-items: flex-end;
+    padding-bottom: 1.5rem;
+    z-index: 2000;
     transition:
       backdrop-filter 0.4s ease-out,
       -webkit-backdrop-filter 0.4s ease-out,
@@ -30,8 +28,8 @@
      OVERLAY ATTIVO — sfoca e oscura
      =============================== */
   .dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.4); // Sfondo scuro semi-trasparente
-    backdrop-filter: blur(4px);          // Sfocatura attiva
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
 
@@ -39,8 +37,8 @@
      OVERLAY IN CHIUSURA — rimuove effetto graduale
      ============================================== */
   .dettagli-overlay.chiusura {
-    background-color: rgba(0, 0, 0, 0);        // Torna trasparente
-    backdrop-filter: blur(0px);                // Rimuove sfocatura
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
     transition:
       backdrop-filter 0.4s ease-in,
@@ -49,36 +47,32 @@
   }
 
   /* ======================================================
-     PULSANTE "CHIUDI" — FUORI DAL PANNELLO, IN ALTO A DESTRA
+     PULSANTE "CHIUDI" — FUORI DAL PANNELLO
      ====================================================== */
-.chiudi-testuale {
-  position: absolute;
-  top: 0;                       // Punto di riferimento: bordo superiore
-  right: 1rem;
-  transform: translateY(-1.25rem); // ✅ Spinge il bottone sopra la curva
-  background: transparent;
-  border: none;
-  color: #fcfafa;
-  font-size: 0.95rem;
-  font-weight: 500;
-  font-family: 'Montserrat', sans-serif;
-  z-index: 10;
-  cursor: pointer;
-  padding: 0.25rem;
+  .chiudi-testuale {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    transform: translateY(-1.25rem);
+    background: transparent;
+    border: none;
+    color: #fcfafa;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+    z-index: 10;
+    cursor: pointer;
+    padding: 0.25rem;
 
-  &:hover {
-    opacity: 0.7;
-    text-decoration: underline;
+    &:hover {
+      opacity: 0.7;
+      text-decoration: underline;
+    }
+
+    &:active {
+      opacity: 0.5;
+    }
   }
-
-  &:active {
-    opacity: 0.5;
-  }
-}
-
-
-
-
 
   /* =====================================
      PANNELLO CHE SI SOLLEVA DAL BASSO
@@ -86,26 +80,20 @@
   .dettagli-panel {
     background-color: #fff;
     width: 100%;
-    height: 58vh;               // Altezza ridotta per lasciare spazio all'immagine
+    height: 58vh;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     position: relative;
-    padding: 1rem 1rem 1rem;    // Meno padding interno per più spazio utile
+    padding: 1rem 1rem 1rem;
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
     animation: slideUp 0.4s ease-out;
-    overflow: visible;          // Abilita scroll se il contenuto è troppo lungo
+    overflow: visible;
   }
 
-  /* =====================================
-     CLASSE PER ANIMAZIONE DI CHIUSURA
-     ===================================== */
   .dettagli-panel.chiusura {
     animation: slideDownFade 0.4s ease-in forwards;
   }
 
-  /* ======================================
-     ANIMAZIONE DI USCITA CON OPACITÀ
-     ====================================== */
   @keyframes slideDownFade {
     0% {
       transform: translateY(0);
@@ -118,40 +106,100 @@
   }
 
   /* =========================================================
-     IMMAGINE CENTRATA E PIÙ IN ALTO — SPAZIO PER TESTI SOTTO
+     IMMAGINE CENTRATA CON SPAZIO SOTTO PER INDICATORI
      ========================================================= */
-.dettagli-panel img {
-  display: block;
-  width: 96%;              // ✅ Occupa quasi tutta la larghezza del pannello
-  max-width: 96%;          // ✅ Evita che si allarghi oltre i limiti
-  max-height: 35vh;        // ✅ Mantiene l'altezza contenuta
-  object-fit: contain;     // ✅ Mostra tutta l’immagine senza tagliarla
-  margin: -0.7rem auto 1rem; // ✅ Leggermente sollevata e centrata
-  border-radius: 0;        // ✅ Nessun arrotondamento
-}
-
-//i pallini per le altre foto
-.indicator-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.5rem;
-
-  span {
-    font-size: 1.2rem;
-    color: #bbb;
-    transition: color 0.3s ease;
+  .dettagli-panel img {
+    display: block;
+    width: 96%;
+    max-width: 96%;
+    max-height: 35vh;
+    object-fit: contain;
+    margin: -0.7rem auto 1rem;
+    border-radius: 0;
   }
 
-  .attiva {
-    color: #000; // Pallino attivo
+  /* =========================================================
+     ANIMAZIONE CON SLIDE SINISTRA/DESTRA
+     ========================================================= */
+  .swipe-container img {
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    opacity: 1;
   }
-}
 
+  /* Animazione uscita a sinistra */
+  .out-left {
+    animation: slideOutLeft 0.4s ease forwards;
+  }
+
+  /* Animazione uscita a destra */
+  .out-right {
+    animation: slideOutRight 0.4s ease forwards;
+  }
+
+  /* Animazione entrata da destra */
+  .in {
+    animation: slideIn 0.4s ease forwards;
+  }
+
+  /* KEYFRAMES - uscita verso sinistra */
+  @keyframes slideOutLeft {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+  }
+
+  /* KEYFRAMES - uscita verso destra */
+  @keyframes slideOutRight {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  /* KEYFRAMES - entrata da destra */
+  @keyframes slideIn {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* =====================================================
+     INDICATORI (PALLINI) PER LE IMMAGINI MULTIPLE
+     ===================================================== */
+  .indicator-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+
+    span {
+      font-size: 1.2rem;
+      color: #bbb;
+      transition: color 0.3s ease;
+    }
+
+    .attiva {
+      color: #000;
+    }
+  }
 
   /* ==========================
-     ANIMAZIONI DI ENTRATA
+     ANIMAZIONI DI ENTRATA PANEL
      ========================== */
   @keyframes slideUp {
     from {

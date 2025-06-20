@@ -60,6 +60,9 @@ immaginiFrontaliPaginata: any[] = []; // usata per la visualizzazione paginata
   //praticamente è una variabile che contiene tutte le immagini di quel dipsplay name che non sia frontale passata a dettagli component per mostrare in scroll le altre immagini
 altreImmaginiSelezionate: string[] = [];
 
+//passo al figlio
+descrizioneImmagineFrontale: string = '';
+
 
     //paginazione prendo le prime 10 foto
     fotoPerPagina: number = 10;
@@ -108,7 +111,8 @@ immagineSelezionata: any | null = null; //variabile da passare a DettagliCompone
 //al click dell immagine passo la singola immagine a questa funzione
 onImmagineClick(item: any): void {
   console.log("Immagine cliccata:", item);
-
+  this.descrizioneImmagineFrontale = item.descrizione;
+  console.log("descrizioneee: ", this.descrizioneImmagineFrontale);
   // Salva l'immagine frontale selezionata da mostrare nel pannello
   this.immagineSelezionata = item.url;
 
@@ -260,22 +264,26 @@ caricaImmagini(): void {
         }
       }
 
-
+      console.log("complessive", JSON.stringify(immaginiComplessive));
 
       // Unisce tutti i meta (array di immagini per ogni voce)
 const tutteLeImmagini = immaginiComplessive.flatMap(item =>
   (item.meta || []).map((img: any) => ({
     ...img,
     display_name: item.display_name,
+    descrizione: item.descrizione,
     quantita: item.quantita
   }))
 );
 
 
+console.log("provaaaa ", JSON.stringify(tutteLeImmagini));
+
+
       
       // Estrae solo le immagini con angolazione "frontale"
       this.immaginiFrontali = tutteLeImmagini.filter(img => img.angolazione === 'frontale');
-
+  console.log("tutteeeee" , tutteLeImmagini);
       // Salva le immagini con angolazioni diverse dalla "frontale"
       //sempre diviso per display_name da passare poi a DettagliComponent
 this.altreImmagini = immaginiComplessive
@@ -284,6 +292,7 @@ this.altreImmagini = immaginiComplessive
     if (altre.length > 0) {
       return {
         display_name: item.display_name,
+        descrizione: item.descrizione,
         meta: altre
       };
     }
@@ -292,7 +301,7 @@ this.altreImmagini = immaginiComplessive
   .filter((item: any) => item !== null); // Rimuove i null
 
 
-
+console.log("altreeeeee", this.altreImmagini)
 
 
       // Calcola la paginazione sulle immagini frontali

@@ -3,6 +3,14 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations'; //importo le animazioni cosi nello scroll delle altre immagin non uso il set timeout
+
 
 @Component({
   selector: 'app-dettagli',
@@ -11,6 +19,19 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     CommonModule,          // Per *ngIf, *ngClass, ecc.
     MatIconModule,         // Per eventuali icone Angular Material (es. mat-icon)
     MatButtonModule,        // Per eventuali pulsanti con stile Material
+  ],
+    animations: [
+    trigger('slideFade', [
+      state('in', style({ opacity: 1, transform: 'translateX(0)' })),
+      state('out-left', style({ opacity: 0, transform: 'translateX(-40px)' })),
+      state('out-right', style({ opacity: 0, transform: 'translateX(40px)' })),
+      transition('* => in', [
+        style({ opacity: 0, transform: 'translateX(20px)' }),
+        animate('300ms ease-out')
+      ]),
+      transition('in => out-left', animate('300ms ease-in')),
+      transition('in => out-right', animate('300ms ease-in'))
+    ])
   ],
   templateUrl: './dettagli.component.html',  // Template HTML associato
   styleUrl: './dettagli.component.scss'      // Stili CSS/SCSS associati
@@ -23,6 +44,7 @@ export class DettagliComponent implements OnInit {
   // INPUT ricevuto dal componente padre (dati dell’immagine)
   // ======================================================
 @Input() immagineFrontale!: string; //URL DELL IMMAGINE SELEZIONATA
+@Input() descrizioneImmagineFrontale!: string; //URL DELL IMMAGINE SELEZIONATA
 
 @Input() altreImmaginiDellaFrontale!: string[];  //URLS DELLE IMMAGINI LATERALI OBLIQUE DI QUELLA SELEZIONATA
 
@@ -56,6 +78,13 @@ export class DettagliComponent implements OnInit {
 
       isMobile = false;
 
+      //opacita quando traslo la mini immagine
+immagineVisibile = false;
+
+
+  // Variabile che rappresenta lo stato dell'animazione corrente
+  animationState: 'in' | 'out-left' | 'out-right' = 'in';
+
 
 //vediamo come fare lo swipe da mobile
 // Variabile che memorizza la posizione iniziale del tocco sullo schermo
@@ -85,33 +114,51 @@ onTouchEnd(event: TouchEvent): void {
   if (Math.abs(deltaX) > 50) {
     if (deltaX < 0) {
       // Swipe verso sinistra: mostra immagine successiva
-      this.incrementaImmagine();
+      this.slideLeft(); // swipe sinistra
     } else {
       // Swipe verso destra: mostra immagine precedente
-      this.decrementaImmagine();
+      this.slideRight(); // swipe destra
     }
   }
 }
 
 /**
- * Incrementa l'indice corrente, mostrando l'immagine successiva
- * Esegue il controllo per non superare il numero massimo di immagini disponibili
+ * Esegue lo swipe verso sinistra:
+ *  - Avvia un'animazione di uscita verso sinistra impostando lo stato
+ *  - Attende che l'animazione termini (durata ~300ms)
+ *  - Aggiorna l'indice all'immagine successiva
+ *  - Reimposta lo stato per avviare animazione di entrata
  */
-incrementaImmagine(): void {
+slideLeft(): void {
+  // Se non siamo all'ultima immagine, possiamo proseguire
   if (this.currentIndexOtherImage < this.totaleImmagini.length - 1) {
-    this.currentIndexOtherImage++;
+    this.animationState = 'out-left';               // Inizia animazione di uscita verso sinistra
+    setTimeout(() => {
+      this.currentIndexOtherImage++;                // Incrementa l'indice
+      this.animationState = 'in';                   // Cambia stato in 'in' per animazione di entrata
+    }, 300);                                         // Attendiamo 300ms (durata animazione uscita)
   }
 }
 
 /**
- * Decrementa l'indice corrente, mostrando l'immagine precedente
- * Esegue il controllo per non andare sotto l'indice 0
+ * Esegue lo swipe verso destra:
+ *  - Avvia un'animazione di uscita verso destra impostando lo stato
+ *  - Attende che l'animazione termini
+ *  - Aggiorna l'indice all'immagine precedente
+ *  - Reimposta lo stato per animazione di entrata
  */
-decrementaImmagine(): void {
+slideRight(): void {
+  // Se non siamo già alla prima immagine
   if (this.currentIndexOtherImage > 0) {
-    this.currentIndexOtherImage--;
+    this.animationState = 'out-right';              // Inizia animazione di uscita verso destra
+    setTimeout(() => {
+      this.currentIndexOtherImage--;                // Decrementa l'indice
+      this.animationState = 'in';                   // Anima l'entrata della nuova immagine
+    }, 300);                                         // 300ms per l'animazione di uscita
   }
 }
+
+
 
 
 constructor(private breakpointObserver: BreakpointObserver) {}
@@ -119,7 +166,7 @@ constructor(private breakpointObserver: BreakpointObserver) {}
   ngOnInit(): void {
     console.log("Figlio immagine frontale", JSON.stringify(this.immagineFrontale));
     console.log("Figlio altre", JSON.stringify(this.altreImmaginiDellaFrontale));
-
+    console.log("La descrizioneee: ", this.descrizioneImmagineFrontale);
     //Qui sommo l'array frontale piu l'array figlio cosi ho 4 pallini metto i 3 pallini per avere un unico array piatto con le immagini frontali e altre immagini
     this.totaleImmagini = [this.immagineFrontale, ...this.altreImmaginiDellaFrontale];
     console.log("Unico array frontale piu le altre: ", this.totaleImmagini)
@@ -145,6 +192,7 @@ constructor(private breakpointObserver: BreakpointObserver) {}
     //controllo se ci sono altre immagini di quella frontale se si sarà true e attiva il template in dettagli html
     this.checkOtherImages = this.altreImmaginiDellaFrontale.length > 0;
 
+  this.immagineVisibile = true;
 
   }
 
