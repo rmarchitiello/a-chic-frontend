@@ -17,10 +17,22 @@
   >
       <button class="chiudi-testuale" (click)="closeWindow()">Chiudi</button>
 
-    <!-- Immagine in evidenza -->
-    <img [src]="dettaglio.url" [alt]="dettaglio.display_name" />
+    <!-- Immagine in evidenza la avoolgo in un contenitore per fare lo swipe mobile-->
+      <div
+        class="swipe-container"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+        >    
+          <img [src]="totaleImmagini[currentIndexOtherImage]" />
+      </div>
 
-    <!-- Nome immagine -->
-    <h3>{{ dettaglio.display_name }}</h3>
+    <!-- Indicatore immagini (es. ● ○ ○) -->
+    <div *ngIf="checkOtherImages" class="indicator-wrapper">  <!-- let i = index incrementa mi dici a quanto sono nel ciclo {{i}} vale 0 1 2 perche parte da 0 -->
+      <span *ngFor="let immagine of totaleImmagini ; let i = index" [ngClass]="{ 'attiva': i === currentIndexOtherImage }"> <!-- quando la i === currentIndex si deve attivare la classe cioe si illumina il pallino, al primo step il pallino 1 è scuro quando scrollo incremento currentIndexOtherImage e si illumina l'altro pallino-->
+                         ● 
+      </span>
+    </div>
+
   </div>
+
 </div>

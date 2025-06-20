@@ -130,16 +130,25 @@
   border-radius: 0;        // ✅ Nessun arrotondamento
 }
 
+//i pallini per le altre foto
+.indicator-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
 
-  /* ===========================
-     TITOLO SOTTO L'IMMAGINE
-     =========================== */
-  .dettagli-panel h3 {
+  span {
     font-size: 1.2rem;
-    font-family: 'Montserrat', sans-serif;
-    margin: 1rem 0;
-    text-align: center;
+    color: #bbb;
+    transition: color 0.3s ease;
   }
+
+  .attiva {
+    color: #000; // Pallino attivo
+  }
+}
+
 
   /* ==========================
      ANIMAZIONI DI ENTRATA

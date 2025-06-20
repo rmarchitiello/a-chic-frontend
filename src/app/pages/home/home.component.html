@@ -31,7 +31,7 @@
 <div class="carousel-container">
   <img
     *ngFor="let img of caroselloImmagini; let i = index"
-    [src]="img.url"
+    [src]="img"
     [class.active]="i === currentIndex"
     class="carousel-image"
     alt="Carosello Immagine"

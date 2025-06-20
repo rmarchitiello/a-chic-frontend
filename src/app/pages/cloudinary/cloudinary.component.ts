@@ -21,6 +21,7 @@
   import { FormsModule } from '@angular/forms';
   import { combineLatest } from 'rxjs';
   import { DettagliComponent } from '../../pages/dettagli/dettagli.component';
+  import { BreakpointObserver } from '@angular/cdk/layout';
 
   @Component({
     selector: 'app-cloudinary',
@@ -43,11 +44,8 @@
     styleUrl: './cloudinary.component.scss'
   })
   export class CloudinaryComponent implements OnInit, OnDestroy {
-    immagini: any[] = [];
-    immaginiVisibili: any[] = [];
     categoria: string | null = null;
     sottoCategoria: string | null = null;
-    configurazioni: any[] = [];
     selectedAudioUrl: string | null = null;
     isPlaying = false;
     isMobile = false;
@@ -55,12 +53,15 @@
     filtriAttivi: string[] = [];
     filtriRicevuti: string[] = [];
 
+immaginiFrontali: any[] = [];
+altreImmagini: any[] = [];
+immaginiFrontaliPaginata: any[] = []; // usata per la visualizzazione paginata
 
-
+  //praticamente è una variabile che contiene tutte le immagini di quel dipsplay name che non sia frontale passata a dettagli component per mostrare in scroll le altre immagini
+altreImmaginiSelezionate: string[] = [];
 
 
     //paginazione prendo le prime 10 foto
-    minIndexfotoPerPagina: number = 0;  //con questi due dico prendimi le prime 10 foto
     fotoPerPagina: number = 10;
     numeroDiPagine: number = 0; // da calcolare in carica immagini divisione tra foto trovate tutte / quante foto voglio vedere
     paginaCorrente: number = 1; //setto la pagina corrente ovvio 1 perche mi serve nel metodo carica altri per incrementare la pagina
@@ -92,7 +93,9 @@ paginaSuccessiva(): void {
 
     constructor(
       private cloudinaryService: CloudinaryService,
-      private route: ActivatedRoute
+      private route: ActivatedRoute,
+      private breakpointObserver: BreakpointObserver
+
     ) {}
 
 
@@ -100,18 +103,34 @@ paginaSuccessiva(): void {
 /* Passo a dettagli component tramite input param nel senso non uso routing per passare i dettagli 
 a DettagliComponent che è il componente figlio di ClaudinaryComponent, ma uso @Input */
 
-immagineSelezionata: any = null; //variabile da passare a DettagliComponent per l'immagine selezionata
+immagineSelezionata: any | null = null; //variabile da passare a DettagliComponent per l'immagine selezionata
 
 //al click dell immagine passo la singola immagine a questa funzione
-onImmagineClick(item: any){
-  console.log("Immagine cliccata: ", JSON.stringify(item));
-  this.immagineSelezionata = item; //salvo l'immagine selezionata in una variabile
+onImmagineClick(item: any): void {
+  console.log("Immagine cliccata:", item);
 
-    // Blocca lo scroll del body
-  document.body.style.overflow = 'hidden'
-    document.documentElement.style.overflow = 'hidden';
+  // Salva l'immagine frontale selezionata da mostrare nel pannello
+  this.immagineSelezionata = item.url;
 
+  // Cerca le immagini correlate nel gruppo "altreImmagini", confrontando il display_name
+  const immaginiCorrelate = this.altreImmagini.find(
+    (a: { display_name: string }) =>
+      a.display_name?.trim().toLowerCase() === item.display_name?.trim().toLowerCase()
+  );
+
+  // Estrae solo gli URL da ciascuna immagine angolata (laterale, obliqua, ecc.)
+  this.altreImmaginiSelezionate = immaginiCorrelate?.meta.map(
+    (m: { url: string }) => m.url
+  ) || [];
+
+  console.log("Altre immagini selezionate:", this.altreImmaginiSelezionate);
+
+  // Blocca lo scroll della pagina mentre il pannello dettagli è aperto
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
 }
+
+
 /*ora devo passare l'immagine selezionata al figlio e come si fa ? devo passarla dal template
 Ovvero, nel DettagliComponent definisco @Input nomeVariabile!: any in pratica è come se DettagliComponent sta 
 esponendo un campo che il Padre gli deve mandare
@@ -136,10 +155,12 @@ handleChiudiDettaglio() {
 
 ngOnInit(): void {
 
-  this.isMobile = window.innerWidth <= 768;
-  window.addEventListener('resize', () => {
-    this.isMobile = window.innerWidth <= 768;
-  });
+//rilevo disp mobile anziche pc
+  this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .subscribe(result => {
+      this.isMobile = result.matches;
+    });
 
   // Unisce parametri di route e query parametri
   combineLatest([
@@ -171,7 +192,6 @@ ngOnInit(): void {
 
     // Carica immagini e configurazioni (sia su mobile che desktop)
     this.caricaImmagini();
-    this.caricaConfigurazioni(this.sottoCategoria);
   });
 }
 
@@ -188,104 +208,125 @@ ngOnInit(): void {
 
 
 
-    caricaConfigurazioni(sottoCategoria: any): void {
-      this.cloudinaryService.getConfig(sottoCategoria).subscribe({
-        next: (data) => {
-          const chiave = this.primaLetteraGrande(this.sottoCategoria);
-          const configurazioniTrovate = data[chiave];
-          this.configurazioni = Array.isArray(configurazioniTrovate) ? configurazioniTrovate : [];
-        },
-        error: () => {
-          this.configurazioni = [];
-        }
-      });
-    }
 
-    caricaImmagini(): void {
-  // Se non c'è categoria, esce dalla funzione
+caricaImmagini(): void {
+  // Esce dalla funzione se non è presente la categoria
   if (!this.categoria) return;
 
-  // Costruisce il percorso base in base a categoria e sottocategoria
+  // Costruisce il percorso base usando categoria e sottocategoria
   const basePath = this.sottoCategoria
     ? `${this.categoria}/${this.sottoCategoria}`.toLowerCase()
     : this.categoria.toLowerCase();
 
+  // Esegue il log del path generato
   console.log('Base path per il caricamento immagini:', basePath);
 
-  // Recupera tutte le immagini da Cloudinary
+  // Chiama il servizio per ottenere tutte le immagini
   this.cloudinaryService.getImmagini().subscribe({
     next: (data: Record<string, any[]>) => {
-      let immaginiDaMostrare: any[] = [];
-      // Se siamo su mobile, selezioniamo il primo filtro ricevuto
+      console.log("Dati ricevuti:", JSON.stringify(data));
+
+      // Inizializza l’array contenente tutte le immagini della chiave
+      let immaginiComplessive: any[] = [];
+
+      // Se siamo su mobile, imposta il filtro selezionato come il primo disponibile
       if (this.isMobile) {
         this.filtroSelezionato = this.filtriRicevuti[0] || 'Tutte';
-        console.log('Filtro selezionato da mobile:', this.filtroSelezionato);
+        console.log('Filtro selezionato (mobile):', this.filtroSelezionato);
       }
 
-      // Se il filtro è "Tutte", mostra tutte le immagini della categoria e sottocategorie
       if (this.filtroSelezionato === 'Tutte') {
-        immaginiDaMostrare = Object.keys(data)
+        // Se il filtro è "Tutte", recupera tutte le immagini compatibili con il path
+        immaginiComplessive = Object.keys(data)
           .filter(key =>
             key.toLowerCase() === basePath ||
             key.toLowerCase().startsWith(`${basePath}/`)
           )
           .flatMap(key => data[key]);
-
-        console.log('Caricamento immagini con filtro "Tutte" - immagini trovate:', immaginiDaMostrare.length);
       } else {
-        // Altrimenti cerca la chiave corrispondente alla categoria/sottocategoria/filtro
+        // Cerca la chiave esatta nel dataset con filtro applicato
         const chiaveFiltroCompleta = `${basePath}/${this.filtroSelezionato}`.toLowerCase();
         const chiaveReale = Object.keys(data).find(
           k => k.toLowerCase().trim() === chiaveFiltroCompleta.trim()
         );
 
-        console.log('Chiave filtro completa cercata:', chiaveFiltroCompleta);
         console.log('Chiave reale trovata:', chiaveReale);
 
-        // Se trovata, carica le immagini associate
+        // Se la chiave è trovata, assegna i dati
         if (chiaveReale) {
-          immaginiDaMostrare = data[chiaveReale];
-          console.log('Immagini trovate per il filtro specifico:', immaginiDaMostrare.length);
+          immaginiComplessive = data[chiaveReale];
         } else {
           console.warn('Nessuna immagine trovata per il filtro selezionato.');
         }
       }
 
-      // Salva le immagini trovate
-      this.immagini = immaginiDaMostrare;
-          
-      console.log('Immagini assegnate al componente: ', this.immagini.length);
-
-      console.log("Immagini da scaricate: ", JSON.stringify(this.immagini));
-
-      //Paginazione mostro le prime 10 foto
-      this.immaginiVisibili = this.immagini.slice(this.minIndexfotoPerPagina, this.fotoPerPagina);
-      console.log("Immagini paginate assegnate: ", JSON.stringify(this.immaginiVisibili.length));
-      console.log("Immagini paginate: ", JSON.stringify(this.immaginiVisibili));
-      this.numeroDiPagine = Math.ceil(this.immagini.length / this.fotoPerPagina)
-      console.log("Pagine Calcolate: ", this.numeroDiPagine);
 
 
+      // Unisce tutti i meta (array di immagini per ogni voce)
+const tutteLeImmagini = immaginiComplessive.flatMap(item =>
+  (item.meta || []).map((img: any) => ({
+    ...img,
+    display_name: item.display_name,
+    quantita: item.quantita
+  }))
+);
 
+
+      
+      // Estrae solo le immagini con angolazione "frontale"
+      this.immaginiFrontali = tutteLeImmagini.filter(img => img.angolazione === 'frontale');
+
+      // Salva le immagini con angolazioni diverse dalla "frontale"
+      //sempre diviso per display_name da passare poi a DettagliComponent
+this.altreImmagini = immaginiComplessive
+  .map((item: any) => {
+    const altre = (item.meta || []).filter((img: any) => img.angolazione !== 'frontale');
+    if (altre.length > 0) {
+      return {
+        display_name: item.display_name,
+        meta: altre
+      };
+    }
+    return null;
+  })
+  .filter((item: any) => item !== null); // Rimuove i null
+
+
+
+
+
+      // Calcola la paginazione sulle immagini frontali
+      this.paginaCorrente = 1;
+      this.numeroDiPagine = Math.ceil(this.immaginiFrontali.length / this.fotoPerPagina);
+      this.immaginiFrontaliPaginata = this.immaginiFrontali.slice(0, this.fotoPerPagina);
+
+
+      console.log('Immagini frontali:', this.immaginiFrontali);
+      console.log("Immagini paginate frontali: ", JSON.stringify(this.immaginiFrontaliPaginata))
+      console.log('Altre immagini:', JSON.stringify(this.altreImmagini));
+      
     },
-
-    error: err => console.error('Errore nel recupero delle immagini da Cloudinary:', err)
+    error: err => console.error('Errore durante il recupero delle immagini:', err)
   });
 }
 
-caricaAltreImmagini(){  //1 e la pagina precedente 
-      const inizio = (this.paginaCorrente - 1) * this.fotoPerPagina
-      const fine = this.paginaCorrente * this.fotoPerPagina
-      this.immaginiVisibili = this.immagini.slice(inizio, fine);
 
-      console.log("Immagini successive pagina: ", JSON.stringify(this.immaginiVisibili));
+caricaAltreImmagini(): void {
+  // Calcola gli indici per la pagina corrente
+  const inizio = (this.paginaCorrente - 1) * this.fotoPerPagina;
+  const fine = this.paginaCorrente * this.fotoPerPagina;
 
-  // Scrolla dopo aggiornamento DOM
+  // Estrae la porzione paginata delle immagini frontali
+  this.immaginiFrontaliPaginata = this.immaginiFrontali.slice(inizio, fine);
+
+  console.log("Immagini frontali visibili nella pagina corrente:", JSON.stringify(this.immaginiFrontaliPaginata));
+
+  // Scroll automatico in cima alla finestra dopo il rendering
   setTimeout(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, 100); // leggero delay per assicurare il rendering
-
+  }, 100);
 }
+
 
 
     togglePlayback(): void {

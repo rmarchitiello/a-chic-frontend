@@ -1,9 +1,24 @@
-.cookie-policy-card {
+/* ======================
+   Cookie Policy - versione desktop
+   ====================== */
+.cookie-policy-card-desktop {
   max-width: 900px;
   margin: 2rem auto 1rem auto;
   padding: 1.5rem;
   background-color: #fff;
   border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+
+  mat-card-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #2c2c2c;
+  }
+
+  mat-card-content {
+    padding-top: 1rem;
+  }
 
   h2 {
     margin-top: 2rem;
@@ -46,18 +61,79 @@
       }
     }
   }
+}
 
-  mat-card-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #2c2c2c;
+/* ======================
+   Cookie Policy - versione mobile
+   ====================== */
+@media (max-width: 768px) {
+  .mobile-page-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 1rem;
+    padding-top: 64px; // distanza dalla toolbar mobile
+    padding-bottom: 100px; // spazio per eventuale footer mobile
+    background-color: #fff;
   }
 
-  mat-card-content {
-    padding-top: 1rem;
+  .cookie-policy-card-mobile {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0;
+    width: 100%;
+    box-sizing: border-box;
+
+    mat-card-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2c2c2c;
+    }
+
+    mat-card-content {
+      padding-top: 1rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      color: #333;
+    }
+
+    p,
+    mat-list-item {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 0.9rem;
+      white-space: normal !important;
+      display: block !important;
+    }
+
+    mat-list {
+      padding-left: 1.2rem;
+      background: transparent;
+
+      mat-list-item .mat-list-item-content {
+        display: block !important;
+      }
+    }
+
+    a {
+      color: #1976d2;
+      text-decoration: underline;
+
+      &:hover {
+        color: #0d47a1;
+      }
+    }
   }
 }
 
+/* ======================
+   Azioni comuni (desktop e mobile)
+   ====================== */
 .form-actions {
   text-align: center;
   margin-top: 1.5rem;
@@ -78,32 +154,14 @@
       background-color: #d5d5d5;
     }
   }
-}
 
-// Responsive mobile
-@media (max-width: 768px) {
-  .cookie-policy-card {
-    margin: 1rem;
-    padding: 1rem;
+  @media (max-width: 768px) {
+    margin-top: 2rem;
+    margin-bottom: 3rem;
 
-    h2 {
-      font-size: 1.1rem;
-    }
-
-    p,
-    mat-list-item {
+    .send-button {
       font-size: 0.95rem;
-      white-space: normal !important;
-      display: block !important;
+      padding: 0.5rem 1.2rem;
     }
-
-    mat-list-item .mat-list-item-content {
-      display: block !important;
-    }
-  }
-
-  .form-actions {
-    margin-top: 1.5rem;
-    margin-bottom: 2rem;
   }
 }

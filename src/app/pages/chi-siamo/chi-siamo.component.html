@@ -1,4 +1,5 @@
-<div class="chi-siamo-overlay">
+<!-- DESKTOP -->
+<div *ngIf="!isMobile" class="chi-siamo-overlay desktop-view">
   <!-- Colonna Arianna -->
   <div class="foto-colonna arianna">
     <img src="/assets/images/arianna_background.jpg" alt="Arianna" />
@@ -11,10 +12,62 @@
     <p>Anna</p>
   </div>
 
-  <!-- Firma: wrapper con immagini invertibili su mobile -->
+  <!-- Firma desktop -->
   <div class="firma-wrapper">
     <img src="/assets/images/a-chic-firma.gif" alt="Firma A-Chic" class="firma-gif-prima" />
     <img src="/assets/images/con-amore.gif" alt="Con amore, A-Chic" class="firma-gif-seconda" />
+  </div>
+
+  <!-- Testo Chi Siamo -->
+  <div class="chi-siamo-testo">
+    <p class="fade-in delay-1"><strong>Siamo Arianna e Anna, due cugine legate da un filo… di passione.</strong></p>
+    <p class="fade-in delay-2">
+      Ogni borsa che realizziamo è un frammento della nostra storia:
+      <strong>pensata, disegnata e creata interamente a mano</strong>,
+      con una cura quasi rituale. Ogni punto racconta un’emozione.
+      Ogni dettaglio ha il profumo della passione.
+    </p>
+    <p class="fade-in delay-3">
+      Non lavoriamo per produrre: <em>lavoriamo per emozionare</em>.
+      Crediamo nel valore delle cose fatte lentamente, con l’anima.
+      In un mondo che corre, scegliamo di fermarci e creare bellezza con le mani, una borsa alla volta.
+    </p>
+    <p class="fade-in delay-4">
+      <strong>A-Chic</strong> è il nostro rifugio creativo, dove il passato si intreccia con il presente.
+      Dove la <strong>tradizione artigianale</strong> incontra uno
+      <strong>stile contemporaneo</strong>, sobrio ma raffinato, proprio come noi.
+    </p>
+    <p class="fade-in delay-5">
+      Dietro ogni nostra creazione ci siamo noi: i nostri sogni, le nostre chiacchiere notturne,
+      i nostri errori trasformati in idee. C’è il legame che ci unisce,
+      la famiglia che ci ispira, l’entusiasmo che non ci abbandona mai.
+    </p>
+    <p class="firma fade-in delay-6">
+      Benvenuti nel nostro mondo.<br>
+      Un mondo fatto a mano. Fatto con il cuore.<br>
+      Un mondo semplice, autentico e... chic.
+    </p>
+  </div>
+</div>
+
+<!-- MOBILE -->
+<div *ngIf="isMobile" class="chi-siamo-overlay mobile-view">
+  <!-- Colonna 1: Arianna -->
+  <div class="foto-colonna">
+    <img src="/assets/images/arianna_background.jpg" alt="Arianna" />
+    <p>Arianna</p>
+  </div>
+
+  <!-- Colonna 2: Anna -->
+  <div class="foto-colonna">
+    <img src="/assets/images/anna_background.jpg" alt="Anna" />
+    <p>Anna</p>
+  </div>
+
+  <!-- Firma mobile: immagini invertite o ridimensionate se necessario -->
+  <div class="firma-wrapper">
+    <img src="/assets/images/con-amore.gif" alt="Con amore, A-Chic" class="firma-gif-seconda" />
+    <img src="/assets/images/a-chic-firma.gif" alt="Firma A-Chic" class="firma-gif-prima" />
   </div>
 
   <!-- Testo Chi Siamo -->

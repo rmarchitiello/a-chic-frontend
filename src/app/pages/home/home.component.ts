@@ -15,6 +15,7 @@ import {
 } from '@angular/animations';
 import { Router } from '@angular/router';
 import { CloudinaryService } from '../../services/cloudinary.service';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 
 
@@ -73,8 +74,7 @@ caroselloImmagini: {
       descrizione: 'Elegante, sobria, sempre alla moda'
     }
   ];
-  constructor(private router: Router, private cloudinaryService: CloudinaryService,
-) {}
+  constructor(private router: Router, private cloudinaryService: CloudinaryService,private breakpointObserver: BreakpointObserver) {}
 
 goToComponentCloudinary(routeCloudinary: string, filterType: string) {
   this.router.navigate([routeCloudinary], {
@@ -119,17 +119,24 @@ goToComponentCloudinary(routeCloudinary: string, filterType: string) {
     //timer per avviare il carosello
       this.intervalId = setInterval(() => this.nextImage(), 2000);
 
-
-      // Rileva se il dispositivo è mobile
-  this.isMobile = window.innerWidth <= 768;
-  window.addEventListener('resize', () => {
-    this.isMobile = window.innerWidth <= 768;
-  });
-
+//rilevo disp mobile anziche pc
+  this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .subscribe(result => {
+      this.isMobile = result.matches;
+    });
 
     this.cloudinaryService.getImmagini().subscribe({
       next: (data: Record<string, any[]>) => {
-        this.caroselloImmagini = data['Carosello'];
+// Estrae tutte le immagini dal gruppo "Carosello" nel risultato ricevuto
+// Utilizza flatMap per ottenere un array piatto di URL (string[])
+// Ogni elemento 'item' rappresenta un oggetto con proprietà 'display_name', 'descrizione', 'quantita' e un array 'meta'
+// Per ogni elemento, mappa l'array 'meta' estraendo il campo 'url' di ciascuna immagine
+// Il risultato finale è un array contenente solo gli URL delle immagini del carosello
+this.caroselloImmagini = data['Carosello'].flatMap(item =>
+  item.meta.map((m: { url: string }) => m.url)
+);
+
         console.log("Carosello immagini: ", this.caroselloImmagini);
         this.categorieSottoCategorie = Object.keys(data);
 

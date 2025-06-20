@@ -14,15 +14,24 @@
     <!-- Griglia di immagini: 2 colonne x 2 righe = 4 immagini per blocco -->
     <div class="contenitore-cards">
       <!-- Ciclo sulle immagini visibili attualmente -->
-      <ng-container *ngFor="let item of immaginiVisibili">
-        <mat-card class="image-card" (click)="onImmagineClick(item)">
-          <!-- Visualizzazione dell'immagine -->
-          <img mat-card-image [src]="item.url" [alt]="item.display_name" />
-        </mat-card>
-      </ng-container>
-      <app-dettagli
+<ng-container *ngFor="let item of immaginiFrontaliPaginata">
+  <div class="image-wrapper">
+    <mat-card class="image-card" (click)="onImmagineClick(item)">
+      <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+    </mat-card>
+    <div class="image-info">
+      <h3>{{ item.display_name }}</h3>
+      <p>Quantità: {{ item.quantita }}</p>
+    </div>
+  </div>
+</ng-container>
+
+    <!-- ora qui sto passando la variabile dettaglio con immagine selezionata a DettagliComponent difatti dettagli component espone la variabile dettaglio e gli do il valore di immagine selezionata in onImageClick setto immagine selezionata-->
+    <!-- devo poter passare anche le altre immagini laterale obliqua ecc..-->  
+    <app-dettagli
   *ngIf="immagineSelezionata"
-  [dettaglio]="immagineSelezionata"
+  [immagineFrontale]="immagineSelezionata"
+  [altreImmaginiDellaFrontale]="altreImmaginiSelezionate"
   (chiudiDettaglio)="handleChiudiDettaglio()"
 />
     </div>

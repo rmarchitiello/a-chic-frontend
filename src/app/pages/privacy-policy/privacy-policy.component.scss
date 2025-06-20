@@ -1,9 +1,40 @@
-.privacy-policy-card {
+/* ======================
+   Contenitore principale
+   ====================== */
+
+/* Garantisce che il componente occupi tutta l’altezza disponibile della pagina */
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  /* Evita che il contenuto si restringa */
+  > * {
+    flex-shrink: 0;
+  }
+}
+
+/* ======================
+   Stili per la versione desktop
+   ====================== */
+.privacy-policy-card-desktop {
   max-width: 900px;
   margin: 2rem auto 1rem auto;
   padding: 1.5rem;
   background-color: #fff;
   border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+
+  mat-card-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #2c2c2c;
+  }
+
+  mat-card-content {
+    padding-top: 1rem;
+  }
 
   h2 {
     margin-top: 2rem;
@@ -22,27 +53,21 @@
   a {
     color: #1976d2;
     text-decoration: underline;
-    cursor: pointer; 
+    cursor: pointer;
+
     &:hover {
       color: #0d47a1;
     }
   }
-
-  mat-card-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: #2c2c2c;
-  }
-
-  mat-card-content {
-    padding-top: 1rem;
-  }
 }
 
+/* ======================
+   Azioni in fondo alla pagina (comune)
+   ====================== */
 .form-actions {
   text-align: center;
   margin-top: 2rem;
-  margin-bottom: 4rem; // alza visivamente il bottone
+  margin-bottom: 4rem; // spazio extra dal footer
 
   .send-button {
     font-weight: 600;
@@ -61,19 +86,61 @@
   }
 }
 
-// Responsive per mobile
+/* ======================
+   Stili per la versione mobile (max 768px)
+   ====================== */
 @media (max-width: 768px) {
-  .privacy-policy-card {
-    margin: 1rem;
+  /* Contenitore che gestisce il padding per toolbar e footer mobile */
+  .mobile-page-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    /* Scroll fluido su iOS */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+
+    /* Spaziatura interna */
     padding: 1rem;
+
+    /* Spazio superiore per evitare che la toolbar copra il contenuto */
+    padding-top: 64px; // valore ottimale per mat-toolbar su mobile
+
+    /* Spazio inferiore per lasciare visibile il footer fisso con icone */
+    padding-bottom: 100px;
+
+    background-color: #fff;
+  }
+
+  .privacy-policy-card-mobile {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 0;
+    width: 100%;
+
+    mat-card-title {
+      font-size: 1.3rem;
+    }
 
     h2 {
       font-size: 1.1rem;
+      margin-top: 1.5rem;
     }
 
     p,
     mat-list-item {
       font-size: 0.95rem;
+      line-height: 1.5;
+      margin-bottom: 0.9rem;
+    }
+
+    a {
+      color: #1976d2;
+      text-decoration: underline;
+
+      &:hover {
+        color: #0d47a1;
+      }
     }
   }
 
