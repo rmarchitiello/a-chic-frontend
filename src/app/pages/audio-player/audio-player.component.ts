@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-audio-player',
@@ -24,13 +26,14 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
   @ViewChild('audioPlayer') audioPlayerRef!: ElementRef<HTMLAudioElement>;
 
   @Output() chiudiPlayer = new EventEmitter<void>();
+  @Output() audioVisible = new EventEmitter<void>();
 
   isMobile = false;
   currentIndex: number | null = null;
   isPlaying = false;
   attivo = false;    // Apre pannello con animazione
   chiusura = false;  // Chiude pannello con animazione
-
+  disableCarillonAudio: boolean = false
   // Lista audio disponibili
   assetCarllonAudioUrl = [
     { nome_canzone: 'Over The Raimbow', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144292/Over_The_Raimbow_o6gs3v_nnaa92.mp3' },
@@ -42,9 +45,10 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     { nome_canzone: 'Ninna Nanna', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144290/Ninna_Nanna_vmvcgv_t10gav.mp3' }
   ];
 
-  constructor(private breakpointObserver: BreakpointObserver) {}
+  constructor(private breakpointObserver: BreakpointObserver,   private router: Router) {}
 
   ngOnInit(): void {
+    this.disableCarillonAudio = true;
     // Attiva animazione di apertura
     setTimeout(() => this.attivo = true, 10);
 
@@ -56,7 +60,22 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
       this.isMobile = result.matches;
     });
+
+    //verifico la url corrente
+      this.checkAudioSection(this.router.url);
+
+
+        // Verifica anche dopo ogni navigazione
+  this.router.events
+    .pipe(filter(e => e instanceof NavigationEnd))
+    .subscribe((e: NavigationEnd) => this.checkAudioSection(e.urlAfterRedirects));
   }
+
+
+  private checkAudioSection(url: string): void {
+  const path = url.split('?')[0]; // rimuove eventuali query string
+  this.disableCarillonAudio = path === '/baby/carillon';
+}
 
   ngOnDestroy(): void {
     // Riabilita lo scroll globale quando il componente viene distrutto

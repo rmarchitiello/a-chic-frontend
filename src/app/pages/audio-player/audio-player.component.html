@@ -2,7 +2,7 @@
 <div *ngIf="!isMobile" class="audio-player-container"></div>
 
 <!-- MOBILE -->
-<div *ngIf="isMobile"
+<div *ngIf="isMobile && disableCarillonAudio"
      class="audio-player-overlay"
      [ngClass]="{ 'attiva': attivo, 'chiusura': chiusura }"
      (click)="closePlayer()">

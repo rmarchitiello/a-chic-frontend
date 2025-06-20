@@ -50,7 +50,6 @@
   export class CloudinaryComponent implements OnInit, OnDestroy {
     categoria: string | null = null;
     sottoCategoria: string | null = null;
-    selectedAudioUrl: string | null = null;
     isPlaying = false;
     isMobile = false;
     filtroSelezionato: string = 'Tutte';
@@ -82,7 +81,6 @@ onAudioIconClick(event: Event) {
     fotoPerPagina: number = 10;
     numeroDiPagine: number = 0; // da calcolare in carica immagini divisione tra foto trovate tutte / quante foto voglio vedere
     paginaCorrente: number = 1; //setto la pagina corrente ovvio 1 perche mi serve nel metodo carica altri per incrementare la pagina
-    @ViewChild('audioPlayer', { static: true }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
 
 paginaPrecedente(): void {
@@ -98,15 +96,6 @@ paginaSuccessiva(): void {
     this.caricaAltreImmagini();
   }
 }
-    assetAudioUrl: any[] = [
-      { nome_canzone: 'Over The Raimbow', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144292/Over_The_Raimbow_o6gs3v_nnaa92.mp3' },
-      { nome_canzone: 'Harry Potter', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144294/Harry_Potter_ymoryk_nc4rxa.mp3' },
-      { nome_canzone: 'Il Cerchio Della Vita', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144295/Il_Cerchio_Della_Vita_egiyfx_krdqmy.mp3' },
-      { nome_canzone: 'La Lelu', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144289/La_Lelu_ailhh7_gyxvvg.mp3' },
-      { nome_canzone: 'River Flows In You', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144293/River_Flows_in_You_dcggnx_jfblym.mp3' },
-      { nome_canzone: 'La Bella e la Bestia', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144288/La_Bella_e_la_Bestia_zmy4mo_hfmcx2.mp3' },
-      { nome_canzone: 'Ninna Nanna', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750144290/Ninna_Nanna_vmvcgv_t10gav.mp3' }
-    ];
 
     constructor(
       private cloudinaryService: CloudinaryService,
@@ -190,33 +179,20 @@ handleChiudiDettaglio() {
   }, 400); // tempo identico all'animazione di chiusura
 }
 
-//disabilito audio icon carillon
-  disabledAudioCarillon = false;
-  private setDisabled(fullUrl: string) {
-    // rimuovo query-string e fragment
-    const path = fullUrl.split('?')[0].split('#')[0]; // ⇒ "/baby/carillon"
-
-    /*  disabilito l’icona se NON sono in /baby/carillon  */
-    this.disabledAudioCarillon = path !== '/baby/carillon';
-  }
-
-
-
+//nascondo il tasto audio carillon
+isAudioIconVisible: boolean = true;
+setAudioVisible(){
+  this.isAudioIconVisible = true;
+}
 ngOnInit(): void {
+    //mostro il tasto audio del carillon quando almeno e presente una foto e se siamo nella rotta dei carillon
 
-  //disabilito il tasto audio se carillon
-    //  calcolo iniziale
-    this.setDisabled(this.router.url);
-    // ricalcolo ad ogni cambio di url (quando resti nello stesso componente)
 this.router.events
-  .pipe(
-    filter((e): e is NavigationEnd => e instanceof NavigationEnd) // 👈 type-guard
-  )
-  .subscribe(e => this.setDisabled(e.urlAfterRedirects));
-
-//verifico se carillon nonn disabilitare
-const categoria = this.route.snapshot.paramMap.get('categoria') ?? '';
-this.disabledAudioCarillon = categoria.toLowerCase().includes('carillon');
+  .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+  .subscribe(() => {
+    const path = this.router.url.split('?')[0];
+    this.isAudioIconVisible = path === '/baby/carillon';
+  });
 
 
 //rilevo disp mobile anziche pc
@@ -237,7 +213,6 @@ this.disabledAudioCarillon = categoria.toLowerCase().includes('carillon');
         // Scrollo in cima alla finestra
     window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
     // Ferma l'audio se attivo
-    this.stopAudio();
 
     // Recupera categoria e sottocategoria dalla route
     this.categoria = params.get('categoria');
@@ -265,9 +240,12 @@ this.disabledAudioCarillon = categoria.toLowerCase().includes('carillon');
 
 
 
-    ngOnDestroy(): void {
-      this.stopAudio();
-    }
+ngOnDestroy(): void {
+
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
+
 
 
 
@@ -400,34 +378,11 @@ caricaAltreImmagini(): void {
 
 
 
-    togglePlayback(): void {
-      const player = this.audioPlayer.nativeElement;
-      if (!this.selectedAudioUrl) return;
-      if (this.isPlaying) {
-        player.pause();
-        this.isPlaying = false;
-      } else {
-        player.src = this.selectedAudioUrl;
-        player.play()
-          .then(() => this.isPlaying = true)
-          .catch(err => console.error('Errore audio:', err));
-      }
-    }
 
-stopAudio(): void {
-  // Evita errore se il player non è inizializzato
-  if (!this.audioPlayer) return;
 
-  const player = this.audioPlayer.nativeElement;
-  player.pause();
-  player.currentTime = 0;
-  this.isPlaying = false;
-}
 
-    onAudioChange(): void {
-      this.stopAudio();
-      this.isPlaying = false;
-    }
+
+
 
     primaLetteraGrande(str: any): string {
       if (!str) return '';
