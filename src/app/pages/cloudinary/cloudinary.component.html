@@ -17,7 +17,15 @@
 <ng-container *ngFor="let item of immaginiFrontaliPaginata">
   <div class="image-wrapper">
     <mat-card class="image-card" (click)="onImmagineClick(item)">
-      <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+      <div class="card-image-container">
+        <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+        <div class="lens-icon">
+          <!-- SVG sempre visibile -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000">
+            <path d="M505 442.7L405.3 343c28.4-34.9 45.7-79 45.7-127C451 96.5 354.5 0 234 0S17 96.5 17 216s96.5 216 216 216c48 0 92.1-17.3 127-45.7l99.7 99.7c4.7 4.7 12.3 4.7 17 0l45.3-45.3c4.8-4.7 4.8-12.3.1-17zM233 368c-84.7 0-152-67.3-152-152S148.3 64 233 64s152 67.3 152 152-67.3 152-152 152z"/>
+          </svg>
+        </div>
+      </div>
     </mat-card>
     <div class="image-info">
       <h3>{{ item.display_name }}</h3>
@@ -25,6 +33,7 @@
     </div>
   </div>
 </ng-container>
+
 
     <!-- ora qui sto passando la variabile dettaglio con immagine selezionata a DettagliComponent difatti dettagli component espone la variabile dettaglio e gli do il valore di immagine selezionata in onImageClick setto immagine selezionata-->
     <!-- devo poter passare anche le altre immagini laterale obliqua ecc..-->  
