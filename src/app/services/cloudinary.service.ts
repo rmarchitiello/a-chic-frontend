@@ -21,19 +21,6 @@ export class CloudinaryService {
     return this.http.get<any>(url);
   }
 
-  // Recupera la configurazione per una categoria
-  getConfig(sottoCategoria: string): Observable<any> {
-    const categoriaCapitalizzata = capitalizeFirstLetter(sottoCategoria);
-    const url = `${this.baseUrl}${this.config}`;
 
-    const params = new HttpParams().set('sottoCategoria', categoriaCapitalizzata);
-
-    return this.http.get<any>(url, { params });
-  }
 }
 
-// Funzione esterna per rendere maiuscola la prima lettera
-function capitalizeFirstLetter(str: string): string {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}

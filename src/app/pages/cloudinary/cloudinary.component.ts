@@ -180,7 +180,7 @@ handleChiudiDettaglio() {
 }
 
 //nascondo il tasto audio carillon
-isAudioIconVisible: boolean = true;
+isAudioIconVisible: boolean = false;
 setAudioVisible(){
   this.isAudioIconVisible = true;
 }

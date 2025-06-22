@@ -60,14 +60,14 @@ caroselloImmagini: {
 
   modelliVideoInEvidenza = [
     {
-      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750238268/Estate_Conchiglia_Bianca_Wct3ey_Rfr0kt_dtffzm.mp4',
+      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585487/Video/Estate_Conchiglia_Bianca_Wct3ey_Rfr0kt_dtffzm_krhe0u.mp4',
       routeCloudinary: '/borse/conchiglia',
       filterType: 'Conchiglia',
       nome: 'Modello Conchiglia',
       descrizione: 'Perfetta per il mare e le giornate estive'
     },
     {
-      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750189434/video_r2bh68.mp4',
+      url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585489/Video/video_r2bh68_j7tmxq.mp4',
       routeCloudinary: '/borse/pochette',
       filterType: 'Pochette',
       nome: 'Modello Clutch',

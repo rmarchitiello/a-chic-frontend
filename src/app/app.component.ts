@@ -154,7 +154,7 @@ setMenuRef(categoria: string, ref: any): boolean {
 
   ngOnInit(): void {
 
-
+    console.log("...FLUSSO INIZIATO...")
 
 
     // Inizializza menuMap con nomi unici per i menu (es. Borse → menu_Borse)
@@ -162,7 +162,7 @@ this.menuMap = {};
 this.categorie.forEach(categoria => {
   this.menuMap[categoria] = `menu_${categoria}`;
 });
-
+console.log("menu map" , this.menuMap)
     this.isMobile = window.innerWidth <= 768;
 
     // Rileva cambiamento di larghezza finestra
@@ -176,6 +176,7 @@ this.categorie.forEach(categoria => {
     // Carica struttura immagini e categorie
     this.cloudinaryService.getImmagini().subscribe({
       next: (data: Record<string, any[]>) => {
+        console.log("data service, ", data)
         this.categorieSottoCategorie = Object.keys(data);
 
         // Estrai le categorie principali (escludi "recensioni") cosi non lo metto nelle categorie
