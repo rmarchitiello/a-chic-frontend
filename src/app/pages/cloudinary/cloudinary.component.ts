@@ -185,14 +185,29 @@ setAudioVisible(){
   this.isAudioIconVisible = true;
 }
 ngOnInit(): void {
-    //mostro il tasto audio del carillon quando almeno e presente una foto e se siamo nella rotta dei carillon
+  // --- START TASTO CARILLON //
 
-this.router.events
-  .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-  .subscribe(() => {
-    const path = this.router.url.split('?')[0];
-    this.isAudioIconVisible = path === '/baby/carillon';
-  });
+    //mostro il tasto audio del carillon quando almeno e presente una foto e se siamo nella rotta dei carillon
+    // Controlla subito la rotta corrente al primo caricamento del componente.
+    // Questo è importante perché Angular NON emette eventi di navigazione
+    // quando il componente è già attivo (come accade se si ricarica la pagina).
+    const currentPath = this.router.url.split('?')[0]; // Elimina la query string
+    this.isAudioIconVisible = currentPath === '/baby/carillon';
+    console.log('[INIT] isAudioIconVisible:', this.isAudioIconVisible);
+
+    //2. Ascolta gli eventi di navigazione futuri.
+    // NavigationEnd viene emesso SOLO quando la navigazione è completata.
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd) // Filtra solo NavigationEnd
+      )
+      .subscribe((event) => {
+        // Ottieni la rotta senza parametri
+        const path = this.router.url.split('?')[0];
+        this.isAudioIconVisible = path === '/baby/carillon';
+        console.log('[ROUTE CHANGE] isAudioIconVisible:', this.isAudioIconVisible);
+      });
+// --- END TASTO CARILLON //
 
 
 //rilevo disp mobile anziche pc
