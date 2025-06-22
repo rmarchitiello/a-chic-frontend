@@ -1,5 +1,5 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
-import { RouterOutlet, Router  } from '@angular/router';
+import { RouterOutlet, Router,NavigationEnd   } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from './services/cloudinary.service';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -24,7 +24,7 @@ import { ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MobileFooterComponent } from './pages/mobile-footer/mobile-footer.component';
 import { MobileHeaderComponent } from './pages/mobile-header/mobile-header.component';
-
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -102,6 +102,8 @@ menuMap: { [categoria: string]: string } = {};
   //i filtri delle sottocategorie
   sottoCategoriaEspansa: string | null = null;
 
+//gestione del cms, setto prima a false cosi quando carico il sito normale vedo tutto il sito
+isCmsAttivo = false;
 
 toggleCategoria(cat: string): void {
   this.categoriaEspansa = this.categoriaEspansa === cat ? null : cat;
@@ -153,7 +155,21 @@ setMenuRef(categoria: string, ref: any): boolean {
 }
 
   ngOnInit(): void {
+    console.log("Verifica se e cms");
 
+    //verifica url iniziale perche is cms è false prima volta
+      this.isCmsAttivo = this.router.url.includes('/cms-login');
+    console.log("Iniziale isCmsAttivo?", this.isCmsAttivo);
+
+    //acolto i successivi cambiamenti di rotta
+  this.router.events
+    .pipe(filter(event => event instanceof NavigationEnd))
+    .subscribe((event: any) => {
+      this.isCmsAttivo = event.url.includes('/cms-login');
+      console.log("NavigationEnd isCmsAttivo?", this.isCmsAttivo);
+    });
+
+        console.log("cms attivo ? ", this.isCmsAttivo);
     console.log("...FLUSSO INIZIATO...")
 
 

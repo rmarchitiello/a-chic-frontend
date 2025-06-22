@@ -1,5 +1,11 @@
+<!-- CMS attivo: mostra solo la login o il pannello CMS -->
+<!-- Mostra solo il CMS -->
+<ng-container *ngIf="!isMobile && isCmsAttivo">
+  <router-outlet></router-outlet>
+</ng-container>
+
 <!-- Toolbar principale per desktop -->
-<ng-container *ngIf="!isMobile">
+  <ng-container *ngIf="!isMobile && !isCmsAttivo">
   <mat-toolbar color="primary" class="toolbar">
     <span class="logo" (click)="goTo('/home')">A-Chic</span>
 

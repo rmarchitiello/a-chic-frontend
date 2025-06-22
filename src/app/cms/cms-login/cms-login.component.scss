@@ -1,0 +1,56 @@
+/* =======================================================
+   STILI PER IL COMPONENTE CMS LOGIN
+   ======================================================= */
+
+/* ===============================
+   CONTENITORE DESKTOP
+   =============================== */
+.cms-login-wrapper {
+  max-width: 400px;
+  margin: 5rem auto;
+  padding: 2rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  font-family: 'Arial', sans-serif;
+}
+
+/* Titolo CMS */
+.cms-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+/* Estende i campi su tutta la larghezza */
+.full-width {
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+/* ===============================
+   STILI MOBILE - BLOCCO CMS
+   =============================== */
+.mobile-blocked {
+  max-width: 90%;
+  margin: 5rem auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #fef2f2;
+  border: 1px solid #f5c2c7;
+  border-radius: 8px;
+  color: #b02a37;
+  font-family: 'Arial', sans-serif;
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #721c24;
+  }
+}
