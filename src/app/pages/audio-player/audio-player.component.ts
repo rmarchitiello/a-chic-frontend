@@ -1,40 +1,68 @@
 import {
   Component,
-  ViewChild,
-  ElementRef,
-  OnInit,
   Output,
   EventEmitter,
-  OnDestroy
+  OnInit
 } from '@angular/core';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-audio-player',
   standalone: true,
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatListModule
+  ],
   templateUrl: './audio-player.component.html',
   styleUrls: ['./audio-player.component.scss'],
-  imports: [MatIconModule, MatListModule, MatButtonModule, CommonModule]
+animations: [
+  trigger('panelSlideAnimation', [
+    state('in', style({ transform: 'translateY(0)', opacity: 1 })),
+    state('out', style({ transform: 'translateY(100%)', opacity: 0 })),
+    transition('void => in', [
+      style({ transform: 'translateY(100%)', opacity: 0 }),
+      animate('400ms ease-out')
+    ]),
+    transition('in => out', [
+      animate('400ms ease-in')
+    ])
+  ])
+]
+
 })
-export class AudioPlayerComponent implements OnInit, OnDestroy {
-  @ViewChild('audioPlayer') audioPlayerRef!: ElementRef<HTMLAudioElement>;
+export class AudioPlayerComponent implements OnInit {
+  // Stato per attivare la sfocatura e lo sfondo dell’overlay
+  attivo = false;
 
-  @Output() chiudiPlayer = new EventEmitter<void>();
-  @Output() audioVisible = new EventEmitter<void>();
+  // Stato per attivare l’animazione CSS di sfocatura in uscita
+  panelClosing = false;
 
+  // Stato per attivare l’animazione Angular del pannello audio
+  panelAnimationState: 'in' | 'out' = 'in';
+
+  // Stato responsive
   isMobile = false;
+
+  // Output verso il padre: notifico che l’animazione è finita e può togliere il componente
+  @Output() chiusuraAnimazioneCompleta = new EventEmitter<void>();
+
   currentIndex: number | null = null;
   isPlaying = false;
-  attivo = false;    // Apre pannello con animazione
-  chiusura = false;  // Chiude pannello con animazione
-  disableCarillonAudio: boolean = false
-  // Lista audio disponibili
+
+  // Lista di melodie disponibili
   assetCarllonAudioUrl = [
     { nome_canzone: 'Over The Raimbow', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585255/Audio/Over_The_Raimbow_vyzoko.mp3' },
     { nome_canzone: 'Harry Potter', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585254/Audio/Harry_Potter_jv8kjx.mp3' },
@@ -44,71 +72,61 @@ export class AudioPlayerComponent implements OnInit, OnDestroy {
     { nome_canzone: 'La Bella e la Bestia', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585254/Audio/La_Bella_e_La_Bestia_pvsvs2.mp3' },
     { nome_canzone: 'Ninna Nanna', url: 'https://res.cloudinary.com/dmf1qtmqd/video/upload/v1750585255/Audio/Ninna_Nanna_ikcinv.mp3' }
   ];
-
-  constructor(private breakpointObserver: BreakpointObserver,   private router: Router) {}
+  constructor(private breakpointObserver: BreakpointObserver) {}
 
   ngOnInit(): void {
-    this.disableCarillonAudio = true;
-    // Attiva animazione di apertura
-    setTimeout(() => this.attivo = true, 10);
+    // Imposta "mobile" se la viewport è inferiore a 768px
+    this.breakpointObserver
+      .observe(['(max-width: 768px)'])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
 
-    // Disabilita lo scroll globale
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-
-    // Rileva se siamo su mobile
-    this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
-      this.isMobile = result.matches;
-    });
-
-    //verifico la url corrente
-      this.checkAudioSection(this.router.url);
-
-
-        // Verifica anche dopo ogni navigazione
-  this.router.events
-    .pipe(filter(e => e instanceof NavigationEnd))
-    .subscribe((e: NavigationEnd) => this.checkAudioSection(e.urlAfterRedirects));
+    // Attiva la classe .attiva (overlay visibile) dopo il rendering iniziale
+    setTimeout(() => {
+      this.attivo = true;
+      this.panelAnimationState = 'in';
+    }, 10);
   }
 
+  /**
+   * Chiude il pannello:
+   * - Rimuove la classe .attiva per l’overlay
+   * - Avvia l’animazione Angular "out" verso il basso
+   * - Dopo 400ms notifica il padre con chiusuraAnimazioneCompleta
+   */
 
-  private checkAudioSection(url: string): void {
-  const path = url.split('?')[0]; // rimuove eventuali query string
-  this.disableCarillonAudio = path === '/baby/carillon';
+closeWindow(): void {
+  this.attivo = false;
+  this.panelClosing = true;
+  this.panelAnimationState = 'out';
+
+  setTimeout(() => {
+    this.chiusuraAnimazioneCompleta.emit();  // Notifica il padre dopo animazione
+    this.panelClosing = false;
+  }, 400); // Deve combaciare con la durata SCSS + Angular
 }
 
-  ngOnDestroy(): void {
-    // Riabilita lo scroll globale quando il componente viene distrutto
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
-  }
 
   togglePlay(url: string, index: number): void {
-    const audioEl = this.audioPlayerRef.nativeElement;
+  const audioEl = document.querySelector('audio') as HTMLAudioElement;
 
-    if (this.currentIndex === index && this.isPlaying) {
-      audioEl.pause();
-      this.isPlaying = false;
-    } else {
-      audioEl.src = url;
-      audioEl.play();
-      this.currentIndex = index;
-      this.isPlaying = true;
-    }
-  }
+  if (!audioEl) return;
 
-  onEnded(): void {
+  if (this.currentIndex === index && this.isPlaying) {
+    audioEl.pause();
     this.isPlaying = false;
+  } else {
+    audioEl.src = url;
+    audioEl.play();
+    this.currentIndex = index;
+    this.isPlaying = true;
   }
+}
 
-  // Chiude il pannello con animazione e sblocca lo scroll dopo 400ms
-  closePlayer(): void {
-    this.attivo = false;
-    this.chiusura = true;
+onEnded(): void {
+  this.isPlaying = false;
+}
 
-    setTimeout(() => {
-      this.chiusura = false;
-      this.chiudiPlayer.emit(); // dice al padre di fare mostraAudioPlayer = false
-    }, 400);
-  }
+
 }

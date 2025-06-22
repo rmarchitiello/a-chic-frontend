@@ -111,16 +111,9 @@ paginaSuccessiva(): void {
 a DettagliComponent che è il componente figlio di ClaudinaryComponent, ma uso @Input */
 
 immagineSelezionata: any | null = null; //variabile da passare a DettagliComponent per l'immagine selezionata
-chiudiAudioSeAperto(): void {
-  if (this.mostraAudioPlayer) {
-    this.mostraAudioPlayer = false;
-  }
-}
-handleChiudiPlayer() {
-  setTimeout(() => {
-    this.mostraAudioPlayer = false; // rimuove solo dopo l’animazione
-  }, 400); // deve combaciare con la durata della slideDownFade
-}
+
+
+
 
 //al click dell immagine passo la singola immagine a questa funzione
 onImmagineClick(item: any): void {
@@ -168,6 +161,8 @@ Ovvero in DettagliComponent ci sarà una variabile dettaglio che vale immagineSe
 
 //questo serve per eliminare il ghosting tra l animazione del pannello che scompare e il tag html <app-dettagli questo perche il comando di eliminare il tag ovvero quando immagine selezionata e null e tra 400 secondi e non subito
 handleChiudiDettaglio() {
+      console.log('PADRE: ricevo chiusura, ora tolgo il dettagli');
+
   // Attendi la fine dell'animazione
   setTimeout(() => {
     this.immagineSelezionata = null;
@@ -178,6 +173,19 @@ handleChiudiDettaglio() {
 
   }, 400); // tempo identico all'animazione di chiusura
 }
+
+handleChiudiAudioPlayer(): void {
+  console.log('PADRE: ricevo chiusura, ora tolgo il player');
+
+  this.mostraAudioPlayer = false; // <--- OK qui
+
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
+
+
+
+
 
 //nascondo il tasto audio carillon
 isAudioIconVisible: boolean = false;
