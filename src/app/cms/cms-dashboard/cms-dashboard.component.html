@@ -1,0 +1,32 @@
+<!-- MOBILE: accesso bloccato -->
+<ng-container *ngIf="isMobile">
+  <mat-card class="mobile-blocked-card">
+    <mat-card-header>
+      <mat-card-title>Accesso non disponibile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Il CMS non è accessibile da dispositivi mobili.</p>
+      <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
+    </mat-card-content>
+  </mat-card>
+</ng-container>
+
+<!-- DESKTOP: dashboard CMS -->
+<ng-container *ngIf="!isMobile">
+  <mat-card class="dashboard-card">
+    <mat-card-header>
+      <mat-card-title>Benvenuto nel CMS</mat-card-title>
+      <mat-card-subtitle>Gestione contenuti del sito</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <p>Puoi caricare nuovi contenuti o visualizzare quelli esistenti.</p>
+    </mat-card-content>
+
+    <mat-card-actions class="dashboard-actions">
+      <button mat-raised-button color="primary" routerLink="/cms/upload">Carica contenuti</button>
+      <button mat-raised-button color="accent" routerLink="/cms/media">Gestisci media</button>
+      <button mat-button color="warn" (click)="logout()">Logout</button>
+    </mat-card-actions>
+  </mat-card>
+</ng-container>

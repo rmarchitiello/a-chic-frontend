@@ -5,6 +5,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cms-login',
@@ -24,6 +25,7 @@ export class CmsLoginComponent implements OnInit {
   // FormGroup per la gestione reattiva del form di login
   loginForm!: FormGroup;
 
+
   // Stato booleano per determinare se l'utente è su dispositivo mobile
   isMobile: boolean = false;
 
@@ -31,7 +33,8 @@ export class CmsLoginComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -51,13 +54,30 @@ export class CmsLoginComponent implements OnInit {
       });
   }
 
-  // Metodo chiamato al submit della form
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      console.log('Valori del form inviato:', this.loginForm.value);
-      // Qui puoi inviare i dati al tuo backend per l'autenticazione
-    } else {
-      this.loginForm.markAllAsTouched(); // Mostra errori se i campi sono non validi
-    }
+  //utenza di dev 
+  utenza: any =  {
+        email: "admin@admin.com",
+        password: "qwe!@#DevCMS2025"
   }
+
+  // Metodo chiamato al submit della form
+onSubmit(): void {
+  const { email, password } = this.loginForm.value;
+  console.log("Valore della form:", this.loginForm.value);
+
+  if (this.loginForm.valid) {
+    console.log('Valori del form inviato:', JSON.stringify(this.loginForm.value));
+
+    if (email === this.utenza.email && password === this.utenza.password) {
+      localStorage.setItem('cms-login', 'true');
+      this.router.navigate(['/cms/dashboard']);
+    } else {
+      alert("Credenziali non valide");
+    }
+  } else {
+    // Se il form non è valido, forza la visualizzazione degli errori
+    this.loginForm.markAllAsTouched();
+  }
+}
+
 }

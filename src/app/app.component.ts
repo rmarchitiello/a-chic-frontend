@@ -158,14 +158,14 @@ setMenuRef(categoria: string, ref: any): boolean {
     console.log("Verifica se e cms");
 
     //verifica url iniziale perche is cms è false prima volta
-      this.isCmsAttivo = this.router.url.includes('/cms-login');
+      this.isCmsAttivo = this.router.url.startsWith('/cms');
     console.log("Iniziale isCmsAttivo?", this.isCmsAttivo);
 
     //acolto i successivi cambiamenti di rotta
   this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
     .subscribe((event: any) => {
-      this.isCmsAttivo = event.url.includes('/cms-login');
+      this.isCmsAttivo = event.url.startsWith('/cms');
       console.log("NavigationEnd isCmsAttivo?", this.isCmsAttivo);
     });
 
