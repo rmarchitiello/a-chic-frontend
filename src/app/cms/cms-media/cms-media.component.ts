@@ -158,7 +158,18 @@ convertToFullTree(obj: any, currentPath: string = ''): TreeNode[] {
 hasChild = (_: number, node: TreeNode): boolean =>
   Array.isArray(node.children); // anche se children è vuoto
 
+//metodo per aggiungere una nuova cartella
+categoriaFolder(node: any, nomeFolderDaCreare: string){
 
+    const folderSorgente = node;
+    const nomeFolder = nomeFolderDaCreare;
+    const nuovoPercorso = `${folderSorgente.fullPath}/${nomeFolder}`;
+    console.log("Folder dove si vuole creare la cartella" , folderSorgente);
+    console.log("Folder da creare" , nomeFolder);
+    console.log("Nuovo percorso da creare" , nuovoPercorso);
+
+
+}
 
 deleteFolder(node: any) {
   // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')

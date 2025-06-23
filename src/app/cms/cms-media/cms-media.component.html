@@ -36,23 +36,37 @@
           <!-- Icona cartella -->
           <mat-icon class="mr-2">folder</mat-icon>
 
-          <!-- Nome cartella + pulsante elimina -->
-          <div class="node-content">
-            <!-- Clic sul nome seleziona il nodo -->
-            <span (click)="onNodeClick(node)"
-                  [class.selected-node]="nodoSelezionato === node">
-              {{ node.name }}
-            </span>
+          <!-- Contenitore che mostra il nome della cartella e i pulsanti di azione -->
+<div class="node-content">
 
-            <!-- Pulsante per eliminare la cartella -->
-            <button
-              mat-icon-button
-              class="delete-folder-button"
-              (click)="deleteFolder(node.fullPath); $event.stopPropagation();"
-              aria-label="Elimina cartella">
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
-          </div>
+  <!-- Clic sul nome seleziona il nodo (evidenziato se è quello attualmente selezionato) -->
+  <span (click)="onNodeClick(node)"
+        [class.selected-node]="nodoSelezionato === node">
+    {{ node.name }}
+  </span>
+
+  <!-- Pulsante per eliminare la cartella corrente -->
+  <button
+    mat-icon-button
+    class="delete-folder-button"
+    (click)="deleteFolder(node.fullPath); $event.stopPropagation();"
+    aria-label="Elimina cartella">
+    <!-- Icona del cestino, colorata di rosso (Angular Material) -->
+    <mat-icon color="warn">delete</mat-icon>
+  </button>
+
+  <!-- Pulsante per creare una sottocartella all'interno della cartella corrente -->
+  <button
+    mat-icon-button
+    class="create-folder-button"
+    (click)="categoriaFolder(node, 'nome-della-nuova-cartella')"
+    aria-label="Aggiungi sottocartella">
+    <!-- Icona della cartella nuova, colorata di blu (Angular Material) -->
+    <mat-icon color="primary">create_new_folder</mat-icon>
+  </button>
+
+</div>
+
 
         </div>
 
@@ -85,6 +99,8 @@
     <button mat-raised-button class="refresh-button" (click)="refreshFolders()">
       Refresh cartelle con il cloud
     </button>
+
+
 
   </div>
 

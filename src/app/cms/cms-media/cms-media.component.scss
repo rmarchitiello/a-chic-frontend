@@ -38,16 +38,58 @@
     background-color: transparent;
   }
 
-  // Contenitore flessibile per nome cartella e bottone delete
+  // Contenitore flessibile per nome cartella e bottoni (delete + create)
   .node-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    gap: 4px;
     width: 100%;
+    position: relative;
+
+    // Nasconde i bottoni di default
+    .delete-folder-button,
+    .create-folder-button {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    // Mostra i bottoni solo al passaggio del mouse
+    &:hover .delete-folder-button,
+    &:hover .create-folder-button {
+      opacity: 1;
+    }
+
+    // Bottoni (dimensioni più piccole)
+    button.mat-icon-button {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      margin-left: 4px;
+
+      mat-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+    }
+
+    .delete-folder-button mat-icon {
+      color: #f44336;
+    }
+
+    .delete-folder-button:hover mat-icon {
+      color: #d32f2f;
+    }
+
+    .create-folder-button mat-icon {
+      color: #1976d2;
+    }
+
+    .create-folder-button:hover mat-icon {
+      color: #1565c0;
+    }
   }
 
-  // Nome del nodo: evita overflow e mantiene leggibilità
+  // Nome cartella: testo ellipsis e tooltip
   .mat-tree-node span {
     display: inline-block;
     max-width: 220px;
@@ -57,7 +99,6 @@
     vertical-align: middle;
   }
 
-  // Tooltip per il nome completo al passaggio del mouse
   .mat-tree-node span:hover {
     overflow: visible;
     white-space: normal;
@@ -79,7 +120,7 @@
   z-index: 10;
 }
 
-// Colonna destra: area contenuti dinamici
+// Colonna destra: contenuto dinamico
 .cms-content {
   flex: 1;
   padding: 2rem;
@@ -87,7 +128,7 @@
   overflow-y: auto;
 }
 
-// Icona di cartella con margine a destra
+// Icona cartella con margine a destra
 mat-icon.mr-2 {
   margin-right: 8px;
 }
@@ -104,7 +145,7 @@ mat-icon.transparent {
   padding: 2px 4px;
 }
 
-// Blocco di avviso solo su mobile
+// Messaggio blocco mobile
 .mobile-blocked {
   max-width: 90%;
   margin: 5rem auto;
@@ -114,7 +155,6 @@ mat-icon.transparent {
   border: 1px solid #f5c2c7;
   border-radius: 8px;
   color: #b02a37;
-  font-family: 'Arial', sans-serif;
 
   h2 {
     font-size: 1.4rem;
@@ -127,15 +167,13 @@ mat-icon.transparent {
   }
 }
 
-// Gestione padding dei livelli nel mat-tree
+// Padding per livelli mat-tree
 ::ng-deep .mat-tree-node {
   padding-left: 0 !important;
 }
-
 ::ng-deep .mat-nested-tree-node {
   display: block;
 }
-
 ::ng-deep .mat-tree-node.mat-tree-node-level-0 {
   padding-left: 0px !important;
 }
@@ -152,26 +190,7 @@ mat-icon.transparent {
   padding-left: 96px !important;
 }
 
-// Pulsante di refresh cartelle
+// Pulsante refresh cartelle
 .refresh-button {
   margin-top: 10px;
-}
-
-// Pulsante per eliminare cartelle
-.delete-folder-button {
-  padding: 4px;
-  border-radius: 4px;
-
-  mat-icon {
-    color: #f44336;
-    transition: color 0.2s ease;
-  }
-
-  &:hover mat-icon {
-    color: #d32f2f;
-  }
-
-  &:active {
-    background-color: rgba(244, 67, 54, 0.1);
-  }
 }
