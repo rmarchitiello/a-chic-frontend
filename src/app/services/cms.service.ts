@@ -28,4 +28,12 @@ export class CmsService {
     return this.http.get<any>(url, { params });
   }
 
+
+    deleteFolder(folderName: string): Observable<any> {
+        const url = `${this.baseUrl}${this.images}`;
+        const params = new HttpParams().set('folderName', folderName);
+       return this.http.delete<any>(url, { params });
+}
+
+
 }

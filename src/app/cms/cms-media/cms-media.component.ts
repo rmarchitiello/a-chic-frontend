@@ -12,8 +12,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
   name: string;
+  fullPath: string; // aggiunto
   children?: TreeNode[];
 }
+
 
 @Component({
   selector: 'app-cms-media',
@@ -51,54 +53,72 @@ export class CmsMediaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Osserva la larghezza dello schermo per abilitare/disabilitare la UI CMS su mobile
-    this.breakpointObserver
-      .observe(['(max-width: 768px)'])
-      .subscribe(result => {
-        this.isMobile = result.matches;
-        this.loading = false;
+  // Osserva la larghezza dello schermo
+  this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .subscribe(result => {
+      this.isMobile = result.matches;
+      this.loading = false;
 
-        if (!this.isMobile) {
-          this.loading = true;
+      if (!this.isMobile) {
+        this.loadFolders(); // carica cartelle
+      }
+    });
+}
 
-          // Recupera la struttura ad albero delle cartelle dal backend
-          this.cmsService.getFolders().subscribe({
-            next: (foldersJson) => {
-              console.log("Folders JSON ricevuto:", foldersJson);
-              const treeData = this.convertToFullTree(foldersJson);
-              console.log("TreeData generato:", JSON.stringify(treeData));
-              this.dataSource.data = treeData;
-              this.loading = false;
-            },
-            error: (err) => {
-              console.error("Errore nel recupero delle cartelle:", err);
-              this.loading = false;
-            }
-          });
-        }
-      });
-  }
+
+  //metodo per caricare le cartelle dalla cash:
+loadFolders(): void {
+  this.loading = true;
+
+  this.cmsService.getFolders().subscribe({
+    next: (foldersJson) => {
+      const treeData = this.convertToFullTree(foldersJson);
+      this.dataSource.data = treeData;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error("Errore nel recupero delle cartelle:", err);
+      this.loading = false;
+    }
+  });
+}
+
+
 
   /**
-   * Converte OGNI livello della struttura JSON in un array di nodi,
-   * mantenendo anche i figli vuoti come array per rendere visibile il toggle.
-   */
-convertToFullTree(obj: any): TreeNode[] {
+ * Converte la struttura JSON in un array di nodi per mat-tree.
+ * Ogni nodo contiene:
+ * - name: il nome della cartella
+ * - children: eventuali sottocartelle (anche vuote se è un array)
+ * - fullPath: il percorso completo utile per operazioni come la cancellazione
+ *
+ * @param obj Oggetto JSON delle cartelle ricevuto da Cloudinary
+ * @param currentPath Percorso parziale accumulato (inizia come stringa vuota)
+ * @returns Array di nodi TreeNode con struttura ricorsiva
+ */
+convertToFullTree(obj: any, currentPath: string = ''): TreeNode[] {
+
   return Object.entries(obj).map(([key, value]) => {
+    const fullPath = currentPath ? `${currentPath}/${key}` : key;
+
     let children: TreeNode[] = [];
 
-    // Se il valore è un oggetto, ricorsivamente costruiamo i figli
+    // Se il valore è un oggetto, costruisce ricorsivamente i figli
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      children = this.convertToFullTree(value);
+      children = this.convertToFullTree(value, fullPath);
     }
 
-    // Se è array (di contenuti finali, non cartelle), aggiungiamo children vuoti
+    // Se è un array, significa che è una foglia (senza sottocartelle)
     if (Array.isArray(value)) {
-      children = []; // Rende il nodo espandibile ma senza figli
+      children = []; // serve per rendere espandibile anche se vuota
     }
+
+    // Log del nodo completo
 
     return {
       name: key,
+      fullPath: fullPath,
       children: children
     };
   });
@@ -119,9 +139,7 @@ convertToFullTree(obj: any): TreeNode[] {
   console.log("chiamo la refresh");
   this.cmsService.getFolders(true).subscribe({
     next: (foldersJson) => {
-      console.log("Folders JSON ricevuto:", foldersJson);
       const treeData = this.convertToFullTree(foldersJson);
-      console.log("TreeData generato:", JSON.stringify(treeData));
       this.dataSource.data = treeData;
       this.loading = false;
     },
@@ -139,6 +157,37 @@ convertToFullTree(obj: any): TreeNode[] {
    */
 hasChild = (_: number, node: TreeNode): boolean =>
   Array.isArray(node.children); // anche se children è vuoto
+
+
+
+deleteFolder(node: any) {
+  // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')
+  const folderDaCancellare = node;
+  console.log("Cartella da cancellare:", folderDaCancellare);
+
+  // Effettua la chiamata DELETE al servizio CMS
+  this.cmsService.deleteFolder(folderDaCancellare).subscribe({
+    next: (result) => {
+      // Stampa conferma in console
+      console.log("Risposta della cancellazione: ", result);
+
+      // Dopo la cancellazione, ricarica l'albero delle cartelle
+      this.loadFolders();
+    },
+    error: (err) => {
+      // Stampa l'errore dettagliato in console
+      console.error("Errore nella cancellazione della folder:", err.error);
+
+      // Se l'errore indica che la cartella non è vuota, avvisa l'utente
+      if (err.error.error.includes("Folder is not empty")) {
+        alert("Impossibile eliminare la cartella: contiene ancora file o sottocartelle.");
+      } else {
+        // Qualsiasi altro errore generico
+        alert("Errore imprevisto durante la cancellazione.");
+      }
+    }
+  });
+}
 
 
 
