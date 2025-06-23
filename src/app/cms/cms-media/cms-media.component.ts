@@ -165,6 +165,16 @@ deleteFolder(node: any) {
   const folderDaCancellare = node;
   console.log("Cartella da cancellare:", folderDaCancellare);
 
+  //chiedo all utente se vuole cancellare la cartella
+    const confermato = window.confirm(`Sei sicuro di voler eliminare la cartella "${folderDaCancellare}"?`);
+
+      // Se l'utente annulla, interrompi l'operazione
+  if (!confermato) {
+    console.log("Eliminazione annullata dall'utente");
+    return;
+  }
+
+
   // Effettua la chiamata DELETE al servizio CMS
   this.cmsService.deleteFolder(folderDaCancellare).subscribe({
     next: (result) => {
