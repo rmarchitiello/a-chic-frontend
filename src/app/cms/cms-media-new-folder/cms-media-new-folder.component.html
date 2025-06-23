@@ -1,0 +1,19 @@
+<div class="dialog-container">
+  <h2 class="dialog-title">Nuova cartella</h2>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nome della cartella</mat-label>
+    <input matInput placeholder="Es. collezione-estate" [(ngModel)]="nomeCartella">
+  </mat-form-field>
+
+  <div class="button-row">
+    <button mat-button class="btn-annulla" (click)="dialogRef.close()">Annulla</button>
+    <button
+      mat-button
+      class="btn-crea"
+      [disabled]="!nomeCartella"
+      (click)="dialogRef.close(nomeCartella)">
+      Crea
+    </button>
+  </div>
+</div>

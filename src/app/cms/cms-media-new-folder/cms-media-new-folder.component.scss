@@ -1,0 +1,74 @@
+// Contenitore principale del dialog
+.dialog-container {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 2rem;
+  min-width: 300px;
+  max-width: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-family: 'Arial', sans-serif;
+}
+
+// Titolo del popup
+.dialog-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+// Input personalizzato
+mat-form-field {
+  width: 100%;
+  margin-bottom: 1.5rem;
+
+  input {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+}
+
+// Pulsanti in fondo
+.button-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  button {
+    min-width: 100px;
+    border-radius: 20px;
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  // Pulsante "Crea" attivo
+  .btn-crea[mat-button]:not([disabled]) {
+    background-color: #1976d2;
+    color: white;
+
+    &:hover {
+      background-color: #1565c0;
+    }
+  }
+
+  // Pulsante "Annulla"
+  .btn-annulla {
+    color: #1976d2;
+  }
+}
+
+// Responsive su mobile
+@media (max-width: 480px) {
+  .dialog-container {
+    padding: 1.2rem;
+  }
+
+  .button-row {
+    flex-direction: column;
+    align-items: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
+}

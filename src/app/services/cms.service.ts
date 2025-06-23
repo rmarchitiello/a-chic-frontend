@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment';
 export class CmsService {
 
   private baseUrl = environment.apiBaseUrl + 'cms';
-  private images = '/media-folder';
+  private media = '/media-folder';
 
   constructor(private http: HttpClient) {}
 
@@ -18,7 +18,7 @@ export class CmsService {
    * Se `refresh` è true, forza l’aggiornamento bypassando la cache.
    */
   getFolders(refresh: boolean = false): Observable<any> {
-    const url = `${this.baseUrl}${this.images}`;
+    const url = `${this.baseUrl}${this.media}`;
     
     let params = new HttpParams();
     if (refresh) {
@@ -30,10 +30,18 @@ export class CmsService {
 
 
     deleteFolder(folderName: string): Observable<any> {
-        const url = `${this.baseUrl}${this.images}`;
+        const url = `${this.baseUrl}${this.media}`;
         const params = new HttpParams().set('folderName', folderName);
        return this.http.delete<any>(url, { params });
 }
+
+createFolder(fullPath: string): Observable<any> {
+  const url = `${this.baseUrl}${this.media}`; 
+  const body = { fullPath }; // Invio come JSON: { "fullPath": "/ciao/prova" }
+
+  return this.http.post<any>(url, body); // Invia il body JSON al backend
+}
+
 
 
 }

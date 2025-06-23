@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { CmsMediaNewFolderComponent } from '../cms-media-new-folder/cms-media-new-folder.component';
+import { MatDialog } from '@angular/material/dialog';
 
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
@@ -27,8 +29,7 @@ interface TreeNode {
     MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
-  ]
+    MatProgressSpinnerModule  ]
 })
 export class CmsMediaComponent implements OnInit {
 
@@ -49,7 +50,8 @@ export class CmsMediaComponent implements OnInit {
 
   constructor(
     private cmsService: CmsService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -158,17 +160,56 @@ convertToFullTree(obj: any, currentPath: string = ''): TreeNode[] {
 hasChild = (_: number, node: TreeNode): boolean =>
   Array.isArray(node.children); // anche se children è vuoto
 
+
+
+/* PER CREARE LA CARTELLA, MOSTRO UN POP UP CIOE, QUANDO CLICCO SUL + PER CREARE LA CARTELLA CHIAMO apriPopUpAddFolder 
+passando il node.fullPath
+importo import { MatDialog } from '@angular/material/dialog';
+ il pop up sara un nuovo component ovviamente con un suo template che ovviamente importo CmsMediaNewFolderComponent */
+
+apriPopUpAddFolder(node: any): void {
+  const parentPath = node.fullPath; // cartella in cui voglio creare la nuova
+
+  const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
+        width: '90vw', // per grandezza pop up
+  });
+
+  // Ricevo il nome della nuova cartella dopo la chiusura del popup
+  dialogRef.afterClosed().subscribe((nomeCartella: string) => {
+    if (nomeCartella) {
+      console.log('Nome cartella da creare:', nomeCartella);
+      const fullPath = parentPath ? `${parentPath}/${nomeCartella}` : nomeCartella;
+
+      this.addFolder(fullPath);
+
+    }
+  });
+}
+
 //metodo per aggiungere una nuova cartella
-categoriaFolder(node: any, nomeFolderDaCreare: string){
-
-    const folderSorgente = node;
-    const nomeFolder = nomeFolderDaCreare;
-    const nuovoPercorso = `${folderSorgente.fullPath}/${nomeFolder}`;
-    console.log("Folder dove si vuole creare la cartella" , folderSorgente);
-    console.log("Folder da creare" , nomeFolder);
-    console.log("Nuovo percorso da creare" , nuovoPercorso);
+addFolder(fullPath: string) {
+  // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')
+  const folderDaCreare = fullPath;
+  console.log("Cartella da creare:", folderDaCreare);
 
 
+  // Effettua la chiamata DELETE al servizio CMS
+  this.cmsService.createFolder(folderDaCreare).subscribe({
+    next: (result) => {
+      // Stampa conferma in console
+      console.log("Risposta della creazione: ", result);
+
+      // Dopo la creazione, ricarica l'albero delle cartelle
+      this.loadFolders();
+    },
+    error: (err) => {
+      // Stampa l'errore dettagliato in console
+      console.error("Errore nella creazione della folder:", err.error);
+        // Qualsiasi altro errore generico
+        alert("Errore imprevisto durante la creazione.");
+      
+    }
+  });
 }
 
 deleteFolder(node: any) {
