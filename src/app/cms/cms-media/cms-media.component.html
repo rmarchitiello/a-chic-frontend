@@ -1,0 +1,66 @@
+<!-- Blocco visibile solo su mobile -->
+<div *ngIf="isMobile" class="mobile-blocked">
+  <h2>Accesso CMS non disponibile su mobile</h2>
+  <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
+</div>
+
+<!-- Layout CMS attivo solo su desktop -->
+<div *ngIf="!isMobile" class="cms-layout">
+
+  <!-- Sidebar sinistra: struttura ad albero -->
+  <div class="cms-sidebar">
+
+    <!-- Spinner visibile durante il caricamento delle cartelle -->
+    <div *ngIf="loading" class="spinner-container">
+      <mat-spinner diameter="30"></mat-spinner>
+      <p>Caricamento cartelle...</p>
+    </div>
+
+    <!-- MatTree visibile solo quando il caricamento è completato -->
+    <mat-tree *ngIf="!loading"
+              [dataSource]="dataSource"
+              [treeControl]="treeControl"
+              class="folder-tree">
+
+      <!-- Nodo con figli (anche se vuoti) -->
+      <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+        <div class="mat-tree-node">
+          <button mat-icon-button matTreeNodeToggle>
+            <mat-icon>
+              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
+            </mat-icon>
+          </button>
+          <mat-icon class="mr-2">folder</mat-icon>
+          <span (click)="onNodeClick(node)"
+                [class.selected-node]="nodoSelezionato === node">
+            {{ node.name }}
+          </span>
+        </div>
+        <div *ngIf="treeControl.isExpanded(node)">
+          <ng-container matTreeNodeOutlet></ng-container>
+        </div>
+      </mat-nested-tree-node>
+
+      <!-- Nodo foglia (senza children) -->
+      <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+        <div class="mat-tree-node">
+          <button mat-icon-button disabled>
+            <mat-icon class="transparent">chevron_right</mat-icon>
+          </button>
+          <mat-icon class="mr-2">insert_drive_file</mat-icon>
+          <span (click)="onNodeClick(node)"
+                [class.selected-node]="nodoSelezionato === node">
+            {{ node.name }}
+          </span>
+        </div>
+      </mat-tree-node>
+    </mat-tree>
+
+  </div>
+
+  <!-- Area destra: contenuti dinamici -->
+  <div class="cms-content">
+    <h2>Contenuti</h2>
+    <p>Qui verranno mostrati i contenuti della cartella selezionata.</p>
+  </div>
+</div>

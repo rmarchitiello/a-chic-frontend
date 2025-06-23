@@ -14,10 +14,19 @@ export class CmsDashboardComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,    private router: Router
-
   ) {}
 
 isMobile: boolean = false;
+
+
+goToCmsGetMedia(){
+  this.router.navigate(['/cms/media']);
+
+}
+
+goToCmsUpload(){
+  this.router.navigate(['/cms/upload']);
+}
 
   ngOnInit(): void {
         // Rileva se la finestra è in modalità mobile (<=768px)

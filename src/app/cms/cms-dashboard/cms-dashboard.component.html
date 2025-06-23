@@ -24,8 +24,8 @@
     </mat-card-content>
 
     <mat-card-actions class="dashboard-actions">
-      <button mat-raised-button color="primary" routerLink="/cms/upload">Carica contenuti</button>
-      <button mat-raised-button color="accent" routerLink="/cms/media">Gestisci media</button>
+      <button mat-raised-button color="primary" (click)="goToCmsUpload()">Carica contenuti</button>
+      <button mat-raised-button color="accent" (click)="goToCmsGetMedia()">Gestisci media</button>
       <button mat-button color="warn" (click)="logout()">Logout</button>
     </mat-card-actions>
   </mat-card>

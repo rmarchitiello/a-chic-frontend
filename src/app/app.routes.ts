@@ -12,6 +12,8 @@ import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.co
 // Import dei componenti del CMS
 import { CmsLoginComponent } from './cms/cms-login/cms-login.component';
 import { CmsDashboardComponent } from './cms/cms-dashboard/cms-dashboard.component';
+import { CmsMediaComponent } from './cms/cms-media/cms-media.component';
+import { CmsUploadComponent } from './cms/cms-upload/cms-upload.component';
 
 export const routes: Routes = [
   // Redirect iniziale alla home
@@ -32,7 +34,9 @@ export const routes: Routes = [
   {
     path: 'cms',
     children: [
-      { path: 'dashboard', component: CmsDashboardComponent }
+      { path: 'dashboard', component: CmsDashboardComponent },
+      { path: 'upload', component: CmsUploadComponent },
+      { path: 'media', component: CmsMediaComponent }
       // Altri componenti CMS (es. upload, media) possono essere aggiunti qui in seguito
     ]
   },
