@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -13,11 +13,19 @@ export class CmsService {
 
   constructor(private http: HttpClient) {}
 
-
-    // Recupera tutte le folder dal cms
-  getFolders(): Observable<any> {
+  /**
+   * Recupera tutte le folder dal CMS.
+   * Se `refresh` è true, forza l’aggiornamento bypassando la cache.
+   */
+  getFolders(refresh: boolean = false): Observable<any> {
     const url = `${this.baseUrl}${this.images}`;
-    return this.http.get<any>(url);
+    
+    let params = new HttpParams();
+    if (refresh) {
+      params = params.set('refresh', 'true'); //se refresh e true bypasso la cache e vado sul cloud
+    }
+
+    return this.http.get<any>(url, { params });
   }
 
 }

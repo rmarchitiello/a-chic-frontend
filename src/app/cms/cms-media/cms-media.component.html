@@ -15,7 +15,6 @@
       <mat-spinner diameter="30"></mat-spinner>
       <p>Caricamento cartelle...</p>
     </div>
-
     <!-- MatTree visibile solo quando il caricamento è completato -->
     <mat-tree *ngIf="!loading"
               [dataSource]="dataSource"
@@ -55,6 +54,7 @@
         </div>
       </mat-tree-node>
     </mat-tree>
+        <button mat-raised-button class="refresh-button" (click)="refreshFolders()">Refresh cartelle</button>
 
   </div>
 

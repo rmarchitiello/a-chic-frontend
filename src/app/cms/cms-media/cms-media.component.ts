@@ -114,11 +114,34 @@ convertToFullTree(obj: any): TreeNode[] {
     console.log('Nodo selezionato:', node);
   }
 
+  refreshFolders(): void {
+  this.loading = true;
+  console.log("chiamo la refresh");
+  this.cmsService.getFolders(true).subscribe({
+    next: (foldersJson) => {
+      console.log("Folders JSON ricevuto:", foldersJson);
+      const treeData = this.convertToFullTree(foldersJson);
+      console.log("TreeData generato:", JSON.stringify(treeData));
+      this.dataSource.data = treeData;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error("Errore nel recupero delle cartelle:", err);
+      this.loading = false;
+    }
+  });
+}
+
+
   /**
    * Funzione utilizzata dal mat-tree per sapere se un nodo ha figli.
    * Anche i nodi con array vuoti sono considerati espandibili.
    */
 hasChild = (_: number, node: TreeNode): boolean =>
   Array.isArray(node.children); // anche se children è vuoto
+
+
+
+
 
 }
