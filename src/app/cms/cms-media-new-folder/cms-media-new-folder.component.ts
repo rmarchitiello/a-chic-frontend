@@ -20,9 +20,8 @@ import { MatButtonModule } from '@angular/material/button';
 export class CmsMediaNewFolderComponent {
   nomeCartella: string = '';
 
+  //mi serve per mandare il ritorno al padre quindi uso dialogRef nel template per poi passarlo in ngModel e nella close lo mando al padre
   constructor(public dialogRef: MatDialogRef<CmsMediaNewFolderComponent>) {}
 
-  creaCartella(): void {
-    this.dialogRef.close(this.nomeCartella.trim()); //restiusco al padre il nome della cartella da creare
-  }
+
 }

@@ -11,7 +11,7 @@
 // Colonna sinistra: sidebar cartelle (mat-tree)
 .cms-sidebar {
   min-width: 280px;
-  width: fit-content; // si adatta alla lunghezza del contenuto
+  width: fit-content;
   max-width: 100%;
   background-color: #f5f5f5;
   padding: 1rem;
@@ -20,7 +20,6 @@
   overflow-x: auto;
   position: relative;
 
-  // Scrollbar personalizzata
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
 
@@ -38,28 +37,23 @@
     background-color: transparent;
   }
 
-  // Contenitore flessibile per nome cartella e bottoni (delete + create)
   .node-content {
     display: flex;
     align-items: center;
     gap: 4px;
     width: 100%;
-    position: relative;
 
-    // Nasconde i bottoni di default
     .delete-folder-button,
     .create-folder-button {
       opacity: 0;
       transition: opacity 0.2s ease;
     }
 
-    // Mostra i bottoni solo al passaggio del mouse
     &:hover .delete-folder-button,
     &:hover .create-folder-button {
       opacity: 1;
     }
 
-    // Bottoni (dimensioni più piccole)
     button.mat-icon-button {
       width: 28px;
       height: 28px;
@@ -89,7 +83,6 @@
     }
   }
 
-  // Nome cartella: testo ellipsis e tooltip
   .mat-tree-node span {
     display: inline-block;
     max-width: 220px;
@@ -126,26 +119,122 @@
   padding: 2rem;
   background-color: #fff;
   overflow-y: auto;
+
+  .immagini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+
+    .immagine-box {
+      position: relative; // Necessario per posizionare il pulsante di cancellazione
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      background-color: #fafafa;
+      transition: box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      cursor: pointer;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .immagine-principale {
+        width: 100%;
+        height: auto;
+        border-radius: 6px;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: scale(1.03);
+        }
+      }
+
+      // Pulsante X rossa per eliminare immagine
+// Box contenente immagine e pulsante X
+.immagine-wrapper {
+  position: relative;
+
+  .immagine-principale {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.03);
+    }
+  }
+
+  // Pulsante X rossa rotondo
+  .delete-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f44336;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease;
+
+    mat-icon {
+      font-size: 20px;
+    }
+
+    &:hover {
+      background-color: #d32f2f;
+    }
+  }
 }
 
-// Icona cartella con margine a destra
+
+      .dettagli {
+        text-align: center;
+
+        strong {
+          display: block;
+          font-size: 1rem;
+          color: #333;
+        }
+
+        p {
+          font-size: 0.9rem;
+          margin: 0.3rem 0;
+        }
+
+        small {
+          color: #999;
+        }
+      }
+    }
+  }
+}
+
+// Icone
 mat-icon.mr-2 {
   margin-right: 8px;
 }
 
-// Icona invisibile per allineamento
 mat-icon.transparent {
   opacity: 0;
 }
 
-// Nodo selezionato evidenziato
+// Evidenziazione nodo selezionato
 .selected-node {
   background-color: #e3f2fd;
   border-radius: 4px;
   padding: 2px 4px;
 }
 
-// Messaggio blocco mobile
+// Messaggio per dispositivi mobili
 .mobile-blocked {
   max-width: 90%;
   margin: 5rem auto;
@@ -167,7 +256,7 @@ mat-icon.transparent {
   }
 }
 
-// Padding per livelli mat-tree
+// Padding livelli per struttura ad albero
 ::ng-deep .mat-tree-node {
   padding-left: 0 !important;
 }

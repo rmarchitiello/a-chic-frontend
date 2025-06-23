@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { HttpParams } from '@angular/common/http';
 
 
 @Injectable({
@@ -15,10 +16,18 @@ export class CloudinaryService {
   constructor(private http: HttpClient) {}
 
   // Recupera tutte le immagini
-  getImmagini(): Observable<any> {
-    const url = `${this.baseUrl}${this.images}`;
-    return this.http.get<any>(url);
+getImmagini(pathImages?: string): Observable<any> {
+  const url = `${this.baseUrl}${this.images}`;
+
+  // Se è stato passato un path, aggiungilo ai parametri della richiesta implica che la chiamata viene dal cms
+  let params = new HttpParams();
+  if (pathImages) {
+    params = params.set('pathImages', pathImages);
   }
+
+  // Esegui la richiesta con o senza parametri
+  return this.http.get<any>(url, { params });
+}
 
 
 }

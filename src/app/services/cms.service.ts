@@ -10,7 +10,7 @@ export class CmsService {
 
   private baseUrl = environment.apiBaseUrl + 'cms';
   private media = '/media-folder';
-
+  private mediaImages = '/media-images'
   constructor(private http: HttpClient) {}
 
   /**
@@ -40,6 +40,23 @@ createFolder(fullPath: string): Observable<any> {
   const body = { fullPath }; // Invio come JSON: { "fullPath": "/ciao/prova" }
 
   return this.http.post<any>(url, body); // Invia il body JSON al backend
+}
+
+deleteImages(urlsDaEliminare: string[]): Observable<any> {
+  const url = `${this.baseUrl}${this.mediaImages}`; // Assicurati che `this.media` sia tipo '/cms/media-images'
+  
+  const body = {
+    urlImageToDelete: urlsDaEliminare
+  };
+
+  return this.http.delete<any>(url, { body });
+}
+
+
+//metodo che mi serve per leggere le immagini dalla cache una volta che cancello un file
+getAllImages(): Observable<any> {
+  const url = `${this.baseUrl}${this.mediaImages}`;
+  return this.http.get<any>(url);
 }
 
 

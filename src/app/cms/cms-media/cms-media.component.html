@@ -105,8 +105,47 @@
   </div>
 
   <!-- Area destra per i contenuti dinamici -->
-  <div class="cms-content">
-    <h2>Contenuti</h2>
-    <p>Qui verranno mostrati i contenuti della cartella selezionata.</p>
+<!-- Area destra: contenuto dinamico visibile solo se un nodo è selezionato -->
+
+
+<div class="cms-content" *ngIf="nodoSelezionato?.fullPath as percorsoSelezionato">
+  <div class="immagini-grid" *ngIf="immaginiRecuperateDaMostrare[percorsoSelezionato]?.length">
+
+    <!-- Ciclo su ogni oggetto immagine -->
+    <ng-container *ngFor="let img of immaginiRecuperateDaMostrare[percorsoSelezionato]">
+      <!-- Mostra solo se ha almeno una immagine frontale -->
+      <div class="immagine-box" *ngIf="haImmaginiFrontali(img)">
+
+        <!-- Cicla gli angoli dell'immagine -->
+        <ng-container *ngFor="let angolo of img.meta">
+          <div class="immagine-wrapper" *ngIf="angolo.angolazione === 'frontale'">
+
+            <!-- Pulsante X per eliminare la foto frontale -->
+            <button mat-icon-button class="delete-button" (click)="eliminaImmagini(img)">
+              <mat-icon color="warn">close</mat-icon>
+            </button>
+
+            <!-- Immagine frontale -->
+            <img class="immagine-principale"
+                 [src]="angolo.url"
+                 [alt]="img.display_name"
+                 (click)="apriPopUpGalleriaFotoNoFrontali(img.meta)" />
+          </div>
+        </ng-container>
+
+        <!-- Dettagli dell'immagine -->
+        <div class="dettagli">
+          <strong>{{ img.display_name }}</strong>
+          <p>{{ img.descrizione }}</p>
+          <small>Quantità: {{ img.quantita }}</small>
+        </div>
+
+      </div>
+    </ng-container>
+
   </div>
+</div>
+
+
+
 </div>

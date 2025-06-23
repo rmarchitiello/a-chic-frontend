@@ -1,0 +1,65 @@
+/* Contenitore principale del popup galleria */
+.galleria-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: #fff;
+
+  /* Imposta una larghezza massima */
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Contenitore per l'immagine visualizzata */
+.immagine-wrapper {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 1rem;
+  text-align: center;
+
+  img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+  }
+
+  img:hover {
+    transform: scale(1.02);
+  }
+
+  .angolazione {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+  }
+}
+
+/* Pulsanti di navigazione */
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    padding: 0.5rem 1.2rem;
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+/* Messaggio per array vuoto */
+p {
+  text-align: center;
+  font-size: 1rem;
+  color: #777;
+}

@@ -10,13 +10,59 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CmsMediaNewFolderComponent } from '../cms-media-new-folder/cms-media-new-folder.component';
 import { MatDialog } from '@angular/material/dialog';
-
+import { CloudinaryService } from '../../services/cloudinary.service';
+import { GalleriaPopupComponent } from './galleria-popup/galleria-popup.component';
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
   name: string;
   fullPath: string; // aggiunto
   children?: TreeNode[];
 }
+
+/* interfacce immagini START **/
+export interface ImmagineMeta {
+  url: string;
+  angolazione: string;
+}
+
+export interface ImmagineCloudinary {
+  display_name: string;
+  descrizione: string;
+  quantita: string;
+  meta: ImmagineMeta[];
+}
+
+export interface RispostaImmagini {
+  [percorso: string]: ImmagineCloudinary[]; // CIOE STO DICENDO CHE RispostaImmagini è un oggetto con chiavi dinamiche Borse/Conchiglia/Cono con all nterni diplay name ecc...
+}
+
+/* cosi
+
+{
+  "Accessori/Charm": [
+    {
+      "display_name": "Ciliegie",
+      "descrizione": "Charm per borsa conchiglia",
+      "quantita": "0",
+      "meta": [
+        {
+          "url": "http://res.cloudinary.com/dmf1qtmqd/image/upload/v1750512832/Accessori/Charm/Ciliegie_hknjho.jpg",
+          "angolazione": "frontale"
+        }
+      ]
+    },
+    {
+      "display_name": "Fiori",
+      "descrizione": "Charm per borsa conchiglia",
+      "quantita": "0",
+      "meta": [
+        {
+          "url": "http://res.cloudinary.com/dmf1qtmqd/image/upload/v1750512832/Accessori/Charm/Fiori_wpnzhm.jpg",
+          "angolazione": "frontale"
+        }
+      ]
+    },*/
+/* interfacce immagini end **/
 
 
 @Component({
@@ -51,7 +97,8 @@ export class CmsMediaComponent implements OnInit {
   constructor(
     private cmsService: CmsService,
     private breakpointObserver: BreakpointObserver,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cloudinaryService: CloudinaryService
   ) {}
 
   ngOnInit(): void {
@@ -70,10 +117,10 @@ export class CmsMediaComponent implements OnInit {
 
 
   //metodo per caricare le cartelle dalla cash:
-loadFolders(): void {
+loadFolders(refresh?: boolean): void {
   this.loading = true;
 
-  this.cmsService.getFolders().subscribe({
+  this.cmsService.getFolders(refresh).subscribe({
     next: (foldersJson) => {
       const treeData = this.convertToFullTree(foldersJson);
       this.dataSource.data = treeData;
@@ -85,6 +132,27 @@ loadFolders(): void {
     }
   });
 }
+
+
+//devo caricare le immagini dala cache una volta cancellate:
+loadImages(): void {
+  this.loading = true;
+
+  this.cmsService.getAllImages().subscribe({
+    next: (data: RispostaImmagini) => {
+      // Sovrascrive l'intera struttura delle immagini da mostrare
+      this.immaginiRecuperateDaMostrare = data; //risetto le nuove immagini da mostrare
+      console.log('Immagini aggiornate:', this.immaginiRecuperateDaMostrare);
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Errore durante il caricamento delle immagini:', err);
+      this.loading = false;
+    }
+  });
+}
+
+
 
 
 
@@ -127,14 +195,7 @@ convertToFullTree(obj: any, currentPath: string = ''): TreeNode[] {
 }
 
 
-  /**
-   * Metodo richiamato al click su un nodo dell’albero.
-   * Salva il nodo selezionato per visualizzarne i contenuti.
-   */
-  onNodeClick(node: TreeNode): void {
-    this.nodoSelezionato = node;
-    console.log('Nodo selezionato:', node);
-  }
+
 
   refreshFolders(): void {
   this.loading = true;
@@ -160,6 +221,39 @@ convertToFullTree(obj: any, currentPath: string = ''): TreeNode[] {
 hasChild = (_: number, node: TreeNode): boolean =>
   Array.isArray(node.children); // anche se children è vuoto
 
+
+
+//creo anche un pop up galleria Component che al click mi escono le varie angolazioni GalleriaPopupComponent
+
+/* rispetto al pop up folder  dove li devo ricevere un ritorno dal pop up e quindi uso MatDialogRef, qui uso 
+MAT_DIALOG_INJECT PER PASSARE LE IMMAGINI META NEL POP UP E MOSTRARLE quindi MatDialogRef per ricevere un ritorno
+INJECT MAT DIALOG PER MANDARE */
+apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[]) {
+    const dialogRef = this.dialog.open(GalleriaPopupComponent, {
+        width: '90vw', // per grandezza pop up
+        data: immagineMeta.filter(meta => meta.angolazione !== 'frontale')  //quando uso data sto inviando al pop up e uso inject passo tutti i meta tranne frontale
+      });
+
+}
+// se elimino la frontale devo eliminare tutto
+eliminaImmagini(img: ImmagineCloudinary): void {
+  // Estrae tutte le URL delle immagini da eliminare (dalla proprietà meta)
+  const urlsDaEliminare: string[] = img.meta.map((m: ImmagineMeta) => m.url);
+
+  console.log("Immagini o immagine da eliminare: ", urlsDaEliminare);
+
+  // Chiama il servizio per eliminare le immagini e si sottoscrive al risultato
+  this.cmsService.deleteImages(urlsDaEliminare).subscribe({
+    next: (res) => {
+      console.log('Eliminazione riuscita:', res);
+      console.log("Sto aggiornando la nuova cache immagini: ");
+      this.loadImages(); //serve per ricaricare la nuova cache
+    },
+    error: (err) => {
+      console.error('Errore durante eliminazione immagini:', err);
+    }
+  });
+}
 
 
 /* PER CREARE LA CARTELLA, MOSTRO UN POP UP CIOE, QUANDO CLICCO SUL + PER CREARE LA CARTELLA CHIAMO apriPopUpAddFolder 
@@ -251,8 +345,38 @@ deleteFolder(node: any) {
   });
 }
 
+/*Ora quando clicco un nodo, setto in automatica la variabile nodoSelezionato Borse/Conchiglia/Cono 
+  Devo andare a leggere il file cache_immagini.json dal backend e recuperare tutte le info di Borse/Conchiglia/Cono o  Borse/Conchiglia/Perlata e cosi via.
+*/
+  /**
+   * Metodo richiamato al click su un nodo dell’albero.
+   * Salva il nodo selezionato per visualizzarne i contenuti.
+   */
+
+immaginiRecuperateDaMostrare: RispostaImmagini = {};
+
+onNodeClick(node: TreeNode): void {
+  this.nodoSelezionato = node;
+  console.log('Nodo selezionato:', node.fullPath);
+
+  // Recupera le immagini relative al percorso selezionato
+  this.cloudinaryService.getImmagini(node.fullPath).subscribe({
+    next: (immagini) => {
+      console.log('Immagini recuperate:', immagini);
+      this.immaginiRecuperateDaMostrare = immagini;
+    },
+    error: (err) => {
+      console.error('Errore durante il recupero delle immagini:', err);
+    }
+  });
+}
 
 
+
+//visualizzo solo le frontali
+haImmaginiFrontali(img: ImmagineCloudinary): boolean {
+  return img.meta.some(m => m.angolazione === 'frontale');
+}
 
 
 }

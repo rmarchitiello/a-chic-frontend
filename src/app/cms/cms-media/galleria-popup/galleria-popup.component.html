@@ -1,0 +1,29 @@
+<div class="galleria-container" *ngIf="immaginiMetaDaMostrare.length">
+
+  <!-- Immagine attuale -->
+  <div class="immagine-wrapper">
+    <img [src]="immaginiMetaDaMostrare[currentIndex].url"
+         [alt]="'Angolazione: ' + immaginiMetaDaMostrare[currentIndex].angolazione" />
+
+  </div>
+
+  <!-- Pulsanti di navigazione -->
+  <div class="controls">
+    <button mat-raised-button color="primary"
+            (click)="prevImage()" [disabled]="currentIndex === 0">
+      <mat-icon>chevron_left</mat-icon>
+      
+    </button>
+
+    <button mat-raised-button color="primary"
+            (click)="nextImage()" [disabled]="currentIndex === immaginiMetaDaMostrare.length - 1">
+      
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</div>
+
+<!-- Se l'array è vuoto -->
+<div *ngIf="!immaginiMetaDaMostrare.length">
+  <p>Nessuna immagine disponibile.</p>
+</div>
