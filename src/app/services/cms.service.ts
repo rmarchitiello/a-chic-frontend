@@ -62,19 +62,20 @@ getAllImages(): Observable<any> {
 }
 
 
-updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quantita?: string }): Observable<any> {
+updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quantita?: string, nome_file?: string }): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`;
   
 const body = {
   urlImmagine,
   context: {
+    nome_file: context.nome_file,
     descrizione: context.descrizione,
     quantita: context.quantita != null ? String(context.quantita) : undefined
   }
 };
 
   console.log("Request inviata:", JSON.stringify(body));
-  return this.http.post<any>(url, body); // 
+  return this.http.put<any>(url, body); // 
 }
 
 

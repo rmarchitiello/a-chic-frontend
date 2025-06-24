@@ -71,10 +71,11 @@ export interface RispostaImmagini {
 
 
 /* interface aggiornamento immagine meta */
-export interface metaUpdate {
+export interface MetaUpdate {
   urlImmagine: string;
   context:   
   {
+                nome_file?: string,
                 descrizione?: string,
                 quantita?: string
             }
@@ -426,11 +427,12 @@ immagineInModifica: any = null;
  * Se clicchi una seconda volta sulla stessa immagine, chiude il form.
  */
 
-valoriModifica: { descrizione?: string; quantita?: string } = {};
+valoriModifica: { descrizione?: string; quantita?: string, nome_file?: string } = {};
 
 
 apriFormModifica(img: any): void {
-  if (this.immagineInModifica === img) {
+  console.log("immagine da modificare, ", img);
+    if (this.immagineInModifica === img) {
     this.immagineInModifica = null;
     this.valoriModifica = {};
   } else {
@@ -439,7 +441,8 @@ apriFormModifica(img: any): void {
     // Inizializza valori modificabili con i valori attuali dell'immagine
     this.valoriModifica = {
       descrizione: img.descrizione,
-      quantita: img.quantita
+      quantita: img.quantita,
+      nome_file: img.display_name
     };
   }
 }
@@ -451,12 +454,14 @@ onSubmitModifica(img: any): void {
   // Recupera i valori modificati dal form
   const nuovaDescrizione = this.valoriModifica.descrizione ?? img.descrizione;
   const nuovaQuantita = this.valoriModifica.quantita ?? img.quantita;
+  const nuovoNome = this.valoriModifica.nome_file ?? img.display_name;
 
   // Verifica se almeno uno dei due è effettivamente cambiato
   const descrizioneModificata = nuovaDescrizione !== img.descrizione;
   const quantitaModificata = nuovaQuantita !== img.quantita;
+  const nomeModificato = nuovoNome !== img.display_name;
 
-  if (!descrizioneModificata && !quantitaModificata) {
+  if (!descrizioneModificata && !quantitaModificata && !nomeModificato) {
     console.log('Nessuna modifica rilevata');
     return;
   }
@@ -466,7 +471,8 @@ onSubmitModifica(img: any): void {
     urlImmagine: img.meta.find((m: any) => m.angolazione === 'frontale')?.url,
     context: {
       descrizione: nuovaDescrizione,
-      quantita: nuovaQuantita
+      quantita: nuovaQuantita,
+      nome_file: nuovoNome
     }
   };
 
@@ -482,7 +488,7 @@ onSubmitModifica(img: any): void {
 
 
 /* metodo per aggiornare l immagine */
-aggiornaMetaImmagine(img: metaUpdate): void {
+aggiornaMetaImmagine(img: MetaUpdate): void {
   console.log(". . . Aggiornamento meta in corso . . . ")
   const confermato = window.confirm(`Sei sicuro di voler aggiornare l'immagine ?`);
   if (!confermato) {
