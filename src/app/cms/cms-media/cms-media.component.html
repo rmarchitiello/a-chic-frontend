@@ -39,11 +39,14 @@
             <span (click)="onNodeClick(node)" [class.selected-node]="nodoSelezionato === node">
               {{ node.name }}
             </span>
-            <button mat-icon-button class="delete-folder-button" (click)="deleteFolder(node.fullPath); $event.stopPropagation();">
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
             <button mat-icon-button class="create-folder-button" (click)="apriPopUpAddFolder(node)">
               <mat-icon color="primary">create_new_folder</mat-icon>
+            </button>
+            <button mat-icon-button class="rename-folder-button" (click)="apriPopUpRenameFolder(node)">
+              <mat-icon color="primary">edit</mat-icon>
+            </button>
+            <button mat-icon-button class="delete-folder-button" (click)="deleteFolder(node.fullPath); $event.stopPropagation();">
+              <mat-icon color="warn">delete</mat-icon>
             </button>
           </div>
         </div>

@@ -44,13 +44,15 @@
     width: 100%;
 
     .delete-folder-button,
-    .create-folder-button {
+    .create-folder-button,
+    .rename-folder-button {
       opacity: 0;
       transition: opacity 0.2s ease;
     }
 
     &:hover .delete-folder-button,
-    &:hover .create-folder-button {
+    &:hover .create-folder-button,
+    &:hover .rename-folder-button {
       opacity: 1;
     }
 
@@ -80,6 +82,13 @@
 
     .create-folder-button:hover mat-icon {
       color: #1565c0;
+    }
+    .rename-folder-button mat-icon {
+      color: #1a344e;
+    }
+
+    .rename-folder-button:hover mat-icon {
+      color: #1a344e;
     }
   }
 

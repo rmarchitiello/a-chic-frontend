@@ -292,14 +292,19 @@ eliminaImmagini(img: ImmagineCloudinary): void {
 /* PER CREARE LA CARTELLA, MOSTRO UN POP UP CIOE, QUANDO CLICCO SUL + PER CREARE LA CARTELLA CHIAMO apriPopUpAddFolder 
 passando il node.fullPath
 importo import { MatDialog } from '@angular/material/dialog';
- il pop up sara un nuovo component ovviamente con un suo template che ovviamente importo CmsMediaNewFolderComponent */
+ il pop up sara un nuovo component ovviamente con un suo template che ovviamente importo CmsMediaNewFolderComponent 
+ Passo il nome della cartella all addFolder che chiama cms service e aggiunge con add folder la cartella nel cloud e aggiorna la cache e leggo la cache
+ */
 
 apriPopUpAddFolder(node: any): void {
   const parentPath = node.fullPath; // cartella in cui voglio creare la nuova
 
   const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
         width: '90vw', // per grandezza pop up
-  });
+              data: {
+      isRename: false  // passo al figlio se è una rinomina oppure no !
+        }
+      });
 
   // Ricevo il nome della nuova cartella dopo la chiusura del popup
   dialogRef.afterClosed().subscribe((nomeCartella: string) => {
@@ -312,6 +317,43 @@ apriPopUpAddFolder(node: any): void {
     }
   });
 }
+
+
+
+//rename folder
+apriPopUpRenameFolder(node: any): void {
+
+  const fullPath = node.fullPath;
+  let cartellaSceltaDaRinominare = node.name;
+
+  console.log("Path corrente: ", fullPath);
+  console.log("Cartella scelta da rinominare: ", cartellaSceltaDaRinominare)
+
+  //apro il pop up
+    const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
+    width: '90vw',
+        data: {
+      isRename: true  // passo al figlio se è una rinomina oppure no !
+        }
+  });
+
+  // quando chiudo il pop up devo ricevere l'ouput del figlio
+    dialogRef.afterClosed().subscribe((nomeCartella: string) => {
+    if (nomeCartella) {
+        
+      const nomeNuovaCartella = nomeCartella;
+      console.log("Nome nuova cartella: ", nomeNuovaCartella);
+      const newFullPath = fullPath.replace(/\/[^\/]+$/, `/${nomeNuovaCartella}`);
+      console.log("Nuovo fullPath:", newFullPath);
+
+    }
+  });
+
+
+}
+
+
+
 
 //metodo per aggiungere una nuova cartella
 addFolder(fullPath: string) {

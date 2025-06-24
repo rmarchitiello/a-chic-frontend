@@ -1,8 +1,9 @@
 <div class="dialog-container">
-  <h2 class="dialog-title">Nuova cartella</h2>
-
+  <h2 *ngIf="!rename" class="dialog-title">Nuova cartella</h2>
+  <h2 *ngIf="rename" class="dialog-title">Rinomina la cartella</h2>
   <mat-form-field appearance="outline">
-    <mat-label>Nome della cartella</mat-label>
+    <mat-label *ngIf="!rename">Nome della cartella</mat-label>
+    <mat-label *ngIf="rename">Nome nuova cartella</mat-label>
     <input matInput placeholder="Es. collezione-estate" [(ngModel)]="nomeCartella">
   </mat-form-field>
 
