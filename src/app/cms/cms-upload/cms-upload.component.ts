@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field'; // Per <mat-f
 import { MatInputModule } from '@angular/material/input';           // Per <input matInput>
 import { MatSelectModule } from '@angular/material/select';         // Per <mat-select>
 import { MatButtonModule } from '@angular/material/button';         // Per <button mat-button>
-
+import { Router } from '@angular/router';
 
 //request per l'upload dei media
 /* a backend la request è questa {
@@ -87,7 +87,8 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
 
   constructor(
     private cmsService: CmsService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -272,6 +273,8 @@ checkQuantita(valore: string | number) {
   }
 }
 
-
+goToMedia(cmsMediaPath: string){
+  this.router.navigate([cmsMediaPath]);
+}
 
 }

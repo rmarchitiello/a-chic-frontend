@@ -6,7 +6,13 @@
 
 <!-- Se sono su desktop, mostro il form CMS -->
 <div *ngIf="!isMobile" class="cms-layout">
-  <h2>Upload media su Cloudinary</h2>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+  <button mat-stroked-button color="primary" (click)="goToMedia('/cms/media')">
+            Vai a Gestione Contenuti
+  </button>
+
+  <h2 style="flex-grow: 1; text-align: center;">Upload media su Cloudinary</h2>
+</div>
 
   <!-- Form per l'upload -->
   <form #uploadForm="ngForm" (ngSubmit)="uploadFile()" class="upload-form">

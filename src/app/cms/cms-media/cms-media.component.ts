@@ -15,7 +15,7 @@ import { GalleriaPopupComponent } from './galleria-popup/galleria-popup.componen
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
+import { Router } from '@angular/router';
 
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
@@ -117,7 +117,8 @@ export class CmsMediaComponent implements OnInit {
     private cmsService: CmsService,
     private breakpointObserver: BreakpointObserver,
     private dialog: MatDialog,
-    private cloudinaryService: CloudinaryService
+    private cloudinaryService: CloudinaryService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -410,7 +411,12 @@ onNodeClick(node: TreeNode): void {
   });
 }
 
-
+//uso queste funzioni per mostrare se un video audio o foto
+getTipo(url: string): 'image' | 'video' | 'audio' {
+  if (/\.(mp4|webm|avi)$/i.test(url)) return 'video';
+  if (/\.(mp3|wav|ogg)$/i.test(url)) return 'audio';
+  return 'image';
+}
 
 //visualizzo solo le frontali
 haImmaginiFrontali(img: ImmagineCloudinary): boolean {
@@ -485,7 +491,9 @@ onSubmitModifica(img: any): void {
 }
 
 
-
+goToCaricaContenuti(caricaContenutiPath: string){
+        this.router.navigate([caricaContenutiPath]);
+}
 
 /* metodo per aggiornare l immagine */
 aggiornaMetaImmagine(img: MetaUpdate): void {
@@ -505,11 +513,11 @@ aggiornaMetaImmagine(img: MetaUpdate): void {
   this.cmsService.updateImageMetadata(img.urlImmagine, img.context).subscribe({
     next: (res) => {
       console.log('Aggiornamento riuscito:', res);
-      console.log("Sto aggiornando la nuova cache immagini: ");
+      console.log("Sto aggiornando la nuova cache : ");
       this.loadImages(); //serve per ricaricare la nuova cache
     },
     error: (err) => {
-      console.error('Errore durante eliminazione immagini:', err);
+      console.error('Errore durante la modifica:', err);
     }
   });
 }

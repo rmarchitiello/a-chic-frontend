@@ -7,196 +7,134 @@
 <!-- Layout CMS attivo solo su desktop -->
 <div *ngIf="!isMobile" class="cms-layout">
 
-<!-- Bottone per creare una cartella principale -->
-<button
-  mat-icon-button
-  class="create-folder-button"
-  (click)="apriPopUpAddFolder('')"
-  aria-label="Crea nuova cartella principale">
-  <mat-icon color="primary">create_new_folder</mat-icon>
-</button>
+  <!-- Bottone per creare una cartella principale -->
+  <button
+    mat-icon-button
+    class="create-folder-button"
+    (click)="apriPopUpAddFolder('')"
+    aria-label="Crea nuova cartella principale">
+    <mat-icon color="primary">create_new_folder</mat-icon>
+  </button>
 
-  <!-- Sidebar sinistra: struttura ad albero -->
+  <!-- Sidebar sinistra -->
   <div class="cms-sidebar">
 
-    <!-- Spinner visibile durante il caricamento delle cartelle -->
     <div *ngIf="loading" class="spinner-container">
       <mat-spinner diameter="30"></mat-spinner>
       <p>Caricamento cartelle...</p>
     </div>
 
-    <!-- MatTree visibile solo quando il caricamento è completato -->
     <mat-tree *ngIf="!loading"
               [dataSource]="dataSource"
               [treeControl]="treeControl"
               class="folder-tree">
 
-      <!-- Nodo con figli (anche se vuoti) -->
       <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
         <div class="mat-tree-node">
-
-          <!-- Pulsante per espandere o comprimere il nodo -->
           <button mat-icon-button matTreeNodeToggle>
-            <mat-icon>
-              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-            </mat-icon>
+            <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
           </button>
-
-          <!-- Icona cartella -->
           <mat-icon class="mr-2">folder</mat-icon>
-
-          <!-- Contenitore che mostra il nome della cartella e i pulsanti di azione -->
-<div class="node-content">
-
-  <!-- Clic sul nome seleziona il nodo (evidenziato se è quello attualmente selezionato) -->
-  <span (click)="onNodeClick(node)"
-        [class.selected-node]="nodoSelezionato === node">
-    {{ node.name }}
-  </span>
-
-  <!-- Pulsante per eliminare la cartella corrente -->
-  <button
-    mat-icon-button
-    class="delete-folder-button"
-    (click)="deleteFolder(node.fullPath); $event.stopPropagation();"
-    aria-label="Elimina cartella">
-    <!-- Icona del cestino, colorata di rosso (Angular Material) -->
-    <mat-icon color="warn">delete</mat-icon>
-  </button>
-
-  <!-- Pulsante per creare una sottocartella all'interno della cartella corrente -->
-  <button
-    mat-icon-button
-    class="create-folder-button"
-    (click)="apriPopUpAddFolder(node)"
-    aria-label="Aggiungi sottocartella">
-    <!-- Icona della cartella nuova, colorata di blu (Angular Material) -->
-    <mat-icon color="primary">create_new_folder</mat-icon>
-  </button>
-
-</div>
-
-
+          <div class="node-content">
+            <span (click)="onNodeClick(node)" [class.selected-node]="nodoSelezionato === node">
+              {{ node.name }}
+            </span>
+            <button mat-icon-button class="delete-folder-button" (click)="deleteFolder(node.fullPath); $event.stopPropagation();">
+              <mat-icon color="warn">delete</mat-icon>
+            </button>
+            <button mat-icon-button class="create-folder-button" (click)="apriPopUpAddFolder(node)">
+              <mat-icon color="primary">create_new_folder</mat-icon>
+            </button>
+          </div>
         </div>
-
-        <!-- Outlet per i nodi figli -->
         <div *ngIf="treeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>
         </div>
       </mat-nested-tree-node>
 
-      <!-- Nodo foglia (senza figli) -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <div class="mat-tree-node">
-          <!-- Icona placeholder per allineamento -->
           <button mat-icon-button disabled>
             <mat-icon class="transparent">chevron_right</mat-icon>
           </button>
-          <!-- Icona file -->
           <mat-icon class="mr-2">insert_drive_file</mat-icon>
-
-          <!-- Nome del file o elemento -->
-          <span (click)="onNodeClick(node)"
-                [class.selected-node]="nodoSelezionato === node">
+          <span (click)="onNodeClick(node)" [class.selected-node]="nodoSelezionato === node">
             {{ node.name }}
           </span>
         </div>
       </mat-tree-node>
     </mat-tree>
 
-    <!-- Pulsante per forzare il refresh delle cartelle dal cloud -->
-    <button mat-raised-button class="refresh-button" (click)="refreshFolders()">
-      Refresh cartelle con il cloud
+    <button mat-raised-button class="refresh-button" (click)="goToCaricaContenuti('/cms/upload')">
+      Vai a Carica Contenuti
     </button>
-
-
-
   </div>
 
-  <!-- Area destra per i contenuti dinamici -->
-<!-- Area destra: contenuto dinamico visibile solo se un nodo è selezionato -->
+  <!-- Area destra: contenuti -->
+  <div class="cms-content" *ngIf="nodoSelezionato?.fullPath as percorsoSelezionato">
+    <div class="immagini-grid" *ngIf="immaginiRecuperateDaMostrare[percorsoSelezionato]?.length">
 
+      <ng-container *ngFor="let img of immaginiRecuperateDaMostrare[percorsoSelezionato]">
+        <div class="immagine-box" *ngIf="haImmaginiFrontali(img)">
 
-<div class="cms-content" *ngIf="nodoSelezionato?.fullPath as percorsoSelezionato">
-  <div class="immagini-grid" *ngIf="immaginiRecuperateDaMostrare[percorsoSelezionato]?.length">
+          <ng-container *ngFor="let angolo of img.meta">
+            <div class="immagine-wrapper" *ngIf="angolo.angolazione === 'frontale' && getTipo(angolo.url) as tipoMedia">
 
-    <!-- Ciclo su ogni oggetto immagine -->
-    <ng-container *ngFor="let img of immaginiRecuperateDaMostrare[percorsoSelezionato]">
-      <!-- Mostra solo se ha almeno una immagine frontale -->
-      <div class="immagine-box" *ngIf="haImmaginiFrontali(img)">
+              <button mat-icon-button class="delete-button" (click)="eliminaImmagini(img)">
+                <mat-icon color="warn">close</mat-icon>
+              </button>
 
-        <!-- Cicla gli angoli dell'immagine -->
-        <ng-container *ngFor="let angolo of img.meta">
-          <div class="immagine-wrapper" *ngIf="angolo.angolazione === 'frontale'">
+              <!-- Media -->
+              <ng-container [ngSwitch]="tipoMedia">
+                <img *ngSwitchCase="'image'" class="immagine-principale" [src]="angolo.url" [alt]="img.display_name" (click)="apriPopUpGalleriaFotoNoFrontali(img.meta)" />
+                <video *ngSwitchCase="'video'" class="immagine-principale" [src]="angolo.url" controls></video>
+                <audio *ngSwitchCase="'audio'" class="audio-player" [src]="angolo.url" controls></audio>
+              </ng-container>
 
-            <!-- Pulsante X per eliminare la foto frontale -->
-            <button mat-icon-button class="delete-button" (click)="eliminaImmagini(img)">
-              <mat-icon color="warn">close</mat-icon>
-            </button>
+              <!-- Quantità solo se immagine -->
+              <small *ngIf="tipoMedia === 'image'">Quantità: {{ img.quantita }}</small>
 
-            <!-- Immagine frontale -->
-            <img class="immagine-principale"
-                 [src]="angolo.url"
-                 [alt]="img.display_name"
-                 (click)="apriPopUpGalleriaFotoNoFrontali(img.meta)" />
-          </div>
-        </ng-container>
+              <!-- Dettagli -->
+              <div class="dettagli">
+                <strong>{{ img.display_name }}</strong>
 
-        <!-- Dettagli dell'immagine -->
-          <div class="dettagli">
-            <strong>{{ img.display_name }}</strong>
-              <p>{{ img.descrizione }}</p>
-                <small>Quantità: {{ img.quantita }}</small>
+                <!-- Descrizione solo per immagini -->
+                <p *ngIf="tipoMedia === 'image'">{{ img.descrizione }}</p>
 
-                <!-- Bottone per aprire il form -->
-                <button mat-button (click)="apriFormModifica(img)" *ngIf="immagineInModifica !== img">
-                    Modifica
+                <!-- Bottone Modifica solo per immagini -->
+                <button mat-button (click)="apriFormModifica(img)" *ngIf="immagineInModifica !== img && tipoMedia === 'image'">
+                  Modifica
                 </button>
 
-                <!-- Form di modifica visibile solo se questa immagine è in modifica -->
-                <form *ngIf="immagineInModifica === img" #modificaForm="ngForm" (ngSubmit)="onSubmitModifica(img)">
+                <!-- Form modifica solo per immagini -->
+                <form *ngIf="immagineInModifica === img && tipoMedia === 'image'" #modificaForm="ngForm" (ngSubmit)="onSubmitModifica(img)">
                   <mat-form-field appearance="fill" class="full-width">
-                  <mat-label>Descrizione</mat-label>
-                    <input
-                      matInput
-                      name="descrizione"
-                      [(ngModel)]="valoriModifica.descrizione"
-                    />
+                    <mat-label>Descrizione</mat-label>
+                    <input matInput name="descrizione" [(ngModel)]="valoriModifica.descrizione" />
                   </mat-form-field>
 
                   <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Quantità</mat-label>
-                        <input
-                          matInput
-                          type="number"
-                          name="quantita"
-                          min="0"
-                          [(ngModel)]="valoriModifica.quantita"
-                          />
-                      </mat-form-field>
-                      <mat-form-field appearance="fill" class="full-width">
+                    <input matInput type="number" name="quantita" min="0" [(ngModel)]="valoriModifica.quantita" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Nome</mat-label>
-                      <input
-                        matInput
-                        name="nome"
-                        [(ngModel)]="valoriModifica.nome_file"
-                          />
-                    </mat-form-field>
+                    <input matInput name="nome" [(ngModel)]="valoriModifica.nome_file" />
+                  </mat-form-field>
 
                   <div class="form-actions">
                     <button mat-stroked-button type="submit" color="primary">Salva</button>
                     <button mat-button type="button" (click)="immagineInModifica = null">Annulla</button>
                   </div>
-  </form>
-</div>
+                </form>
+              </div>
+            </div>
+          </ng-container>
 
+        </div>
+      </ng-container>
 
-      </div>
-    </ng-container>
-
+    </div>
   </div>
-</div>
-
-
-
 </div>
