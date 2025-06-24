@@ -233,10 +233,22 @@ apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[]) {
         width: '90vw', // per grandezza pop up
         data: immagineMeta.filter(meta => meta.angolazione !== 'frontale')  //quando uso data sto inviando al pop up e uso inject passo tutti i meta tranne frontale
       });
+      
+     dialogRef.afterClosed().subscribe(() => {
+  this.loadImages(); // Ricarica immagini solo dopo la chiusura effettiva
+});
 
 }
+
 // se elimino la frontale devo eliminare tutto
 eliminaImmagini(img: ImmagineCloudinary): void {
+
+  const confermato = window.confirm(`Sei sicuro di voler eliminare la cartella "${img.display_name}"?`);
+  if (!confermato) {
+    console.log("Eliminazione annullata dall'utente");
+    return;
+  }
+
   // Estrae tutte le URL delle immagini da eliminare (dalla proprietà meta)
   const urlsDaEliminare: string[] = img.meta.map((m: ImmagineMeta) => m.url);
 
