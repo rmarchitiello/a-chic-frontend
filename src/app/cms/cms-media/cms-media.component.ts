@@ -315,8 +315,15 @@ apriPopUpAddFolder(node: any): void {
 //metodo per aggiungere una nuova cartella
 addFolder(fullPath: string) {
   // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')
-  const folderDaCreare = fullPath;
-  console.log("Cartella da creare:", folderDaCreare);
+  const folderDaCreare = fullPath
+  console.log("full path passato: ", fullPath);
+
+  //controllo, se ci sono piu path posso creare fino a 3 livelli Borse/conchiglia/cono e basta poi c devono essere le foto
+    const livelli = fullPath.split("/");
+     if (livelli.length > 3) {
+    alert("Non puoi creare più di due livelli di sottocartelle.");
+    return;
+  }
 
 
   // Effettua la chiamata DELETE al servizio CMS

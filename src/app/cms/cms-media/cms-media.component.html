@@ -7,6 +7,15 @@
 <!-- Layout CMS attivo solo su desktop -->
 <div *ngIf="!isMobile" class="cms-layout">
 
+<!-- Bottone per creare una cartella principale -->
+<button
+  mat-icon-button
+  class="create-folder-button"
+  (click)="apriPopUpAddFolder('')"
+  aria-label="Crea nuova cartella principale">
+  <mat-icon color="primary">create_new_folder</mat-icon>
+</button>
+
   <!-- Sidebar sinistra: struttura ad albero -->
   <div class="cms-sidebar">
 
