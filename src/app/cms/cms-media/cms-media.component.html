@@ -134,11 +134,45 @@
         </ng-container>
 
         <!-- Dettagli dell'immagine -->
-        <div class="dettagli">
-          <strong>{{ img.display_name }}</strong>
-          <p>{{ img.descrizione }}</p>
-          <small>Quantità: {{ img.quantita }}</small>
-        </div>
+          <div class="dettagli">
+            <strong>{{ img.display_name }}</strong>
+              <p>{{ img.descrizione }}</p>
+                <small>Quantità: {{ img.quantita }}</small>
+
+                <!-- Bottone per aprire il form -->
+                <button mat-button (click)="apriFormModifica(img)" *ngIf="immagineInModifica !== img">
+                    Modifica
+                </button>
+
+                <!-- Form di modifica visibile solo se questa immagine è in modifica -->
+                <form *ngIf="immagineInModifica === img" #modificaForm="ngForm" (ngSubmit)="onSubmitModifica(img)">
+                  <mat-form-field appearance="fill" class="full-width">
+                  <mat-label>Descrizione</mat-label>
+                    <input
+                      matInput
+                      name="descrizione"
+                      [(ngModel)]="valoriModifica.descrizione"
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="fill" class="full-width">
+                    <mat-label>Quantità</mat-label>
+                        <input
+                          matInput
+                          type="number"
+                          name="quantita"
+                          min="0"
+                          [(ngModel)]="valoriModifica.quantita"
+                          />
+                      </mat-form-field>
+
+                  <div class="form-actions">
+                    <button mat-stroked-button type="submit" color="primary">Salva</button>
+                    <button mat-button type="button" (click)="immagineInModifica = null">Annulla</button>
+                  </div>
+  </form>
+</div>
+
 
       </div>
     </ng-container>

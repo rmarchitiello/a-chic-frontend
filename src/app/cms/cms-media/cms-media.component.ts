@@ -12,6 +12,12 @@ import { CmsMediaNewFolderComponent } from '../cms-media-new-folder/cms-media-ne
 import { MatDialog } from '@angular/material/dialog';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { GalleriaPopupComponent } from './galleria-popup/galleria-popup.component';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { NgForm } from '@angular/forms';
+
+
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
   name: string;
@@ -65,6 +71,16 @@ export interface RispostaImmagini {
 /* interfacce immagini end **/
 
 
+/* interface aggiornamento immagine meta */
+export interface metaUpdate {
+  urlImmagine: string;
+  context:   
+  {
+                descrizione?: string,
+                quantita?: string
+            }
+}
+
 @Component({
   selector: 'app-cms-media',
   standalone: true,
@@ -75,7 +91,10 @@ export interface RispostaImmagini {
     MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule  ]
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule  ]
 })
 export class CmsMediaComponent implements OnInit {
 
@@ -268,6 +287,7 @@ eliminaImmagini(img: ImmagineCloudinary): void {
 }
 
 
+
 /* PER CREARE LA CARTELLA, MOSTRO UN POP UP CIOE, QUANDO CLICCO SUL + PER CREARE LA CARTELLA CHIAMO apriPopUpAddFolder 
 passando il node.fullPath
 importo import { MatDialog } from '@angular/material/dialog';
@@ -389,6 +409,99 @@ onNodeClick(node: TreeNode): void {
 haImmaginiFrontali(img: ImmagineCloudinary): boolean {
   return img.meta.some(m => m.angolazione === 'frontale');
 }
+
+
+//aggiornamento metadati immagine
+// Tiene traccia dell'immagine attualmente in modifica
+immagineInModifica: any = null;
+
+/**
+ * Mostra il form di modifica per l'immagine selezionata.
+ * Se clicchi una seconda volta sulla stessa immagine, chiude il form.
+ */
+
+valoriModifica: { descrizione?: string; quantita?: string } = {};
+
+
+apriFormModifica(img: any): void {
+  if (this.immagineInModifica === img) {
+    this.immagineInModifica = null;
+    this.valoriModifica = {};
+  } else {
+    this.immagineInModifica = img;
+
+    // Inizializza valori modificabili con i valori attuali dell'immagine
+    this.valoriModifica = {
+      descrizione: img.descrizione,
+      quantita: img.quantita
+    };
+  }
+}
+
+
+
+
+onSubmitModifica(img: any): void {
+  // Recupera i valori modificati dal form
+  const nuovaDescrizione = this.valoriModifica.descrizione ?? img.descrizione;
+  const nuovaQuantita = this.valoriModifica.quantita ?? img.quantita;
+
+  // Verifica se almeno uno dei due è effettivamente cambiato
+  const descrizioneModificata = nuovaDescrizione !== img.descrizione;
+  const quantitaModificata = nuovaQuantita !== img.quantita;
+
+  if (!descrizioneModificata && !quantitaModificata) {
+    console.log('Nessuna modifica rilevata');
+    return;
+  }
+
+  // Prepara comunque entrambi i valori da inviare
+  const aggiornamento = {
+    urlImmagine: img.meta.find((m: any) => m.angolazione === 'frontale')?.url,
+    context: {
+      descrizione: nuovaDescrizione,
+      quantita: nuovaQuantita
+    }
+  };
+
+  console.log("Aggiornamento da inviare:", aggiornamento);
+  this.aggiornaMetaImmagine(aggiornamento);
+
+  // Chiude il form e resetta
+  this.immagineInModifica = null;
+  this.valoriModifica = {};
+}
+
+
+
+
+/* metodo per aggiornare l immagine */
+aggiornaMetaImmagine(img: metaUpdate): void {
+  console.log(". . . Aggiornamento meta in corso . . . ")
+  const confermato = window.confirm(`Sei sicuro di voler aggiornare l'immagine ?`);
+  if (!confermato) {
+    console.log("Aggiornamento annullato dall'utente");
+    return;
+  }
+
+  // Estrae tutte le URL delle immagini da eliminare (dalla proprietà meta)
+  const urlDaAggiornare: string = img.urlImmagine;
+
+  console.log("Immagine da aggiornare ", urlDaAggiornare);
+  console.log("Metadati da aggiornare: ", img.context);
+  // Chiama il servizio per eliminare le immagini e si sottoscrive al risultato
+  this.cmsService.updateImageMetadata(img.urlImmagine, img.context).subscribe({
+    next: (res) => {
+      console.log('Aggiornamento riuscito:', res);
+      console.log("Sto aggiornando la nuova cache immagini: ");
+      this.loadImages(); //serve per ricaricare la nuova cache
+    },
+    error: (err) => {
+      console.error('Errore durante eliminazione immagini:', err);
+    }
+  });
+}
+
 
 
 }
