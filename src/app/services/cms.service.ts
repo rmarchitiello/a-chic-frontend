@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { BodyUploadMedia } from '../cms/cms-upload/cms-upload.component';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,7 @@ export class CmsService {
   private baseUrl = environment.apiBaseUrl + 'cms';
   private media = '/media-folder';
   private mediaImages = '/media-images'
+  private mediaUpload = '/media-upload'
   constructor(private http: HttpClient) {}
 
   /**
@@ -72,9 +74,18 @@ const body = {
 };
 
   console.log("Request inviata:", JSON.stringify(body));
-  return this.http.put<any>(url, body); // 
+  return this.http.post<any>(url, body); // 
 }
 
+
+uploadMedia(formData: FormData): Observable<any> {
+  const url = `${this.baseUrl}${this.mediaUpload}`;
+  
+
+
+  console.log("Request inviata:", JSON.stringify(formData)); //per forza form data perche sto inviando un file al backend 
+  return this.http.post<any>(url, formData); // 
+}
 
 
 }

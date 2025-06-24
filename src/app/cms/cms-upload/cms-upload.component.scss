@@ -1,0 +1,133 @@
+// ==========================
+// SEZIONE MOBILE (accesso bloccato)
+// ==========================
+
+.mobile-blocked {
+  max-width: 90%;
+  margin: 5rem auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: #fef2f2;
+  border: 1px solid #f5c2c7;
+  border-radius: 8px;
+  color: #b02a37;
+
+  h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #721c24;
+  }
+}
+
+// ==========================
+// SEZIONE DESKTOP (form di upload CMS)
+// ==========================
+
+.cms-layout {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+}
+
+// ==========================
+// FORM DI UPLOAD
+// ==========================
+
+.upload-form {
+  .form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+  }
+
+  input,
+  textarea {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  textarea {
+    resize: vertical; // Consento ridimensionamento verticale
+    min-height: 100px;
+  }
+
+  // ==========================
+  // Stile Angular Material: mat-form-field e mat-select
+  // ==========================
+  mat-form-field {
+    width: 100%;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+
+    .mat-form-field-wrapper {
+      padding: 0 !important; // Rimuove padding interno
+    }
+
+    .mat-form-field-flex {
+      background-color: white;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      padding: 0.3rem 0.6rem;
+    }
+
+    .mat-select {
+      font-size: 1rem;
+    }
+
+    .mat-select-value {
+      color: #333;
+    }
+
+    .mat-select-arrow {
+      color: #888;
+    }
+
+    .mat-form-field-label {
+      font-size: 0.95rem;
+      color: #666;
+    }
+  }
+
+  // ==========================
+  // Pulsante submit
+  // ==========================
+  button[type="submit"] {
+    padding: 0.8rem 1.5rem;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  button[disabled] {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  button[type="submit"]:hover:not([disabled]) {
+    background-color: #0056b3;
+  }
+}

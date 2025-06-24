@@ -15,7 +15,6 @@ import { GalleriaPopupComponent } from './galleria-popup/galleria-popup.componen
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { NgForm } from '@angular/forms';
 
 
 // Ogni nodo rappresenta una cartella o sottocartella
