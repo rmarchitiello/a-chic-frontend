@@ -630,4 +630,20 @@ aggiornaMetaImmagine(img: MetaUpdate): void {
 
 
 
+downloadMedia(url: string, fileName: string): void {
+  fetch(url)
+    .then(response => response.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = fileName || 'media';
+      link.click();
+      window.URL.revokeObjectURL(link.href);
+    })
+    .catch(err => {
+      console.error('Errore nel download:', err);
+    });
+}
+
+
 }

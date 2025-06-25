@@ -1,5 +1,5 @@
 <!-- ============================================================
-     BLOCCO MOBILE  – se l’utente apre da uno schermo ≤ 768 px
+     BLOCCO MOBILE – viene mostrato solo su schermi ≤ 768 px
      ============================================================ -->
 <div *ngIf="isMobile" class="mobile-blocked">
   <h2>Accesso CMS non disponibile su mobile</h2>
@@ -7,12 +7,11 @@
 </div>
 
 <!-- ============================================================
-     LAYOUT DESKTOP  – mostrato solo se isMobile è false
-     Due colonne:  sidebar (sinistra)  +  contenuto (destra)
+     LAYOUT DESKTOP – due colonne (sidebar + contenuto)
      ============================================================ -->
 <div *ngIf="!isMobile" class="cms-layout">
 
-  <!-- ◀ Bottone per creare una cartella principale (radice) -->
+  <!-- Bottone per creare una cartella RADICE -->
   <button  mat-icon-button
            class="create-folder-button"
            aria-label="Crea nuova cartella principale"
@@ -20,82 +19,64 @@
     <mat-icon color="primary">create_new_folder</mat-icon>
   </button>
 
-  <!-- ========================================================
-       SIDEBAR SINISTRA – albero cartelle (Angular Material Tree)
-       ======================================================== -->
+  <!-- ---------------  SIDEBAR (albero cartelle) --------------- -->
   <div class="cms-sidebar">
-
-    <!-- Spinner mentre si caricano le cartelle -->
+    <!-- spinner durante il fetch -->
     <div *ngIf="loading" class="spinner-container">
       <mat-spinner diameter="30"></mat-spinner>
       <p>Caricamento cartelle...</p>
     </div>
 
-    <!-- Albero cartelle (ngx-material tree) -->
+    <!-- mat-tree -->
     <mat-tree *ngIf="!loading"
               [dataSource]="dataSource"
               [treeControl]="treeControl"
               class="folder-tree">
 
-      <!-- ======= NODO CON FIGLI ======= -->
-      <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild"
-                            matTreeNodePadding>
-
+      <!-- ===== NODO CON FIGLI ===== -->
+      <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
         <div class="mat-tree-node">
-          <!-- icona di espansione/contrazione -->
           <button mat-icon-button matTreeNodeToggle>
-            <mat-icon>
-              {{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}
-            </mat-icon>
+            <mat-icon>{{ treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right' }}</mat-icon>
           </button>
-
-          <!-- icona cartella -->
           <mat-icon class="mr-2">folder</mat-icon>
 
-          <!-- Titolo cartella e azioni -->
+          <!-- titolo e azioni -->
           <div class="node-content">
-            <!-- click = seleziona cartella -->
-            <span  (click)="onNodeClick(node)"
-                   [class.selected-node]="nodoSelezionato === node">
+            <span (click)="onNodeClick(node)"
+                  [class.selected-node]="nodoSelezionato === node">
               {{ node.name }}
             </span>
 
-            <!-- azione: crea sottocartella -->
             <button mat-icon-button class="create-folder-button"
                     (click)="apriPopUpAddFolder(node)">
               <mat-icon color="primary">create_new_folder</mat-icon>
             </button>
 
-            <!-- azione: rinomina cartella -->
             <button mat-icon-button class="rename-folder-button"
                     (click)="apriPopUpRenameFolder(node)">
               <mat-icon color="primary">edit</mat-icon>
             </button>
 
-            <!-- azione: elimina cartella -->
             <button mat-icon-button class="delete-folder-button"
                     (click)="deleteFolder(node.fullPath); $event.stopPropagation();">
               <mat-icon color="warn">delete</mat-icon>
             </button>
-          </div> <!-- /node-content -->
+          </div>
         </div>
 
-        <!-- outlet ricorsivo per i figli -->
         <div *ngIf="treeControl.isExpanded(node)">
           <ng-container matTreeNodeOutlet></ng-container>
         </div>
       </mat-nested-tree-node>
 
-      <!-- ======= NODO FOGLIA (senza figli) ======= -->
+      <!-- ===== NODO FOGLIA ===== -->
       <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
         <div class="mat-tree-node">
-          <!-- icona “fantasma” per allineare -->
           <button mat-icon-button disabled>
             <mat-icon class="transparent">chevron_right</mat-icon>
           </button>
           <mat-icon class="mr-2">insert_drive_file</mat-icon>
-
-          <!-- click = seleziona cartella foglia -->
           <span (click)="onNodeClick(node)"
                 [class.selected-node]="nodoSelezionato === node">
             {{ node.name }}
@@ -104,130 +85,112 @@
       </mat-tree-node>
     </mat-tree>
 
-    <!-- Pulsante per passare alla pagina di upload contenuti -->
     <button mat-raised-button class="refresh-button"
             (click)="goToCaricaContenuti('/cms/upload')">
       Vai a Carica Contenuti
     </button>
-  </div> <!-- /cms-sidebar -->
+  </div><!-- /cms-sidebar -->
 
-  <!-- ========================================================
-       COLONNA DESTRA – area contenuti (immagini / video / audio)
-       ======================================================== -->
+  <!-- ---------------  CONTENUTO (media) --------------- -->
   <div class="cms-content"
        *ngIf="nodoSelezionato?.fullPath as percorsoSelezionato">
 
-    <!-- Griglia dei media: mostrata solo se esistono elementi -->
     <div class="immagini-grid"
          *ngIf="immaginiRecuperateDaMostrare[percorsoSelezionato]?.length">
 
-      <!-- Ciclo sugli oggetti “img” (un display_name) -->
+      <!-- Ciclo sui diversi “display_name” -->
       <ng-container *ngFor="let img of immaginiRecuperateDaMostrare[percorsoSelezionato]">
 
-        <!-- Mostra il riquadro solo se passa il filtro frontale/video/audio -->
-        <div class="immagine-box"
-             *ngIf="haImmaginiFrontali(img)">
+        <!-- Mostro solo se c’è almeno un media valido -->
+        <div class="immagine-box" *ngIf="haImmaginiFrontali(img)">
 
           <!-- Ciclo sui meta (angolazioni o singoli video/audio) -->
           <ng-container *ngFor="let angolo of img.meta">
 
-            <!-- Wrapper del singolo media -->
+            <!-- Wrapper di UN media -->
             <div class="immagine-wrapper"
                  *ngIf="getTipo(angolo.url) as tipoMedia"
-                 [class.hide]="tipoMedia === 'image' && angolo.angolazione !== 'frontale'">
+                 [class.hide]="tipoMedia==='image' && angolo.angolazione!=='frontale'">
 
-              <!-- =============== BLOCCO MEDIA =============== -->
-              <!-- Pulsante elimina (vale per tutto il display_name) -->
+              <!-- X: elimina l’intero display_name -->
               <button mat-icon-button class="delete-button"
                       (click)="eliminaImmagini(img)">
-                <mat-icon color="warn">close</mat-icon>
+                <mat-icon>close</mat-icon>
               </button>
 
-              <!-- Media a seconda del tipo -->
+                    <button mat-icon-button class="download-button"
+                          (click)="downloadMedia(angolo.url, img.display_name)">
+                        <mat-icon>download</mat-icon>
+                    </button>
+              <!-- Media -->
               <ng-container [ngSwitch]="tipoMedia">
-
-                <!-- IMMAGINE (solo frontale viene mostrata) -->
+                <!-- Immagine -->
                 <img   *ngSwitchCase="'image'"
                        class="immagine-principale"
                        [src]="angolo.url"
                        [alt]="img.display_name"
                        (click)="apriPopUpGalleriaFotoNoFrontali(img.meta)" />
 
-                <!-- VIDEO -->
+                <!-- Video -->
                 <video *ngSwitchCase="'video'"
                        class="immagine-principale"
                        [src]="angolo.url"
                        controls></video>
 
-                <!-- AUDIO -->
+                <!-- Audio -->
                 <audio *ngSwitchCase="'audio'"
                        class="audio-player"
                        [src]="angolo.url"
                        controls></audio>
               </ng-container>
 
-              <!-- Quantità (visibile solo per immagini) -->
-              <small *ngIf="tipoMedia === 'image'">
-                Quantità: {{ img.quantita }}
-              </small>
-              <!-- ============ / BLOCCO MEDIA ============= -->
+              <!-- Quantità (solo immagini) -->
+              <small *ngIf="tipoMedia==='image'">Quantità: {{ img.quantita }}</small>
 
-              <!-- ============ DETTAGLI + FORM MODIFICA =========== -->
+              <!-- Dettagli + (eventuale) form modifica -->
               <div class="dettagli">
                 <strong>{{ img.display_name }}</strong>
-                <p *ngIf="tipoMedia === 'image'">{{ img.descrizione }}</p>
+                <p *ngIf="tipoMedia==='image'">{{ img.descrizione }}</p>
 
-                <!-- Pulsante “Modifica” – solo per immagini -->
                 <button mat-button
-                        *ngIf="immagineInModifica !== img && tipoMedia === 'image'"
+                        *ngIf="immagineInModifica!==img && tipoMedia==='image'"
                         (click)="apriFormModifica(img)">
                   Modifica
                 </button>
 
-                <!-- Form di modifica (visibile solo sull’immagine da editare) -->
-                <form  *ngIf="immagineInModifica === img && tipoMedia === 'image'"
-                       #modificaForm="ngForm"
-                       (ngSubmit)="onSubmitModifica(img)">
-
-                  <!-- Descrizione -->
+                <!-- Form di modifica -->
+                <form *ngIf="immagineInModifica===img && tipoMedia==='image'"
+                      #modificaForm="ngForm"
+                      (ngSubmit)="onSubmitModifica(img)">
                   <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Descrizione</mat-label>
                     <input matInput name="descrizione"
-                           [(ngModel)]="valoriModifica.descrizione" />
+                           [(ngModel)]="valoriModifica.descrizione"/>
                   </mat-form-field>
 
-                  <!-- Quantità -->
                   <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Quantità</mat-label>
                     <input matInput type="number" min="0" name="quantita"
-                           [(ngModel)]="valoriModifica.quantita" />
+                           [(ngModel)]="valoriModifica.quantita"/>
                   </mat-form-field>
 
-                  <!-- Nome file -->
                   <mat-form-field appearance="fill" class="full-width">
                     <mat-label>Nome</mat-label>
                     <input matInput name="nome"
-                           [(ngModel)]="valoriModifica.nome_file" />
+                           [(ngModel)]="valoriModifica.nome_file"/>
                   </mat-form-field>
 
-                  <!-- Pulsanti form -->
                   <div class="form-actions">
-                    <button mat-stroked-button type="submit" color="primary">
-                      Salva
-                    </button>
+                    <button mat-stroked-button color="primary" type="submit">Salva</button>
                     <button mat-button type="button"
-                            (click)="immagineInModifica = null">
-                      Annulla
-                    </button>
+                            (click)="immagineInModifica = null">Annulla</button>
                   </div>
                 </form>
-              </div>
-              <!-- ========== / DETTAGLI ========== -->
-            </div> <!-- /immagine-wrapper -->
-
+              </div><!-- /dettagli -->
+            </div><!-- /immagine-wrapper -->
           </ng-container>
-        </div> <!-- /immagine-box -->
+        </div><!-- /immagine-box -->
       </ng-container>
-    </div> <!-- /immagini-grid -->
-  </div> <!-- /cms-content -->
-</div> <!-- /cms-layout -->
+    </div><!-- /immagini-grid -->
+  </div><!-- /cms-content -->
+</div><!-- /cms-layout -->
