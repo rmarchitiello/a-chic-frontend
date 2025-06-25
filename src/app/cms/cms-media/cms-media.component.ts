@@ -329,66 +329,83 @@ apriPopUpAddFolder(node: any): void {
 
 
 //rename folder
+
+/**
+ * Mostra il popup di rinomina per una cartella e, se l’utente conferma,
+ * invia la richiesta di rename al backend.  
+ * La sequenza è:
+ *   1. attiva lo spinner (`loading = true`);
+ *   2. apre il dialog per far inserire il nuovo nome;
+ *   3. alla chiusura del dialog, se è stato immesso un nome:
+ *        • costruisce il nuovo percorso completo;
+ *        • chiama il servizio di rename;
+ *        • al successo ricarica l’albero delle cartelle (usa la cache);
+ *        • in caso di errore spegne lo spinner.
+ *
+ * N.B. loadFolders() gestisce da sé `loading = false` quando termina,
+ *      quindi NON va resettato ​qui​ in caso di successo.
+ */
 apriPopUpRenameFolder(node: any): void {
 
-  const fullPath = node.fullPath;
-  let cartellaSceltaDaRinominare = node.name;
+  /* --------------------------------------------------------------
+   * 1. spinner ON subito (verrà spento da loadFolders oppure da error)
+   * -------------------------------------------------------------- */
+  this.loading = true;
 
-  console.log("Path corrente: ", fullPath);
-  console.log("Cartella scelta da rinominare: ", cartellaSceltaDaRinominare)
+  const fullPath = node.fullPath;   // es. "Accessori/Charm/A"
+  const oldName  = node.name;       // es. "A"
 
-  //apro il pop up
-    const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
+  console.log('Path corrente:', fullPath);
+
+  /* --------------------------------------------------------------
+   * 2. apertura dialog di rinomina
+   * -------------------------------------------------------------- */
+  const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
     width: '90vw',
-        data: {
-      isRename: true  // passo al figlio se è una rinomina oppure no !
-        }
+    data : { isRename: true }
   });
 
-  // quando chiudo il pop up devo ricevere l'ouput del figlio
-    dialogRef.afterClosed().subscribe((nomeCartella: string) => {
-    if (nomeCartella) {
-        
-let newFullPath: string;
+  /* --------------------------------------------------------------
+   * 3. gestione risposta del dialog
+   * -------------------------------------------------------------- */
+  dialogRef.afterClosed().subscribe((nuovoNome: string | undefined) => {
 
-if (fullPath.includes('/')) {
-  // Ho almeno un segmento padre: sostituisco l’ultimo segmento
-  const parti = fullPath.split('/');             // es. ["Accessori", "Charm", "A"]
-  parti[parti.length - 1] = nomeCartella;   // es. ["Accessori", "Charm", "D"]
-  newFullPath = parti.join('/');                 // "Accessori/Charm/D"
-} else {
-  // La cartella è in radice: prendo direttamente il nuovo nome
-  newFullPath = nomeCartella;               // "D"
-}
+    // se l’utente annulla o non cambia il nome → esco
+    if (!nuovoNome || nuovoNome === oldName) {
+      this.loading = false;
+      return;
+    }
 
-      const requestRenameFolder: RenameFolder = {
-            oldPath : fullPath,
-            newPath : newFullPath
+    /* Costruisco il nuovo fullPath sostituendo l’ultimo segmento */
+    const newFullPath = fullPath.includes('/')
+      ? fullPath.split('/').slice(0, -1).concat(nuovoNome).join('/')
+      : nuovoNome;
+
+    const payload: RenameFolder = {
+      oldPath: fullPath,
+      newPath: newFullPath
+    };
+
+    console.log('Rename payload:', payload);
+
+    /* ----------------------------------------------------------
+     * 4. chiamata al servizio di rinomina
+     * ---------------------------------------------------------- */
+    this.cmsService.renameFolder(payload).subscribe({
+      next: () => {
+        console.log('Rinomina eseguita con successo');
+        /* Non spengo lo spinner qui:
+         *  - loadFolders() lo spegnerà quando avrà terminato */
+        this.loadFolders();         // ricarica dalla cache
+      },
+      error: err => {
+        console.error('Errore rename:', err);
+        /* In caso di errore lo spinner va disattivato subito */
+        this.loading = false;
       }
-
-      console.log("Request per effettuare la rename: ", JSON.stringify(requestRenameFolder));
-
-        this.cmsService.renameFolder(requestRenameFolder).subscribe({
-    next: (data) => {
-      // Sovrascrive l'intera struttura delle immagini da mostrare
-      console.log('Effettuata la rinomina della folder:', data);
-      this.loading = false;
-    },
-    error: (err) => {
-      console.error('Errore durante la rename della folder:', err);
-      this.loading = false;
-    }
+    });
   });
-
-      //carico le nuove cartelle
-      console.log("Carico la nuova cartella: ")
-      this.loadFolders();
-    }
-  });
-
-
 }
-
 
 
 
