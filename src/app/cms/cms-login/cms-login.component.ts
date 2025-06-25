@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
+import { CmsService } from '../../services/cms.service';
 
 @Component({
   selector: 'app-cms-login',
@@ -34,10 +35,12 @@ export class CmsLoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private cmsService: CmsService
   ) {}
 
   ngOnInit(): void {
+
 
 
     // Inizializza il form con validatori
@@ -68,9 +71,21 @@ onSubmit(): void {
   if (this.loginForm.valid) {
     console.log('Valori del form inviato:', JSON.stringify(this.loginForm.value));
 
-    if (email === this.utenza.email && password === this.utenza.password) {
-      localStorage.setItem('cms-login', 'true');
-      this.router.navigate(['/cms/dashboard']);
+    if (email  && password ) {
+
+        //quando la form è valida chiamo la cms login
+          this.cmsService.login(email,password).subscribe({
+              next: (data) => {
+                  console.log("Login effettuata: ");
+                  localStorage.setItem('cms-login', data.accessToken); //salvo l access token che dura 1 ora
+                this.router.navigate(['/cms/dashboard']);
+
+      },
+      error: () => {
+        alert("Credenziali non valide");
+      }
+    });
+
     } else {
       alert("Credenziali non valide");
     }
@@ -78,6 +93,9 @@ onSubmit(): void {
     // Se il form non è valido, forza la visualizzazione degli errori
     this.loginForm.markAllAsTouched();
   }
+
+
+
 }
 
 }

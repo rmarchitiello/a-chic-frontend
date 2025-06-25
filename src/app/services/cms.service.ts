@@ -9,10 +9,36 @@ import { RenameFolder } from '../cms/cms-media/cms-media.component';
 export class CmsService {
 
   private baseUrl = environment.apiBaseUrl + 'cms';
+  private loginUrl = '/login'
   private media = '/media-folder';
   private mediaImages = '/media-images'
   private mediaUpload = '/media-upload'
   constructor(private http: HttpClient) {}
+
+
+  /* login CMS */
+    //rename folder
+   login(email: string, password: string): Observable<any> {
+    const url = `${this.baseUrl}${this.loginUrl}`;
+    const requestLogin = {
+      email: email,
+      password: password
+    }
+    
+
+
+    return this.http.post<any>(url, requestLogin);
+  }
+
+  //metodo per passare il token a ogni metodo sotto lo prendo dal localstorage
+  private getAuthHeaders() {
+  const token = localStorage.getItem('cms-login');
+  return {
+    Authorization: `Bearer ${token}`
+  };
+}
+
+
 
   /**
    * Recupera tutte le folder dal CMS.
@@ -20,13 +46,13 @@ export class CmsService {
    */
   getFolders(refresh: boolean = false): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
-    
+
     let params = new HttpParams();
     if (refresh) {
       params = params.set('refresh', 'true'); //se refresh e true bypasso la cache e vado sul cloud
     }
 
-    return this.http.get<any>(url, { params });
+    return this.http.get<any>(url, { params, headers: this.getAuthHeaders() }); //invio query poaram e header
   }
 
 
@@ -36,20 +62,20 @@ export class CmsService {
     
 
 
-    return this.http.put<any>(url, request);
+    return this.http.put<any>(url, request, {headers: this.getAuthHeaders()});
   }
 
     deleteFolder(folderName: string): Observable<any> {
         const url = `${this.baseUrl}${this.media}`;
         const params = new HttpParams().set('folderName', folderName);
-       return this.http.delete<any>(url, { params });
+       return this.http.delete<any>(url, { params, headers: this.getAuthHeaders()  });
 }
 
 createFolder(fullPath: string): Observable<any> {
   const url = `${this.baseUrl}${this.media}`; 
   const body = { fullPath }; // Invio come JSON: { "fullPath": "/ciao/prova" }
 
-  return this.http.post<any>(url, body); // Invia il body JSON al backend
+  return this.http.post<any>(url, body, {headers: this.getAuthHeaders()}); // Invia il body JSON al backend
 }
 
 deleteImages(urlsDaEliminare: string[]): Observable<any> {
@@ -59,14 +85,14 @@ deleteImages(urlsDaEliminare: string[]): Observable<any> {
     urlImageToDelete: urlsDaEliminare
   };
 
-  return this.http.delete<any>(url, { body });
+  return this.http.delete<any>(url, { body, headers: this.getAuthHeaders() });
 }
 
 
 //metodo che mi serve per leggere le immagini dalla cache una volta che cancello un file
 getAllImages(): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`;
-  return this.http.get<any>(url);
+  return this.http.get<any>(url, {headers: this.getAuthHeaders()});
 }
 
 
@@ -83,17 +109,17 @@ const body = {
 };
 
   console.log("Request inviata:", JSON.stringify(body));
-  return this.http.put<any>(url, body); // 
+  return this.http.put<any>(url, body, {headers: this.getAuthHeaders()}); // 
 }
 
 
 uploadMedia(formData: FormData): Observable<any> {
-  const url = `${this.baseUrl}${this.mediaUpload}`;
+const url = `${this.baseUrl}${this.mediaUpload}`;
   
 
 
   console.log("Request inviata:", JSON.stringify(formData)); //per forza form data perche sto inviando un file al backend 
-  return this.http.post<any>(url, formData); // 
+  return this.http.post<any>(url, formData, {headers: this.getAuthHeaders()}); // 
 }
 
 

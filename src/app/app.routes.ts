@@ -14,6 +14,7 @@ import { CmsLoginComponent } from './cms/cms-login/cms-login.component';
 import { CmsDashboardComponent } from './cms/cms-dashboard/cms-dashboard.component';
 import { CmsMediaComponent } from './cms/cms-media/cms-media.component';
 import { CmsUploadComponent } from './cms/cms-upload/cms-upload.component';
+import { AuthCmsGuard  } from './auth-cms.guard'; //serve per bloccare tutte le chiamate se non ci siamo prima loggati
 
 export const routes: Routes = [
   // Redirect iniziale alla home
@@ -34,9 +35,9 @@ export const routes: Routes = [
   {
     path: 'cms',
     children: [
-      { path: 'dashboard', component: CmsDashboardComponent },
-      { path: 'upload', component: CmsUploadComponent },
-      { path: 'media', component: CmsMediaComponent }
+      { path: 'dashboard', component: CmsDashboardComponent, canActivate: [AuthCmsGuard] },
+      { path: 'upload', component: CmsUploadComponent, canActivate: [AuthCmsGuard] },
+      { path: 'media', component: CmsMediaComponent, canActivate: [AuthCmsGuard] }
       // Altri componenti CMS (es. upload, media) possono essere aggiunti qui in seguito
     ]
   },
