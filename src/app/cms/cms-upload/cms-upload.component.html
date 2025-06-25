@@ -20,18 +20,32 @@
   <form #uploadForm="ngForm" (ngSubmit)="uploadFile()" class="upload-form">
 
     <!-- File -->
-    <div class="form-group">
+    <div class="form-group" >
       <label for="file">Seleziona file</label>
-      <input type="file" name="file" required (change)="onFileSelected($event)" />
+      <input     [disabled]="!isAudioOrVideo && !isImageBox"
+           type="file" name="file" required (change)="onFileSelected($event)" />
     </div>
 
     <!-- Checkbox per segnalare Audio o Video -->
-    <div class="form-group">
-      <mat-checkbox [(ngModel)]="isAudioOrVideo" name="isAudioOrVideo">
-        Questo file è un audio o un video
-      </mat-checkbox>
-    </div>
+<div class="form-group">
+  <!-- Checkbox audio/video -->
+  <mat-checkbox
+    [ngModel]="isAudioOrVideo"
+    (ngModelChange)="onAudioOrVideoChange($event)"
+    name="isAudioOrVideo"
+  >
+    Questo file è un audio o un video
+  </mat-checkbox>
 
+  <!-- Checkbox immagine -->
+  <mat-checkbox
+    [ngModel]="isImageBox"
+    (ngModelChange)="onImageBoxChange($event)"
+    name="isImageBox"
+  >
+    Questo file è un immagine
+  </mat-checkbox>
+</div>
     <!-- Categoria/cartella -->
     <div class="form-group">
       <label>Categoria (Borse, Charm, Audio, Video...)</label>

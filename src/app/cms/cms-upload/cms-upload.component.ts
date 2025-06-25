@@ -281,8 +281,19 @@ goToMedia(cmsMediaPath: string){
 
 //se video o audio tolgo pulsante frontale o laterale cosi posso caricare sempre.
 isAudioOrVideo: boolean = false;
-checkAudioOrVideo(){
-  this.isAudioOrVideo = true;
+isImageBox: boolean = false;
+
+
+// Gestore cambio per audio/video
+onAudioOrVideoChange(value: boolean): void {
+  this.isAudioOrVideo = value;
+  if (value) this.isImageBox = false;
+}
+
+// Gestore cambio per immagine
+onImageBoxChange(value: boolean): void {
+  this.isImageBox = value;
+  if (value) this.isAudioOrVideo = false;
 }
 
 }
