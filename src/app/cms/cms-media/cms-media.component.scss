@@ -1,4 +1,4 @@
-// Layout principale con due colonne (sidebar + contenuto)
+// Layout principale: contiene sidebar + contenuto
 .cms-layout {
   display: flex;
   height: 100%;
@@ -8,7 +8,7 @@
   overflow: hidden;
 }
 
-// Colonna sinistra: sidebar cartelle (mat-tree)
+// Sidebar a sinistra (albero cartelle)
 .cms-sidebar {
   min-width: 280px;
   width: fit-content;
@@ -83,6 +83,7 @@
     .create-folder-button:hover mat-icon {
       color: #1565c0;
     }
+
     .rename-folder-button mat-icon {
       color: #1a344e;
     }
@@ -113,7 +114,7 @@
   }
 }
 
-// Spinner centrato dentro la sidebar
+// Spinner al centro della sidebar
 .spinner-container {
   position: absolute;
   top: 50%;
@@ -123,7 +124,7 @@
   z-index: 10;
 }
 
-// Colonna destra: contenuto dinamico
+// Contenuto principale (griglia media)
 .cms-content {
   flex: 1;
   padding: 2rem;
@@ -135,6 +136,7 @@
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.5rem;
 
+    // Riquadro media (immagini, video, audio)
     .immagine-box {
       position: relative;
       border: 1px solid #ccc;
@@ -151,27 +153,6 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
 
-      .immagine-principale {
-        width: 100%;
-        height: auto;
-        border-radius: 6px;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.03);
-        }
-      }
-
-      .audio-player {
-        width: 100%;
-        margin-top: 0.5rem;
-      }
-
-      .video-player {
-        width: 100%;
-        border-radius: 6px;
-      }
-
       .immagine-wrapper {
         position: relative;
 
@@ -184,6 +165,16 @@
           &:hover {
             transform: scale(1.03);
           }
+        }
+
+        .audio-player {
+          width: 100%;
+          margin-top: 0.5rem;
+        }
+
+        .video-player {
+          width: 100%;
+          border-radius: 6px;
         }
 
         .delete-button {
@@ -231,7 +222,7 @@
         }
       }
 
-      // Modulo form
+      // Form di modifica dati immagine
       form {
         display: flex;
         flex-direction: column;
@@ -251,6 +242,11 @@
   }
 }
 
+// Nasconde le immagini non frontali
+.hide {
+  display: none !important;
+}
+
 // Icone
 mat-icon.mr-2 {
   margin-right: 8px;
@@ -260,14 +256,14 @@ mat-icon.transparent {
   opacity: 0;
 }
 
-// Evidenziazione nodo selezionato
+// Nodo cartella selezionato
 .selected-node {
   background-color: #e3f2fd;
   border-radius: 4px;
   padding: 2px 4px;
 }
 
-// Messaggio per dispositivi mobili
+// Blocco mostrato se si accede da mobile
 .mobile-blocked {
   max-width: 90%;
   margin: 5rem auto;
@@ -289,7 +285,7 @@ mat-icon.transparent {
   }
 }
 
-// Padding livelli per struttura ad albero
+// Padding dei livelli albero cartelle
 ::ng-deep .mat-tree-node {
   padding-left: 0 !important;
 }
@@ -312,7 +308,7 @@ mat-icon.transparent {
   padding-left: 96px !important;
 }
 
-// Pulsante refresh cartelle
+// Pulsante che rimanda al caricamento contenuti
 .refresh-button {
   margin-top: 10px;
 }

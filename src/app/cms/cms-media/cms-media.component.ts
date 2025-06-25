@@ -16,7 +16,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
-
+import { MatSelectModule } from '@angular/material/select';
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
   name: string;
@@ -81,6 +81,13 @@ export interface MetaUpdate {
             }
 }
 
+
+
+export interface RenameFolder {
+      oldPath: string,
+      newPath: string
+}
+
 @Component({
   selector: 'app-cms-media',
   standalone: true,
@@ -94,7 +101,8 @@ export interface MetaUpdate {
     MatProgressSpinnerModule,
     MatFormFieldModule,
     FormsModule,
-    MatInputModule  ]
+    MatInputModule,
+  MatSelectModule  ]
 })
 export class CmsMediaComponent implements OnInit {
 
@@ -341,11 +349,40 @@ apriPopUpRenameFolder(node: any): void {
     dialogRef.afterClosed().subscribe((nomeCartella: string) => {
     if (nomeCartella) {
         
-      const nomeNuovaCartella = nomeCartella;
-      console.log("Nome nuova cartella: ", nomeNuovaCartella);
-      const newFullPath = fullPath.replace(/\/[^\/]+$/, `/${nomeNuovaCartella}`);
-      console.log("Nuovo fullPath:", newFullPath);
+let newFullPath: string;
 
+if (fullPath.includes('/')) {
+  // Ho almeno un segmento padre: sostituisco l’ultimo segmento
+  const parti = fullPath.split('/');             // es. ["Accessori", "Charm", "A"]
+  parti[parti.length - 1] = nomeCartella;   // es. ["Accessori", "Charm", "D"]
+  newFullPath = parti.join('/');                 // "Accessori/Charm/D"
+} else {
+  // La cartella è in radice: prendo direttamente il nuovo nome
+  newFullPath = nomeCartella;               // "D"
+}
+
+      const requestRenameFolder: RenameFolder = {
+            oldPath : fullPath,
+            newPath : newFullPath
+      }
+
+      console.log("Request per effettuare la rename: ", JSON.stringify(requestRenameFolder));
+
+        this.cmsService.renameFolder(requestRenameFolder).subscribe({
+    next: (data) => {
+      // Sovrascrive l'intera struttura delle immagini da mostrare
+      console.log('Effettuata la rinomina della folder:', data);
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Errore durante la rename della folder:', err);
+      this.loading = false;
+    }
+  });
+
+      //carico le nuove cartelle
+      console.log("Carico la nuova cartella: ")
+      this.loadFolders();
     }
   });
 
@@ -460,9 +497,15 @@ getTipo(url: string): 'image' | 'video' | 'audio' {
   return 'image';
 }
 
-//visualizzo solo le frontali
+//visualizzo solo le frontali se video e audio va bene tutto 
 haImmaginiFrontali(img: ImmagineCloudinary): boolean {
-  return img.meta.some(m => m.angolazione === 'frontale');
+  return img.meta.some(m => {
+    const tipo = this.getTipo(m.url);
+    // Se è immagine, mostra solo se angolazione === 'frontale'
+    if (tipo === 'image') return m.angolazione === 'frontale';
+    // Se è video o audio, mostra sempre
+    return tipo === 'video' || tipo === 'audio';
+  });
 }
 
 
@@ -475,59 +518,80 @@ immagineInModifica: any = null;
  * Se clicchi una seconda volta sulla stessa immagine, chiude il form.
  */
 
-valoriModifica: { descrizione?: string; quantita?: string, nome_file?: string } = {};
+valoriModifica: {
+  descrizione?: string;
+  quantita?: string;
+  nome_file?: string;
+  angolazione?: string;  
+} = {};
 
 
-apriFormModifica(img: any): void {
-  console.log("immagine da modificare, ", img);
-    if (this.immagineInModifica === img) {
+apriFormModifica(img: ImmagineCloudinary): void {
+  console.log('Immagine da modificare:', img);
+
+  // Se clicco di nuovo sulla stessa immagine, chiudo il form
+  if (this.immagineInModifica === img) {
     this.immagineInModifica = null;
     this.valoriModifica = {};
-  } else {
-    this.immagineInModifica = img;
-
-    // Inizializza valori modificabili con i valori attuali dell'immagine
-    this.valoriModifica = {
-      descrizione: img.descrizione,
-      quantita: img.quantita,
-      nome_file: img.display_name
-    };
+    return;
   }
+
+  // Altrimenti apro il form di modifica
+  this.immagineInModifica = img;
+
+  // Inizializzo i valori modificabili con quelli correnti
+  this.valoriModifica = {
+    descrizione: img.descrizione,
+    quantita:    img.quantita,
+    nome_file:   img.display_name,
+    // Specifico il tipo di 'm' per evitare 'implicit any'
+    angolazione: (img.meta.find((m: ImmagineMeta) => !!m.angolazione) as ImmagineMeta | undefined)
+                   ?.angolazione ?? 'frontale'
+  };
 }
 
 
 
 
+
 onSubmitModifica(img: any): void {
-  // Recupera i valori modificati dal form
+  // Recupero i valori modificati dal form oppure mantengo quelli originali
   const nuovaDescrizione = this.valoriModifica.descrizione ?? img.descrizione;
   const nuovaQuantita = this.valoriModifica.quantita ?? img.quantita;
   const nuovoNome = this.valoriModifica.nome_file ?? img.display_name;
 
-  // Verifica se almeno uno dei due è effettivamente cambiato
+  // Verifico se almeno uno dei campi è stato realmente modificato
   const descrizioneModificata = nuovaDescrizione !== img.descrizione;
-  const quantitaModificata = nuovaQuantita !== img.quantita;
-  const nomeModificato = nuovoNome !== img.display_name;
+  const quantitaModificata    = nuovaQuantita !== img.quantita;
+  const nomeModificato        = nuovoNome !== img.display_name;
 
+  // Se nessun campo è stato modificato, interrompo l'operazione
   if (!descrizioneModificata && !quantitaModificata && !nomeModificato) {
     console.log('Nessuna modifica rilevata');
     return;
   }
 
-  // Prepara comunque entrambi i valori da inviare
+  // Preparo l'oggetto di aggiornamento con i dati aggiornati
   const aggiornamento = {
+    // Trovo l'URL dell'immagine frontale per identificare il file da aggiornare
     urlImmagine: img.meta.find((m: any) => m.angolazione === 'frontale')?.url,
+
+    // Contesto dei metadati da aggiornare
     context: {
       descrizione: nuovaDescrizione,
       quantita: nuovaQuantita,
       nome_file: nuovoNome
+      // Se in futuro vuoi includere anche l'angolazione, va aggiunto qui
     }
   };
 
+  // Stampo l'oggetto di aggiornamento in console per debug
   console.log("Aggiornamento da inviare:", aggiornamento);
+
+  // Invio l'aggiornamento al backend tramite il metodo dedicato
   this.aggiornaMetaImmagine(aggiornamento);
 
-  // Chiude il form e resetta
+  // Dopo l'invio, chiudo il form e resetto i valori del form
   this.immagineInModifica = null;
   this.valoriModifica = {};
 }

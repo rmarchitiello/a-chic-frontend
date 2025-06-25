@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { BodyUploadMedia } from '../cms/cms-upload/cms-upload.component';
-
+import { RenameFolder } from '../cms/cms-media/cms-media.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -30,6 +29,15 @@ export class CmsService {
     return this.http.get<any>(url, { params });
   }
 
+
+  //rename folder
+   renameFolder(request: RenameFolder): Observable<any> {
+    const url = `${this.baseUrl}${this.media}`;
+    
+
+
+    return this.http.put<any>(url, request);
+  }
 
     deleteFolder(folderName: string): Observable<any> {
         const url = `${this.baseUrl}${this.media}`;

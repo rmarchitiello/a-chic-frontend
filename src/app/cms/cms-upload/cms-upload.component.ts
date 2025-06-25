@@ -10,6 +10,7 @@ import { MatInputModule } from '@angular/material/input';           // Per <inpu
 import { MatSelectModule } from '@angular/material/select';         // Per <mat-select>
 import { MatButtonModule } from '@angular/material/button';         // Per <button mat-button>
 import { Router } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';   // <-- nuovo import
 
 //request per l'upload dei media
 /* a backend la request è questa {
@@ -64,7 +65,8 @@ export interface BodyUploadMedia {
     MatButtonModule,
     MatSelectModule,
     MatInputModule,
-    MatFormFieldModule
+    MatFormFieldModule,
+    MatCheckboxModule
   ]        
 })
 export class CmsUploadComponent implements OnInit {
@@ -92,7 +94,6 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
   ) {}
 
   ngOnInit(): void {
-    this.angolazioneCloudinary = 'frontale';
     this.quantitaCloudinary = '0';
 
     // Verifica se la visualizzazione è su dispositivo mobile (max-width 768px)
@@ -275,6 +276,13 @@ checkQuantita(valore: string | number) {
 
 goToMedia(cmsMediaPath: string){
   this.router.navigate([cmsMediaPath]);
+}
+
+
+//se video o audio tolgo pulsante frontale o laterale cosi posso caricare sempre.
+isAudioOrVideo: boolean = false;
+checkAudioOrVideo(){
+  this.isAudioOrVideo = true;
 }
 
 }

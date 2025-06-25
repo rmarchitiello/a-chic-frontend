@@ -1,13 +1,12 @@
-// ==========================
-// SEZIONE MOBILE (accesso bloccato)
-// ==========================
-
+// ------------------------------------------------------
+// BLOCCO DI AVVISO (Solo mobile)
+// ------------------------------------------------------
 .mobile-blocked {
   max-width: 90%;
   margin: 5rem auto;
   padding: 2rem;
   text-align: center;
-  background-color: #fef2f2;
+  background-color: #fef2f2;   // rosato chiaro
   border: 1px solid #f5c2c7;
   border-radius: 8px;
   color: #b02a37;
@@ -19,115 +18,141 @@
 
   p {
     font-size: 1rem;
-    color: #721c24;
   }
 }
 
-// ==========================
-// SEZIONE DESKTOP (form di upload CMS)
-// ==========================
-
+// ------------------------------------------------------
+// LAYOUT PRINCIPALE (desktop) - .cms-layout
+// ------------------------------------------------------
 .cms-layout {
   max-width: 800px;
   margin: 2rem auto;
   padding: 2rem;
   background-color: #f8f9fa;
   border-radius: 12px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.12);
 
-  h2 {
-    font-size: 1.6rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
+  // Header con titolo centrato tra due colonne flessibili
+  > div:first-child {
+    // flex container già presente inline nell’HTML
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 600;
+      margin: 0;            // rimosso margine di default
+    }
   }
 }
 
-// ==========================
-// FORM DI UPLOAD
-// ==========================
-
+// ------------------------------------------------------
+// FORM UPLOAD - .upload-form
+// ------------------------------------------------------
 .upload-form {
+  // Ogni gruppo è una colonna stacked
   .form-group {
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
   }
 
+  // Etichette dei campi
   label {
     font-weight: 600;
     margin-bottom: 0.4rem;
   }
 
+  // Input e textarea nativi
   input,
   textarea {
     padding: 0.6rem;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 1rem;
+    background-color: #fff;
   }
 
   textarea {
-    resize: vertical; // Consento ridimensionamento verticale
     min-height: 100px;
+    resize: vertical;        // permetti solo verticale
   }
 
-  // ==========================
-  // Stile Angular Material: mat-form-field e mat-select
-  // ==========================
+  // --------------------------------------------------
+  // Angular Material
+  // --------------------------------------------------
+
+  // Mat-form-field (select delle cartelle + angolazione)
   mat-form-field {
     width: 100%;
     margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
 
     .mat-form-field-wrapper {
-      padding: 0 !important; // Rimuove padding interno
+      padding: 0 !important; // elimina padding interno di default
     }
 
     .mat-form-field-flex {
-      background-color: white;
-      border-radius: 6px;
+      background-color: #fff;
       border: 1px solid #ccc;
-      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
     }
 
-    .mat-select {
-      font-size: 1rem;
-    }
-
+    // testo selezionato
     .mat-select-value {
       color: #333;
-    }
-
-    .mat-select-arrow {
-      color: #888;
-    }
-
-    .mat-form-field-label {
-      font-size: 0.95rem;
-      color: #666;
+      font-size: 1rem;
     }
   }
 
-  // ==========================
+  // Mat-checkbox di selezione Audio/Video
+  mat-checkbox {
+    // Margine per separarlo dal campo sopra
+    margin: 0.3rem 0 1rem 0;
+
+    .mat-checkbox-layout {
+      // testo etichetta
+      font-size: 0.95rem;
+    }
+  }
+
+  // --------------------------------------------------
   // Pulsante submit
-  // ==========================
-  button[type="submit"] {
-    padding: 0.8rem 1.5rem;
+  // --------------------------------------------------
+  button[type='submit'] {
+    padding: 0.8rem 1.6rem;
     background-color: #007bff;
     border: none;
-    color: white;
+    color: #fff;
     font-size: 1rem;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+
+    &:hover:not([disabled]) {
+      background-color: #0056b3;
+    }
+
+    &[disabled] {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ------------------------------------------------------
+// MEDIA QUERY di sicurezza (layout ristretto < 400 px)
+// ------------------------------------------------------
+@media (max-width: 400px) {
+  .cms-layout {
+    padding: 1.5rem;
   }
 
-  button[disabled] {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
+  .upload-form {
+    label {
+      font-size: 0.9rem;
+    }
 
-  button[type="submit"]:hover:not([disabled]) {
-    background-color: #0056b3;
+    input,
+    textarea {
+      font-size: 0.9rem;
+    }
   }
 }
