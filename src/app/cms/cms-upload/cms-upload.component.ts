@@ -241,6 +241,18 @@ const cloudinaryData: CloudinaryDataUpload = {
       console.log("Upload riuscito:", response);
       alert("Upload ruscito");
       this.refreshFolders();
+      // Svuoto la form dopo upload riuscito
+      this.selectedFile = null;
+      this.fileNameCloudinary = '';
+      this.descrizioneCloudinary = '';
+      this.quantitaCloudinary = '';
+      this.angolazioneCloudinary = '';
+
+      // Reset anche del campo file nel DOM (se serve)
+      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
     },
     error: (error) => {
       console.error("Errore durante l’upload:", error);
@@ -250,6 +262,7 @@ const cloudinaryData: CloudinaryDataUpload = {
         alert("Errore durante l'upload. Riprova.");
       }
     }
+
     
   });
 }
