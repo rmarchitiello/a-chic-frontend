@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild, ElementRef } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { CmsService } from '../../services/cms.service';
 import { CommonModule } from '@angular/common';
@@ -167,6 +167,8 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
     "Video": []
 } e lo trasforma in array */
 
+@ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>; //mi serve per azzerare il template quando carico il file
+
 
 getCartelleFinali(structure: any): string[] {
   const result: string[] = [];
@@ -236,17 +238,21 @@ const cloudinaryData: CloudinaryDataUpload = {
 
   console.log("Upload in corso con questi dati:", cloudinaryData);
 
+
   this.cmsService.uploadMedia(formData).subscribe({
     next: (response) => {
       console.log("Upload riuscito:", response);
       alert("Upload ruscito");
       this.refreshFolders();
       // Svuoto la form dopo upload riuscito
-      this.selectedFile = null;
+      this.fileInput.nativeElement.value = '';
       this.fileNameCloudinary = '';
       this.descrizioneCloudinary = '';
-      this.quantitaCloudinary = '';
+      this.quantitaCloudinary = '0';
       this.angolazioneCloudinary = '';
+      //aggiorno anche menu a tendina perche deve ricomparire la tendina 
+      this.folderCloudinary = '';
+      this.menuATendinaFolder = true;    // campo vuoto → mostra tendina
 
       // Reset anche del campo file nel DOM (se serve)
       const fileInput = document.getElementById('fileInput') as HTMLInputElement;
