@@ -103,8 +103,35 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
         this.isMobile = result.matches;
       });
 
+        // Chiamo entrambe le funzioni separatamente, ma unisco i risultati alla fine
+        const tutteLeCartelle: string[] = [];
     // Recupera tutte le immagini/cartelle dal servizio CMS
-      this.loadFolders();
+this.cmsService.getFolders(false).subscribe({
+    next: data => {
+      const normali = this.getCartelleFinali(data);
+      tutteLeCartelle.push(...normali);
+
+      // Dopo la prima, aspetto anche la seconda
+      this.cmsService.getFolders(true).subscribe({
+        next: data2 => {
+          const config = this.getCartelleFinali(data2);
+          tutteLeCartelle.push(...config);
+
+          // Unisco ed elimino i duplicati, poi aggiorno l'array principale
+          this.foldersCaricate = Array.from(new Set(tutteLeCartelle)).sort();
+          console.log('Cartelle combinate:', this.foldersCaricate);
+        },
+        error: err2 => {
+          console.error('Errore nella getFolders config:', err2);
+        }
+      });
+    },
+    error: err => {
+      console.error('Errore nella getFolders normale:', err);
+    }
+  });
+
+
   }
 
   menuATendinaFolder: boolean = true;
@@ -119,24 +146,13 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
         }
 
 
-  //per refreshare le folder col tasto di refresh 
-  refreshFolders(){
-    this.loadFolders();
-  }
 
-  loadFolders(){
-        this.cmsService.getFolders().subscribe({
-      next: (data) => {
-        this.foldersCaricate = this.getCartelleFinali(data);
-        console.log("Folders caricate . . . ", JSON.stringify(this.foldersCaricate));
-      },
-      error: (err) => {
-        console.error('Errore nel recupero delle immagini:', err);
-      }
-    });
-  }
 
-  //metodo che prende il json delle folder 
+ 
+
+@ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>; //mi serve per azzerare il template quando carico il file
+
+ //metodo che prende il json delle folder 
   /*{
     "Accessori": {
         "Charm": [],
@@ -166,10 +182,6 @@ foldersCaricate: string[] = []; // inizializzato come array vuoto
     "Recensioni": [],
     "Video": []
 } e lo trasforma in array */
-
-@ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>; //mi serve per azzerare il template quando carico il file
-
-
 getCartelleFinali(structure: any): string[] {
   const result: string[] = [];
 
@@ -198,7 +210,7 @@ getCartelleFinali(structure: any): string[] {
 
   uploadFile() {
     console.log("cartella dest", this.folderCloudinary);
-
+    const config = this.folderCloudinary.toLocaleLowerCase().includes('config');
     //controllo categorie e sottocategorie se superano le 3 non faccio caricare nulla
     const maxLivelliConsentiti = 3;
     const livelliCartella = this.folderCloudinary.split('/').filter(part => part.trim() !== '');
@@ -239,7 +251,7 @@ const cloudinaryData: CloudinaryDataUpload = {
   console.log("Upload in corso con questi dati:", cloudinaryData);
 
 
-  this.cmsService.uploadMedia(formData).subscribe({
+  this.cmsService.uploadMedia(formData,config).subscribe({
     next: (response) => {
       console.log("Upload riuscito:", response);
       alert("Upload ruscito");
@@ -272,6 +284,27 @@ const cloudinaryData: CloudinaryDataUpload = {
     
   });
 }
+
+refreshFolders() {
+  this.cmsService.getFolders(false).subscribe({
+    next: data1 => {
+      const normali = this.getCartelleFinali(data1);
+
+      this.cmsService.getFolders(true).subscribe({
+        next: data2 => {
+          const config = this.getCartelleFinali(data2);
+
+          // Unisci e rimuovi duplicati
+          this.foldersCaricate = Array.from(new Set([...normali, ...config])).sort();
+          console.log('Folders aggiornate post-upload:', this.foldersCaricate);
+        },
+        error: err2 => console.error('Errore nelle config:', err2)
+      });
+    },
+    error: err1 => console.error('Errore nelle normali:', err1)
+  });
+}
+
 
 onFileSelected(event: Event): void {
   const input = event.target as HTMLInputElement;

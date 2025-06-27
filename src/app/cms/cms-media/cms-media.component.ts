@@ -111,6 +111,7 @@ export class CmsMediaComponent implements OnInit {
 
   // Sorgente dati per il mat-tree
   dataSource = new MatTreeNestedDataSource<TreeNode>();
+  dataSourceConfig = new MatTreeNestedDataSource<TreeNode>();
 
   // Rileva se il dispositivo è mobile
   isMobile: boolean = false;
@@ -139,20 +140,27 @@ export class CmsMediaComponent implements OnInit {
 
       if (!this.isMobile) {
         this.loadFolders(); // carica cartelle
+        this.loadFolders(true); // carica cartelle config
       }
     });
 }
 
 
-  //metodo per caricare le cartelle dalla cash:
-loadFolders(refresh?: boolean): void {
+  //metodo per caricare le cartelle dalla cash: se riceve true allora carica la cache delle folder di configurazioni
+loadFolders(config?: boolean): void {
   this.loading = true;
 
-  this.cmsService.getFolders(refresh).subscribe({
+  this.cmsService.getFolders(config).subscribe({
     next: (foldersJson) => {
       const treeData = this.convertToFullTree(foldersJson);
-      this.dataSource.data = treeData;
-      this.loading = false;
+      if(config){
+              this.dataSourceConfig.data = treeData;
+              this.loading = false;
+      }else{
+          this.dataSource.data = treeData;
+            this.loading = false;
+      }
+
     },
     error: (err) => {
       console.error("Errore nel recupero delle cartelle:", err);
@@ -162,11 +170,12 @@ loadFolders(refresh?: boolean): void {
 }
 
 
+
 //devo caricare le immagini dala cache una volta cancellate:
-loadImages(): void {
+loadImages(config?: boolean): void {
   this.loading = true;
 
-  this.cmsService.getAllImages().subscribe({
+  this.cmsService.getAllImages(config).subscribe({
     next: (data: RispostaImmagini) => {
       // Sovrascrive l'intera struttura delle immagini da mostrare
       this.immaginiRecuperateDaMostrare = data; //risetto le nuove immagini da mostrare
@@ -270,6 +279,9 @@ apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[]) {
 
 // se elimino la frontale devo eliminare tutto
 eliminaImmagini(img: ImmagineCloudinary): void {
+  const config = this.nodoSelezionato?.fullPath.toLocaleLowerCase().includes('config');
+  console.log("E un file di config ? ", config);
+
 
   const confermato = window.confirm(`Sei sicuro di voler eliminare la cartella "${img.display_name}"?`);
   if (!confermato) {
@@ -281,13 +293,12 @@ eliminaImmagini(img: ImmagineCloudinary): void {
   const urlsDaEliminare: string[] = img.meta.map((m: ImmagineMeta) => m.url);
 
   console.log("Immagini o immagine da eliminare: ", urlsDaEliminare);
-
   // Chiama il servizio per eliminare le immagini e si sottoscrive al risultato
-  this.cmsService.deleteImages(urlsDaEliminare).subscribe({
+  this.cmsService.deleteImages(urlsDaEliminare, config).subscribe({
     next: (res) => {
       console.log('Eliminazione riuscita:', res);
       console.log("Sto aggiornando la nuova cache immagini: ");
-      this.loadImages(); //serve per ricaricare la nuova cache
+      this.loadImages(config); //serve per ricaricare la nuova cache
     },
     error: (err) => {
       console.error('Errore durante eliminazione immagini:', err);
@@ -304,7 +315,7 @@ importo import { MatDialog } from '@angular/material/dialog';
  Passo il nome della cartella all addFolder che chiama cms service e aggiunge con add folder la cartella nel cloud e aggiorna la cache e leggo la cache
  */
 
-apriPopUpAddFolder(node: any): void {
+apriPopUpAddFolder(node: any,config?: boolean): void {  //se riceve true dal template deve creare la folder nella config folder 
   const parentPath = node.fullPath; // cartella in cui voglio creare la nuova
 
   const dialogRef = this.dialog.open(CmsMediaNewFolderComponent, {
@@ -320,7 +331,7 @@ apriPopUpAddFolder(node: any): void {
       console.log('Nome cartella da creare:', nomeCartella);
       const fullPath = parentPath ? `${parentPath}/${nomeCartella}` : nomeCartella;
 
-      this.addFolder(fullPath);
+      this.addFolder(fullPath,config);
 
     }
   });
@@ -345,7 +356,7 @@ apriPopUpAddFolder(node: any): void {
  * N.B. loadFolders() gestisce da sé `loading = false` quando termina,
  *      quindi NON va resettato ​qui​ in caso di successo.
  */
-apriPopUpRenameFolder(node: any): void {
+apriPopUpRenameFolder(node: any, config?: boolean): void {
 
   /* --------------------------------------------------------------
    * 1. spinner ON subito (verrà spento da loadFolders oppure da error)
@@ -391,12 +402,18 @@ apriPopUpRenameFolder(node: any): void {
     /* ----------------------------------------------------------
      * 4. chiamata al servizio di rinomina
      * ---------------------------------------------------------- */
-    this.cmsService.renameFolder(payload).subscribe({
+    this.cmsService.renameFolder(payload, config).subscribe({
       next: () => {
         console.log('Rinomina eseguita con successo');
         /* Non spengo lo spinner qui:
          *  - loadFolders() lo spegnerà quando avrà terminato */
-        this.loadFolders();         // ricarica dalla cache
+        if(config){
+            this.loadFolders(config);
+        }
+        else {
+              this.loadFolders();
+        }
+                 // ricarica dalla cache
       },
       error: err => {
         console.error('Errore rename:', err);
@@ -410,7 +427,7 @@ apriPopUpRenameFolder(node: any): void {
 
 
 //metodo per aggiungere una nuova cartella
-addFolder(fullPath: string) {
+addFolder(fullPath: string, config?: boolean) {
   // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')
   const folderDaCreare = fullPath
   console.log("full path passato: ", fullPath);
@@ -424,13 +441,18 @@ addFolder(fullPath: string) {
 
 
   // Effettua la chiamata DELETE al servizio CMS
-  this.cmsService.createFolder(folderDaCreare).subscribe({
+  this.cmsService.createFolder(folderDaCreare,config).subscribe({
     next: (result) => {
       // Stampa conferma in console
       console.log("Risposta della creazione: ", result);
 
-      // Dopo la creazione, ricarica l'albero delle cartelle
-      this.loadFolders();
+      // Dopo la creazione, ricarica l'albero delle cartelle, se config allora solo quelle di config altrimenti le normali
+      if(config){
+          this.loadFolders(config);
+      }else{
+        this.loadFolders();
+      }
+      
     },
     error: (err) => {
       // Stampa l'errore dettagliato in console
@@ -442,7 +464,7 @@ addFolder(fullPath: string) {
   });
 }
 
-deleteFolder(node: any) {
+deleteFolder(node: any, config?: boolean) {
   // Recupera il percorso completo della cartella da cancellare (es. 'lol/aaa')
   const folderDaCancellare = node;
   console.log("Cartella da cancellare:", folderDaCancellare);
@@ -458,13 +480,18 @@ deleteFolder(node: any) {
 
 
   // Effettua la chiamata DELETE al servizio CMS
-  this.cmsService.deleteFolder(folderDaCancellare).subscribe({
+  this.cmsService.deleteFolder(folderDaCancellare,config).subscribe({
     next: (result) => {
       // Stampa conferma in console
       console.log("Risposta della cancellazione: ", result);
 
       // Dopo la cancellazione, ricarica l'albero delle cartelle
-      this.loadFolders();
+      if(config) {
+        this.loadFolders(config);
+      } else {
+        this.loadFolders();
+      }
+
     },
     error: (err) => {
       // Stampa l'errore dettagliato in console
@@ -495,8 +522,12 @@ onNodeClick(node: TreeNode): void {
   this.nodoSelezionato = node;
   console.log('Nodo selezionato:', node.fullPath);
 
+  const config =  node.fullPath.toLowerCase().includes('config');
+  console.log("E un config ?: ", config);
+
+
   // Recupera le immagini relative al percorso selezionato
-  this.cloudinaryService.getImmagini(node.fullPath).subscribe({
+  this.cloudinaryService.getImmagini(node.fullPath, config).subscribe({
     next: (immagini) => {
       console.log('Immagini recuperate:', immagini);
       this.immaginiRecuperateDaMostrare = immagini;
@@ -620,6 +651,8 @@ goToCaricaContenuti(caricaContenutiPath: string){
 
 /* metodo per aggiornare l immagine */
 aggiornaMetaImmagine(img: MetaUpdate): void {
+    const config = this.nodoSelezionato?.fullPath.toLocaleLowerCase().includes('config');
+
   console.log(". . . Aggiornamento meta in corso . . . ")
   const confermato = window.confirm(`Sei sicuro di voler aggiornare l'immagine ?`);
   if (!confermato) {
@@ -633,11 +666,12 @@ aggiornaMetaImmagine(img: MetaUpdate): void {
   console.log("Immagine da aggiornare ", urlDaAggiornare);
   console.log("Metadati da aggiornare: ", img.context);
   // Chiama il servizio per eliminare le immagini e si sottoscrive al risultato
-  this.cmsService.updateImageMetadata(img.urlImmagine, img.context).subscribe({
+  this.cmsService.updateImageMetadata(img.urlImmagine, img.context,config).subscribe({
     next: (res) => {
       console.log('Aggiornamento riuscito:', res);
       console.log("Sto aggiornando la nuova cache : ");
-      this.loadImages(); //serve per ricaricare la nuova cache
+      this.loadImages(config); //serve per ricaricare la nuova cache
+      console.log("aamakmkmskms: ", this.loadImages(config))
     },
     error: (err) => {
       console.error('Errore durante la modifica:', err);

@@ -16,13 +16,16 @@ export class CloudinaryService {
   constructor(private http: HttpClient) {}
 
   // Recupera tutte le immagini
-getImmagini(pathImages?: string): Observable<any> {
+getImmagini(pathImages?: string, config?: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.images}`;
 
   // Se è stato passato un path, aggiungilo ai parametri della richiesta implica che la chiamata viene dal cms
   let params = new HttpParams();
   if (pathImages) {
     params = params.set('pathImages', pathImages);
+  }
+  if(config){
+    params = params.set('config', config)
   }
 
   // Esegui la richiesta con o senza parametri

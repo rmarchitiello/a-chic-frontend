@@ -44,12 +44,12 @@ export class CmsService {
    * Recupera tutte le folder dal CMS.
    * Se `refresh` è true, forza l’aggiornamento bypassando la cache.
    */
-  getFolders(refresh: boolean = false): Observable<any> {
+  getFolders(config?: boolean): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
 
     let params = new HttpParams();
-    if (refresh) {
-      params = params.set('refresh', 'true'); //se refresh e true bypasso la cache e vado sul cloud
+    if (config) {
+      params = params.set('config', config); //se config, carico la cache delle config altrimenti la cache folder normale
     }
 
     return this.http.get<any>(url, { params, headers: this.getAuthHeaders() }); //invio query poaram e header
@@ -57,48 +57,78 @@ export class CmsService {
 
 
   //rename folder
-   renameFolder(request: RenameFolder): Observable<any> {
+   renameFolder(request: RenameFolder, config?: boolean): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
-    
+
+        let params = new HttpParams();
+    if (config) {
+      params = params.set('config', config); //se config, carico la cache delle config altrimenti la cache folder normale
+    }
 
 
-    return this.http.put<any>(url, request, {headers: this.getAuthHeaders()});
+    return this.http.put<any>(url, request, {params, headers: this.getAuthHeaders()});
   }
 
-    deleteFolder(folderName: string): Observable<any> {
+    deleteFolder(folderName: string, config?: boolean): Observable<any> {
         const url = `${this.baseUrl}${this.media}`;
-        const params = new HttpParams().set('folderName', folderName);
-       return this.http.delete<any>(url, { params, headers: this.getAuthHeaders()  });
+          let params = new HttpParams().set('folderName', folderName);
+
+          if (config !== undefined) {
+                params = params.set('config', String(config));
+        }       
+        return this.http.delete<any>(url, { params, headers: this.getAuthHeaders()  });
 }
 
-createFolder(fullPath: string): Observable<any> {
+createFolder(fullPath: string, config?: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.media}`; 
   const body = { fullPath }; // Invio come JSON: { "fullPath": "/ciao/prova" }
 
-  return this.http.post<any>(url, body, {headers: this.getAuthHeaders()}); // Invia il body JSON al backend
+  //se invece passo config crea direttamente la cartella e aggiorna la cache delle config folder
+  let params = new HttpParams();
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
+
+  return this.http.post<any>(url, body, {params, headers: this.getAuthHeaders()}); // Invia il body JSON al backend
 }
 
-deleteImages(urlsDaEliminare: string[]): Observable<any> {
+deleteImages(urlsDaEliminare: string[], config?: boolean ): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`; // Assicurati che `this.media` sia tipo '/cms/media-images'
-  
+    let params = new HttpParams();
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
   const body = {
     urlImageToDelete: urlsDaEliminare
   };
 
-  return this.http.delete<any>(url, { body, headers: this.getAuthHeaders() });
+  return this.http.delete<any>(url, { params, body, headers: this.getAuthHeaders() });
 }
 
 
 //metodo che mi serve per leggere le immagini dalla cache una volta che cancello un file
-getAllImages(): Observable<any> {
+getAllImages(config?: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`;
-  return this.http.get<any>(url, {headers: this.getAuthHeaders()});
+
+      let params = new HttpParams();
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
+
+  return this.http.get<any>(url, {params,headers: this.getAuthHeaders()});
 }
 
 
-updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quantita?: string, nome_file?: string }): Observable<any> {
+updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quantita?: string, nome_file?: string }, config?: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`;
-  
+  let params = new HttpParams();
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
 const body = {
   urlImmagine,
   context: {
@@ -109,17 +139,23 @@ const body = {
 };
 
   console.log("Request inviata:", JSON.stringify(body));
-  return this.http.put<any>(url, body, {headers: this.getAuthHeaders()}); // 
+  return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
 }
 
 
-uploadMedia(formData: FormData): Observable<any> {
+uploadMedia(formData: FormData, config?: boolean): Observable<any> {
 const url = `${this.baseUrl}${this.mediaUpload}`;
   
+  let params = new HttpParams();
+
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
 
 
   console.log("Request inviata:", JSON.stringify(formData)); //per forza form data perche sto inviando un file al backend 
-  return this.http.post<any>(url, formData, {headers: this.getAuthHeaders()}); // 
+  return this.http.post<any>(url, formData, {params, headers: this.getAuthHeaders()}); // 
 }
 
 

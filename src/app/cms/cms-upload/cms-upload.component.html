@@ -82,7 +82,7 @@
     </div>
 
     <!-- Descrizione -->
-    <div class="form-group">
+    <div class="form-group" *ngIf="!isAudioOrVideo">
       <label>Descrizione</label>
       <textarea
         name="descrizioneCloudinary"
