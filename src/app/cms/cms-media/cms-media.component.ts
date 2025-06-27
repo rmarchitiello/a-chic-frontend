@@ -266,13 +266,14 @@ hasChild = (_: number, node: TreeNode): boolean =>
 MAT_DIALOG_INJECT PER PASSARE LE IMMAGINI META NEL POP UP E MOSTRARLE quindi MatDialogRef per ricevere un ritorno
 INJECT MAT DIALOG PER MANDARE */
 apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[]) {
+  const config = this.nodoSelezionato?.fullPath.toLocaleLowerCase().includes('config');
     const dialogRef = this.dialog.open(GalleriaPopupComponent, {
         width: '90vw', // per grandezza pop up
         data: immagineMeta.filter(meta => meta.angolazione !== 'frontale')  //quando uso data sto inviando al pop up e uso inject passo tutti i meta tranne frontale
       });
       
      dialogRef.afterClosed().subscribe(() => {
-  this.loadImages(); // Ricarica immagini solo dopo la chiusura effettiva
+  this.loadImages(config); // Ricarica immagini solo dopo la chiusura effettiva
 });
 
 }

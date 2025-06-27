@@ -1,26 +1,6 @@
 <!-- MODELLI IN EVIDENZA DESKTOP-->
 <section *ngIf="!isMobile" class="modelli-evidenza">
-  <div class="card-grid">
-    <mat-card *ngFor="let modello of modelliVideoInEvidenza">
-      <video
-        autoplay
-        [muted]="true"
-        loop
-        playsinline
-        preload="metadata"
-        class="video-responsive"
-        (click)="goToComponentCloudinary(modello.routeCloudinary, modello.filterType)"
-        mat-card-image
-        [src]="modello.url"
-        alt="Modello borsa"
-        style="cursor: pointer"
-      >
-        <source [src]="modello.url" type="video/mp4" />
-      </video>
-      <mat-card-title>{{ modello.nome }}</mat-card-title>
-      <mat-card-subtitle>{{ modello.descrizione }}</mat-card-subtitle>
-    </mat-card>
-  </div>
+  <h1>SITO IN MANUTENZ</h1>
 </section>
 
 <!-- MOBILE-->
@@ -47,7 +27,6 @@
         playsinline
         preload="metadata"
         class="video-responsive"
-        (click)="goToComponentCloudinary(modello.routeCloudinary, modello.filterType)"
         mat-card-image
         [src]="modello.url"
         alt="Modello borsa"
@@ -55,7 +34,7 @@
       >
         <source [src]="modello.url" type="video/mp4" />
       </video>
-      <mat-card-title>{{ modello.nome }}</mat-card-title>
+      <mat-card-title>{{ modello.display_name }}</mat-card-title>
       <mat-card-subtitle>{{ modello.descrizione }}</mat-card-subtitle>
     </mat-card>
   </div>
