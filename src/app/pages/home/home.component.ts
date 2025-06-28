@@ -139,6 +139,7 @@ this.modelliVideoInEvidenza = data[videoEvidenzaHomeKey].flatMap(item =>
     display_name: item.display_name,
     descrizione: item.descrizione
   }))
+  
 );
 
       },

@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { ImmagineCloudinary } from '../home/home.component';
+
+
 
 @Component({
   selector: 'app-recensioni',
@@ -26,22 +29,37 @@ export class RecensioniComponent implements OnInit {
     });
         window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
 
-this.cloudinaryService.getImmagini().subscribe(response => {
-  const immagini = response?.Recensioni;
-  console.log("recensioni", immagini);
 
-  if (Array.isArray(immagini)) {
-    // Estrae tutti gli URL delle immagini contenute in meta[]
-    this.recensioni = immagini.flatMap((item: any) =>
-      item.meta.map((m: { url: string }) => m.url)
-    );
 
+// Carico la sezione “Recensioni” e ne estraggo tutti gli URL
+this.cloudinaryService.getImmagini('', true).subscribe(
+  (response: Record<string, ImmagineCloudinary[]>) => {
+    // 1. Recupero in modo sicuro l’array di recensioni
+    const recensioniKey = Object.keys(response).find(d => d.toLocaleLowerCase().includes('recensioni'));
+
+    if(!recensioniKey){
+          console.warn("Nessuna chiave trovate");
+          return
+        }
+
+
+    this.recensioni = response[recensioniKey].flatMap(item => item.meta).map(m => m.url);
+
+
+    console.log('recensioni', this.recensioni);
+
+    
+
+    // 2. Se ho almeno un URL, avvio l’animazione dopo 800 ms
     if (this.recensioni.length > 0) {
-      // Avvia l'animazione sequenziale dopo un breve delay
       setTimeout(() => this.showNext(0), 800);
     }
-  }
-});
+  },
+  error => console.error('Errore caricamento Recensioni', error)
+);
+
+
+
 
   }
 
