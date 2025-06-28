@@ -25,6 +25,9 @@
   import { AudioPlayerComponent } from '../../pages/audio-player/audio-player.component';
   import { Router, NavigationEnd } from '@angular/router';
   import { filter } from 'rxjs/operators';   // RxJS ≤ 7.7
+  import { tap, switchMap, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
   @Component({
     selector: 'app-cloudinary',
@@ -42,7 +45,8 @@
       MatExpansionModule,
       FormsModule,
       DettagliComponent,
-      AudioPlayerComponent
+      AudioPlayerComponent,
+      MatProgressSpinnerModule
     ],
     templateUrl: './cloudinary.component.html',
     styleUrl: './cloudinary.component.scss'
@@ -70,11 +74,14 @@ descrizioneImmagineFrontale: string = '';
 mostraAudioPlayer: boolean = false;
 
 //se clicco l'audio mostra il template nuovo
-onAudioIconClick(event: Event) {
-  event.stopPropagation(); // 🔒 Impedisce di aprire anche i dettagli
-  this.immagineSelezionata = null;     // ✅ Chiudi dettagli se aperti
+onAudioIconClick(event: Event): void {
+  event.stopPropagation();
+  console.log('[CLICK AUDIO] prima:', this.mostraAudioPlayer);   // <-- deve comparire
+  this.immagineSelezionata = null;
   this.mostraAudioPlayer = !this.mostraAudioPlayer;
+  console.log('[CLICK AUDIO] dopo :', this.mostraAudioPlayer);   // true / false alternato
 }
+
 
 
     //paginazione prendo le prime 10 foto
@@ -114,33 +121,33 @@ immagineSelezionata: any | null = null; //variabile da passare a DettagliCompone
 
 
 
-
-//al click dell immagine passo la singola immagine a questa funzione
+// Metodo chiamato al click su una card immagine
+// Al click dell'immagine passo la singola immagine a questa funzione
 onImmagineClick(item: any): void {
+  // Se il pannello audio è aperto, lo chiudo e blocco l'azione
   if (this.mostraAudioPlayer) {
-    this.mostraAudioPlayer = false; 
-    return; // 
+    this.mostraAudioPlayer = false;
+    return;
   }
 
-  
-
-  
   console.log("Immagine cliccata:", item);
+
+  // Salvo la descrizione della frontale da passare al pannello dettagli
   this.descrizioneImmagineFrontale = item.descrizione;
-  console.log("descrizioneee: ", this.descrizioneImmagineFrontale);
-  // Salva l'immagine frontale selezionata da mostrare nel pannello
+
+  // Salvo l'immagine selezionata (url) da mostrare nel dettaglio
   this.immagineSelezionata = item.url;
 
-  // Cerca le immagini correlate nel gruppo "altreImmagini", confrontando il display_name
+  // Cerco se ci sono immagini con angolazioni diverse dalla frontale
   const immaginiCorrelate = this.altreImmagini.find(
     (a: { display_name: string }) =>
       a.display_name?.trim().toLowerCase() === item.display_name?.trim().toLowerCase()
   );
 
-  // Estrae solo gli URL da ciascuna immagine angolata (laterale, obliqua, ecc.)
-  this.altreImmaginiSelezionate = immaginiCorrelate?.meta.map(
-    (m: { url: string }) => m.url
-  ) || [];
+  // Se ci sono immagini angolate, le salvo. Altrimenti svuoto l'array.
+  this.altreImmaginiSelezionate = immaginiCorrelate?.meta?.length
+    ? immaginiCorrelate.meta.map((m: { url: string }) => m.url)
+    : [];
 
   console.log("Altre immagini selezionate:", this.altreImmaginiSelezionate);
 
@@ -148,6 +155,7 @@ onImmagineClick(item: any): void {
   document.body.style.overflow = 'hidden';
   document.documentElement.style.overflow = 'hidden';
 }
+
 
 
 /*ora devo passare l'immagine selezionata al figlio e come si fa ? devo passarla dal template
@@ -185,77 +193,107 @@ handleChiudiAudioPlayer(): void {
 
 
 
-
+//loading x lo spinner delle immagini 
+isLoading: boolean = false;
 
 //nascondo il tasto audio carillon
 isAudioIconVisible: boolean = false;
 setAudioVisible(){
   this.isAudioIconVisible = true;
 }
+// RxJS Subject che uso per interrompere le subscription quando il componente viene distrutto
+private destroy$ = new Subject<void>();
+
 ngOnInit(): void {
-  // --- START TASTO CARILLON //
+  /* -------------------------------------------------------------------
+   * 1. Gestione del tasto audio “Carillon”
+   * ----------------------------------------------------------------- */
 
-    //mostro il tasto audio del carillon quando almeno e presente una foto e se siamo nella rotta dei carillon
-    // Controlla subito la rotta corrente al primo caricamento del componente.
-    // Questo è importante perché Angular NON emette eventi di navigazione
-    // quando il componente è già attivo (come accade se si ricarica la pagina).
-    const currentPath = this.router.url.split('?')[0]; // Elimina la query string
-    this.isAudioIconVisible = currentPath === '/baby/carillon';
-    console.log('[INIT] isAudioIconVisible:', this.isAudioIconVisible);
+  // Verifico subito, al primo caricamento, se la rotta corrente è /baby/carillon
+  const currentPath = this.router.url.split('?')[0]; // rimuovo eventuali query string
+  this.isAudioIconVisible = currentPath === '/baby/carillon';
+  console.log('[INIT] isAudioIconVisible:', this.isAudioIconVisible);
 
-    //2. Ascolta gli eventi di navigazione futuri.
-    // NavigationEnd viene emesso SOLO quando la navigazione è completata.
-    this.router.events
-      .pipe(
-        filter((e): e is NavigationEnd => e instanceof NavigationEnd) // Filtra solo NavigationEnd
-      )
-      .subscribe((event) => {
-        // Ottieni la rotta senza parametri
-        const path = this.router.url.split('?')[0];
-        this.isAudioIconVisible = path === '/baby/carillon';
-        console.log('[ROUTE CHANGE] isAudioIconVisible:', this.isAudioIconVisible);
-      });
-// --- END TASTO CARILLON //
+  // Mi iscrivo agli eventi di navigazione futuri per aggiornare il flag
+  this.router.events
+    .pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd) // considero solo NavigationEnd
+    )
+    .subscribe(() => {
+      const path = this.router.url.split('?')[0];
+      this.isAudioIconVisible = path === '/baby/carillon';
+      console.log('[ROUTE CHANGE] isAudioIconVisible:', this.isAudioIconVisible);
+    });
 
+  /* -------------------------------------------------------------------
+   * 2. Rilevo se il dispositivo è mobile con BreakpointObserver
+   * ----------------------------------------------------------------- */
 
-//rilevo disp mobile anziche pc
   this.breakpointObserver
     .observe(['(max-width: 768px)'])
     .subscribe(result => {
       this.isMobile = result.matches;
     });
 
-  // Unisce parametri di route e query parametri
+  /* -------------------------------------------------------------------
+   * 3. Reazione a cambi di rotta e query param
+   *    - combineLatest unisce parametri di percorso e query string
+   *    - tap esegue side-effects (reset + loader)
+   *    - switchMap annulla eventuali richieste HTTP precedenti
+   * ----------------------------------------------------------------- */
+
   combineLatest([
     this.route.paramMap,
-    
     this.route.queryParams
-  ]).subscribe(([params, queryParams]) => {
-    console.log('Evento route attivo');
-    console.log(this.route.paramMap,)
-        // Scrollo in cima alla finestra
-    window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
-    // Ferma l'audio se attivo
+  ])
+  .pipe(
+    // Side-effects: attivo loader e svuoto dati vecchi
+    tap(() => {
+      this.isLoading = true;                    // mostro lo spinner
+      this.immaginiFrontali = [];               // svuoto le liste
+      this.immaginiFrontaliPaginata = [];
+      this.altreImmagini = [];
+      this.immagineSelezionata = null;
+      this.altreImmaginiSelezionate = [];
+      this.numeroDiPagine = 0;
+      this.paginaCorrente = 1;
+    }),
 
-    // Recupera categoria e sottocategoria dalla route
-    this.categoria = params.get('categoria');
-    this.sottoCategoria = params.get('sottoCategoria');
-    console.log('Categoria:', this.categoria);
-    console.log('Sottocategoria:', this.sottoCategoria);
+    // Estraggo i parametri e chiamo il servizio Cloudinary
+    switchMap(([params, queryParams]) => {
+      // Categoria e sottocategoria dalla rotta
+      this.categoria = params.get('categoria');
+      this.sottoCategoria = params.get('sottoCategoria');
 
-    // Recupera filtri da query param
-    const raw = queryParams['filtri'];
-    const filtriRicevuti = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
-    this.filtriRicevuti = filtriRicevuti;
-    this.filtroSelezionato = filtriRicevuti[0] || 'Tutte';
-    this.filtriAttivi = ['Tutte', ...filtriRicevuti.filter(f => f !== 'Tutte')];
+      // Filtri dalla query string
+      const raw = queryParams['filtri'];
+      const filtri = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+      this.filtriRicevuti = filtri;
+      this.filtroSelezionato = filtri[0] || 'Tutte';
+      this.filtriAttivi = ['Tutte', ...filtri.filter(f => f !== 'Tutte')];
 
-    console.log('Filtri ricevuti:', this.filtriRicevuti);
-    console.log('Filtro selezionato:', this.filtroSelezionato);
-    console.log('Mobile:', this.isMobile);
+      // Aggiorno la visibilità dell’icona audio se necessario
+      const path = this.router.url.split('?')[0];
+      this.isAudioIconVisible = path === '/baby/carillon';
 
-    // Carica immagini e configurazioni (sia su mobile che desktop)
-    this.caricaImmagini();
+      // Ritorno l’Observable della chiamata HTTP; con switchMap le richieste precedenti vengono annullate
+      return this.cloudinaryService.getImmagini();
+    }),
+
+    // Chiudo la subscription quando il componente viene distrutto
+    takeUntil(this.destroy$)
+  )
+  .subscribe({
+    // Elabora i dati ricevuti e disattiva il loader
+    next: data => {
+      this.caricaImmagini(data);
+      this.isLoading = false;
+    },
+    // Gestione dell’errore con disattivazione del loader
+    error: err => {
+      console.error('Errore nel caricamento immagini:', err);
+      this.isLoading = false;
+    }
   });
 }
 
@@ -264,7 +302,10 @@ ngOnInit(): void {
 
 
 ngOnDestroy(): void {
+  this.destroy$.next();
+  this.destroy$.complete();
 
+  // Ripristino lo scroll del body se era stato bloccato da un pannello
   document.body.style.overflow = '';
   document.documentElement.style.overflow = '';
 }
@@ -276,110 +317,89 @@ ngOnDestroy(): void {
 
 
 
-caricaImmagini(): void {
+caricaImmagini(data: Record<string, any[]>): void {
   // Esce dalla funzione se non è presente la categoria
   if (!this.categoria) return;
 
-  // Costruisce il percorso base usando categoria e sottocategoria
+  // Costruisco il path base con categoria e sottocategoria
   const basePath = this.sottoCategoria
     ? `${this.categoria}/${this.sottoCategoria}`.toLowerCase()
     : this.categoria.toLowerCase();
 
-  // Esegue il log del path generato
   console.log('Base path per il caricamento immagini:', basePath);
 
-  // Chiama il servizio per ottenere tutte le immagini
-  this.cloudinaryService.getImmagini().subscribe({
-    next: (data: Record<string, any[]>) => {
-      console.log("Dati ricevuti:", JSON.stringify(data));
+  // Inizializzo array
+  let immaginiComplessive: any[] = [];
 
-      // Inizializza l’array contenente tutte le immagini della chiave
-      let immaginiComplessive: any[] = [];
+  // Se sono su mobile, imposto il filtro selezionato come il primo disponibile
+  if (this.isMobile) {
+    this.filtroSelezionato = this.filtriRicevuti[0] || 'Tutte';
+    console.log('Filtro selezionato (mobile):', this.filtroSelezionato);
+  }
 
-      // Se siamo su mobile, imposta il filtro selezionato come il primo disponibile
-      if (this.isMobile) {
-        this.filtroSelezionato = this.filtriRicevuti[0] || 'Tutte';
-        console.log('Filtro selezionato (mobile):', this.filtroSelezionato);
-      }
+  // Gestisco i dati in base al filtro selezionato
+  if (this.filtroSelezionato === 'Tutte') {
+    // Carico tutte le immagini compatibili con il path
+    immaginiComplessive = Object.keys(data)
+      .filter(key =>
+        key.toLowerCase() === basePath ||
+        key.toLowerCase().startsWith(`${basePath}/`)
+      )
+      .flatMap(key => data[key]);
+  } else {
+    // Cerco la chiave con filtro applicato
+    const chiaveFiltroCompleta = `${basePath}/${this.filtroSelezionato}`.toLowerCase();
+    const chiaveReale = Object.keys(data).find(
+      k => k.toLowerCase().trim() === chiaveFiltroCompleta.trim()
+    );
 
-      if (this.filtroSelezionato === 'Tutte') {
-        // Se il filtro è "Tutte", recupera tutte le immagini compatibili con il path
-        immaginiComplessive = Object.keys(data)
-          .filter(key =>
-            key.toLowerCase() === basePath ||
-            key.toLowerCase().startsWith(`${basePath}/`)
-          )
-          .flatMap(key => data[key]);
-      } else {
-        // Cerca la chiave esatta nel dataset con filtro applicato
-        const chiaveFiltroCompleta = `${basePath}/${this.filtroSelezionato}`.toLowerCase();
-        const chiaveReale = Object.keys(data).find(
-          k => k.toLowerCase().trim() === chiaveFiltroCompleta.trim()
-        );
+    console.log('Chiave reale trovata:', chiaveReale);
 
-        console.log('Chiave reale trovata:', chiaveReale);
-
-        // Se la chiave è trovata, assegna i dati
-        if (chiaveReale) {
-          immaginiComplessive = data[chiaveReale];
-        } else {
-          console.warn('Nessuna immagine trovata per il filtro selezionato.');
-        }
-      }
-
-      console.log("complessive", JSON.stringify(immaginiComplessive));
-
-      // Unisce tutti i meta (array di immagini per ogni voce)
-const tutteLeImmagini = immaginiComplessive.flatMap(item =>
-  (item.meta || []).map((img: any) => ({
-    ...img,
-    display_name: item.display_name,
-    descrizione: item.descrizione,
-    quantita: item.quantita
-  }))
-);
-
-
-console.log("provaaaa ", JSON.stringify(tutteLeImmagini));
-
-
-      
-      // Estrae solo le immagini con angolazione "frontale"
-      this.immaginiFrontali = tutteLeImmagini.filter(img => img.angolazione === 'frontale');
-  console.log("tutteeeee" , tutteLeImmagini);
-      // Salva le immagini con angolazioni diverse dalla "frontale"
-      //sempre diviso per display_name da passare poi a DettagliComponent
-this.altreImmagini = immaginiComplessive
-  .map((item: any) => {
-    const altre = (item.meta || []).filter((img: any) => img.angolazione !== 'frontale');
-    if (altre.length > 0) {
-      return {
-        display_name: item.display_name,
-        descrizione: item.descrizione,
-        meta: altre
-      };
+    if (chiaveReale) {
+      immaginiComplessive = data[chiaveReale];
+    } else {
+      console.warn('Nessuna immagine trovata per il filtro selezionato.');
     }
-    return null;
-  })
-  .filter((item: any) => item !== null); // Rimuove i null
+  }
 
+  console.log("Immagini complessive:", JSON.stringify(immaginiComplessive));
 
-console.log("altreeeeee", this.altreImmagini)
+  // Estraggo tutte le immagini con metadata
+  const tutteLeImmagini = immaginiComplessive.flatMap(item =>
+    (item.meta || []).map((img: any) => ({
+      ...img,
+      display_name: item.display_name,
+      descrizione: item.descrizione,
+      quantita: item.quantita
+    }))
+  );
 
+  // Salvo solo le immagini frontali
+  this.immaginiFrontali = tutteLeImmagini.filter(img => img.angolazione === 'frontale');
 
-      // Calcola la paginazione sulle immagini frontali
-      this.paginaCorrente = 1;
-      this.numeroDiPagine = Math.ceil(this.immaginiFrontali.length / this.fotoPerPagina);
-      this.immaginiFrontaliPaginata = this.immaginiFrontali.slice(0, this.fotoPerPagina);
+  // Salvo le immagini non frontali, raggruppate per display_name
+  this.altreImmagini = immaginiComplessive
+    .map((item: any) => {
+      const altre = (item.meta || []).filter((img: any) => img.angolazione !== 'frontale');
+      if (altre.length > 0) {
+        return {
+          display_name: item.display_name,
+          descrizione: item.descrizione,
+          meta: altre
+        };
+      }
+      return null;
+    })
+    .filter((item: any) => item !== null); // Rimuovo i null
 
+  // Calcolo la paginazione
+  this.paginaCorrente = 1;
+  this.numeroDiPagine = Math.ceil(this.immaginiFrontali.length / this.fotoPerPagina);
+  this.immaginiFrontaliPaginata = this.immaginiFrontali.slice(0, this.fotoPerPagina);
 
-      console.log('Immagini frontali:', this.immaginiFrontali);
-      console.log("Immagini paginate frontali: ", JSON.stringify(this.immaginiFrontaliPaginata))
-      console.log('Altre immagini:', JSON.stringify(this.altreImmagini));
-      
-    },
-    error: err => console.error('Errore durante il recupero delle immagini:', err)
-  });
+  console.log('Immagini frontali:', this.immaginiFrontali);
+  console.log('Immagini paginate:', this.immaginiFrontaliPaginata);
+  console.log('Altre immagini:', this.altreImmagini);
 }
 
 

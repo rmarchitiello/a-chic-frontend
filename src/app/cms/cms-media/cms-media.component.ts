@@ -141,6 +141,8 @@ export class CmsMediaComponent implements OnInit {
       if (!this.isMobile) {
         this.loadFolders(); // carica cartelle
         this.loadFolders(true); // carica cartelle config
+        this.loadImages();
+        this.loadImages(true);
       }
     });
 }
