@@ -1,144 +1,141 @@
+/* ======================================================================
+   AUDIO-PLAYER – STILI MOBILE (≤ 768 px)
+   ====================================================================== */
 @media (max-width: 768px) {
 
+  /* --------------------------------------------------
+     Overlay “audio-overlay”: sfocatura + oscuramento
+     -------------------------------------------------- */
   .audio-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
+    background-color: rgba(0, 0, 0, 0);            /* stato iniziale */
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);              /* Safari */
     display: flex;
     justify-content: center;
-    align-items: flex-end;
-    padding-bottom: 1.5rem;
+    align-items: flex-end;                         /* il pannello sale dal basso */
     z-index: 2000;
-
-    // Transizione sempre attiva
-    transition: 
-      background-color 0.4s ease,
-      backdrop-filter 0.4s ease,
+    transition:
+      background-color        0.4s ease,
+      backdrop-filter         0.4s ease,
       -webkit-backdrop-filter 0.4s ease;
   }
 
-  .audio-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.4);
+  .audio-overlay.attiva   {                         /* overlay aperto */
+    background-color: rgba(0, 0, 0, .40);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
 
-  .audio-overlay.chiusura {
+  .audio-overlay.chiusura {                         /* overlay in uscita */
     background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
   }
 
+  /* --------------------------------------------------
+     Pulsante “Chiudi” (in alto a destra)
+     -------------------------------------------------- */
   .chiudi-testuale {
     position: absolute;
     top: 0;
     right: 1rem;
     transform: translateY(-1.25rem);
-    background: transparent;
+    background: none;
     border: none;
     color: #fcfafa;
-    font-size: 0.95rem;
-    font-weight: 500;
-    font-family: 'Montserrat', sans-serif;
-    z-index: 10;
+    font: 500 .95rem/1 'Montserrat', sans-serif;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: .25rem;
+    z-index: 10;
 
-    &:hover {
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-
-    &:active {
-      opacity: 0.5;
-    }
+    &:hover  { opacity: .7; text-decoration: underline; }
+    &:active { opacity: .5; }
   }
 
+  /* --------------------------------------------------
+     Pannello “audio-panel”
+     -------------------------------------------------- */
   .audio-panel {
-    background-color: #fff;
+    background: #fff;
     width: 100%;
-    height: 58vh;
+    height: 58vh;                                  /* spinge il footer fuori vista */
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
-    position: relative;
-    padding: 1rem;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
+    padding: 1rem 1.2rem 1.5rem;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, .20);
     display: flex;
     flex-direction: column;
-
-    // ✅ Animazione Angular — viene aggiunta automaticamente
+    overflow: hidden;                              /* blocca lo scroll esterno */
   }
 
-  .audio-panel.chiusura {
-    animation: slideDownFade 0.4s ease-in forwards;
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-    to {
-      transform: translateY(0);
-    }
+  .audio-panel.chiusura {                           /* animazione di uscita */
+    animation: slideDownFade .4s ease-in forwards;
   }
 
   @keyframes slideDownFade {
-    0% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(100%);
-      opacity: 0;
-    }
+    from { transform: translateY(0);   opacity: 1; }
+    to   { transform: translateY(100%); opacity: 0; }
   }
 
-  .descrizione-scroll {
+  /* --------------------------------------------------
+     Titolo calligrafico
+     -------------------------------------------------- */
+  .titolo-melodie {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(1.5rem, 5.5vw, 1.9rem);        /* 24-30 px circa */
+    font-weight: 400;
+    text-align: center;
+    margin: 0 0 .75rem;
+    line-height: 1.3;
+    letter-spacing: .4px;
+    color: #222;
+  }
+
+  /* --------------------------------------------------
+     Lista melodie (Mat-List)
+     -------------------------------------------------- */
+  mat-list {
+    flex: 1;                                       /* riempie lo spazio restante */
     overflow-y: auto;
-    max-height: 100%;
-    flex: 1;
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #333;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch;             /* scroll fluido iOS */
   }
 
-  .swipe-container {
+  .melodia-row {
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-  }
 
-  .animated-image {
-    display: block;
-    width: 96%;
-    max-width: 96%;
-    max-height: 35vh;
-    object-fit: contain;
-    margin: -0.7rem auto 1rem;
-    border-radius: 0;
-  }
-
-  .indicator-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
-
+    /* nome canzone in calligrafico */
     span {
-      font-size: 1.2rem;
-      color: #bbb;
-      transition: color 0.3s ease;
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(1.25rem, 5vw, 1.45rem);     /* 20-23 px circa */
+      line-height: 1.55;
+      letter-spacing: .3px;
+      color: #333;
     }
 
-    .attiva {
-      color: #000;
+    /* icona play / pause (utilizza Material Icon) */
+    button {
+      --mat-icon-font-size: 1.6rem;                /* leggermente più grande */
+    }
+
+    /* separatore tra brani */
+    & + mat-list-item::after {
+      content: '';
+      display: block;
+      height: 1px;
+      background: #eee;
+      margin: .4rem 0 0;
+      width: 100%;
     }
   }
 
+  /* brano in riproduzione (aggiungi classe da TypeScript) */
+  .melodia-row.is-playing span {
+    font-weight: 600;
+    color: #000;
+  }
 }
