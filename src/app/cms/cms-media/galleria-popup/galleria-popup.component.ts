@@ -1,3 +1,5 @@
+/* questa classe mi fa vedere le foto sotto la frontale, quindi tutte le angolazioni */
+
 import { Component, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Inject } from '@angular/core';
@@ -5,6 +7,15 @@ import { ImmagineMeta } from '../cms-media.component';  // Import dell'interfacc
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { CmsService } from '../../../services/cms.service';
+
+
+
+
+interface GalleriaDialogData {
+  meta: ImmagineMeta[];
+  displayName: string;
+}
+
 @Component({
   selector: 'app-galleria-popup',
   standalone: true,
@@ -17,16 +28,22 @@ export class GalleriaPopupComponent implements OnInit {
   // Array di immagini (angolazioni) ricevute dal componente padre tramite dialog
   immaginiMetaDaMostrare: ImmagineMeta[] = [];
 
+  displayName : string = '';
+
   // Indice corrente dell'immagine visualizzata nella galleria
   currentIndex = 0;
 
+
   // Ricezione dei dati passati dal componente padre attraverso MAT_DIALOG_DATA
-  constructor(@Inject(MAT_DIALOG_DATA) public data: ImmagineMeta[], private cmsService: CmsService) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: GalleriaDialogData, private cmsService: CmsService) {}
 
   // Durante l'inizializzazione assegno le immagini ricevute alla variabile locale
   ngOnInit(): void {
-    this.immaginiMetaDaMostrare = this.data;
+    this.immaginiMetaDaMostrare = this.data.meta;
     console.log("Immagini meta ricevute: ", this.immaginiMetaDaMostrare);
+
+    this.displayName = this.data.displayName;
+    console.log("display name da mostrare: ", this.displayName);
   }
 
   // Mostra l'immagine precedente nella galleria
@@ -75,4 +92,27 @@ export class GalleriaPopupComponent implements OnInit {
       }
     });
   }
+
+
+
+
+downloadMedia(): void {
+  const corrente = this.immaginiMetaDaMostrare[this.currentIndex];
+  const ang = corrente.angolazione || 'immagine';
+  const nomeFile = `${this.displayName}_${ang}.jpg`;
+
+  fetch(corrente.url)
+    .then(r => r.blob())
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = nomeFile;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    })
+    .catch(err => console.error('Errore nel download:', err));
+}
+
+
+
 }

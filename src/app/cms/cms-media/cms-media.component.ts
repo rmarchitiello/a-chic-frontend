@@ -267,12 +267,14 @@ hasChild = (_: number, node: TreeNode): boolean =>
 /* rispetto al pop up folder  dove li devo ricevere un ritorno dal pop up e quindi uso MatDialogRef, qui uso 
 MAT_DIALOG_INJECT PER PASSARE LE IMMAGINI META NEL POP UP E MOSTRARLE quindi MatDialogRef per ricevere un ritorno
 INJECT MAT DIALOG PER MANDARE */
-apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[]) {
+apriPopUpGalleriaFotoNoFrontali(immagineMeta: ImmagineMeta[], imgDisplayName: string) {
   const config = this.nodoSelezionato?.fullPath.toLocaleLowerCase().includes('config');
     const dialogRef = this.dialog.open(GalleriaPopupComponent, {
         width: '90vw', // per grandezza pop up
-        data: immagineMeta.filter(meta => meta.angolazione !== 'frontale')  //quando uso data sto inviando al pop up e uso inject passo tutti i meta tranne frontale
-      });
+        data: {
+            meta: immagineMeta.filter(meta => meta.angolazione !== 'frontale'),
+            displayName: imgDisplayName
+    }      });
       
      dialogRef.afterClosed().subscribe(() => {
   this.loadImages(config); // Ricarica immagini solo dopo la chiusura effettiva
