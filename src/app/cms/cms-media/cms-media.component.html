@@ -217,23 +217,24 @@
                 <strong>{{ img.display_name }}</strong>
                 <p *ngIf="tipoMedia==='image'">{{ img.descrizione }}</p>
 
+                <!-- modifico immagine audio o video-->
                 <button mat-button
-                        *ngIf="immagineInModifica!==img && tipoMedia==='image'"
+                        *ngIf="immagineInModifica!==img && (tipoMedia==='image' || tipoMedia==='video' || tipoMedia==='audio')"
                         (click)="apriFormModifica(img)">
                   Modifica
                 </button>
 
                 <!-- Form di modifica -->
-                <form *ngIf="immagineInModifica===img && tipoMedia==='image'"
+                <form *ngIf="immagineInModifica===img && (tipoMedia==='image' || tipoMedia==='video' || tipoMedia==='audio')"
                       #modificaForm="ngForm"
                       (ngSubmit)="onSubmitModifica(img)">
-                  <mat-form-field appearance="fill" class="full-width">
-                    <mat-label>Descrizione</mat-label>
+                  <mat-form-field *ngIf="tipoMedia==='image'" appearance="fill" class="full-width">
+                    <mat-label >Descrizione</mat-label>
                     <input matInput name="descrizione"
                            [(ngModel)]="valoriModifica.descrizione"/>
                   </mat-form-field>
 
-                  <mat-form-field appearance="fill" class="full-width">
+                  <mat-form-field *ngIf="tipoMedia==='image'" appearance="fill" class="full-width">
                     <mat-label>Quantità</mat-label>
                     <input matInput type="number" min="0" name="quantita"
                            [(ngModel)]="valoriModifica.quantita"/>

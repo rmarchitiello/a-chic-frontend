@@ -234,6 +234,11 @@ getCartelleFinali(structure: any): string[] {
   // Allego il file selezionato dal browser
   formData.append('file', this.selectedFile);
 
+  let angolazione;
+  if(this.isAudioOrVideo){
+    angolazione = 'frontale'
+  }
+
   // Allego i dati di Cloudinary come stringa JSON
 const cloudinaryData: CloudinaryDataUpload = {
   folder: this.folderCloudinary,
@@ -241,7 +246,7 @@ const cloudinaryData: CloudinaryDataUpload = {
     nome_file: this.fileNameCloudinary,
     descrizione: this.descrizioneCloudinary,
     quantita: this.quantitaCloudinary,
-    angolazione: this.angolazioneCloudinary
+    angolazione: angolazione || this.angolazioneCloudinary
   }
 };
 

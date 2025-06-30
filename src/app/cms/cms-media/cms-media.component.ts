@@ -628,7 +628,7 @@ onSubmitModifica(img: any): void {
   const aggiornamento = {
     // Trovo l'URL dell'immagine frontale per identificare il file da aggiornare
     urlImmagine: img.meta.find((m: any) => m.angolazione === 'frontale')?.url,
-
+    
     // Contesto dei metadati da aggiornare
     context: {
       descrizione: nuovaDescrizione,
