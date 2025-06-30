@@ -1,179 +1,143 @@
-/* ======================
-   Stili Desktop
-   ====================== */
+/* ======================================================================
+   CHI-SIAMO – STILI SCSS COMPLETI
+   (desktop = pagina in manutenzione, mobile = layout dettagliato)
+   ====================================================================== */
+
+/* -----------------------------
+   Overlay desktop (solo avviso)
+   ----------------------------- */
 .chi-siamo-overlay.desktop-view {
-  position: relative;
-  max-width: 1400px;
-  margin: 4rem auto;
-  padding: 2rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
   justify-content: center;
-  align-items: flex-start;
-  background-color: rgba(255, 255, 255, 0.75);
-  border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  animation: fadeInOverlay 0.6s ease-out forwards;
-  animation-delay: 0.5s;
+  align-items: center;
+  min-height: 60vh;
+  padding: 3rem 1rem;
+  background: #fff;
+  animation: fadeInOverlay 0.6s ease-out both 0.5s;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #444;
+  }
 }
 
-.foto-colonna {
+/* ===========================================================
+   MOBILE VIEW (max-width: 768 px)
+   =========================================================== */
+.chi-siamo-overlay.mobile-view {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex: 0 0 200px;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: #fff;
+  animation: fadeInOverlay 0.6s ease-out both 0.5s;
+}
+
+/* --- Foto + nome --- */
+.foto-colonna {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   img {
     width: 100%;
-    height: 320px;
-    margin-top: 54px;
+    max-height: 360px;
     object-fit: cover;
     border-radius: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    margin-bottom: 0.5rem;
     opacity: 0;
-    animation: fadeIn 0.6s ease-out forwards;
+    animation: fadeIn 0.6s ease-out both;
   }
 
   p {
-    font-weight: bold;
-    color: #333;
-    margin: 0;
-    text-align: center;
+    margin: 0.5rem 0 0;
+    font-weight: 700;
     opacity: 0;
-    animation: fadeIn 0.6s ease-out forwards;
+    animation: fadeIn 0.6s ease-out both 0.2s;
   }
 
-  &.arianna {
-    img { animation-delay: 0.2s; }
-    p   { animation-delay: 0.4s; }
-  }
-
-  &.anna {
-    img { animation-delay: 0.6s; }
-    p   { animation-delay: 0.8s; }
-  }
+  &.arianna { margin-top: 2rem; }   /* piccolo margine extra */
 }
 
+/* --- Firma grafica --- */
 .firma-wrapper {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  position: relative;
-  width: 100%;
-  margin: 2rem 0;
-
-  .firma-gif-prima,
-  .firma-gif-seconda {
-    width: 300px;
-    max-width: 80%;
-    opacity: 0;
-    animation: fadeIn 0.8s ease-out forwards;
-  }
+  gap: 0.5rem;
+  margin: 1rem 0;
 
   .firma-gif-prima {
-    animation-delay: 3.2s;
-  }
-
-  .firma-gif-seconda {
-    animation-delay: 1.8s;
+    width: 220px;
+    max-width: 90%;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out both 1s;   /* ritardo 1 s */
   }
 }
 
+/* --- Testo --- */
 .chi-siamo-testo {
-  flex: 1 1 600px;
-  max-width: 700px;
+  padding: 0 1rem;
 
   p {
-    font-size: 1.2rem;
-    line-height: 1.8;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    text-align: left;
     margin-bottom: 1rem;
-    text-align: justify;
     opacity: 0;
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn 0.8s ease-out both;
   }
 
   .firma {
     text-align: center;
     font-style: italic;
-    color: #555;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
   }
 }
 
-/* ======================
-   Mobile (max-width: 768px)
-   ====================== */
-.chi-siamo-overlay.mobile-view {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  gap: 1.5rem;
-  background-color: #fff;
-  border-radius: 0;
-  box-shadow: none;
+/* --- Blocco “Sostieni / Condividi” --- */
+.supporta {
+  text-align: center;
+  margin: 1.5rem 0 2rem;
   opacity: 0;
-  animation: fadeInOverlay 0.6s ease-out forwards;
-  animation-delay: 0.5s;
-}
+  animation: fadeIn 0.8s ease-out both;
 
-@media (max-width: 768px) {
-  .foto-colonna {
-    flex: 0 0 auto;
-    width: 100%;
-    max-width: 280px;
-
-    img {
-      height: auto;
-      max-height: 360px;
-    }
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
   }
 
-  /* Aggiunge margine sopra solo ad Arianna su mobile */
-  .mobile-view .foto-colonna.arianna {
-    margin-top: 2rem;
-  }
+  .btn-condividi {
+    padding: 0.6rem 1.4rem;
+    background: #e91e63;          /* colore accento */
+    color: #fff;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.5s;
 
-  .firma-wrapper {
-    flex-direction: column-reverse;
-    gap: 0.5rem;
-    margin: 1rem 0;
-
-    .firma-gif-prima,
-    .firma-gif-seconda {
-      position: static;
-      margin: 0 auto;
-    }
-  }
-
-  .chi-siamo-testo {
-    padding: 0 1rem;
-
-    p {
-      font-size: 1.1rem;
-      text-align: left;
-    }
+    &:hover { background: #c2185b; }
   }
 }
 
-/* ======================
-   Animazioni e Delay
-   ====================== */
+/* ---------- Delay helper ---------- */
 .delay-1 { animation-delay: 1.2s; }
 .delay-2 { animation-delay: 2.4s; }
 .delay-3 { animation-delay: 3.6s; }
 .delay-4 { animation-delay: 4.8s; }
-.delay-5 { animation-delay: 6s; }
+.delay-5 { animation-delay: 6s;   }
 .delay-6 { animation-delay: 7.2s; }
 
+/* ---------- Animazioni ---------- */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0);   }
 }
 
 @keyframes fadeInOverlay {

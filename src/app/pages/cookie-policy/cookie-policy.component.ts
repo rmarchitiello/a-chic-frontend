@@ -22,6 +22,8 @@ export class CookiePolicyComponent implements OnInit {
 ) {}
 
   ngOnInit(): void {
+        // Esegue scroll in alto all'apertura del componente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     //rilevo disp mobile anziche pc
   this.breakpointObserver
     .observe(['(max-width: 768px)'])

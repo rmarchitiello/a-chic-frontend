@@ -35,6 +35,8 @@ export class PrivacyPolicyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+        // Esegue scroll in alto all'apertura del componente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     // Rileva se il dispositivo è mobile in base alla larghezza dello schermo
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
