@@ -1,4 +1,12 @@
-<mat-toolbar class="mobile-header" color="primary">
+
+<!-- HEADER PER DESKTOP-->
+<mat-toolbar *ngIf="!isMobile" color="primary">
+ <h1>sito in manutenzione</h1>
+</mat-toolbar>
+
+
+<!-- HEADER PER MOBILE-->
+<mat-toolbar *ngIf="isMobile" class="mobile-header" color="primary">
   <button  (click)="toggleMenu()">
     <mat-icon>menu</mat-icon>
   </button>

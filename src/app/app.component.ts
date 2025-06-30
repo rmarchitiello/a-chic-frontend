@@ -22,9 +22,10 @@ import {
 } from '@angular/animations';
 import { ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
-import { MobileFooterComponent } from './pages/mobile-footer/mobile-footer.component';
-import { MobileHeaderComponent } from './pages/mobile-header/mobile-header.component';
+import { FooterComponent } from './pages/footer/footer.component';
+import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-root',
@@ -44,8 +45,8 @@ import { filter } from 'rxjs/operators';
     RouterOutlet,
     MatExpansionModule,
     MatSidenavModule,
-    MobileFooterComponent,
-    MobileHeaderComponent
+    FooterComponent,
+    HeaderComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -117,7 +118,9 @@ toggleSottoCategoria(sotto: string): void {
     private router: Router,
     private cloudinaryService: CloudinaryService,
     private zone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private breakpointObserver: BreakpointObserver,
+
   ) {}
 
   menuRefs: { [categoria: string]: any } = {};
@@ -155,6 +158,11 @@ setMenuRef(categoria: string, ref: any): boolean {
 }
 
   ngOnInit(): void {
+    this.breakpointObserver
+    .observe(['(max-width: 768px)'])
+    .subscribe(result => {
+      this.isMobile = result.matches;
+    });
     console.log("Verifica se e cms");
 
     //verifica url iniziale perche is cms è false prima volta

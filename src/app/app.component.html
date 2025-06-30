@@ -4,69 +4,22 @@
   <router-outlet></router-outlet>
 </ng-container>
 
-<!-- Toolbar principale per desktop -->
-  <ng-container *ngIf="!isMobile && !isCmsAttivo">
-  <mat-toolbar color="primary" class="toolbar">
-    <span class="logo" (click)="goTo('/home')">A-Chic</span>
 
-    <ng-container *ngFor="let categoria of categorie">
-      <ng-container *ngIf="strutturaCategorie[categoria] as sottoCategorie">
-        <ng-container *ngIf="sottoCategorie.length > 0">
-          <button mat-button [matMenuTriggerFor]="menuRefs[categoria]">{{ categoria }}</button>
 
-          <mat-menu #menu="matMenu" [hasBackdrop]="true">
-            <button *ngFor="let sotto of sottoCategorie" mat-menu-item (click)="goTo(categoria, sotto, filtriSottoCategorie)">
-              {{ sotto | titlecase }}
-            </button>
-          </mat-menu>
-          <ng-container *ngIf="setMenuRef(categoria, menu)"></ng-container>
-        </ng-container>
-
-        <button *ngIf="sottoCategorie.length === 0" mat-button (click)="goTo(categoria)">
-          {{ categoria }}
-        </button>
-      </ng-container>
-    </ng-container>
-
-    <span class="spacer"></span>
-
-    <mat-form-field appearance="fill" class="barra-ricerca-toolbar" floatLabel="auto">
-      <input
-        type="text"
-        matInput
-        placeholder="Cerca..."
-        [formControl]="searchControl"
-        [matAutocomplete]="auto" />
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="vaiAllaCategoria($event.option.value)">
-        <mat-option *ngFor="let opzione of filteredOpzioni" [value]="opzione">
-          {{ opzione }}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
-
-    <span class="spacer"></span>
-
-    <button mat-button class="button-contatti" (click)="goTo('/recensioni')">Recensioni</button>
-    <button mat-button class="button-contatti" (click)="goTo('/contatti')">Contatti</button>
-    <button mat-button class="button-contatti" (click)="goTo('/chi-siamo')">Chi Siamo</button>
-  </mat-toolbar>
-    <div class="desktop-page-content">
-      <router-outlet></router-outlet>
-    </div>
-        <footer class="footer-desktop" *ngIf="!isMobile">
-          <div class="footer-content">
-            <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>
-              <span class="separator">|</span>
-            <a (click)="goToPrivacy('/privacy-policy')">Privacy Policy</a>
-          </div>
-        </footer>
+<!-- PARTE DESKTOP-->
+<ng-container *ngIf="!isMobile && !isCmsAttivo">
+  <h1>SITO IN MANUTENZIONE</h1>
 </ng-container>
 
+
+
+
+<!-- PARTE MOBILE-->
 <!-- Test scroll su mobile -->
 <ng-container *ngIf="isMobile">
 
   <!-- HEADER SEMPRE VISIBILE (dove menuToggle e l evento del componente figli che quando viene premuto in mobile header component scaturisce sidenav.toggle)-->
-  <app-mobile-header (menuToggle)="sidenav.toggle()"></app-mobile-header>
+  <app-header (menuToggle)="sidenav.toggle()"></app-header>
 
   <!-- SIDENAV + CONTENUTO -->
   <mat-sidenav-container class="sidenav-container">
@@ -122,7 +75,7 @@
   </mat-sidenav-container>
 
   <!-- FOOTER SEMPRE VISIBILE -->
-  <app-mobile-footer></app-mobile-footer>
+  <app-footer></app-footer>
 
 </ng-container>
 
