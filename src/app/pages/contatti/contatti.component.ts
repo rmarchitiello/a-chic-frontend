@@ -48,6 +48,8 @@ export class ContattiComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Osserva la larghezza dello schermo e imposta isMobile su true se <= 768px
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
