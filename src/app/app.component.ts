@@ -26,6 +26,7 @@ import { FooterComponent } from './pages/footer/footer.component';
 import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 
 @Component({
   selector: 'app-root',
@@ -46,7 +47,8 @@ import { BreakpointObserver } from '@angular/cdk/layout';
     MatExpansionModule,
     MatSidenavModule,
     FooterComponent,
-    HeaderComponent
+    HeaderComponent,
+    LiveChatComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
