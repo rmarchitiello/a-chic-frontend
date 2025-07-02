@@ -30,6 +30,16 @@ export class LiveChatService {
   INVECE se riduco quella variabile a un oobservale in modo tale che il mio getSystemMessage diventa un observable, quando lo vado a mettere nell onit
   capisce subito che si è aggiornato perche faccio this.service.getSystemMessage.subscribe ecc.. tipo come i cambi rotta quando c e subscribe, 
   viene sempre chiamato in modo reattivo abbiamo l'update della variabile.
+
+
+  In pratica quando ricevo dei dati dall esterno asincronamente (in questo caso non so quando il bot di telegram mi risponde), creo un Subject. Un subject anch egli e un
+  observable infatti uso systemMsgSubject.next(data) per ricevere il dato 
+  Avrei potuto fare public systemProjecy ecc... e il componente che deve leggere quella variabile, puo leggerla. Ma, se la variabile è public 
+  rischio che quella variabile puo essere letta anche da altri componenti e perdo la logica di programmazione di observable. 
+  Quindi uso il get, (setter e getter = incapsulamento) per poter accedere a quella variabile.
+  Ritornando l'observable subject.
+  nel metodo get poi faccio a Observable per proteggere il subject da modifiche esterne. altrimenti posso fare return this.systemMsgSubjkect pero se metto cosi un component potrebbe 
+  sottoscrivere l'obervable con la get e fare .next  e .next si usa per emettere un nuovo valore nell observable andando a sovrascirvere la variabile data che telegram c ha dato.
 }
   */
   private systemMsgSubject = new Subject<ChatMessage>(); //osservable
