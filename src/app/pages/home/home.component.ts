@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
 
 caroselloImmagini: string[] = [];
-
+recensioniImmagini: string[] = [];
 
 
 
@@ -112,6 +112,8 @@ modelliVideoInEvidenza: ModelloEvidenza[] = [];
 next: (data: Record<string, ImmagineCloudinary[]>) => {
         console.log("aa", data)
         const caroselloKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('home/carosello'));
+        const recensioniKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('config/recensioni'));
+        console.log("recensioni key ", recensioniKey);
         const videoEvidenzaHomeKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('home/video'));
 
 // Estrae tutte le immagini dal gruppo "Carosello" nel risultato ricevuto
@@ -123,9 +125,16 @@ next: (data: Record<string, ImmagineCloudinary[]>) => {
           console.warn("Nessuna chiave trovate");
           return
         }
+        if(!recensioniKey){
+          console.warn("Nessuna chiave trovate");
+          return
+        }
 
         console.log("Carosello immagini: ", data[caroselloKey].flatMap(item => item.meta).map(m => m.url));
         this.caroselloImmagini = data[caroselloKey].flatMap(item => item.meta).map(m => m.url);
+
+        console.log("Recensioni immagini: ", data[recensioniKey].flatMap(item => item.meta).map(m => m.url));
+        this.recensioniImmagini = data[recensioniKey].flatMap(item => item.meta).map(m => m.url);
 
         if(!videoEvidenzaHomeKey){
                     console.warn("Nessuna chiave trovate");
