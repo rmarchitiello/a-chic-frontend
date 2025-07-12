@@ -1,8 +1,9 @@
 
 <!-- HEADER PER DESKTOP-->
-<mat-toolbar *ngIf="!isMobile" color="primary">
- <h1>sito in manutenzione</h1>
+<mat-toolbar *ngIf="!isMobile" class="desktop-header" color="primary">
+  <img (click)="goToHome('/home')" class="logo-desktop-center" src="assets/home/images/Logo.png" alt="Logo" />
 </mat-toolbar>
+
 
 
 <!-- HEADER PER MOBILE-->

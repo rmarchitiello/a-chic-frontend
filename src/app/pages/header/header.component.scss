@@ -1,45 +1,69 @@
-.mobile-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100vw;
-  z-index: 1000;
-  height: 40px;
-  background-color: white;
-  border-bottom: 1px solid #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0.5rem;
+// *** MOBILE HEADER ***
+@media (max-width: 768px) {
+  .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+    z-index: 1000;
+    height: 40px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.5rem;
 
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: black;  // testo o icona in nero
-    font-weight: bold; // se vuoi più impatto
-    padding: 4px 8px;
-    border-radius: 4px; // leggermente arrotondato
-    transition: background-color 0.3s ease;
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
 
-    &:hover {
-      background-color: #e0e0e0; // effetto hover chiaro
+      &:hover {
+        background-color: #e0e0e0;
+      }
+    }
+
+    mat-icon {
+      font-size: 24px;
+    }
+
+    .logo {
+      height: 38px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .right-space {
+      width: 40px; // bilanciamento visuale per il bottone menu
     }
   }
+}
 
-  mat-icon {
-    font-size: 24px;
-  }
+// *** DESKTOP HEADER ***
+@media (min-width: 769px) {
+  .desktop-header {
+    height: 64px;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    position: relative; // necessario per centrare assolutamente il logo
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  .logo {
-    height: 38px; // aumenta da 40px a 46px o più
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .right-space {
-    width: 40px; // stessa larghezza del bottone per simmetria
+    .logo-desktop-center {
+      height: 50px;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      cursor: pointer;
+    }
   }
 }
