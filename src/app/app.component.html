@@ -5,11 +5,87 @@
 </ng-container>
 
 
-
-<!-- PARTE DESKTOP-->
+<!-- DESKTOP: solo se non mobile e non CMS -->
 <ng-container *ngIf="!isMobile && !isCmsAttivo">
-  <h1>SITO IN MANUTENZIONE</h1>
+
+  <!-- HEADER -->
+  <app-header></app-header>
+
+  <!-- BOTTONCINO PER APRIRE/CHIUDERE LA SIDENAV -->
+  <div
+    class="sidenav-handler"
+    (click)="desktopSidenavOpen = !desktopSidenavOpen"
+    [class.aperta]="desktopSidenavOpen">
+    <mat-icon>
+      {{ desktopSidenavOpen ? 'chevron_left' : 'chevron_right' }}
+    </mat-icon>
+  </div>
+
+  <!-- CONTAINER CON SIDENAV + CONTENUTO -->
+  <mat-sidenav-container class="desktop-sidenav-container">
+
+    <!-- SIDENAV -->
+    <mat-sidenav
+      #sidenav
+      mode="side"
+      [(opened)]="desktopSidenavOpen"
+      class="desktop-sidenav">
+      <div class="sidenav-content">
+        <ng-container *ngFor="let categoria of categorie">
+          <div
+            class="sidenav-categoria"
+            [class.attiva]="categoriaEspansa === categoria"
+            (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)">
+            {{ categoria }}
+          </div>
+
+          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container">
+            <div *ngFor="let sotto of strutturaCategorie[categoria]">
+              <button
+                class="sotto-categoria"
+                (click)="(filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)">
+                {{ sotto | titlecase }}
+              </button>
+
+              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container">
+                <button
+                  class="filtro-categoria"
+                  *ngFor="let filtro of filtriSottoCategorie[sotto]"
+                  (click)="goToMobileQueryParamFilter(categoria, sotto, filtro)">
+                  {{ filtro | titlecase }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </mat-sidenav>
+
+    <!-- CONTENUTO PRINCIPALE -->
+    <mat-sidenav-content>
+      <div class="desktop-page-container">
+        <router-outlet></router-outlet>
+      </div>
+      <app-footer></app-footer>
+    </mat-sidenav-content>
+
+  </mat-sidenav-container>
+
+  <!-- CHAT -->
+  <app-live-chat></app-live-chat>
 </ng-container>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -102,6 +102,9 @@ menuMap: { [categoria: string]: string } = {};
   // traccio quale categoria è espansa 
   categoriaEspansa: string | null = null;
 
+  desktopSidenavOpen = false; // chiusa all'inizio
+
+
   //i filtri delle sottocategorie
   sottoCategoriaEspansa: string | null = null;
 
@@ -160,6 +163,8 @@ setMenuRef(categoria: string, ref: any): boolean {
 }
 
   ngOnInit(): void {
+
+
     this.breakpointObserver
     .observe(['(max-width: 768px)'])
     .subscribe(result => {
