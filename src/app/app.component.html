@@ -6,6 +6,7 @@
 
 
 <!-- DESKTOP: solo se non mobile e non CMS -->
+<!-- DESKTOP: solo se non mobile e non CMS -->
 <ng-container *ngIf="!isMobile && !isCmsAttivo">
 
   <!-- HEADER -->
@@ -33,23 +34,23 @@
       <div class="sidenav-content">
         <ng-container *ngFor="let categoria of categorie">
           <div
-            class="sidenav-categoria"
+            class="sidenav-categoria-desktop"
             [class.attiva]="categoriaEspansa === categoria"
             (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)">
             {{ categoria }}
           </div>
 
-          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container">
+          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container-desktop">
             <div *ngFor="let sotto of strutturaCategorie[categoria]">
               <button
-                class="sotto-categoria"
+                class="sotto-categoria-desktop"
                 (click)="(filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)">
                 {{ sotto | titlecase }}
               </button>
 
-              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container">
+              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container-desktop">
                 <button
-                  class="filtro-categoria"
+                  class="filtro-categoria-desktop"
                   *ngFor="let filtro of filtriSottoCategorie[sotto]"
                   (click)="goToMobileQueryParamFilter(categoria, sotto, filtro)">
                   {{ filtro | titlecase }}
@@ -74,11 +75,6 @@
   <!-- CHAT -->
   <app-live-chat></app-live-chat>
 </ng-container>
-
-
-
-
-
 
 
 

@@ -196,6 +196,7 @@
     color: #000;
   }
 }
+
 ///*** DESKTOP *** ///
 @media (min-width: 769px) {
   .desktop-sidenav-container {
@@ -224,7 +225,7 @@
     }
   }
 
-  // Bottone per aprire/chiudere la sidenav — deve stare fuori da .desktop-sidenav-container
+  // Bottone per aprire/chiudere la sidenav
   .sidenav-handler {
     position: fixed;
     top: 50%;
@@ -253,5 +254,74 @@
     &.aperta {
       left: 250px; // si sposta accanto alla sidenav aperta
     }
+  }
+
+  // CATEGORIE - stile desktop
+  .sidenav-categoria-desktop {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0.6rem 0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 0.4rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      background-color: #e1f4f6;
+      color: #000;
+    }
+
+    &.attiva {
+      background-color: #c9ecf0;
+      color: #000;
+    }
+  }
+
+  // SOTTOCATEGORIE - stile desktop
+  .sotto-categoria-desktop {
+    padding-left: 1.5rem;
+    font-size: 1.15rem;
+    color: #444;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.4rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #000;
+      font-weight: 600;
+    }
+  }
+
+  // FILTRI - stile desktop
+  .filtro-categoria-desktop {
+    padding-left: 2.5rem;
+    font-size: 1rem;
+    color: #666;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.3rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
+  // Contenitori opzionali se vuoi stili dedicati
+  .sotto-container-desktop {
+    margin-bottom: 1rem;
+  }
+
+  .filtro-container-desktop {
+    margin-top: 0.5rem;
   }
 }
