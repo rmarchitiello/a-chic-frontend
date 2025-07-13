@@ -1,99 +1,227 @@
-/* ============================
-   STILI DESKTOP (DEFAULT)
-   ============================ */
+/* ==========================================================================
+   STILI DESKTOP – min-width: 769px
+   ========================================================================== */
+@media (min-width: 769px) {
 
-/* Sezione modelli in evidenza */
-.modelli-evidenza {
-  max-width: 100%;
+  // Sezione principale visibile solo su desktop
+  .modelli-evidenza-desktop {
+    width: 100vw;               // Larghezza piena della viewport
+    max-width: 100vw;           // Previene overflow orizzontale
+    margin: 0;                  // Nessun margine esterno
+    padding: 0;                 // Nessun padding interno
+    text-align: center;         // Allineamento centrale del testo
+    overflow: hidden;           // Nasconde eventuali overflow
+  }
+
+  // Griglia dei contenuti (video, recensioni)
+  .card-grid-desktop {
+    display: grid;
+    grid-template-columns: 1fr; // Una colonna a tutta larghezza
+    gap: 0;                     // Nessuno spazio tra gli elementi
+    padding: 0;                 // Nessun padding
+    margin: 0;                  // Nessun margine
+  }
+
+  // Singola card che contiene un video
+  mat-card {
+    aspect-ratio: 3 / 4;        // Rapporto dimensionale verticale
+    width: 100%;                // Larghezza piena
+    border-radius: 0;           // Nessun arrotondamento bordi
+    box-shadow: none;           // Nessuna ombra
+    overflow: hidden;           // Nasconde contenuto eccedente
+    background-color: black;    // Sfondo nero
+    padding: 0;                 // Nessun padding interno
+    position: relative;         // Per posizionare elementi assoluti (titoli)
+    margin: 0 !important;       // Rimuove qualsiasi margine imposto
+  }
+
+  // Video responsive all’interno della card
+  .video-responsive-desktop {
+    width: 100%;                // Occupa tutta la larghezza della card
+    height: 100%;               // Occupa tutta l’altezza
+    object-fit: cover;          // Ritaglia per riempire il contenitore
+    object-position: center center;
+    border-radius: 0;
+    background-color: black;
+    display: block;
+  }
+
+  // Titolo sovrapposto al video
+  .card-title-desktop {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+
+  // Sottotitolo sovrapposto al video
+  .card-subtitle-desktop {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 0.95rem;
+  }
+
+  // Contenitore immagini carosello principale
+.carousel-container-desktop {
+  position: relative;
+  width: 100%;                // usa il 100% del contenitore, non 100vw
+  height: 100vh;              // o calcola se vuoi escludere header
   margin: 0;
   padding: 0;
-  text-align: center;
-}
-
-/* Griglia responsive per le card */
-.card-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  padding: 0;
-}
-
-/* Card stile vetrina verticale */
-mat-card {
-  aspect-ratio: 3 / 4;
-  width: 100%;
-  border-radius: 0;
-  box-shadow: none;
   overflow: hidden;
-  background-color: black;
-  padding: 0;
-  position: relative;
-  margin: 0 !important;
-}
-
-/* Video responsive che riempie la card */
-.video-responsive {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
-  border-radius: 0;
-  background-color: black;
-  display: block;
-}
-
-/* Titolo e sottotitolo sovrapposti al video */
-mat-card-title,
-mat-card-subtitle {
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-}
-
-mat-card-title {
-  bottom: 2.5rem;
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
-mat-card-subtitle {
-  bottom: 0;
-  font-size: 0.95rem;
 }
 
 
-/* ============================
-   STILI MOBILE
-   max-width: 768px
-   ============================ */
+  // Immagini del carosello principali
+  .carousel-image-desktop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+  }
+
+  // Immagine attiva visibile
+  .carousel-image-desktop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  // Titolo sezione recensioni
+  .titolo-recensioni-desktop {
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 1rem 0 0.5rem 0;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  // Contenitore immagini recensioni
+  .carousel-container-recensioni-desktop {
+    position: relative;
+    width: 100vw;
+    aspect-ratio: 3 / 4;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  // Singola immagine recensione
+  .carousel-image-recensioni-desktop {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  // Immagine recensione visibile
+  .carousel-image-recensioni-desktop.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+  }
+}
+
+
+/* ==========================================================================
+   STILI MOBILE – max-width: 768px
+   ========================================================================== */
 @media (max-width: 768px) {
-  /* Griglia a colonna singola */
-  .card-grid {
+  .modelli-evidenza-mobile {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  .card-grid-mobile {
+    display: grid;
     grid-template-columns: 1fr;
     gap: 0;
     padding: 0;
   }
 
-  .card-grid > * {
+  .card-grid-mobile > * {
     margin: 0 !important;
     padding: 0 !important;
     display: block;
   }
 
-  /* Titoli adattati al mobile */
+  mat-card {
+    aspect-ratio: 3 / 4;
+    width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+    background-color: black;
+    padding: 0;
+    position: relative;
+    margin: 0 !important;
+  }
+
+  .video-responsive-mobile {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    border-radius: 0;
+    background-color: black;
+    display: block;
+  }
+
   mat-card-title {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2.5rem;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
     font-size: 1rem;
+    font-weight: bold;
   }
 
   mat-card-subtitle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    text-align: center;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
     font-size: 0.85rem;
   }
 
-  /* Carosello principale immagini */
   .carousel-container {
     position: relative;
     width: 100vw;
@@ -118,7 +246,6 @@ mat-card-subtitle {
     pointer-events: auto;
   }
 
-  /* Titolo “Dicono di noi” */
   .titolo-recensioni {
     font-size: 1rem;
     font-weight: 600;
@@ -129,7 +256,6 @@ mat-card-subtitle {
     letter-spacing: 0.5px;
   }
 
-  /* Container recensioni */
   .carousel-container-recensioni {
     position: relative;
     width: 100vw;

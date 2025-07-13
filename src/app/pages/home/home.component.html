@@ -1,7 +1,42 @@
-<!-- MODELLI IN EVIDENZA DESKTOP-->
-<section *ngIf="!isMobile" class="modelli-evidenza">
-  <h1>SITO IN MANUTENZ</h1>
+<!-- DESKTOP -->
+<section *ngIf="!isMobile" class="modelli-evidenza-desktop">
+  <div class="card-grid-desktop">
+    <!-- Carosello principale immagini (solo desktop se desiderato) -->
+    <div class="carousel-container-desktop">
+      <img *ngFor="let img of caroselloImmagini; let i = index"
+           [src]="img"
+           [class.active]="i === currentIndex"
+           class="carousel-image-desktop"
+           alt="Carosello Immagine" />
+    </div>
+
+    <!-- Video dei modelli -->
+    <mat-card *ngFor="let modello of modelliVideoInEvidenza">
+      <video autoplay [muted]="true" loop playsinline preload="metadata"
+             class="video-responsive-desktop" mat-card-image
+             [src]="modello.url" alt="Modello borsa" style="cursor: pointer">
+        <source [src]="modello.url" type="video/mp4" />
+      </video>
+      <mat-card-title class="card-title-desktop">{{ modello.display_name }}</mat-card-title>
+      <mat-card-subtitle class="card-subtitle-desktop">{{ modello.descrizione }}</mat-card-subtitle>
+    </mat-card>
+
+    <!-- Recensioni -->
+    <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
+    <div class="carousel-container-recensioni-desktop">
+      <img *ngFor="let imgRecensione of recensioniImmagini; let i = index"
+           [src]="imgRecensione"
+           [class.active]="i === currentIndex"
+           class="carousel-image-recensioni-desktop"
+           alt="Recensione cliente" />
+    </div>
+  </div>
 </section>
+
+
+
+
+
 
 <!-- MOBILE-->
 <section *ngIf="isMobile" class="modelli-evidenza">

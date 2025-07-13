@@ -6,7 +6,6 @@
 
 
 <!-- DESKTOP: solo se non mobile e non CMS -->
-<!-- DESKTOP: solo se non mobile e non CMS -->
 <ng-container *ngIf="!isMobile && !isCmsAttivo">
 
   <!-- HEADER -->
@@ -63,12 +62,27 @@
     </mat-sidenav>
 
     <!-- CONTENUTO PRINCIPALE -->
-    <mat-sidenav-content>
-      <div class="desktop-page-container">
-        <router-outlet></router-outlet>
-      </div>
-      <app-footer></app-footer>
-    </mat-sidenav-content>
+<!-- CONTENUTO PRINCIPALE --><!-- CONTENUTO PRINCIPALE -->
+<mat-sidenav-content>
+
+  <!-- Wrapper principale per contenuto + footer -->
+  <div class="main-layout">
+
+    <!-- Contenuto principale che si espande -->
+<div class="desktop-page-container" [ngClass]="{ 'home-page': isHomeRoute }">
+  <router-outlet></router-outlet>
+</div>
+
+
+    <!-- Footer in fondo alla pagina -->
+    <app-footer *ngIf="!isMobile"></app-footer>
+
+  </div>
+
+</mat-sidenav-content>
+
+
+
 
   </mat-sidenav-container>
 

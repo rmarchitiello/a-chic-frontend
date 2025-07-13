@@ -137,15 +137,17 @@
 }
 
 /* ==========================================================================
-   FOOTER DESKTOP – versione dark come mobile (sfondo nero, testo bianco)
+   FOOTER DESKTOP – visibile su viewport >= 769px
+   Stile dark: sfondo nero, testo bianco
    ========================================================================== */
 @media (min-width: 769px) {
   .footer-desktop {
-    background-color: #000; // sfondo nero
-    color: #fff;            // testo bianco
+    background-color: #000; // Sfondo nero
+    color: #fff;            // Testo bianco
     padding: 3rem 2rem;
     text-align: center;
 
+    // Sezione newsletter
     .newsletter-desktop {
       margin-bottom: 2rem;
 
@@ -162,6 +164,7 @@
         margin-bottom: 1rem;
       }
 
+      // Form di iscrizione alla newsletter
       .newsletter-form-desktop {
         display: flex;
         justify-content: center;
@@ -169,7 +172,7 @@
         max-width: 500px;
         margin: 0 auto;
 
-        input[type='email'] {
+        input[type="email"] {
           flex: 1;
           padding: 0.7rem 1rem;
           border: 1px solid #666;
@@ -196,6 +199,7 @@
             background-color: #ccc;
           }
 
+          // Spinner durante il caricamento
           .spinner {
             width: 16px;
             height: 16px;
@@ -208,6 +212,7 @@
         }
       }
 
+      // Messaggio di conferma dopo invio
       p[ng-reflect-ng-if] {
         margin-top: 0.8rem;
         font-size: 0.9rem;
@@ -215,6 +220,7 @@
       }
     }
 
+    // Link utili: Chi sono, Privacy, Cookie
     .footer-links-desktop {
       display: flex;
       justify-content: center;
@@ -238,6 +244,7 @@
       }
     }
 
+    // Icone social e contatti
     .footer-social-desktop {
       display: flex;
       justify-content: center;
@@ -265,6 +272,7 @@
       }
     }
 
+    // Frase legale finale
     .footer-tiur-desktop {
       font-size: 0.8rem;
       color: #ccc;
@@ -276,7 +284,7 @@
 }
 
 /* ==========================================================================
-   Spinner animation
+   Spinner animation (usata in tutti i footer)
    ========================================================================== */
 @keyframes spin {
   to {

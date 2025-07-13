@@ -119,6 +119,9 @@ toggleCategoria(cat: string): void {
 toggleSottoCategoria(sotto: string): void {
   this.sottoCategoriaEspansa = this.sottoCategoriaEspansa === sotto ? null : sotto;
 }
+
+  isHomeRoute = false;
+
   constructor(
     private router: Router,
     private cloudinaryService: CloudinaryService,
@@ -126,7 +129,15 @@ toggleSottoCategoria(sotto: string): void {
     private cdr: ChangeDetectorRef,
     private breakpointObserver: BreakpointObserver,
 
-  ) {}
+  ) {
+
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isHomeRoute = event.urlAfterRedirects === '/home';
+    });
+    
+  }
 
   menuRefs: { [categoria: string]: any } = {};
 
