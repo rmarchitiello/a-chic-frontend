@@ -3,6 +3,8 @@
     OnInit,
     OnDestroy,
     ViewChild,
+    Output,
+    EventEmitter,
     ElementRef
   } from '@angular/core';
   import { CommonModule } from '@angular/common';
@@ -80,6 +82,14 @@ onAudioIconClick(event: Event): void {
   this.immagineSelezionata = null;
   this.mostraAudioPlayer = !this.mostraAudioPlayer;
   console.log('[CLICK AUDIO] dopo :', this.mostraAudioPlayer);   // true / false alternato
+}
+
+//per chiudere la sidenav da dettagli component 
+@Output() richiediChiusuraSidenavAppComp = new EventEmitter<void>();
+
+onRichiediChiusuraSidenavDalFiglio() {
+  console.log('[CloudinaryComponent] Propago richiesta chiusura sidenav');
+  this.richiediChiusuraSidenavAppComp.emit();
 }
 
 

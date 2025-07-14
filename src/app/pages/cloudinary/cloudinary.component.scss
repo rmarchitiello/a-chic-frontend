@@ -176,3 +176,133 @@
     }
   }
 }
+
+
+/* ------------------------ */
+/*  SEZIONE DESKTOP CLOUDINARY */
+/* ------------------------ */
+@media (min-width: 769px) {
+  .desktop-immagini-wrapper {
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .contenitore-cards-desktop {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .card-image-container-desktop {
+    position: relative;
+  }
+
+  .icon-wrapper-desktop {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .image-card-desktop.audio-attivo {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .lens-icon,
+  .audio-icon {
+    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: #333;
+    }
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .image-wrapper-desktop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .image-card-desktop {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      padding: 0;
+      margin: 0;
+      border: none;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: box-shadow 0.3s;
+
+      &:hover {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+    }
+
+    .image-info-desktop {
+      padding-top: 0.5rem;
+      text-align: center;
+
+      h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #111;
+      }
+
+      p {
+        font-size: 1rem;
+        margin: 0.25rem 0 0;
+        color: #444;
+      }
+    }
+  }
+
+  .paginazione-desktop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    gap: 1.5rem;
+  }
+
+  .numero-pagina {
+    font-size: 1rem;
+    color: #444;
+    font-family: 'Montserrat', sans-serif;
+  }
+}

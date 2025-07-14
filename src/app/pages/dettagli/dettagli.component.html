@@ -1,7 +1,51 @@
-<!-- DESKTOP-->
-<div *ngIf="!isMobile">
+<!-- DESKTOP -->
+<!-- DESKTOP -->
+<div *ngIf="!isMobile" class="desktop-dettagli-overlay" [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }" (click)="closeWindow()">
+  <div
+    class="desktop-dettagli-panel"
+    [ngClass]="{ 'chiusura': panelClosing }"
+    (click)="$event.stopPropagation()"
+  >
+    <button class="desktop-chiudi-testuale" (click)="closeWindow()">Chiudi</button>
 
+    <!-- FRECCIA SINISTRA -->
+    <button class="freccia freccia-sinistra" (click)="vaiImmaginePrecedente()">
+      ‹
+    </button>
+
+    <!-- FRECCIA DESTRA -->
+    <button class="freccia freccia-destra" (click)="vaiImmagineSuccessiva()">
+      ›
+    </button>
+
+    <!-- Contenitore immagine -->
+    <div class="desktop-swipe-container">
+      <img
+        [@slideAnimation]="animationState"
+        [src]="totaleImmagini[currentIndexOtherImage]"
+        class="desktop-animated-image"
+        (animationend)="animationState = ''"
+      />
+    </div>
+
+    <!-- Indicatori -->
+    <div *ngIf="totaleImmagini && totaleImmagini.length > 0" class="desktop-indicator-wrapper">
+      <span *ngFor="let immagine of totaleImmagini; let i = index"
+            [ngClass]="{ 'attiva': i === currentIndexOtherImage }">
+        ●
+      </span>
+    </div>
+
+    <p class="desktop-descrizione-scroll">{{ descrizioneImmagineFrontale }}</p>
+  </div>
 </div>
+
+
+
+
+
+
+
 
 <!--MOBILE-->
 <!-- Overlay principale con sfocatura metto il click perche se clicco fuori da pannello chiude  --> 

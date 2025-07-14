@@ -140,6 +140,21 @@ slideLeft(): void {
   }
 }
 
+//chiudo la sidenav da qua ovvero da dettagli component
+/* pero dettagli e figlio di cloudinary che cloudinary e figlio di app quindi devo propagare l evento a cloudinary e cloudinary propaga l evento a app component */
+@Output() richiediChiusuraSidenav = new EventEmitter<void>();
+
+
+// Metodo alternativo per andare avanti (usato da freccia destra)
+vaiImmagineSuccessiva(): void {
+  this.slideLeft(); // Riusa la logica di slideLeft()
+}
+
+// Metodo alternativo per tornare indietro (usato da freccia sinistra)
+vaiImmaginePrecedente(): void {
+  this.slideRight(); // Riusa la logica di slideRight()
+}
+
 /**
  * Esegue lo swipe verso destra:
  *  - Avvia un'animazione di uscita verso destra impostando lo stato
@@ -164,6 +179,10 @@ slideRight(): void {
 constructor(private breakpointObserver: BreakpointObserver) {}
 
   ngOnInit(): void {
+      this.richiediChiusuraSidenav.emit();
+        console.log('[DettagliComponent] Emit chiusura sidenav');
+
+
     console.log("Figlio immagine frontale", JSON.stringify(this.immagineFrontale));
     console.log("Figlio altre", JSON.stringify(this.altreImmaginiDellaFrontale));
     console.log("La descrizioneee: ", this.descrizioneImmagineFrontale);
@@ -187,6 +206,7 @@ constructor(private breakpointObserver: BreakpointObserver) {}
     // partire la transizione CSS in modo fluido
     setTimeout(() => {
       this.attivo = true; // Applica la classe CSS `.attiva` all’overlay
+
     }, 10); // 10ms sono sufficienti a differire al frame successivo
 
     //controllo se ci sono altre immagini di quella frontale se si sarà true e attiva il template in dettagli html

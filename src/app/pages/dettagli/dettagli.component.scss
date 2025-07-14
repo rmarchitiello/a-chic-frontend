@@ -1,3 +1,181 @@
+@media (min-width: 769px) {
+  .desktop-dettagli-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000;
+    transition:
+      backdrop-filter 0.4s ease-out,
+      -webkit-backdrop-filter 0.4s ease-out,
+      background-color 0.4s ease-out;
+  }
+
+  .desktop-dettagli-overlay.attiva {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .desktop-dettagli-overlay.chiusura {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition:
+      backdrop-filter 0.4s ease-in,
+      -webkit-backdrop-filter 0.4s ease-in,
+      background-color 0.4s ease-in;
+  }
+
+  .desktop-dettagli-panel {
+    background-color: #fff;
+    width: 70%;
+    max-width: 900px;
+    height: 70vh;
+    border-radius: 16px;
+    position: relative;
+    padding: 2rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    animation: slideUpDesktop 0.4s ease-out;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .desktop-dettagli-panel.chiusura {
+    animation: slideDownFadeDesktop 0.4s ease-in forwards;
+  }
+
+  @keyframes slideUpDesktop {
+    from {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideDownFadeDesktop {
+    from {
+      transform: scale(1);
+      opacity: 1;
+    }
+    to {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+  }
+
+  .desktop-chiudi-testuale {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: transparent;
+    border: none;
+    color: #222;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      text-decoration: underline;
+      opacity: 0.7;
+    }
+  }
+
+  .desktop-swipe-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    position: relative;
+  }
+
+  .desktop-animated-image {
+    display: block;
+    max-width: 100%;
+    max-height: 45vh;
+    object-fit: contain;
+    border-radius: 6px;
+    transition: transform 0.3s ease;
+  }
+
+  .desktop-indicator-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1rem 0;
+
+    span {
+      font-size: 1.2rem;
+      color: #bbb;
+      transition: color 0.3s ease;
+    }
+
+    .attiva {
+      color: #222;
+    }
+  }
+
+  .desktop-descrizione-scroll {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 1.1rem;
+    font-family: 'Great Vibes', cursive;
+    color: #444;
+    text-align: center;
+    line-height: 1.8;
+    padding-top: 0.5rem;
+  }
+
+  // FRECCE LATERALI — visibili solo su desktop
+  .freccia {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.5rem;
+    background: rgba(255, 255, 255, 0.75);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    &:active {
+      background: rgba(235, 235, 235, 1);
+    }
+  }
+
+  .freccia-sinistra {
+    left: 1rem;
+  }
+
+  .freccia-destra {
+    right: 1rem;
+  }
+}
+
+
+
 /* =======================================================
    STILI MOBILE - max-width: 768px
    ======================================================= */

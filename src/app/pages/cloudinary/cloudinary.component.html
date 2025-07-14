@@ -1,9 +1,73 @@
 <!-- ========================
      DESKTOP VIEW
 ========================= -->
+
 <ng-container *ngIf="!isMobile">
-  <h1>SITO IN MANUTENZIONE</h1>
+  <div class="desktop-immagini-wrapper">
+
+    <!-- Griglia immagini desktop -->
+    <div class="contenitore-cards-desktop">
+      <ng-container *ngFor="let item of immaginiFrontaliPaginata">
+        <div class="image-wrapper-desktop">
+
+          <mat-card 
+            class="image-card-desktop" 
+            (click)="onImmagineClick(item)" 
+            [class.audio-attivo]="mostraAudioPlayer">
+
+            <div class="card-image-container-desktop">
+              <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+
+              <div class="icon-wrapper-desktop">
+                <div class="lens-icon-desktop">
+                  <!-- copia la tua lente -->
+                </div>
+
+                <div (click)="onAudioIconClick($event)" *ngIf="isAudioIconVisible" class="audio-icon-desktop">
+                  <!-- copia la tua icona audio -->
+                </div>
+              </div>
+            </div>
+          </mat-card>
+
+          <div class="image-info-desktop">
+            <h3>{{ item.display_name }}</h3>
+            <p>Quantità: {{ item.quantita }}</p>
+          </div>
+
+        </div>
+      </ng-container>
+
+      <app-audio-player
+        *ngIf="mostraAudioPlayer"
+        (chiusuraAnimazioneCompleta)="handleChiudiAudioPlayer()">
+      </app-audio-player>
+
+      <app-dettagli
+        *ngIf="immagineSelezionata && !mostraAudioPlayer"
+        [immagineFrontale]="immagineSelezionata"
+        [altreImmaginiDellaFrontale]="altreImmaginiSelezionate"
+        [descrizioneImmagineFrontale]="descrizioneImmagineFrontale"
+  (richiediChiusuraSidenav)="onRichiediChiusuraSidenavDalFiglio()"
+        
+        (chiudiDettaglio)="handleChiudiDettaglio()">
+      </app-dettagli>
+
+    </div>
+  </div>
 </ng-container>
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- ========================
      MOBILE VIEW

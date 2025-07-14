@@ -27,6 +27,7 @@ import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
+import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
 
 @Component({
   selector: 'app-root',
@@ -48,7 +49,8 @@ import { LiveChatComponent } from './pages/live-chat/live-chat.component';
     MatSidenavModule,
     FooterComponent,
     HeaderComponent,
-    LiveChatComponent
+    LiveChatComponent,
+    CloudinaryComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -62,6 +64,7 @@ import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 })
 export class AppComponent implements OnInit {
     @ViewChild('sidenav') sidenav!: MatSidenav;
+    @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
 
   title = 'a-chic';
   // Mappa per collegare categoria → nome riferimento mat-menu
@@ -80,11 +83,11 @@ menuMap: { [categoria: string]: string } = {};
   filtriSottoCategorie: Record<string, string[]> = {};
 
   // Mappa categoria → sottocategorie
-  strutturaCategorie: { [key: string]: string[] } = {};
+strutturaCategorie: { [key: string]: string[] | undefined } = {};
 
 
     // Mappa sottocategorie → sottoSottoCategorie(filtri)
-  strutturaSottoCategorie: { [key: string]: string[] } = {};
+  strutturaSottoCategorie: { [key: string]: string[] | undefined} = {};
 
 
   // Controllo barra di ricerca
@@ -139,6 +142,23 @@ toggleSottoCategoria(sotto: string): void {
     
   }
 
+  ngAfterViewInit() {
+  console.log('[APP] ViewChild sidenav:', this.sidenav);
+  console.log('[APP] ViewChild sidenavDesktop:', this.sidenavDesktop);
+}
+
+
+  //per chiudere la sidenav dal figlio ovvero dettagli e cloudinary component, ovvero dettagli emette l evento al figlio cloudinry che emetto l evento a app component 
+chiudiSidenavDaFiglio(): void {
+  console.log('[AppComponent] chiudo sidenav...');
+  if (this.sidenav) this.sidenav.close();
+  if (this.sidenavDesktop) this.sidenavDesktop.close();
+}
+
+
+
+
+
   menuRefs: { [categoria: string]: any } = {};
 
   goToContatti(contatti: string){
@@ -149,15 +169,26 @@ toggleSottoCategoria(sotto: string): void {
   //dato che se ho la categoria e la sottoCategoria e devo fare questo controllo         (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goTo(categoria, sotto)"
   //html non mi permette di aggiungere sindav.close quindi per chiuderla ho creato un metodo se c e categoria e sottocategoria vai e chiudi sidenav
 goToAndCloseSideNav(categoria: string, sottoCategoria?: string ){
+    console.log('STRUTTURA CATEGORIE:', this.strutturaCategorie);
+  console.log('CATEGORIA:', categoria);
+  console.log('SOTTO:', sottoCategoria);
+
     if(categoria && sottoCategoria){
       this.goTo(categoria,sottoCategoria);
     }
     else{
       this.goTo(categoria);
     }
-    this.sidenav.close();
+        console.log("weeeesss", this.sidenav);
 
+      if(this.sidenav){
+              this.sidenav.close();
+
+      }
     
+      if(this.sidenavDesktop){
+        this.sidenavDesktop.close();
+      }
 }
 
   goToCookie(cookies: string){
@@ -173,125 +204,144 @@ setMenuRef(categoria: string, ref: any): boolean {
   return true;
 }
 
-  ngOnInit(): void {
+isPaginaCloudinaryAttiva = false;
+Array = Array;
 
-
-    this.breakpointObserver
+ngOnInit(): void {
+  // Osserva la larghezza dello schermo per determinare se siamo su mobile
+  this.breakpointObserver
     .observe(['(max-width: 768px)'])
     .subscribe(result => {
       this.isMobile = result.matches;
     });
-    console.log("Verifica se e cms");
 
-    //verifica url iniziale perche is cms è false prima volta
-      this.isCmsAttivo = this.router.url.startsWith('/cms');
-    console.log("Iniziale isCmsAttivo?", this.isCmsAttivo);
+  // Rileva dimensioni iniziali della finestra (fallback)
+  this.isMobile = window.innerWidth <= 768;
 
-    //acolto i successivi cambiamenti di rotta
+  // Aggiungi un listener per aggiornare `isMobile` in tempo reale al resize
+  window.addEventListener('resize', () => {
+    this.zone.run(() => {
+      this.isMobile = window.innerWidth <= 768;
+      this.cdr.detectChanges(); // forza aggiornamento del binding
+    });
+  });
+
+  // Verifica se l'URL iniziale appartiene alla sezione CMS
+  this.isCmsAttivo = this.router.url.startsWith('/cms');
+  console.log("Iniziale isCmsAttivo?", this.isCmsAttivo);
+
+  // Ascolta i cambi di rotta per aggiornare dinamicamente `isCmsAttivo` e `isPaginaCloudinaryAttiva`
   this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
-    .subscribe((event: any) => {
-      this.isCmsAttivo = event.url.startsWith('/cms');
-      console.log("NavigationEnd isCmsAttivo?", this.isCmsAttivo);
+    .subscribe((event: NavigationEnd) => {
+      const url = event.urlAfterRedirects.toLowerCase();
+
+      // Attiva/disattiva flag CMS
+      this.isCmsAttivo = url.startsWith('/cms');
+
+      // Verifica se siamo su una pagina Cloudinary (cioè una route che contiene una categoria)
+      const matchCategoria = this.categorie.some(cat =>
+        url.includes(`/${cat.toLowerCase()}`)
+      );
+      this.isPaginaCloudinaryAttiva = matchCategoria;
+
+      // Verifica se siamo in home per eventuali personalizzazioni
+      this.isHomeRoute = url === '/home';
+
+      console.log("URL attuale:", url);
+      console.log("isPaginaCloudinaryAttiva:", this.isPaginaCloudinaryAttiva);
+      console.log("isCmsAttivo:", this.isCmsAttivo);
     });
 
-        console.log("cms attivo ? ", this.isCmsAttivo);
-    console.log("...FLUSSO INIZIATO...")
+  // Richiama il servizio per ottenere le immagini e costruire la struttura dinamica
+  this.cloudinaryService.getImmagini().subscribe({
+    next: (data: Record<string, any[]>) => {
+      console.log("Data service ricevuta:", data);
 
+      // Ottieni tutte le combinazioni categoria/sottocategoria
+      this.categorieSottoCategorie = Object.keys(data);
 
-    // Inizializza menuMap con nomi unici per i menu (es. Borse → menu_Borse)
-this.menuMap = {};
-this.categorie.forEach(categoria => {
-  this.menuMap[categoria] = `menu_${categoria}`;
-});
-console.log("menu map" , this.menuMap)
-    this.isMobile = window.innerWidth <= 768;
+      // Estrai categorie principali (escludendo 'recensioni' e 'carosello')
+      this.categorie = [
+        ...new Set(
+          this.categorieSottoCategorie
+            .map(k => k.split('/')[0])
+            .filter(c => {
+              const lower = c.toLowerCase();
+              return lower !== 'recensioni' && lower !== 'carosello';
+            })
+        )
+      ];
 
-    // Rileva cambiamento di larghezza finestra
-    window.addEventListener('resize', () => {
-      this.zone.run(() => {
-        this.isMobile = window.innerWidth <= 768;
-        this.cdr.detectChanges();
-      });
-    });
+      // Estrai tutte le sottocategorie uniche
+      this.sottoCategorie = [
+        ...new Set(
+          this.categorieSottoCategorie
+            .map(k => k.split('/'))
+            .filter(parts => parts.length > 1 && parts[1].trim() !== '' && parts[1].toLowerCase() !== 'recensioni')
+            .map(parts => parts[1])
+        )
+      ];
 
-    // Carica struttura immagini e categorie
-    this.cloudinaryService.getImmagini().subscribe({
-      next: (data: Record<string, any[]>) => {
-        console.log("data service, ", data)
-        this.categorieSottoCategorie = Object.keys(data);
-
-        // Estrai le categorie principali (escludi "recensioni") cosi non lo metto nelle categorie
-this.categorie = [
-  ...new Set(
-    this.categorieSottoCategorie
-      .map(k => k.split('/')[0])
-      .filter(c => {
-        const lower = c.toLowerCase();
-        return lower !== 'recensioni' && lower !== 'carosello';
-      })
-  )
-];
-
-
-        // Estrai tutte le sotto-categorie uniche
-        this.sottoCategorie = [
-          ...new Set(
-            this.categorieSottoCategorie
-              .map(k => k.split('/'))
-              .filter(parts => parts.length > 1 && parts[1].trim() !== '' && parts[1].toLowerCase() !== 'recensioni')
-              .map(parts => parts[1])
-          )
-        ];
-
-        // Crea la struttura dei filtri (sottocategoria → dettagli)
-        const tempFiltri: Record<string, Set<string>> = {};
-
-        this.categorieSottoCategorie.forEach(item => {
-          const parts = item.split('/');
-          if (parts.length === 3 && parts[1].toLowerCase() !== 'recensioni') {
-            const sotto = parts[1];
-            const dettaglio = parts[2];
-            if (!tempFiltri[sotto]) {
-              tempFiltri[sotto] = new Set();
-            }
-            tempFiltri[sotto].add(dettaglio);
+      // Costruisci la mappa dei filtri per ogni sottocategoria
+      const tempFiltri: Record<string, Set<string>> = {};
+      this.categorieSottoCategorie.forEach(item => {
+        const parts = item.split('/');
+        if (parts.length === 3 && parts[1].toLowerCase() !== 'recensioni') {
+          const sotto = parts[1];
+          const dettaglio = parts[2];
+          if (!tempFiltri[sotto]) {
+            tempFiltri[sotto] = new Set();
           }
-        });
-
-        // Converte ogni Set in array
-        Object.keys(tempFiltri).forEach(key => {
-          this.filtriSottoCategorie[key] = Array.from(tempFiltri[key]);
-        });
-        console.log("filtri sott: ", this.filtriSottoCategorie)
-
-        // Costruisci struttura: categoria → sottocategorie
-        const struttura: Record<string, Set<string>> = {};
-        this.categorieSottoCategorie.forEach(item => {
-          const [cat, sotto] = item.split('/');
-          if (cat.toLowerCase() === 'recensioni') return;
-          if (!struttura[cat]) struttura[cat] = new Set();
-          if (sotto) struttura[cat].add(sotto);
-        });
-
-        for (const cat in struttura) {
-          this.strutturaCategorie[cat] = Array.from(struttura[cat]);
+          tempFiltri[sotto].add(dettaglio);
         }
-        console.log("strutturaaa: ", this.filtriSottoCategorie);
+      });
+      // Converti ogni set in array
+      Object.keys(tempFiltri).forEach(key => {
+        this.filtriSottoCategorie[key] = Array.from(tempFiltri[key]);
+      });
 
-        // Inizializza filtro autocomplete
-        this.searchControl.valueChanges.subscribe(val => {
-          const valore = val?.toLowerCase() || '';
-          this.filteredOpzioni = this.categorieSottoCategorie.filter(opt =>
-            opt.toLowerCase().includes(valore)
-          );
-        });
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento delle immagini', err);
+      console.log("Filtri sottocategorie:", this.filtriSottoCategorie);
+
+      // Costruisci la struttura categoria → sottocategorie
+      const struttura: Record<string, Set<string>> = {};
+      this.categorieSottoCategorie.forEach(item => {
+        const [cat, sotto] = item.split('/');
+        if (cat.toLowerCase() === 'recensioni') return;
+        if (!struttura[cat]) struttura[cat] = new Set();
+        if (sotto) struttura[cat].add(sotto);
+      });
+
+      // Trasforma i Set in array
+      for (const cat in struttura) {
+        this.strutturaCategorie[cat] = Array.from(struttura[cat]);
       }
-    });
-  }
+
+      console.log("Struttura categorie → sottocategorie:", this.strutturaCategorie);
+
+      // Inizializza l'autocomplete per la barra di ricerca
+      this.searchControl.valueChanges.subscribe(val => {
+        const valore = val?.toLowerCase() || '';
+        this.filteredOpzioni = this.categorieSottoCategorie.filter(opt =>
+          opt.toLowerCase().includes(valore)
+        );
+      });
+
+      // Costruisci dinamicamente la mappa per i mat-menu (menuMap)
+      this.menuMap = {};
+      this.categorie.forEach(categoria => {
+        this.menuMap[categoria] = `menu_${categoria}`;
+      });
+      console.log("menuMap generata dinamicamente:", this.menuMap);
+    },
+    error: (err) => {
+      console.error('Errore nel caricamento delle immagini', err);
+    }
+  });
+
+  console.log("...ngOnInit COMPLETATO...");
+}
+
 
   // Navigazione generica (sia link statici che dinamici)
   goTo(categoria: string, sottoCategoria?: string, filtri?: Record<string, string[]>): void {

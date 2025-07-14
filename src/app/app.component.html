@@ -26,31 +26,41 @@
 
     <!-- SIDENAV -->
     <mat-sidenav
-      #sidenav
+      #sidenavDesktop
       mode="side"
       [(opened)]="desktopSidenavOpen"
       class="desktop-sidenav">
       <div class="sidenav-content">
+
         <ng-container *ngFor="let categoria of categorie">
+          <!-- Categoria principale -->
           <div
             class="sidenav-categoria-desktop"
             [class.attiva]="categoriaEspansa === categoria"
-            (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)">
+            (click)="strutturaCategorie[categoria] && strutturaCategorie[categoria]!.length > 0
+            ? toggleCategoria(categoria)
+            : goToAndCloseSideNav(categoria)"
+>
             {{ categoria }}
           </div>
 
+          <!-- Sottocategorie -->
           <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container-desktop">
-            <div *ngFor="let sotto of strutturaCategorie[categoria]">
+            <div *ngFor="let sotto of strutturaCategorie[categoria] || []">
               <button
                 class="sotto-categoria-desktop"
-                (click)="(filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)">
+                (click)="filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto]!.length > 0
+            ? toggleSottoCategoria(sotto)
+            : goToAndCloseSideNav(categoria, sotto)"
+>
                 {{ sotto | titlecase }}
               </button>
 
+              <!-- Filtri -->
               <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container-desktop">
                 <button
                   class="filtro-categoria-desktop"
-                  *ngFor="let filtro of filtriSottoCategorie[sotto]"
+                  *ngFor="let filtro of filtriSottoCategorie[sotto] || []"
                   (click)="goToMobileQueryParamFilter(categoria, sotto, filtro)">
                   {{ filtro | titlecase }}
                 </button>
@@ -58,39 +68,36 @@
             </div>
           </div>
         </ng-container>
+
       </div>
     </mat-sidenav>
 
     <!-- CONTENUTO PRINCIPALE -->
-<!-- CONTENUTO PRINCIPALE --><!-- CONTENUTO PRINCIPALE -->
-<mat-sidenav-content>
+    <mat-sidenav-content>
+      <div class="main-layout">
 
-  <!-- Wrapper principale per contenuto + footer -->
-  <div class="main-layout">
-
-    <!-- Contenuto principale che si espande -->
-<div class="desktop-page-container" [ngClass]="{ 'home-page': isHomeRoute }">
-  <router-outlet></router-outlet>
-</div>
+        <!-- Cloudinary (componente contenitore immagini) -->
+        <app-cloudinary
+  (richiediChiusuraSidenavAppComp)="chiudiSidenavDaFiglio()"
+></app-cloudinary>
 
 
-    <!-- Footer in fondo alla pagina -->
-    <app-footer *ngIf="!isMobile"></app-footer>
+        <!-- Contenuto dinamico della pagina -->
+        <div class="desktop-page-container" [ngClass]="{ 'home-page': isHomeRoute }">
+          <router-outlet></router-outlet>
+        </div>
 
-  </div>
+        <!-- Footer desktop -->
+        <app-footer *ngIf="!isMobile"></app-footer>
 
-</mat-sidenav-content>
-
-
-
+      </div>
+    </mat-sidenav-content>
 
   </mat-sidenav-container>
 
-  <!-- CHAT -->
+  <!-- CHAT desktop -->
   <app-live-chat></app-live-chat>
 </ng-container>
-
-
 
 
 
@@ -117,7 +124,10 @@
           <div
             class="sidenav-categoria"
             [class.attiva]="categoriaEspansa === categoria"
-            (click)="strutturaCategorie[categoria].length > 0 ? toggleCategoria(categoria) : goToAndCloseSideNav(categoria)">
+            (click)="strutturaCategorie[categoria] && strutturaCategorie[categoria]!.length > 0 
+          ? toggleCategoria(categoria) 
+          : goToAndCloseSideNav(categoria)"
+>
             {{ categoria }}
           </div>
 
