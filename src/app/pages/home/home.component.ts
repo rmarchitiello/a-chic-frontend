@@ -1,7 +1,9 @@
 import {
   Component,
   OnInit,
-  OnDestroy
+  OnDestroy,
+  AfterViewInit,
+  HostListener
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,13 +17,15 @@ import {
 } from '@angular/animations';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive'; // percorso corretto
 
-
+// Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
   url: string;
   angolazione: string;
 }
 
+// Interfaccia per ogni oggetto immagine Cloudinary
 export interface ImmagineCloudinary {
   display_name: string;
   descrizione: string;
@@ -29,12 +33,12 @@ export interface ImmagineCloudinary {
   meta: ImmagineMeta[];
 }
 
+// Interfaccia per i modelli in evidenza (video)
 interface ModelloEvidenza {
   url: string;
   display_name: string;
   descrizione: string;
 }
-
 
 @Component({
   selector: 'app-home',
@@ -45,126 +49,146 @@ interface ModelloEvidenza {
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    ScrollRevealDirective
   ],
-animations: [
-  trigger('fadeInOut', [
-    transition(':enter', [
-      style({ opacity: 0 }),
-      animate('2000ms ease-out', style({ opacity: 1 })),
-    ]),
-    transition(':leave', [
-      animate('2000ms ease-out', style({ opacity: 0 })),
-    ]),
-  ])
-]
-
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('2000ms ease-out', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('2000ms ease-out', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  // Array di URL delle immagini del carosello principale
+  caroselloImmagini: string[] = [];
 
+  // Array di URL delle immagini delle recensioni
+  recensioniImmagini: string[] = [];
 
-export class HomeComponent implements OnInit, OnDestroy {
+  // Array di video modelli in evidenza
+  modelliVideoInEvidenza: ModelloEvidenza[] = [];
 
-
-caroselloImmagini: string[] = [];
-recensioniImmagini: string[] = [];
-
-
-
-modelliVideoInEvidenza: ModelloEvidenza[] = [];
-  constructor( private cloudinaryService: CloudinaryService,private breakpointObserver: BreakpointObserver) {}
-
-
-
+  // Indici per i caroselli
   currentIndex = 0;
+  currentRecensioneIndex = 0;
+
+  // Timer per i caroselli
   intervalId!: ReturnType<typeof setInterval>;
-  playedOnce = false;
+  recensioneIntervalId!: ReturnType<typeof setInterval>;
 
+  // Flag per distinguere mobile/desktop
+  isMobile = false;
 
+  // Flag per mostrare contenuti dopo lo scroll oltre il carosello
+  mostraContenutoDopoCarosello = false;
 
+  constructor(
+    private cloudinaryService: CloudinaryService,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
+  ngOnInit(): void {
+    // Scroll iniziale in cima alla pagina
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // Rileva se lo schermo è mobile
+    this.breakpointObserver
+      .observe(['(max-width: 768px)'])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+      });
 
-      isMobile = false;
+    // Avvia rotazione immagini carosello e recensioni
+    this.intervalId = setInterval(() => this.nextImage(), 2000);
+    this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
+    // Carica i contenuti multimediali da Cloudinary
+    this.cloudinaryService.getImmagini('', true).subscribe({
+      next: (data: Record<string, ImmagineCloudinary[]>) => {
+        const caroselloKey = Object.keys(data).find(d => d.toLowerCase().includes('home/carosello'));
+        const recensioniKey = Object.keys(data).find(d => d.toLowerCase().includes('config/recensioni'));
+        const videoEvidenzaHomeKey = Object.keys(data).find(d => d.toLowerCase().includes('home/video'));
 
-        // OGNI 4 secondi per oppure il tempo definito sotto dal timer chiama nextImage che cambia sempre current index cosi nel template mostro solo un immagine alla volta
-    nextImage(): void {
+        if (!caroselloKey || !recensioniKey || !videoEvidenzaHomeKey) {
+          console.warn('Chiavi mancanti in Cloudinary');
+          return;
+        }
+
+        // Popola array immagini carosello
+        this.caroselloImmagini = data[caroselloKey]
+          .flatMap(item => item.meta)
+          .map(m => m.url);
+
+        // Popola array recensioni
+        this.recensioniImmagini = data[recensioniKey]
+          .flatMap(item => item.meta)
+          .map(m => m.url);
+
+        // Popola array video modelli in evidenza
+        this.modelliVideoInEvidenza = data[videoEvidenzaHomeKey].flatMap(item =>
+          item.meta.map(metaItem => ({
+            url: metaItem.url,
+            display_name: item.display_name,
+            descrizione: item.descrizione
+          }))
+        );
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento delle immagini da Cloudinary', err);
+      }
+    });
+
+    // Controlla se è necessario mostrare i contenuti successivi
+    this.checkScroll();
+  }
+
+  ngAfterViewInit(): void {
+    // Avvia i video visibili al caricamento iniziale
+    setTimeout(() => {
+      const videos: NodeListOf<HTMLVideoElement> = document.querySelectorAll('video');
+      videos.forEach(video => {
+        video.muted = true;
+        video.play().catch(err => {
+          console.warn('Video non avviato:', err);
+        });
+      });
+    }, 300);
+  }
+
+  // Ascolta lo scroll della finestra
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.checkScroll();
+  }
+
+  // Verifica se mostrare la sezione dopo il carosello
+  checkScroll() {
+    const soglia = window.innerHeight * 0.6;
+    this.mostraContenutoDopoCarosello = window.scrollY > soglia;
+  }
+
+  // Scorri avanti nel carosello principale
+  nextImage(): void {
     if (this.caroselloImmagini.length === 0) return;
     this.currentIndex = (this.currentIndex + 1) % this.caroselloImmagini.length;
   }
 
-  ngOnInit(): void {
-    window.scrollTo({ top: 0, behavior: 'smooth' });  // Rileva se il dispositivo è mobile
-
-    //timer per avviare il carosello
-      this.intervalId = setInterval(() => this.nextImage(), 2000);
-
-//rilevo disp mobile anziche pc
-  this.breakpointObserver
-    .observe(['(max-width: 768px)'])
-    .subscribe(result => {
-      this.isMobile = result.matches;
-    });
-
-    //Carico il carosello dalla cache config
-    this.cloudinaryService.getImmagini('',true).subscribe({
-next: (data: Record<string, ImmagineCloudinary[]>) => {
-        console.log("aa", data)
-        const caroselloKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('home/carosello'));
-        const recensioniKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('config/recensioni'));
-        console.log("recensioni key ", recensioniKey);
-        const videoEvidenzaHomeKey = Object.keys(data).find(d => d.toLocaleLowerCase().includes('home/video'));
-
-// Estrae tutte le immagini dal gruppo "Carosello" nel risultato ricevuto
-// Utilizza flatMap per ottenere un array piatto di URL (string[])
-// Ogni elemento 'item' rappresenta un oggetto con proprietà 'display_name', 'descrizione', 'quantita' e un array 'meta'
-// Per ogni elemento, mappa l'array 'meta' estraendo il campo 'url' di ciascuna immagine
-// Il risultato finale è un array contenente solo gli URL delle immagini del carosello
-        if(!caroselloKey){
-          console.warn("Nessuna chiave trovate");
-          return
-        }
-        if(!recensioniKey){
-          console.warn("Nessuna chiave trovate");
-          return
-        }
-
-        console.log("Carosello immagini: ", data[caroselloKey].flatMap(item => item.meta).map(m => m.url));
-        this.caroselloImmagini = data[caroselloKey].flatMap(item => item.meta).map(m => m.url);
-
-        console.log("Recensioni immagini: ", data[recensioniKey].flatMap(item => item.meta).map(m => m.url));
-        this.recensioniImmagini = data[recensioniKey].flatMap(item => item.meta).map(m => m.url);
-
-        if(!videoEvidenzaHomeKey){
-                    console.warn("Nessuna chiave trovate");
-            return;
-        }
-
-        console.log("Modelli in evidenza immagini: ", data[videoEvidenzaHomeKey].flatMap(item => item.meta).map(m => m.url));
-this.modelliVideoInEvidenza = data[videoEvidenzaHomeKey].flatMap(item =>
-  item.meta.map(metaItem => ({
-    url: metaItem.url,
-    display_name: item.display_name,
-    descrizione: item.descrizione
-  }))
-  
-);
-
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento delle immagini', err);
-      }
-    });
-
-    this.intervalId = setInterval(() => this.nextImage(), 4000);
-
+  // Scorri avanti nelle recensioni
+  nextRecensione(): void {
+    if (this.recensioniImmagini.length === 0) return;
+    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % this.recensioniImmagini.length;
   }
-
 
   ngOnDestroy(): void {
-      clearInterval(this.intervalId);
+    // Interrompi i timer dei caroselli per evitare memory leak
+    clearInterval(this.intervalId);
+    clearInterval(this.recensioneIntervalId);
   }
-
-
 }

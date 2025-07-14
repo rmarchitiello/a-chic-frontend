@@ -1,68 +1,96 @@
+<!-- HOME DESKTOP -->
 <!-- DESKTOP -->
 <section *ngIf="!isMobile" class="modelli-evidenza-desktop">
-  <div class="card-grid-desktop">
-    <!-- Carosello principale immagini (solo desktop se desiderato) -->
-    <div class="carousel-container-desktop">
-      <img *ngFor="let img of caroselloImmagini; let i = index"
-           [src]="img"
-           [class.active]="i === currentIndex"
-           class="carousel-image-desktop"
-           alt="Carosello Immagine" />
+  <div class="desktop-container">
+
+    <!-- Carosello immagini principale (si vede subito, senza effetto) -->
+    <div class="carousel-wrapper-desktop">
+      <div class="carousel-container-desktop">
+        <img *ngFor="let img of caroselloImmagini; let i = index"
+             [src]="img"
+             [class.active]="i === currentIndex"
+             class="carousel-image-desktop"
+             alt="Immagine carosello desktop" />
+      </div>
     </div>
 
-    <!-- Video dei modelli -->
-    <mat-card *ngFor="let modello of modelliVideoInEvidenza">
-      <video autoplay [muted]="true" loop playsinline preload="metadata"
-             class="video-responsive-desktop" mat-card-image
-             [src]="modello.url" alt="Modello borsa" style="cursor: pointer">
-        <source [src]="modello.url" type="video/mp4" />
-      </video>
-      <mat-card-title class="card-title-desktop">{{ modello.display_name }}</mat-card-title>
-      <mat-card-subtitle class="card-subtitle-desktop">{{ modello.descrizione }}</mat-card-subtitle>
-    </mat-card>
+    <!-- Modelli in evidenza -->
+    <div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
+      <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-desktop">
+        <video autoplay muted loop playsinline preload="auto"
+               class="video-responsive-desktop" mat-card-image>
+          <source [src]="modello.url" type="video/mp4" />
+        </video>
+        <mat-card-title class="card-title-desktop">{{ modello.display_name }}</mat-card-title>
+      </mat-card>
+    </div>
 
     <!-- Recensioni -->
-    <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
-    <div class="carousel-container-recensioni-desktop">
-      <img *ngFor="let imgRecensione of recensioniImmagini; let i = index"
-           [src]="imgRecensione"
-           [class.active]="i === currentIndex"
-           class="carousel-image-recensioni-desktop"
-           alt="Recensione cliente" />
+    <div class="scroll-reveal" appScrollReveal>
+      <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
+      <div class="carousel-container-recensioni-desktop">
+        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index"
+             [src]="imgRecensione"
+             [class.active]="i === currentRecensioneIndex"
+             class="carousel-image-recensioni-desktop"
+             alt="Recensione cliente" />
+      </div>
     </div>
+
+    <!-- Sezione futura -->
+    <div class="scroll-reveal nuova-sezione-desktop" appScrollReveal>
+      <!-- Inserisco qui altri blocchi futuri -->
+    </div>
+
   </div>
 </section>
-
-
-
-
-
 
 <!-- MOBILE-->
-<section *ngIf="isMobile" class="modelli-evidenza">
-  <div class="card-grid">
-    <!--     *ngIf="caroselloImmagini[currentIndex]"
- carosello animato dissolvenza praticamente rimuovo vecchia immagine e metto la nuova con animazione fadein piu che altro non fa vedere il div-->
-    <div class="carousel-container">
-      <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img" [class.active]="i === currentIndex"
-        class="carousel-image" alt="Carosello Immagine" />
+<section *ngIf="isMobile" class="modelli-evidenza-mobile">
+  <div class="mobile-container">
+
+    <!-- Carosello immagini principale (si vede subito, senza effetto) -->
+    <div class="carousel-wrapper-mobile">
+      <div class="carousel-container-mobile">
+        <img *ngFor="let img of caroselloImmagini; let i = index"
+             [src]="img"
+             [class.active]="i === currentIndex"
+             class="carousel-image-mobile"
+             alt="Immagine carosello mobile" />
+      </div>
     </div>
 
+    <!-- Modelli in evidenza -->
+    <div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
+      <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-mobile">
+        <video autoplay muted loop playsinline preload="auto"
+               class="video-responsive-mobile" mat-card-image>
+          <source [src]="modello.url" type="video/mp4" />
+        </video>
+        <mat-card-title class="card-title-mobile">{{ modello.display_name }}</mat-card-title>
+      </mat-card>
+    </div>
 
-    <mat-card *ngFor="let modello of modelliVideoInEvidenza">
-      <video autoplay [muted]="true" loop playsinline preload="metadata" class="video-responsive" mat-card-image
-        [src]="modello.url" alt="Modello borsa" style="cursor: pointer">
-        <source [src]="modello.url" type="video/mp4" />
-      </video>
-      <mat-card-title>{{ modello.display_name }}</mat-card-title>
-      <mat-card-subtitle>{{ modello.descrizione }}</mat-card-subtitle>
-    </mat-card>
-    <!-- dicono di noi-->
-    <h2 class="titolo-recensioni">Dicono di noi</h2>
-    <div class="carousel-container-recensioni">
-      <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione"
-        [class.active]="i === currentIndex" class="carousel-image-recensioni" alt="Recensione cliente" />
+    <!-- Recensioni -->
+    <div class="scroll-reveal" appScrollReveal>
+      <h2 class="titolo-recensioni-mobile">Dicono di noi</h2>
+      <div class="carousel-container-recensioni-mobile">
+        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index"
+             [src]="imgRecensione"
+             [class.active]="i === currentRecensioneIndex"
+             class="carousel-image-recensioni-mobile"
+             alt="Recensione cliente" />
+      </div>
+    </div>
+
+    <!-- Sezione futura -->
+    <div class="scroll-reveal nuova-sezione-mobile" appScrollReveal>
+      <!-- Inserisco qui altri blocchi futuri -->
     </div>
 
   </div>
 </section>
+
+
+
+

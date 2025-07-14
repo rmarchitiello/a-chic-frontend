@@ -4,7 +4,6 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
 import { ChiSiamoComponent } from './pages/chi-siamo/chi-siamo.component';
-import { RecensioniComponent } from './pages/recensioni/recensioni.component';
 import { ContattiComponent } from './pages/contatti/contatti.component';
 import { CookiePolicyComponent } from './pages/cookie-policy/cookie-policy.component';
 import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.component';
@@ -23,7 +22,6 @@ export const routes: Routes = [
   // Pagine statiche pubbliche
   { path: 'home', component: HomeComponent },
   { path: 'chi-siamo', component: ChiSiamoComponent },
-  { path: 'recensioni', component: RecensioniComponent },
   { path: 'contatti', component: ContattiComponent },
   { path: 'cookie-policy', component: CookiePolicyComponent },
   { path: 'privacy-policy', component: PrivacyPolicyComponent },
