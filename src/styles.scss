@@ -1,14 +1,38 @@
+/* ========== STILE GLOBALE BASE (opzionale) ========== */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: manipulation;
+}
+
+/* ========== STILE PER DESKTOP (larghezza ≥ 769px) ========== */
+@media (min-width: 769px) {
+  html, body {
+    font-family: 'Montserrat', sans-serif; // Font elegante per desktop
+    font-size: 16px;
+    line-height: 1.6;
+    color: #222;
+  }
+
+  .mat-sidenav-content {
+    display: block;
+    min-height: 100vh;
+    overflow: visible;
+  }
+}
+
+/* ========== STILE PER MOBILE (larghezza ≤ 768px) ========== */
 @media (max-width: 768px) {
   html, body {
-    margin: 0;
-    padding: 0;
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', sans-serif; // Font più leggibile per mobile
+    font-size: 15px;
+    line-height: 1.5;
+    color: #222;
   }
 
   .mat-sidenav-content {
