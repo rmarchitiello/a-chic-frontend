@@ -89,6 +89,14 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   // Flag per mostrare contenuti dopo lo scroll oltre il carosello
   mostraContenutoDopoCarosello = false;
 
+immaginiCreazioni: string[] = [
+  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751743810/Borse/Conchiglia/Perlata/nqmdfjlwybtyjspy7yzi.jpg',
+  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751743537/Borse/Conchiglia/Perlata/irvqrf55da5nwvpkgoxe.jpg',
+  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751271484/Borse/Conchiglia/Perlata/dmm5zeqay0klrb9q8bfh.png',
+  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751271500/Borse/Conchiglia/Perlata/cci0sewro92vyllzi3v8.png'
+];
+
+
   constructor(
     private cloudinaryService: CloudinaryService,
     private breakpointObserver: BreakpointObserver

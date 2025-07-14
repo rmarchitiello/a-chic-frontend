@@ -1,6 +1,5 @@
 // --- DESKTOP ---
 @media (min-width: 769px) {
-
   .modelli-evidenza-desktop {
     width: 100vw;
     max-width: 100vw;
@@ -8,14 +7,12 @@
     padding: 0;
     text-align: center;
     overflow: hidden;
+    font-family: 'Inter', sans-serif;
   }
 
-  /* =============================
-     Carosello immagini principale
-  ==============================*/
   .carousel-wrapper-desktop {
     width: 100vw;
-    height: 100vh; // usa tutto lo schermo inizialmente
+    height: 100vh;
     overflow: hidden;
     position: relative;
   }
@@ -45,9 +42,6 @@
     pointer-events: auto;
   }
 
-  /* =============================
-     Scroll Reveal Animazione
-  ==============================*/
   .scroll-reveal {
     opacity: 0;
     transform: translateY(40px);
@@ -60,9 +54,6 @@
     transform: translateY(0);
   }
 
-  /* =============================
-     Video modelli in evidenza
-  ==============================*/
   .video-modelli-wrapper-desktop {
     display: flex;
     flex-wrap: wrap;
@@ -105,21 +96,6 @@
     font-weight: bold;
   }
 
-  .card-subtitle-desktop {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 0.5rem 1rem;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.5);
-    color: white;
-    font-size: 0.95rem;
-  }
-
-  /* =============================
-     Sezione recensioni desktop
-  ==============================*/
   .titolo-recensioni-desktop {
     font-size: 1.2rem;
     font-weight: 600;
@@ -139,7 +115,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 500px; // base visibile
+    min-height: 500px;
     overflow: hidden;
   }
 
@@ -165,12 +141,74 @@
     z-index: 1;
   }
 
-}
+  .creazioni-desktop {
+    background-color: #fafafa;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
 
+  .titolo-creazioni-desktop {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .testo-creazioni-desktop {
+    font-size: 1.1rem;
+    color: #444;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .creazioni-gallery-desktop {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .creazioni-gallery-desktop img {
+    width: 280px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .valori-desktop {
+    padding: 4rem 2rem;
+    background-color: #fff;
+    text-align: center;
+  }
+
+  .titolo-valori-desktop {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .lista-valori-desktop {
+    list-style: none;
+    padding: 0;
+    font-size: 1.1rem;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .lista-valori-desktop li::before {
+    content: '✓ ';
+    color: #27ae60;
+    font-weight: bold;
+  }
+}
 
 // --- MOBILE ---
 @media (max-width: 768px) {
-
   .modelli-evidenza-mobile {
     width: 100vw;
     max-width: 100vw;
@@ -178,14 +216,12 @@
     padding: 0;
     text-align: center;
     overflow: hidden;
+    font-family: 'Inter', sans-serif;
   }
 
-  /* =============================
-     Carosello immagini principale
-  ==============================*/
   .carousel-wrapper-mobile {
     width: 100vw;
-    height: 100vh; // usa tutto lo schermo inizialmente
+    height: 100vh;
     overflow: hidden;
     position: relative;
   }
@@ -215,9 +251,6 @@
     pointer-events: auto;
   }
 
-  /* =============================
-     Scroll Reveal Animazione
-  ==============================*/
   .scroll-reveal {
     opacity: 0;
     transform: translateY(40px);
@@ -230,9 +263,6 @@
     transform: translateY(0);
   }
 
-  /* =============================
-     Video modelli in evidenza
-  ==============================*/
   .video-modelli-wrapper-mobile {
     display: flex;
     flex-direction: column;
@@ -274,9 +304,6 @@
     font-weight: bold;
   }
 
-  /* =============================
-     Sezione recensioni mobile
-  ==============================*/
   .titolo-recensioni-mobile {
     font-size: 1.1rem;
     font-weight: 600;
@@ -321,11 +348,68 @@
     z-index: 1;
   }
 
-  /* =============================
-     Sezione futura mobile
-  ==============================*/
-  .nuova-sezione-mobile {
-    padding: 2rem 1rem;
-    background-color: #f4f4f4;
+  .creazioni-mobile {
+    background-color: #fafafa;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .titolo-creazioni-mobile {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .testo-creazioni-mobile {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.5;
+    margin: 0 auto 2rem;
+    max-width: 95%;
+  }
+
+  .creazioni-gallery-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .creazioni-gallery-mobile img {
+    width: 160px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+
+  .valori-mobile {
+    background-color: #fff;
+    padding: 3rem 1.5rem;
+    text-align: center;
+  }
+
+  .titolo-valori-mobile {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .lista-valori-mobile {
+    list-style: none;
+    padding: 0;
+    font-size: 1rem;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
+  }
+
+  .lista-valori-mobile li::before {
+    content: '✓ ';
+    color: #27ae60;
+    font-weight: bold;
   }
 }
