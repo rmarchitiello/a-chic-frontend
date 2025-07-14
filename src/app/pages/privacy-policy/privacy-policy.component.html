@@ -1,5 +1,7 @@
-<!-- DESKTOP -->
-<mat-card *ngIf="!isMobile" class="privacy-policy-card-desktop">
+<!-- =====================
+     VERSIONE DESKTOP
+     ===================== -->
+<mat-card *ngIf="!isMobile" class="privacy-policy-card-desktop fade-in">
   <mat-card-header>
     <mat-card-title>Privacy Policy</mat-card-title>
   </mat-card-header>
@@ -30,7 +32,7 @@
       Per qualsiasi chiarimento puoi contattare il titolare del sito:
       <br />
       <strong>A-Chic</strong><br />
-      Email: <a href="mailto:achicnapoli@gmail.com">{{email}}</a>
+      Email: <a href="mailto:achicnapoli@gmail.com">{{ email }}</a>
     </p>
 
     <h2>Modifiche alla presente informativa</h2>
@@ -39,60 +41,61 @@
     </p>
   </mat-card-content>
 
-  <div class="form-actions">
-    <button mat-button (click)="goHome()" class="send-button">
+  <div class="form-actions-desktop">
+    <button mat-raised-button color="primary" (click)="goHome()" class="send-button">
       Home
     </button>
   </div>
 </mat-card>
 
-<!-- MOBILE -->
- <div class="mobile-page-container">
+<!-- =====================
+     VERSIONE MOBILE
+     ===================== -->
+<div *ngIf="isMobile" class="mobile-page-container">
+  <mat-card class="privacy-policy-card-mobile">
+    <mat-card-header>
+      <mat-card-title>Privacy Policy</mat-card-title>
+    </mat-card-header>
 
-<mat-card *ngIf="isMobile" class="privacy-policy-card-mobile">
-  <mat-card-header>
-    <mat-card-title>Privacy Policy</mat-card-title>
-  </mat-card-header>
+    <mat-card-content>
+      <p>
+        In conformità al Regolamento (UE) 2016/679 (“GDPR”), il presente sito <strong>A-Chic</strong> informa che non raccoglie, tratta o conserva dati personali degli utenti.
+      </p>
 
-  <mat-card-content>
-    <p>
-      In conformità al Regolamento (UE) 2016/679 (“GDPR”), il presente sito <strong>A-Chic</strong> informa che non raccoglie, tratta o conserva dati personali degli utenti.
-    </p>
+      <h2>Tipologia di dati raccolti</h2>
+      <p>
+        Il sito non utilizza moduli di contatto, newsletter o form di registrazione. Non vengono raccolti dati personali, né direttamente né indirettamente, durante la navigazione.
+      </p>
 
-    <h2>Tipologia di dati raccolti</h2>
-    <p>
-      Il sito non utilizza moduli di contatto, newsletter o form di registrazione. Non vengono raccolti dati personali, né direttamente né indirettamente, durante la navigazione.
-    </p>
+      <h2>Cookie</h2>
+      <p>
+        Il sito utilizza esclusivamente cookie tecnici necessari al corretto funzionamento. Per maggiori informazioni, consulta la nostra
+        <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>.
+      </p>
 
-    <h2>Cookie</h2>
-    <p>
-      Il sito utilizza esclusivamente cookie tecnici necessari al corretto funzionamento. Per maggiori informazioni, consulta la nostra
-      <a (click)="goToCookie('/cookie-policy')">Cookie Policy</a>.
-    </p>
+      <h2>Finalità del trattamento</h2>
+      <p>
+        Nessun dato personale viene raccolto o trattato per finalità di marketing, profilazione, o analisi statistica.
+      </p>
 
-    <h2>Finalità del trattamento</h2>
-    <p>
-      Nessun dato personale viene raccolto o trattato per finalità di marketing, profilazione, o analisi statistica.
-    </p>
+      <h2>Contatti</h2>
+      <p>
+        Per qualsiasi chiarimento puoi contattare il titolare del sito:
+        <br />
+        <strong>A-Chic</strong><br />
+        Email: <a href="mailto:achicnapoli@gmail.com">{{ email }}</a>
+      </p>
 
-    <h2>Contatti</h2>
-    <p>
-      Per qualsiasi chiarimento puoi contattare il titolare del sito:
-      <br />
-      <strong>A-Chic</strong><br />
-      Email: <a href="mailto:achicnapoli@gmail.com">{{email}}</a>
-    </p>
+      <h2>Modifiche alla presente informativa</h2>
+      <p>
+        Il titolare si riserva il diritto di aggiornare la presente informativa in qualsiasi momento. La versione pubblicata è sempre la più aggiornata.
+      </p>
+    </mat-card-content>
 
-    <h2>Modifiche alla presente informativa</h2>
-    <p>
-      Il titolare si riserva il diritto di aggiornare la presente informativa in qualsiasi momento. La versione pubblicata è sempre la più aggiornata.
-    </p>
-  </mat-card-content>
-
-  <div class="form-actions">
-    <button mat-button (click)="goHome()" class="send-button">
-      Home
-    </button>
-  </div>
-</mat-card>
+    <div class="form-actions">
+      <button mat-button (click)="goHome()" class="send-button">
+        Home
+      </button>
+    </div>
+  </mat-card>
 </div>

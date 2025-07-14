@@ -140,9 +140,7 @@ slideLeft(): void {
   }
 }
 
-//chiudo la sidenav da qua ovvero da dettagli component
-/* pero dettagli e figlio di cloudinary che cloudinary e figlio di app quindi devo propagare l evento a cloudinary e cloudinary propaga l evento a app component */
-@Output() richiediChiusuraSidenav = new EventEmitter<void>();
+
 
 
 // Metodo alternativo per andare avanti (usato da freccia destra)
@@ -179,8 +177,7 @@ slideRight(): void {
 constructor(private breakpointObserver: BreakpointObserver) {}
 
   ngOnInit(): void {
-      this.richiediChiusuraSidenav.emit();
-        console.log('[DettagliComponent] Emit chiusura sidenav');
+
 
 
     console.log("Figlio immagine frontale", JSON.stringify(this.immagineFrontale));

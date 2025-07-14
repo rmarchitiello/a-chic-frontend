@@ -2,10 +2,71 @@
      CHI-SIAMO  |  TEMPLATE COMPLETO
      =============================================================== -->
 
-<!-- DESKTOP -->
+<!-- DESKTOP VIEW -->
 <div *ngIf="!isMobile" class="chi-siamo-overlay desktop-view">
-  <h1>SITO IN MANUTENZIONE</h1>
+
+  <!-- Container generale -->
+  <div class="chi-siamo-desktop-container">
+
+    <!-- Colonna sinistra: immagine Arianna -->
+    <div class="foto-colonna-desktop">
+      <img src="/assets/images/arianna_background.jpg" alt="Arianna">
+      <p class="nome-arianna-desktop">Arianna</p>
+    </div>
+
+    <!-- Colonna destra: testo -->
+    <div class="chi-siamo-testo-desktop">
+
+      <p class="fade-in-desktop delay-1">
+        <strong>Sono Arianna e le mie borse nascono da un filo… di passione.</strong>
+      </p>
+
+      <p class="fade-in-desktop delay-2">
+        Ogni modello è <strong>lavorato a mano all’uncinetto</strong>,
+        punto dopo punto, con materiali scelti con amore.
+      </p>
+
+      <p class="fade-in-desktop delay-3">
+        <strong>A-Chic by Arianna</strong> è la mia casa creativa:
+        qui la tradizione artigianale incontra uno stile moderno, sobrio e chic.
+      </p>
+
+      <p class="fade-in-desktop delay-4">
+        Dietro ogni creazione ci sono notti di prove, errori trasformati in idee
+        e un entusiasmo che non mi abbandona mai.
+      </p>
+
+      <!-- Invito alla condivisione -->
+      <div class="supporta-desktop fade-in-desktop delay-5">
+        <p>
+          Vuoi sostenere A-Chic by Arianna? <br>
+          Condividi il mio lavoro con i tuoi amici!
+        </p>
+        <button type="button"
+                class="btn-condividi-desktop"
+                (click)="shareSite()">
+          📲 Condividi
+        </button>
+      </div>
+
+      <!-- Firma -->
+      <p class="firma-desktop fade-in-desktop delay-6">
+        Benvenuti nel mio mondo.<br>
+        Un mondo fatto a mano, con il cuore.<br>
+        Un mondo semplice, autentico e… chic.
+      </p>
+
+      <!-- Firma grafica -->
+      <div class="firma-wrapper-desktop">
+        <img src="/assets/images/a-chic-firma.gif"
+             alt="Firma A-Chic"
+             class="firma-gif-desktop" />
+      </div>
+
+    </div>
+  </div>
 </div>
+
 
 <!-- MOBILE -->
 <div *ngIf="isMobile" class="chi-siamo-overlay mobile-view">

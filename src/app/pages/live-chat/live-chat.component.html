@@ -1,51 +1,75 @@
 <!-- =============== DESKTOP =============== -->
 <ng-container *ngIf="!isMobile">
-    <div class="desktop-chat-button">💬</div>
+  <!-- Pulsante fisso in basso a destra -->
+  <div class="desktop-chat-button" (click)="chatAperta = true">
+    <img src="assets/images/icona-whatsapp.png" alt="chat" />
+  </div>
+
+  <!-- Overlay + pannello chat -->
+  <ng-container *ngIf="chatAperta">
+    <div class="desktop-chat-overlay" (click)="chiudiChat()"></div>
+
+    <div class="desktop-chat-panel" (click)="$event.stopPropagation()">
+      <!-- Header -->
+      <div class="desktop-chat-header">
+        Supporto Live
+        <span class="chiudi" (click)="chiudiChat()">✖</span>
+      </div>
+
+      <!-- Corpo -->
+      <div class="desktop-chat-body" #contenitoreChat>
+        <div *ngFor="let msg of messaggi"
+             [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
+          {{ msg.testo }}
+        </div>
+      </div>
+
+      <!-- Form invio -->
+      <form class="desktop-chat-form" (ngSubmit)="inviaMessaggio()" #frm="ngForm">
+        <mat-form-field appearance="fill" class="input-msg">
+          <input matInput name="testo" [(ngModel)]="messaggioCorrente" placeholder="Scrivi un messaggio…" required />
+        </mat-form-field>
+
+        <button mat-icon-button color="primary" type="submit" *ngIf="messaggioCorrente.trim()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </form>
+    </div>
+  </ng-container>
 </ng-container>
 
 <!-- =============== MOBILE =============== -->
 <ng-container *ngIf="isMobile">
-    <!-- FAB di apertura -->
-    <div class="mobile-chat-button" (click)="apriChat()">
-        <img src="assets/images/icona-whatsapp.png" alt="chat" />
-    </div>
+  <!-- Pulsante fisso in basso a destra -->
+  <div class="mobile-chat-button" (click)="apriChat()">
+    <img src="assets/images/icona-whatsapp.png" alt="chat" />
+  </div>
 
-    <!-- Overlay + pannello (visibili solo se chatAperta) -->
-    <ng-container *ngIf="chatAperta">
-        <!-- area scura cliccabile per chiudere -->
-        <div class="chat-overlay" (click)="chiudiChat()"></div>
+  <ng-container *ngIf="chatAperta">
+    <div class="mobile-chat-overlay" (click)="chiudiChat()"></div>
 
-        <!-- pannello vero e proprio -->
-        <div class="mobile-chat-panel" (click)="$event.stopPropagation()">
+    <div class="mobile-chat-panel" (click)="$event.stopPropagation()">
+      <div class="mobile-chat-header">
+        Supporto Live
+        <span class="chiudi" (click)="chiudiChat()">✖</span>
+      </div>
 
-            <!-- header verde -->
-            <div class="chat-header">
-                Supporto Live
-                <span class="chiudi" (click)="chiudiChat()">✖</span>
-            </div>
-
-            <!-- messaggi -->
-            <div class="chat-body" #contenitoreChat>
-                <!-- loop dei messaggi utente -->
-                <div *ngFor="let msg of messaggi"
-                    [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
-                    {{ msg.testo }}
-                </div>
-
-            </div>
-
-            <!-- form di invio -->
-            <form class="chat-form" (ngSubmit)="inviaMessaggio()" #frm="ngForm">
-                <mat-form-field appearance="fill" class="input-msg">
-                    <input matInput name="testo" [(ngModel)]="messaggioCorrente" placeholder="Scrivi un messaggio…"
-                        required />
-                </mat-form-field>
-
-                <!-- pulsante send SOLO se c’è testo -->
-                <button mat-icon-button color="primary" type="submit" *ngIf="messaggioCorrente.trim()">
-                    <mat-icon>send</mat-icon>
-                </button>
-            </form>
+      <div class="mobile-chat-body" #contenitoreChat>
+        <div *ngFor="let msg of messaggi"
+             [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
+          {{ msg.testo }}
         </div>
-    </ng-container>
+      </div>
+
+      <form class="mobile-chat-form" (ngSubmit)="inviaMessaggio()" #frm="ngForm">
+        <mat-form-field appearance="fill" class="input-msg">
+          <input matInput name="testo" [(ngModel)]="messaggioCorrente" placeholder="Scrivi un messaggio…" required />
+        </mat-form-field>
+
+        <button mat-icon-button color="primary" type="submit" *ngIf="messaggioCorrente.trim()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </form>
+    </div>
+  </ng-container>
 </ng-container>

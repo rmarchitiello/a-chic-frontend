@@ -87,10 +87,6 @@ onAudioIconClick(event: Event): void {
 //per chiudere la sidenav da dettagli component 
 @Output() richiediChiusuraSidenavAppComp = new EventEmitter<void>();
 
-onRichiediChiusuraSidenavDalFiglio() {
-  console.log('[CloudinaryComponent] Propago richiesta chiusura sidenav');
-  this.richiediChiusuraSidenavAppComp.emit();
-}
 
 
 

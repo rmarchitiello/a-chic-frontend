@@ -3,12 +3,13 @@
    ====================== */
 .cookie-policy-card-desktop {
   max-width: 900px;
-  margin: 2rem auto 1rem auto;
+  margin: 1rem auto 1rem auto; 
   padding: 1.5rem;
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 
   mat-card-title {
     font-size: 1.6rem;
@@ -59,6 +60,31 @@
       .mat-list-item-content {
         display: block !important;
       }
+    }
+  }
+}
+
+/* ======================
+   Azione desktop (solo bottone Home)
+   ====================== */
+.form-actions-desktop {
+  text-align: center;
+margin-top: 0.5rem;
+margin-bottom: 0.1rem;
+
+  .send-button {
+    background-color: #3f51b5;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-transform: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #303f9f;
     }
   }
 }
@@ -129,39 +155,25 @@
       }
     }
   }
-}
 
-/* ======================
-   Azioni comuni (desktop e mobile)
-   ====================== */
-.form-actions {
-  text-align: center;
-  margin-top: 1.5rem;
-  margin-bottom: 2rem;
-
-  .send-button {
-    font-weight: 600;
-    font-size: 1rem;
-    padding: 0.6rem 1.5rem;
-    color: #333;
-    background-color: #e0e0e0;
-    border-radius: 20px;
-    text-transform: none;
-    box-shadow: none;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: #d5d5d5;
-    }
-  }
-
-  @media (max-width: 768px) {
+  .form-actions {
+    text-align: center;
     margin-top: 2rem;
     margin-bottom: 3rem;
 
     .send-button {
+      font-weight: 600;
       font-size: 0.95rem;
       padding: 0.5rem 1.2rem;
+      color: #ffffff;
+      background-color: #3f51b5;
+      border-radius: 25px;
+      text-transform: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+      &:hover {
+        background-color: #303f9f;
+      }
     }
   }
 }

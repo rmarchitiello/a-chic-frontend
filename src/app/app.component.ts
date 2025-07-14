@@ -27,7 +27,6 @@ import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
-import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
 
 @Component({
   selector: 'app-root',
@@ -49,8 +48,7 @@ import { CloudinaryComponent } from './pages/cloudinary/cloudinary.component';
     MatSidenavModule,
     FooterComponent,
     HeaderComponent,
-    LiveChatComponent,
-    CloudinaryComponent
+    LiveChatComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',

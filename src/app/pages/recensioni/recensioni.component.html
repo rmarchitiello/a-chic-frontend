@@ -1,26 +1,21 @@
-<!-- RECENSIONI DESKTOP-->
-<div *ngIf="!isMobile" class="recensioni-layout">
+<!-- ========== RECENSIONI DESKTOP ========== -->
+<div *ngIf="!isMobile" class="recensioni-layout-desktop">
   <mat-card
     *ngFor="let img of recensioni; let i = index"
-    class="recensione-card"
+    class="recensione-card-desktop"
     [class.active]="visibleIndexes.includes(i)"
   >
     <img mat-card-image [src]="img" alt="Recensione cliente" />
   </mat-card>
 </div>
 
-
-
-<!-- RECENSIONI MOBILE-->
- <div *ngIf="isMobile" class="recensioni-layout">
+<!-- ========== RECENSIONI MOBILE ========== -->
+<div *ngIf="isMobile" class="recensioni-layout-mobile">
   <mat-card
     *ngFor="let img of recensioni; let i = index"
-    class="recensione-card"
+    class="recensione-card-mobile"
     [class.active]="visibleIndexes.includes(i)"
   >
     <img mat-card-image [src]="img" alt="Recensione cliente" />
   </mat-card>
 </div>
-
-
-

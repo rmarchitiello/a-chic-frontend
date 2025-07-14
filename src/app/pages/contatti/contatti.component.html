@@ -2,52 +2,70 @@
      VERSIONE DESKTOP
      ========================== -->
 <mat-card *ngIf="!isMobile" class="contact-container-desktop fade-in">
-  <div class="contact-header">
-    <h3>Compila il modulo per inviarci una mail</h3>
+
+  <!-- Header -->
+  <div class="contact-header-desktop">
+    <h2>Contattaci</h2>
+    <p>Compila il modulo per inviarci una richiesta</p>
   </div>
 
-  <form (ngSubmit)="onSubmit()" #contactForm="ngForm" class="contact-form">
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Nome</mat-label>
-      <input matInput name="nome" [(ngModel)]="contatto.nome" required>
-    </mat-form-field>
+  <!-- Form desktop con due colonne -->
+  <form (ngSubmit)="onSubmit()" #contactForm="ngForm" class="contact-form-desktop">
+    
+    <!-- Colonna sinistra -->
+    <div class="form-col">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nome</mat-label>
+        <input matInput name="nome" [(ngModel)]="contatto.nome" required>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Cognome</mat-label>
-      <input matInput name="cognome" [(ngModel)]="contatto.cognome" required>
-    </mat-form-field>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Cognome</mat-label>
+        <input matInput name="cognome" [(ngModel)]="contatto.cognome" required>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Email</mat-label>
-      <input matInput type="email" name="email" [(ngModel)]="contatto.email" required email #emailInput="ngModel">
-      <mat-error *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
-        <span *ngIf="emailInput.errors?.['required']">L'email è obbligatoria.</span>
-        <span *ngIf="emailInput.errors?.['email']">Formato email non valido.</span>
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Messaggio</mat-label>
-      <textarea matInput name="messaggio" [(ngModel)]="contatto.messaggio" rows="5" required></textarea>
-    </mat-form-field>
-
-    <div class="form-actions">
-      <button mat-button type="submit" class="send-button">
-        Invia messaggio
-      </button>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" name="email" [(ngModel)]="contatto.email" required email #emailInput="ngModel">
+        <mat-error *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)">
+          <span *ngIf="emailInput.errors?.['required']">L'email è obbligatoria.</span>
+          <span *ngIf="emailInput.errors?.['email']">Formato email non valido.</span>
+        </mat-error>
+      </mat-form-field>
     </div>
+
+    <!-- Colonna destra -->
+    <div class="form-col">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Messaggio</mat-label>
+        <textarea matInput name="messaggio" [(ngModel)]="contatto.messaggio" rows="9" required></textarea>
+      </mat-form-field>
+
+      <div class="form-actions-desktop">
+        <button mat-raised-button color="primary" type="submit" class="send-button">
+          Invia messaggio
+        </button>
+      </div>
+    </div>
+
   </form>
 </mat-card>
+
 
 <!-- ==========================
      VERSIONE MOBILE
      ========================== -->
 <mat-card *ngIf="isMobile" class="contact-container-mobile fade-in">
+
+  <!-- Header mobile -->
   <div class="contact-header">
-    <h3>Scrivici un messaggio</h3>
+    <h2>Contattaci</h2>
+    <p>Compila il modulo per inviarci una richiesta</p>
   </div>
 
+  <!-- Form mobile -->
   <form (ngSubmit)="onSubmit()" #contactForm="ngForm" class="contact-form">
+
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Nome</mat-label>
       <input matInput name="nome" [(ngModel)]="contatto.nome" required>
