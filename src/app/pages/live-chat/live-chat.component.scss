@@ -2,26 +2,37 @@
    Stili MOBILE (≤768px)
    ======================= */
 @media (max-width: 768px) {
-  .mobile-chat-button {
-    position: fixed;
-    bottom: 90px;
-    right: 20px;
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    z-index: 999;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: transparent;
+.mobile-chat-button {
+  position: fixed;
+  bottom: 1.25rem;  /* aumenta per abbassare di più */
+  right: 1.25rem;   /* aumenta per spostare più a destra */
+  z-index: 1500;
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
 
-    img {
-      width: 72px;
-      height: 72px;
-    }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
 
   .mobile-chat-overlay {
     position: fixed;

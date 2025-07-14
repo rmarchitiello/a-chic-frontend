@@ -1,43 +1,35 @@
-/* ======================================================================
-   AUDIO-PLAYER – STILI MOBILE (≤ 768 px)
-   ====================================================================== */
 @media (max-width: 768px) {
-
-  /* --------------------------------------------------
-     Overlay “audio-overlay”: sfocatura + oscuramento
-     -------------------------------------------------- */
-  .audio-overlay {
+  /* Overlay con sfondo e sfocatura */
+  .audio-overlay-mobile {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0);            /* stato iniziale */
+    background-color: rgba(0, 0, 0, 0);
     backdrop-filter: blur(0);
-    -webkit-backdrop-filter: blur(0);              /* Safari */
+    -webkit-backdrop-filter: blur(0);
     display: flex;
     justify-content: center;
-    align-items: flex-end;                         /* il pannello sale dal basso */
+    align-items: flex-end;
     z-index: 2000;
     transition:
-      background-color        0.4s ease,
-      backdrop-filter         0.4s ease,
+      background-color 0.4s ease,
+      backdrop-filter 0.4s ease,
       -webkit-backdrop-filter 0.4s ease;
   }
 
-  .audio-overlay.attiva   {                         /* overlay aperto */
-    background-color: rgba(0, 0, 0, .40);
+  .audio-overlay-mobile.attiva {
+    background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
   }
 
-  .audio-overlay.chiusura {                         /* overlay in uscita */
+  .audio-overlay-mobile.chiusura {
     background-color: rgba(0, 0, 0, 0);
     backdrop-filter: blur(0);
     -webkit-backdrop-filter: blur(0);
   }
 
-  /* --------------------------------------------------
-     Pulsante “Chiudi” (in alto a destra)
-     -------------------------------------------------- */
-  .chiudi-testuale {
+  /* Pulsante testuale di chiusura */
+  .chiudi-testuale-mobile {
     position: absolute;
     top: 0;
     right: 1rem;
@@ -45,97 +37,182 @@
     background: none;
     border: none;
     color: #fcfafa;
-    font: 500 .95rem/1 'Montserrat', sans-serif;
+    font: 500 0.95rem/1 'Montserrat', sans-serif;
     cursor: pointer;
-    padding: .25rem;
+    padding: 0.25rem;
     z-index: 10;
 
-    &:hover  { opacity: .7; text-decoration: underline; }
-    &:active { opacity: .5; }
+    &:hover  { opacity: 0.7; text-decoration: underline; }
+    &:active { opacity: 0.5; }
   }
 
-  /* --------------------------------------------------
-     Pannello “audio-panel”
-     -------------------------------------------------- */
-  .audio-panel {
+  /* Pannello che contiene la lista delle melodie */
+  .audio-panel-mobile {
     background: #fff;
     width: 100%;
-    height: 58vh;                                  /* spinge il footer fuori vista */
+    height: 58vh;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     padding: 1rem 1.2rem 1.5rem;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, .20);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
-    overflow: hidden;                              /* blocca lo scroll esterno */
+    overflow: hidden;
   }
 
-  .audio-panel.chiusura {                           /* animazione di uscita */
-    animation: slideDownFade .4s ease-in forwards;
+  .audio-panel-mobile.chiusura {
+    animation: slideDownFade 0.4s ease-in forwards;
   }
 
   @keyframes slideDownFade {
-    from { transform: translateY(0);   opacity: 1; }
+    from { transform: translateY(0); opacity: 1; }
     to   { transform: translateY(100%); opacity: 0; }
   }
 
-  /* --------------------------------------------------
-     Titolo calligrafico
-     -------------------------------------------------- */
-  .titolo-melodie {
+  .titolo-melodie-mobile {
     font-family: 'Great Vibes', cursive;
-    font-size: clamp(1.5rem, 5.5vw, 1.9rem);        /* 24-30 px circa */
+    font-size: clamp(1.5rem, 5.5vw, 1.9rem);
     font-weight: 400;
     text-align: center;
-    margin: 0 0 .75rem;
-    line-height: 1.3;
-    letter-spacing: .4px;
+    margin-bottom: 0.75rem;
     color: #222;
   }
 
-  /* --------------------------------------------------
-     Lista melodie (Mat-List)
-     -------------------------------------------------- */
   mat-list {
-    flex: 1;                                       /* riempie lo spazio restante */
+    flex: 1;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;             /* scroll fluido iOS */
+    -webkit-overflow-scrolling: touch;
   }
 
-  .melodia-row {
-    width: 100%;
+  .melodia-row-mobile {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
-    /* nome canzone in calligrafico */
     span {
       font-family: 'Great Vibes', cursive;
-      font-size: clamp(1.25rem, 5vw, 1.45rem);     /* 20-23 px circa */
-      line-height: 1.55;
-      letter-spacing: .3px;
+      font-size: clamp(1.25rem, 5vw, 1.45rem);
       color: #333;
     }
 
-    /* icona play / pause (utilizza Material Icon) */
     button {
-      --mat-icon-font-size: 1.6rem;                /* leggermente più grande */
+      --mat-icon-font-size: 1.6rem;
     }
 
-    /* separatore tra brani */
     & + mat-list-item::after {
       content: '';
       display: block;
       height: 1px;
       background: #eee;
-      margin: .4rem 0 0;
+      margin-top: 0.4rem;
       width: 100%;
     }
   }
 
-  /* brano in riproduzione (aggiungi classe da TypeScript) */
-  .melodia-row.is-playing span {
+  .melodia-row-mobile.is-playing span {
     font-weight: 600;
+    color: #000;
+  }
+}
+
+
+@media (min-width: 769px) {
+  .audio-overlay-desktop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+
+  .audio-panel-desktop {
+    background: #fff;
+    width: 420px;
+    max-width: 90vw;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .chiudi-testuale-desktop {
+    position: absolute;
+    top: -1rem;
+    right: -1rem;
+    background: #fff;
+    border-radius: 50%;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.2rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .titolo-melodie-desktop {
+    font-family: 'Great Vibes', cursive;
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  mat-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .melodia-row-desktop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+
+    span {
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.3rem;
+      color: #333;
+    }
+
+    button {
+      --mat-icon-font-size: 1.4rem;
+    }
+  }
+.chiudi-icon-desktop {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: white;
+  border-radius: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s;
+
+  mat-icon {
+    font-size: 1.4rem;
+    color: #333;
+  }
+
+  &:hover {
+    background-color: #f2f2f2;
+  }
+
+  &:active {
+    background-color: #e0e0e0;
+  }
+}
+
+  .melodia-row-desktop.is-playing span {
+    font-weight: bold;
     color: #000;
   }
 }
