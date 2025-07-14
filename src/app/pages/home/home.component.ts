@@ -89,12 +89,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   // Flag per mostrare contenuti dopo lo scroll oltre il carosello
   mostraContenutoDopoCarosello = false;
 
-immaginiCreazioni: string[] = [
-  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751743810/Borse/Conchiglia/Perlata/nqmdfjlwybtyjspy7yzi.jpg',
-  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751743537/Borse/Conchiglia/Perlata/irvqrf55da5nwvpkgoxe.jpg',
-  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751271484/Borse/Conchiglia/Perlata/dmm5zeqay0klrb9q8bfh.png',
-  'https://res.cloudinary.com/dmf1qtmqd/image/upload/v1751271500/Borse/Conchiglia/Perlata/cci0sewro92vyllzi3v8.png'
-];
+  immaginiCreazioni: string[] = [];
 
 
   constructor(
@@ -123,8 +118,8 @@ immaginiCreazioni: string[] = [
         const caroselloKey = Object.keys(data).find(d => d.toLowerCase().includes('home/carosello'));
         const recensioniKey = Object.keys(data).find(d => d.toLowerCase().includes('config/recensioni'));
         const videoEvidenzaHomeKey = Object.keys(data).find(d => d.toLowerCase().includes('home/video'));
-
-        if (!caroselloKey || !recensioniKey || !videoEvidenzaHomeKey) {
+        const mieCreazioniKey = Object.keys(data).find(d => d.toLowerCase().includes('config/home/mie creazioni'));
+        if (!caroselloKey || !recensioniKey || !videoEvidenzaHomeKey || !mieCreazioniKey) {
           console.warn('Chiavi mancanti in Cloudinary');
           return;
         }
@@ -147,6 +142,9 @@ immaginiCreazioni: string[] = [
             descrizione: item.descrizione
           }))
         );
+
+        this.immaginiCreazioni = data[mieCreazioniKey].flatMap(item => item.meta)
+          .map(m => m.url);
       },
       error: (err) => {
         console.error('Errore nel caricamento delle immagini da Cloudinary', err);
