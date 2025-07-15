@@ -17,14 +17,15 @@ export class ChiSiamoComponent implements OnInit {
   constructor(private breakpointObserver: BreakpointObserver) {}
 
   ngOnInit(): void {
+        // Esegue scroll in alto all'apertura del componente
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     // Osserva se la larghezza dello schermo è inferiore o uguale a 768px
     this.breakpointObserver.observe(['(max-width: 768px)'])
       .subscribe(result => {
         this.isMobile = result.matches;
       });
 
-    // Esegue scroll in alto all'apertura del componente
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+
   }
 
 
