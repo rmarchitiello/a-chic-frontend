@@ -142,14 +142,14 @@
         font-weight: 600;
         font-size: 1rem;
         padding: 0.6rem 1.5rem;
-        color: #fff;
-        background-color: #3f51b5;
+      color: #333;
+      background-color: #e0e0e0;
         border-radius: 20px;
         text-transform: none;
         transition: background-color 0.2s ease;
 
         &:hover {
-          background-color: #303f9f;
+        background-color: #d5d5d5;
         }
       }
     }
