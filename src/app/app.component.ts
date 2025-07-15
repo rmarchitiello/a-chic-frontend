@@ -179,14 +179,12 @@ goToAndCloseSideNav(categoria: string, sottoCategoria?: string ){
     }
         console.log("weeeesss", this.sidenav);
 
-      if(this.sidenav){
-              this.sidenav.close();
 
-      }
-    
-      if(this.sidenavDesktop){
-        this.sidenavDesktop.close();
-      }
+   if (this.sidenavDesktop) this.sidenavDesktop.close(); // questo attiverà (closed)
+    if (this.sidenav) this.sidenav.close(); // per mobile
+      this.desktopSidenavOpen = false;
+
+  
 }
 
   goToCookie(cookies: string){
@@ -379,7 +377,15 @@ ngOnInit(): void {
         const queryParams = filtro?.length ? { filtri: filtro } : {};
         console.log("Url filter invocato: ", path, "query param: ", queryParams);
         this.router.navigate([path], { queryParams });
+
+   if (this.sidenavDesktop) this.sidenavDesktop.close(); // questo attiverà (closed)
+    if (this.sidenav) this.sidenav.close(); // per mobile
+      this.desktopSidenavOpen = false;
+
   }
+
+
+
 
   // Selezione autocomplete
   vaiAllaCategoria(percorso: string): void {
