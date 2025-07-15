@@ -17,7 +17,7 @@
 
             <!-- Contenitore immagine + icone -->
             <div class="card-image-container-desktop">
-              <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+              <img mat-card-image [src]="item.url" [alt]="item.descrizione + ' - Modello: ' + item.display_name" />
 
               <!-- Wrapper per le icone sovrapposte -->
               <div class="icon-wrapper-desktop">
@@ -95,7 +95,7 @@
 
             <!-- Contenitore immagine -->
             <div class="card-image-container">
-              <img mat-card-image [src]="item.url" [alt]="item.display_name" />
+              <img mat-card-image [src]="item.url" [alt]="item.descrizione + ' - Modello: ' + item.display_name" />
 
               <!-- Wrapper per le icone sovrapposte -->
               <div class="icon-wrapper">

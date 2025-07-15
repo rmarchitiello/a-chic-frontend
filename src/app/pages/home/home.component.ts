@@ -18,6 +18,7 @@ import {
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive'; // percorso corretto
+import { Meta, Title } from '@angular/platform-browser';
 
 // Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
@@ -94,10 +95,39 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private cloudinaryService: CloudinaryService,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    private titleService: Title,
+    private metaService: Meta
   ) {}
 
   ngOnInit(): void {
+        // Titolo della pagina
+    this.titleService.setTitle('A-Chic | Borse all\'uncinetto e Accessori artigianali');
+
+    this.metaService.addTags([
+  { name: 'description', content: 'Borse all\'uncinetto fatte a mano, carillon artigianali e accessori unici. A-Chic è passione, eleganza e artigianalità.' },
+  { name: 'keywords', content: 'borse uncinetto, borse fatte a mano, carillon artigianali, accessori crochet, manici artigianali, borse handmade, moda artigianale' },
+  { name: 'robots', content: 'index, follow' },
+
+  // Open Graph
+  { property: 'og:title', content: 'A-Chic | Borse e Carillon fatti a mano' },
+  { property: 'og:description', content: 'Scopri le borse all\'uncinetto e i carillon artigianali di A-Chic. Ogni creazione è fatta a mano con amore.' },
+  { property: 'og:image', content: 'https://www.a-chic.it/assets/og-image.jpg' },
+  { property: 'og:url', content: 'https://www.a-chic.it/home' },
+  { property: 'og:type', content: 'website' },
+
+  // Twitter Card
+  { name: 'twitter:card', content: 'summary_large_image' },
+  { name: 'twitter:title', content: 'A-Chic | Borse all\'uncinetto e Carillon artigianali' },
+  { name: 'twitter:description', content: 'Eleganza e artigianato si incontrano: borse uniche, manici lavorati a mano e carillon dal sapore unico.' },
+  { name: 'twitter:image', content: 'https://www.a-chic.it/assets/og-image.jpg' }
+]);
+
+
+
+
+
+
     // Scroll iniziale in cima alla pagina
     window.scrollTo({ top: 0, behavior: 'smooth' });
 

@@ -30,6 +30,7 @@
   import { tap, switchMap, takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Meta, Title } from '@angular/platform-browser';
 
   @Component({
     selector: 'app-cloudinary',
@@ -114,7 +115,9 @@ paginaSuccessiva(): void {
       private cloudinaryService: CloudinaryService,
       private route: ActivatedRoute,
       private breakpointObserver: BreakpointObserver,
-      private router: Router
+      private router: Router,
+      private titleService: Title,
+      private metaService: Meta
 
     ) {}
 
@@ -211,6 +214,33 @@ setAudioVisible(){
 private destroy$ = new Subject<void>();
 
 ngOnInit(): void {
+
+  this.titleService.setTitle('A-Chic | Borse e Accessori unici fatti a mano');
+
+this.metaService.addTags([
+  { name: 'description', content: 'Scopri la collezione A-Chic: borse all\'uncinetto, charm personalizzati, carillon artigianali e manici fatti a mano.' },
+  { name: 'keywords', content: 'borse fatte a mano, charm artigianali, carillon handmade, accessori uncinetto, borse crochet, borse personalizzate, moda artigianale' },
+  { name: 'robots', content: 'index, follow' },
+
+  // Open Graph
+  { property: 'og:title', content: 'A-Chic | Collezione borse e charm artigianali' },
+  { property: 'og:description', content: 'Borse crochet fatte a mano, charm personalizzati, carillon artigianali. Unici come te.' },
+  { property: 'og:image', content: 'https://www.a-chic.it/assets/images/rosa.jpg' },
+  { property: 'og:url', content: 'https://www.a-chic.it/home' },
+  { property: 'og:type', content: 'website' },
+
+  // Twitter Card
+  { name: 'twitter:card', content: 'summary_large_image' },
+  { name: 'twitter:title', content: 'A-Chic | Accessori fatti a mano: borse, charm, carillon' },
+  { name: 'twitter:description', content: 'Ogni creazione A-Chic è realizzata a mano: borse all\'uncinetto, charm esclusivi, carillon artigianali.' },
+  { name: 'twitter:image', content: 'https://www.a-chic.it/assets/images/rosa.jpg' }
+]);
+
+
+
+
+
+
   /* -------------------------------------------------------------------
    * 1. Gestione del tasto audio “Carillon”
    * ----------------------------------------------------------------- */

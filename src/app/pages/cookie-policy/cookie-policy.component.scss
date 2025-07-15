@@ -73,7 +73,8 @@ margin-top: 0.5rem;
 margin-bottom: 0.1rem;
 
   .send-button {
-    background-color: #3f51b5;
+    background-color: #e0e0e0;
+    cursor: pointer;
     color: white;
     padding: 0.6rem 1.5rem;
     border-radius: 25px;
@@ -84,7 +85,7 @@ margin-bottom: 0.1rem;
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: #303f9f;
+        background-color: #d5d5d5;
     }
   }
 }
@@ -156,23 +157,21 @@ margin-bottom: 0.1rem;
     }
   }
 
-  .form-actions {
+    .form-actions {
     text-align: center;
     margin-top: 2rem;
     margin-bottom: 3rem;
 
     .send-button {
-      font-weight: 600;
       font-size: 0.95rem;
       padding: 0.5rem 1.2rem;
-      color: #ffffff;
-      background-color: #3f51b5;
-      border-radius: 25px;
-      text-transform: none;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      font-weight: 600;
+      border-radius: 20px;
+      background-color: #e0e0e0;
+      color: #333;
 
       &:hover {
-        background-color: #303f9f;
+        background-color: #d5d5d5;
       }
     }
   }
