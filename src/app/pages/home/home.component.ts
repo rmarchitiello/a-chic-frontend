@@ -68,6 +68,8 @@ interface ModelloEvidenza {
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+  isAdmin: boolean = false;
+
 
   // Array di URL delle immagini del carosello principale
   caroselloImmagini: string[] = [];
@@ -136,6 +138,16 @@ mapUrlBorseCompletamente(): string[] {
 
   ngOnInit(): void {
 
+ this.sharedDataService.isAdmin$.subscribe((value: boolean) => {
+    this.isAdmin = value;
+        if(this.isAdmin){
+            console.log('[HomeComponent] in modalita ADMIN');
+
+    }
+  });
+
+
+    
       console.log('[HomeComponent] ngOnInit chiamato');
 
   // === 1. Ricevo la struttura categorie → sottocategorie ===

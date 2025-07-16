@@ -218,13 +218,14 @@ logoutAdmin(): void {
 
 
 ngOnInit(): void {
-  //controllo se sono loggato come admin
-      const adminToken = localStorage.getItem('admin-login');
-    // Se la chiave esiste e ha valore "true", abilito la modalità admin
-    if (adminToken === 'true') {
-      this.isAdmin = true;
-      console.log('Modalità admin attiva');
+
+   this.sharedDataService.isAdmin$.subscribe((value: boolean) => {
+    this.isAdmin = value;
+        if(this.isAdmin){
+            console.log('[AppComponent] in modalita ADMIN');
+
     }
+  });
 
   // Osserva la larghezza dello schermo per determinare se siamo su mobile
   this.breakpointObserver

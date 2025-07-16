@@ -29,4 +29,36 @@ export class SharedDataService {
   setFiltriSottoCategorie(data: Record<string, string[]>) {
     this.filtriSottoCategorieSubject.next(data);
   }
+
+
+// ====== 4. Stato admin ======
+
+// Variabile privata che rappresenta lo stato attuale dell'utente admin.
+// Viene inizializzata leggendo il valore dal localStorage tramite il metodo checkAdminLogin().
+private isAdminSubject = new BehaviorSubject<boolean>(this.checkAdminLogin());
+
+// Observable pubblico che espone lo stato admin a tutti i componenti.
+// I componenti possono iscriversi per reagire a eventuali cambiamenti (es. login o logout admin).
+isAdmin$ = this.isAdminSubject.asObservable();
+
+// Metodo privato che controlla se l'utente è loggato come admin.
+// Ritorna true se nel localStorage esiste la voce "admin-login" con valore "true".
+private checkAdminLogin(): boolean {
+  return localStorage.getItem('admin-login') === 'true';
+}
+
+// Metodo pubblico per aggiornare lo stato di login admin.
+// Se status è true → salva il flag nel localStorage e aggiorna lo stato reattivo.
+// Se status è false → rimuove il flag dal localStorage e aggiorna lo stato reattivo.
+setIsAdmin(status: boolean): void {
+  if (status) {
+    localStorage.setItem('admin-login', 'true');
+  } else {
+    localStorage.removeItem('admin-login');
+  }
+
+  // Aggiorna il valore del BehaviorSubject, notificando tutti gli iscritti.
+  this.isAdminSubject.next(status);
+}
+
 }

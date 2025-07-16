@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
 import { CmsService } from '../../services/cms.service';
-
+import { SharedDataService } from '../../services/shared-data.service';
 @Component({
   selector: 'app-login-admin',
   imports: [
@@ -34,7 +34,8 @@ export class LoginAdminComponent  implements OnInit {
     private fb: FormBuilder,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private cmsService: CmsService
+    private cmsService: CmsService,
+    private sharedDataService: SharedDataService
   ) {}
 
   ngOnInit(): void {
@@ -62,35 +63,39 @@ onSubmit(): void {
   const { email, password } = this.loginForm.value;
   console.log("Valore della form:", this.loginForm.value);
 
+  // Verifica se il form è valido
   if (this.loginForm.valid) {
     console.log('Valori del form inviato:', JSON.stringify(this.loginForm.value));
 
-    if (email  && password ) {
+    // Se entrambi i campi sono compilati
+    if (email && password) {
+      // Chiamata al servizio di login CMS
+      this.cmsService.login(email, password).subscribe({
+        next: (data) => {
+          console.log("Login effettuata con successo");
 
-        //quando la form è valida chiamo la cms login
-          this.cmsService.login(email,password).subscribe({
-              next: (data) => {
-                  console.log("Login effettuata: ");
-                  localStorage.setItem('admin-login', "true"); //salvo l access token che dura 1 ora
-                this.router.navigate(['/home']);
+          // Salva lo stato nel localStorage
+          localStorage.setItem('admin-login', 'true');
 
-      },
-      error: () => {
-        alert("Credenziali non valide");
-      }
-    });
+          // Notifica lo stato admin al servizio condiviso
+          this.sharedDataService.setIsAdmin(true);
 
+          // Naviga verso la home (senza forzare reload)
+          this.router.navigate(['/home']);
+        },
+        error: () => {
+          alert("Credenziali non valide");
+        }
+      });
     } else {
       alert("Credenziali non valide");
     }
   } else {
-    // Se il form non è valido, forza la visualizzazione degli errori
+    // Se il form è invalido, mostra gli errori
     this.loginForm.markAllAsTouched();
   }
-
-
-
 }
+
 
 }
 
