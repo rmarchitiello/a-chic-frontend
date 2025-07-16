@@ -11,11 +11,13 @@
     <!-- Carosello immagini principale (si vede subito, senza effetto) -->
     <div class="carousel-wrapper-desktop">
 
-      <div *ngIf="isAdmin" class="admin-modifica-carosello">
-        <button mat-flat-button color="accent" (click)="apriEditorCarosello()">
-          Modifica carosello
-        </button>
-      </div>
+     <button *ngIf="isAdmin"
+        mat-icon-button
+        class="edit-carosello-icon"
+        (click)="apriEditorCarosello()"
+        matTooltip="Modifica carosello">
+  <mat-icon>edit</mat-icon>
+</button>
 
       <div class="carousel-container-desktop">
         <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img" (click)="goTo('/borse')"

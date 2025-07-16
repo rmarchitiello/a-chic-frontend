@@ -1,24 +1,28 @@
 // --- DESKTOP ---
 @media (min-width: 769px) {
 
-  .admin-modifica-carosello {
-    background-color: #fff3cd; // Giallo chiaro
-    color: #856404; // Marrone testo
-    border: 1px solid #ffeeba;
-    padding: 1rem;
-    margin: 1rem auto;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 500;
-    max-width: 600px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+/* Icona modifica carosello in alto a destra */
+.edit-carosello-icon {
+  position: absolute;
+  top: 1.5rem;
+  right: 2.5rem; // era 1rem, aumentiamo lo spazio dal bordo destro
+  background-color: #ffffff;
+  color: #1976d2;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  transition: background 0.3s ease;
 
-    button {
-      font-weight: 600;
-      padding: 0.5rem 1.5rem;
-      font-size: 1rem;
-    }
+  &:hover {
+    background-color: #e3f2fd;
   }
+
+  mat-icon {
+    font-size: 24px;
+  }
+}
+
+
 
   .admin-banner {
     background-color: #ffeeba; // Giallo chiaro di avviso
