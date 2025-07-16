@@ -27,6 +27,7 @@ import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
+import { SharedDataService } from './services/shared-data.service';
 
 @Component({
   selector: 'app-root',
@@ -129,6 +130,7 @@ toggleSottoCategoria(sotto: string): void {
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
     private breakpointObserver: BreakpointObserver,
+    private sharedDataService: SharedDataService
 
   ) {
 
@@ -323,6 +325,12 @@ ngOnInit(): void {
         );
       });
 
+        //passo i dati condivisi cosi l'altro component fa il subscribe e legge queste variabili
+this.sharedDataService.setStrutturaCategorie(this.strutturaCategorie);
+this.sharedDataService.setCategorieSottoCategorie(this.categorieSottoCategorie);
+this.sharedDataService.setFiltriSottoCategorie(this.filtriSottoCategorie); 
+
+
       // Costruisci dinamicamente la mappa per i mat-menu (menuMap)
       this.menuMap = {};
       this.categorie.forEach(categoria => {
@@ -335,9 +343,22 @@ ngOnInit(): void {
     }
   });
 
+
+
+
   console.log("...ngOnInit COMPLETATO...");
 }
 
+desktopSidenavOpenFun(){
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if(!this.desktopSidenavOpen){
+    this.desktopSidenavOpen = true;
+  }
+  else{
+    this.desktopSidenavOpen = false;
+  }
+}
 
   // Navigazione generica (sia link statici che dinamici)
   goTo(categoria: string, sottoCategoria?: string, filtri?: Record<string, string[]>): void {

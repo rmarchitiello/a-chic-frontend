@@ -214,6 +214,7 @@ setAudioVisible(){
 private destroy$ = new Subject<void>();
 
 ngOnInit(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
   this.titleService.setTitle('A-Chic | Borse e Accessori unici fatti a mano');
 

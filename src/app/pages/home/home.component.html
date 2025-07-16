@@ -8,6 +8,7 @@
       <div class="carousel-container-desktop">
         <img *ngFor="let img of caroselloImmagini; let i = index"
              [src]="img"
+             (click)="goTo('/borse')"
              [class.active]="i === currentIndex"
              class="carousel-image-desktop"
              alt="Immagine carosello desktop" />
@@ -18,6 +19,8 @@
     <div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
       <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-desktop">
         <video autoplay muted loop playsinline preload="auto"
+                      (click)="goTo(modello.display_name,true)"
+
                class="video-responsive-desktop" mat-card-image>
           <source [src]="modello.url" type="video/mp4" />
         </video>
@@ -73,6 +76,7 @@
       <div class="carousel-container-mobile">
         <img *ngFor="let img of caroselloImmagini; let i = index"
              [src]="img"
+             (click)="goTo('/borse')"
              [class.active]="i === currentIndex"
              class="carousel-image-mobile"
              alt="Immagine carosello mobile" />
@@ -83,6 +87,9 @@
     <div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
       <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-mobile">
         <video autoplay muted loop playsinline preload="auto"
+              
+              (click)="goTo(modello.display_name,true)"
+
                class="video-responsive-mobile" mat-card-image>
           <source [src]="modello.url" type="video/mp4" />
         </video>

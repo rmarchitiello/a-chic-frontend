@@ -14,7 +14,7 @@
   <!-- BOTTONCINO PER APRIRE/CHIUDERE LA SIDENAV -->
   <div
     class="sidenav-handler"
-    (click)="desktopSidenavOpen = !desktopSidenavOpen"
+    (click)="desktopSidenavOpenFun()"
     [class.aperta]="desktopSidenavOpen">
     <mat-icon>
       {{ desktopSidenavOpen ? 'chevron_left' : 'chevron_right' }}

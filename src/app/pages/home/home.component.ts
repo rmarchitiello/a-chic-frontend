@@ -19,6 +19,8 @@ import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive'; // percorso corretto
 import { Meta, Title } from '@angular/platform-browser';
+import { Router } from '@angular/router';
+import { SharedDataService } from '../../services/shared-data.service';
 
 // Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
@@ -93,14 +95,88 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   immaginiCreazioni: string[] = [];
 
 
+  
+    //faccio questo perche quando inserisco un Home/Config/Video e il video è cliccabile in base al nome del file caricato sul cms lui
+    //va direttamente sulla categoria
+    /* Esempio nei modelli in evidenza ho Perlata, Naturale ecc.. quando clicco sul video o sul modello in evidenza lui mi porta direttamente
+    su borse/naturale*/
+    strutturaCategorie: { [key: string]: string[] | undefined } = {};
+    categorieSottoCategorie: string[] = [];
+    filtriSottoCategorie: Record<string, string[]> = {};
+    onlyUrlBorse: string[] = [];
+
   constructor(
     private cloudinaryService: CloudinaryService,
     private breakpointObserver: BreakpointObserver,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
+    private router: Router,
+    private sharedDataService: SharedDataService
   ) {}
 
+
+  //creo la map url per le immagini cliccabili della home
+mapUrlBorseCompletamente(): string[] {
+  const urlSet: Set<string> = new Set();
+
+  this.categorieSottoCategorie.forEach(path => {
+    const [categoria, sottoCategoria] = path.split('/');
+
+ 
+      // Se non ci sono filtri associati, metti comunque la voce con "Tutte"
+      const url = `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`;
+      urlSet.add(url);
+    
+  });
+
+  return Array.from(urlSet);
+}
+
+
+
   ngOnInit(): void {
+
+      console.log('[HomeComponent] ngOnInit chiamato');
+
+  // === 1. Ricevo la struttura categorie → sottocategorie ===
+  this.sharedDataService.strutturaCategorie$.subscribe(data => {
+    if (Object.keys(data).length > 0) {
+      this.strutturaCategorie = data;
+      console.log('[HomeComponent] strutturaCategorie ricevuta:', this.strutturaCategorie);
+    }
+  });
+
+  // === 2. Ricevo l'elenco completo categoria/sottocategoria ===
+  this.sharedDataService.categorieSottoCategorie$.subscribe(data => {
+    if (data.length > 0) {
+      this.categorieSottoCategorie = data;
+      console.log('[HomeComponent] categorieSottoCategorie ricevute:', this.categorieSottoCategorie);
+    }
+  });
+
+  // === 3. Ricevo i filtri per ogni sottocategoria ===
+  this.sharedDataService.filtriSottoCategorie$.subscribe(data => {
+    if (Object.keys(data).length > 0) {
+      this.filtriSottoCategorie = data;
+      console.log('[HomeComponent] filtriSottoCategorie ricevuti:', this.filtriSottoCategorie);
+    }
+  });
+
+
+  // recupero solo la url delle borse
+setTimeout(() => {
+const result = this.mapUrlBorseCompletamente().find(mB => mB.includes("borse"));
+if (result) {
+  this.onlyUrlBorse = [result]; // oppure fai quello che ti serve
+} else {
+  this.onlyUrlBorse = [];
+}
+  console.log('Mappa url borse dinamica:', this.onlyUrlBorse);
+}, 0);
+
+
+
+
         // Titolo della pagina
     this.titleService.setTitle('A-Chic | Borse all\'uncinetto e Accessori artigianali');
 
@@ -172,6 +248,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             descrizione: item.descrizione
           }))
         );
+        console.log("Modelli in evidenza: ", this.modelliVideoInEvidenza);
 
         this.immaginiCreazioni = data[mieCreazioniKey].flatMap(item => item.meta)
           .map(m => m.url);
@@ -184,6 +261,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     // Controlla se è necessario mostrare i contenuti successivi
     this.checkScroll();
   }
+goTo(urlOrFilter: string, fromModelliInEvidenza?: boolean): void {
+  // Se la navigazione proviene dai modelli in evidenza, costruisco l'URL completo con parametro query
+  if (fromModelliInEvidenza) {
+    const url = `${this.onlyUrlBorse}?filtri=${encodeURIComponent(urlOrFilter)}`;
+
+    // Uso navigateByUrl per evitare che Angular interpreti il path come relativo alla route corrente
+    this.router.navigateByUrl(url);
+    return; // Evito che venga eseguita anche la seconda navigazione
+  }
+
+  // Altrimenti, navigazione semplice verso il path indicato
+  this.router.navigate([urlOrFilter]);
+}
+
+
 
   ngAfterViewInit(): void {
     // Avvia i video visibili al caricamento iniziale
