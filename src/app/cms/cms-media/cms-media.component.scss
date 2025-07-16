@@ -273,3 +273,35 @@ mat-icon.transparent{ opacity: 0; }
    7. PULSANTE “Vai a Carica Contenuti” (in fondo alla sidebar)
    ---------------------------------------------------------------- */
 .refresh-button { margin-top: 10px; }
+
+.tutorial-box {
+  background-color: #fff8e1;
+  border-left: 5px solid #ffc107;
+  padding: 16px;
+  margin-bottom: 24px;
+  border-radius: 6px;
+
+  h3 {
+    margin-top: 0;
+    color: #ff9800;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+
+    li {
+      margin-bottom: 8px;
+    }
+  }
+
+  code {
+    background-color: #ffe0b2;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+  }
+}

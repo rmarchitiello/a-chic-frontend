@@ -17,6 +17,8 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Router } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
+import { RouterModule } from '@angular/router';
+
 // Ogni nodo rappresenta una cartella o sottocartella
 interface TreeNode {
   name: string;
@@ -102,7 +104,8 @@ export interface RenameFolder {
     MatFormFieldModule,
     FormsModule,
     MatInputModule,
-  MatSelectModule  ]
+    MatSelectModule,
+    RouterModule  ]
 })
 export class CmsMediaComponent implements OnInit {
 
