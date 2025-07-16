@@ -65,6 +65,9 @@ export class AppComponent implements OnInit {
     @ViewChild('sidenav') sidenav!: MatSidenav;
     @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
 
+    isAdmin: boolean = false;
+
+
   title = 'a-chic';
   // Mappa per collegare categoria → nome riferimento mat-menu
 menuMap: { [categoria: string]: string } = {};
@@ -205,7 +208,24 @@ setMenuRef(categoria: string, ref: any): boolean {
 isPaginaCloudinaryAttiva = false;
 Array = Array;
 
+logoutAdmin(): void {
+  // Rimuove il flag di login admin dal localStorage
+  localStorage.removeItem('admin-login');
+
+  // Forza il ricaricamento della pagina per uscire dalla modalità admin
+  window.location.reload();
+}
+
+
 ngOnInit(): void {
+  //controllo se sono loggato come admin
+      const adminToken = localStorage.getItem('admin-login');
+    // Se la chiave esiste e ha valore "true", abilito la modalità admin
+    if (adminToken === 'true') {
+      this.isAdmin = true;
+      console.log('Modalità admin attiva');
+    }
+
   // Osserva la larghezza dello schermo per determinare se siamo su mobile
   this.breakpointObserver
     .observe(['(max-width: 768px)'])

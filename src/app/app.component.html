@@ -5,8 +5,22 @@
 </ng-container>
 
 
+<div *ngIf="isMobile && isAdmin" class="mobile-blocked">
+  <h2>Accesso ADMIN non disponibile su mobile</h2>
+  <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
+</div>
+
+  <!-- Pulsante logout admin visibile solo se loggati come admin -->
+
 <!-- DESKTOP: solo se non mobile e non CMS -->
 <ng-container *ngIf="!isMobile && !isCmsAttivo">
+<div *ngIf="isAdmin" class="admin-logout">
+  <button mat-stroked-button color="warn" (click)="logoutAdmin()">
+    Esci da modalità admin
+  </button>
+</div>
+
+
 
   <!-- HEADER -->
   <app-header></app-header>
@@ -106,7 +120,7 @@
 
 <!-- PARTE MOBILE-->
 <!-- Test scroll su mobile -->
-<ng-container *ngIf="isMobile">
+<ng-container *ngIf="isMobile && !isAdmin">
 
   <!-- HEADER SEMPRE VISIBILE (dove menuToggle e l evento del componente figli che quando viene premuto in mobile header component scaturisce sidenav.toggle)-->
   <app-header (menuToggle)="sidenav.toggle()"></app-header>

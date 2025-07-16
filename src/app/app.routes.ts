@@ -13,7 +13,8 @@ import { CmsLoginComponent } from './cms/cms-login/cms-login.component';
 import { CmsDashboardComponent } from './cms/cms-dashboard/cms-dashboard.component';
 import { CmsMediaComponent } from './cms/cms-media/cms-media.component';
 import { CmsUploadComponent } from './cms/cms-upload/cms-upload.component';
-import { AuthCmsGuard  } from './auth-cms.guard'; //serve per bloccare tutte le chiamate se non ci siamo prima loggati
+import { AuthGuard  } from './auth.guard'; //serve per bloccare tutte le chiamate se non ci siamo prima loggati
+import { LoginAdminComponent } from './admin/login-admin/login-admin.component';
 
 export const routes: Routes = [
   // Redirect iniziale alla home
@@ -33,13 +34,14 @@ export const routes: Routes = [
   {
     path: 'cms',
     children: [
-      { path: 'dashboard', component: CmsDashboardComponent, canActivate: [AuthCmsGuard] },
-      { path: 'upload', component: CmsUploadComponent, canActivate: [AuthCmsGuard] },
-      { path: 'media', component: CmsMediaComponent, canActivate: [AuthCmsGuard] }
+      { path: 'dashboard', component: CmsDashboardComponent, canActivate: [AuthGuard] },
+      { path: 'upload', component: CmsUploadComponent, canActivate: [AuthGuard] },
+      { path: 'media', component: CmsMediaComponent, canActivate: [AuthGuard] }
       // Altri componenti CMS (es. upload, media) possono essere aggiunti qui in seguito
     ]
   },
 
+  { path: 'admin', component: LoginAdminComponent },
   // Route dinamiche per categorie e sottocategorie (devono restare in fondo)
   { path: ':categoria', component: CloudinaryComponent },
   { path: ':categoria/:sottoCategoria', component: CloudinaryComponent }

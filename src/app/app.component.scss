@@ -77,6 +77,32 @@
 
 ///*** MOBILE *** ///
 @media (max-width: 768px) {
+
+  /* ===============================
+   STILI MOBILE - BLOCCO ADMIN
+   =============================== */
+  .mobile-blocked {
+    max-width: 90%;
+    margin: 5rem auto;
+    padding: 2rem;
+    text-align: center;
+    background-color: #fef2f2;
+    border: 1px solid #f5c2c7;
+    border-radius: 8px;
+    color: #b02a37;
+    font-family: 'Arial', sans-serif;
+
+    h2 {
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1rem;
+      color: #721c24;
+    }
+  }
+
   .sidenav-container {
     min-height: 100vh;
     height: auto;
@@ -197,177 +223,192 @@
   }
 }
 
-  ///*** DESKTOP *** ///
-  @media (min-width: 769px) {
+///*** DESKTOP *** ///
+@media (min-width: 769px) {
 
-      mat-sidenav-content {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 100vh;
-      padding: 0;               // <<< AGGIUNGI QUESTO
-      margin: 0;                // <<< AGGIUNGI QUESTO
+
+
+  .admin-logout {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 2000;
+
+    button {
+      font-weight: bold;
+      font-size: 14px;
+      padding: 6px 12px;
     }
-
-.desktop-page-container {
-  flex: 1;
-
-  // Nessun padding nella homepage
-  &.home-page {
-    padding: 0 !important;
   }
 
-  // Default per tutte le altre pagine
-  &:not(.home-page) {
-    padding: 2rem;
+  mat-sidenav-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100vh;
+    padding: 0; // <<< AGGIUNGI QUESTO
+    margin: 0; // <<< AGGIUNGI QUESTO
   }
-}
 
-    // Contenitore principale per desktop (sidenav + contenuto + footer)
-    .desktop-sidenav-container {
-      display: flex;
-      flex-direction: column; // permette al contenuto di espandersi verticalmente
-      min-height: 100vh; // abilita lo scroll verticale se il contenuto è più alto
+  .desktop-page-container {
+    flex: 1;
+
+    // Nessun padding nella homepage
+    &.home-page {
+      padding: 0 !important;
     }
 
-    // Sidenav laterale
-    .desktop-sidenav-container mat-sidenav {
-      width: 250px;
-      background-color: #ffffff;
-      border-right: 1px solid #ddd;
-      padding: 2rem 1rem;
-      overflow-y: auto;
-    }
-
-    // Contenitore contenuto + footer
-    .desktop-sidenav-container mat-sidenav-content {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 100vh; // abilita layout flessibile per altezza dinamica
-    }
-
-    // Contenuto principale (es. router-outlet)
-    .desktop-page-container {
-      flex: 1; // si espande per occupare lo spazio disponibile
-      overflow-y: auto;
-      min-height: 0; // previene problemi di overflow
-    }
-
-    // Footer desktop non fisso, si posiziona dopo il contenuto
-    app-footer {
-      margin-top: auto; // spinge il footer in fondo solo se c’è spazio
-    }
-
-    // Bottone per aprire o chiudere la sidenav laterale
-    .sidenav-handler {
-      position: fixed;
-      top: 50%;
-      left: 0;
-      transform: translateY(-50%);
-      height: 60px;
-      width: 24px;
-      background-color: #ccc;
-      border-radius: 0 6px 6px 0;
-      cursor: pointer;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s ease, left 0.3s ease;
-
-      mat-icon {
-        font-size: 20px;
-        color: #444;
-      }
-
-      &:hover {
-        background-color: #aaa;
-      }
-
-      &.aperta {
-        left: 250px;
-      }
-    }
-
-    // Categoria visiva desktop
-    .sidenav-categoria-desktop {
-      font-weight: 700;
-      font-size: 1.3rem;
-      margin: 0.6rem 0;
-      color: #333;
-      cursor: pointer;
-      transition: background-color 0.3s, color 0.3s;
-      padding: 0.4rem 0.5rem;
-      border-radius: 4px;
-      font-family: 'Montserrat', sans-serif;
-
-      &:hover {
-        background-color: #e1f4f6;
-        color: #000;
-      }
-
-      &.attiva {
-        background-color: #c9ecf0;
-        color: #000;
-      }
-    }
-
-    // Sottocategoria visiva desktop
-    .sotto-categoria-desktop {
-      padding-left: 1.5rem;
-      font-size: 1.15rem;
-      color: #444;
-      background: none;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-      width: 100%;
-      margin-bottom: 0.4rem;
-      font-family: 'Montserrat', sans-serif;
-
-      &:hover {
-        color: #000;
-        font-weight: 600;
-      }
-    }
-
-    // Layout principale (contenuto + footer)
-    .main-layout {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    // Duplicato utile se usato anche fuori sidenav-container
-    .desktop-page-container {
-      flex: 1;
+    // Default per tutte le altre pagine
+    &:not(.home-page) {
       padding: 2rem;
     }
+  }
 
-    // Filtro visivo desktop
-    .filtro-categoria-desktop {
-      padding-left: 2.5rem;
-      font-size: 1rem;
-      color: #666;
-      background: none;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-      width: 100%;
-      margin-bottom: 0.3rem;
-      font-family: 'Montserrat', sans-serif;
+  // Contenitore principale per desktop (sidenav + contenuto + footer)
+  .desktop-sidenav-container {
+    display: flex;
+    flex-direction: column; // permette al contenuto di espandersi verticalmente
+    min-height: 100vh; // abilita lo scroll verticale se il contenuto è più alto
+  }
 
-      &:hover {
-        color: #000;
-      }
+  // Sidenav laterale
+  .desktop-sidenav-container mat-sidenav {
+    width: 250px;
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+  }
+
+  // Contenitore contenuto + footer
+  .desktop-sidenav-container mat-sidenav-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100vh; // abilita layout flessibile per altezza dinamica
+  }
+
+  // Contenuto principale (es. router-outlet)
+  .desktop-page-container {
+    flex: 1; // si espande per occupare lo spazio disponibile
+    overflow-y: auto;
+    min-height: 0; // previene problemi di overflow
+  }
+
+  // Footer desktop non fisso, si posiziona dopo il contenuto
+  app-footer {
+    margin-top: auto; // spinge il footer in fondo solo se c’è spazio
+  }
+
+  // Bottone per aprire o chiudere la sidenav laterale
+  .sidenav-handler {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 60px;
+    width: 24px;
+    background-color: #ccc;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, left 0.3s ease;
+
+    mat-icon {
+      font-size: 20px;
+      color: #444;
     }
 
-    .sotto-container-desktop {
-      margin-bottom: 1rem;
+    &:hover {
+      background-color: #aaa;
     }
 
-    .filtro-container-desktop {
-      margin-top: 0.5rem;
+    &.aperta {
+      left: 250px;
     }
   }
+
+  // Categoria visiva desktop
+  .sidenav-categoria-desktop {
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: 0.6rem 0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    padding: 0.4rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      background-color: #e1f4f6;
+      color: #000;
+    }
+
+    &.attiva {
+      background-color: #c9ecf0;
+      color: #000;
+    }
+  }
+
+  // Sottocategoria visiva desktop
+  .sotto-categoria-desktop {
+    padding-left: 1.5rem;
+    font-size: 1.15rem;
+    color: #444;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.4rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #000;
+      font-weight: 600;
+    }
+  }
+
+  // Layout principale (contenuto + footer)
+  .main-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  // Duplicato utile se usato anche fuori sidenav-container
+  .desktop-page-container {
+    flex: 1;
+    padding: 2rem;
+  }
+
+  // Filtro visivo desktop
+  .filtro-categoria-desktop {
+    padding-left: 2.5rem;
+    font-size: 1rem;
+    color: #666;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 0.3rem;
+    font-family: 'Montserrat', sans-serif;
+
+    &:hover {
+      color: #000;
+    }
+  }
+
+  .sotto-container-desktop {
+    margin-bottom: 1rem;
+  }
+
+  .filtro-container-desktop {
+    margin-top: 0.5rem;
+  }
+}

@@ -9,19 +9,17 @@ import { Router } from '@angular/router';
 import { CmsService } from '../../services/cms.service';
 
 @Component({
-  selector: 'app-cms-login',
-  standalone: true,
+  selector: 'app-login-admin',
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule
-  ],
-  templateUrl: './cms-login.component.html',
-  styleUrls: ['./cms-login.component.scss']
+  ],  templateUrl: './login-admin.component.html',
+  styleUrl: './login-admin.component.scss'
 })
-export class CmsLoginComponent implements OnInit {
+export class LoginAdminComponent  implements OnInit {
 
   // FormGroup per la gestione reattiva del form di login
   loginForm!: FormGroup;
@@ -73,8 +71,8 @@ onSubmit(): void {
           this.cmsService.login(email,password).subscribe({
               next: (data) => {
                   console.log("Login effettuata: ");
-                  localStorage.setItem('cms-login', data.accessToken); //salvo l access token che dura 1 ora
-                this.router.navigate(['/cms/dashboard']);
+                  localStorage.setItem('admin-login', "true"); //salvo l access token che dura 1 ora
+                this.router.navigate(['/home']);
 
       },
       error: () => {
@@ -95,3 +93,4 @@ onSubmit(): void {
 }
 
 }
+

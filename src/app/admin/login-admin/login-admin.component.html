@@ -1,0 +1,48 @@
+<!-- ===============================================
+     SEZIONE MOBILE - Accesso disabilitato
+     =============================================== -->
+<div *ngIf="isMobile" class="mobile-blocked">
+  <h2>Accesso ADMIN non disponibile su mobile</h2>
+  <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
+</div>
+
+<!-- ===============================================
+     SEZIONE DESKTOP - Login CMS
+     =============================================== -->
+<div *ngIf="!isMobile" class="admin-login-wrapper">
+
+  <h1 class="admin-title">Accedi in modalita admin</h1>
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+    <!-- Campo Email -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" required />
+      <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+        L'email è obbligatoria
+      </mat-error>
+      <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+        Inserisci un indirizzo email valido
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Campo Password -->
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Password</mat-label>
+      <input matInput formControlName="password" type="password" required />
+      <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+        La password è obbligatoria
+      </mat-error>
+      <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+        La password deve contenere almeno 6 caratteri
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Bottone di login -->
+    <button mat-raised-button color="primary" type="submit">
+      Accedi
+    </button>
+
+  </form>
+</div>
