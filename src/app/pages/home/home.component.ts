@@ -21,7 +21,8 @@ import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.dir
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { CaroselloEditComponent } from '../../edit/home/carosello-edit/carosello-edit.component';
 // Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
   url: string;
@@ -113,7 +114,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private titleService: Title,
     private metaService: Meta,
     private router: Router,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private dialog: MatDialog
   ) {}
 
 
@@ -134,7 +136,15 @@ mapUrlBorseCompletamente(): string[] {
   return Array.from(urlSet);
 }
 
-
+apriEditorCarosello(){
+     this.dialog.open(CaroselloEditComponent, {
+          width: '90vw', // per grandezza pop up
+          data: {
+              caroselloImmaginiInput: this.caroselloImmagini,
+      }      });
+        
+  console.log("admin carosello aperto");
+}
 
   ngOnInit(): void {
 

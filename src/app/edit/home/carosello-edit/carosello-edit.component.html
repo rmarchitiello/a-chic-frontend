@@ -1,0 +1,51 @@
+<div class="carosello-container" *ngIf="immaginiCarosello.caroselloImmaginiInput.length > 0; else noImages">
+
+  <!-- Titolo / Posizione -->
+  <h3 class="titolo-immagine">Immagine {{ currentIndex + 1 }} di {{ immaginiCarosello.caroselloImmaginiInput.length }}</h3>
+
+  <!-- Pulsante elimina -->
+  <button mat-icon-button class="delete-button" (click)="eliminaImmagine()" matTooltip="Elimina immagine" aria-label="Elimina">
+    <mat-icon color="warn">delete</mat-icon>
+  </button>
+
+  <!-- Pulsante download -->
+  <button mat-icon-button class="download-button" (click)="downloadMedia()" matTooltip="Scarica immagine" aria-label="Download">
+    <mat-icon>download</mat-icon>
+  </button>
+
+  <!-- Immagine corrente -->
+  <div class="immagine-wrapper">
+    <img [src]="immaginiCarosello.caroselloImmaginiInput[currentIndex]"
+         alt="Immagine carosello {{ currentIndex + 1 }}" />
+  </div>
+
+  <!-- Navigazione -->
+  <div class="controls">
+    <button mat-raised-button color="primary"
+            (click)="prevImage()" [disabled]="currentIndex === 0">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <button mat-raised-button color="primary"
+            (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.caroselloImmaginiInput.length - 1">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+  <div class="chiudi-wrapper">
+    <button mat-stroked-button color="primary" (click)="chiudiDialog()">
+      Chiudi
+    </button>
+  </div>
+</div>
+
+<!-- Se non ci sono immagini -->
+<ng-template #noImages>
+ <div class="messaggio-vuoto">
+  <mat-icon class="icona-vuoto">image_not_supported</mat-icon>
+  <h3>Nessuna immagine disponibile.</h3>
+  <button mat-flat-button color="primary" (click)="chiudiDialog()">
+    Chiudi
+  </button>
+</div>
+</ng-template>
+

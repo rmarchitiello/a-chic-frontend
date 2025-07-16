@@ -3,7 +3,7 @@
 
     <!-- elimino immagine correttamente visualizzata-->
     <button mat-icon-button class="delete-button" (click)="eliminaImmagine(immaginiMetaDaMostrare[currentIndex])">
-        <mat-icon color="warn">close</mat-icon>
+        <mat-icon color="warn">delete</mat-icon>
     </button>
                     <button mat-icon-button class="download-button"
                           (click)="downloadMedia()">
@@ -32,9 +32,17 @@
       <mat-icon>chevron_right</mat-icon>
     </button>
   </div>
+    <div class="chiudi-wrapper">
+    <button mat-stroked-button color="primary" (click)="chiudiDialog()">
+      Chiudi
+    </button>
+  </div>
 </div>
 
-<!-- Se l'array è vuoto -->
-<div *ngIf="!immaginiMetaDaMostrare.length">
-  <p>Nessuna immagine disponibile.</p>
+<div *ngIf="!immaginiMetaDaMostrare.length" class="messaggio-vuoto">
+  <mat-icon class="icona-vuoto">image_not_supported</mat-icon>
+  <h3>Nessuna immagine disponibile.</h3>
+  <button mat-flat-button color="primary" (click)="chiudiDialog()">
+    Chiudi
+  </button>
 </div>

@@ -7,6 +7,7 @@ import { ImmagineMeta } from '../cms-media.component';  // Import dell'interfacc
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { CmsService } from '../../../services/cms.service';
+import { MatDialogRef } from '@angular/material/dialog';
 
 
 
@@ -35,7 +36,7 @@ export class GalleriaPopupComponent implements OnInit {
 
 
   // Ricezione dei dati passati dal componente padre attraverso MAT_DIALOG_DATA
-  constructor(@Inject(MAT_DIALOG_DATA) public data: GalleriaDialogData, private cmsService: CmsService) {}
+  constructor(@Inject(MAT_DIALOG_DATA) public data: GalleriaDialogData, private cmsService: CmsService, private dialogRef: MatDialogRef<GalleriaPopupComponent>) {}
 
   // Durante l'inizializzazione assegno le immagini ricevute alla variabile locale
   ngOnInit(): void {
@@ -113,6 +114,9 @@ downloadMedia(): void {
     .catch(err => console.error('Errore nel download:', err));
 }
 
+chiudiDialog(): void {
+  this.dialogRef.close();
+}
 
 
 }
