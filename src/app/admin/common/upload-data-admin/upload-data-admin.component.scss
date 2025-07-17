@@ -1,29 +1,35 @@
 /* Contenitore principale dell'area di drop */
 .upload-drop-area {
-  border: 2px dashed #42a5f5; // Colore blu Material 400
-  border-radius: 20px; // Angoli arrotondati per un look moderno
-  padding: 56px 32px; // Spaziatura interna generosa
-  text-align: center; // Testo centrato
+  width: 100%; // Estende su tutta la larghezza del contenitore padre
+  max-width: 100%; // Impedisce overflow orizzontale
+  box-sizing: border-box; // Include padding nel calcolo larghezza
+  overflow-x: hidden; // Blocca scroll orizzontale
+
+  border: 1px solid #e0e0e0; // Bordo grigio chiaro
+  border-radius: 0 0 20px 20px; // Solo angoli inferiori arrotondati
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); // Ombra leggera
+  padding: 56px 32px; // Spaziatura interna ampia
+  text-align: center;
   background: linear-gradient(
     145deg,
     rgba(250, 250, 250, 0.95),
     rgba(230, 244, 255, 0.95)
-  ); // Effetto sfumato chiaro
-  backdrop-filter: blur(6px); // Sfocatura sullo sfondo
-  transition: all 0.3s ease; // Transizione morbida su hover
-  max-width: 560px;
-  margin: 40px auto 0 auto;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  );
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
   cursor: pointer;
   z-index: 10;
   position: relative;
+  margin-top: 0; // Nessuno spazio sopra
 
+  /* Stato attivo durante il trascinamento file */
   &.hover-active {
     background: linear-gradient(145deg, #e3f2fd, #ffffff);
-    border-color: #1e88e5; // Blu più intenso
+    border-color: #1e88e5;
     box-shadow: 0 10px 28px rgba(33, 150, 243, 0.2);
   }
 
+  /* Pulsante "Seleziona dal dispositivo" */
   button[mat-stroked-button] {
     margin-top: 16px;
     font-weight: 600;
@@ -33,6 +39,7 @@
     border-radius: 6px;
     background-color: white;
     transition: box-shadow 0.2s ease, background-color 0.2s ease;
+    cursor: pointer;
 
     &:hover {
       background-color: #f0faff;
@@ -49,7 +56,7 @@
   transition: transform 0.3s ease;
 
   .upload-drop-area.hover-active & {
-    transform: scale(1.1);
+    transform: scale(1.1); // Zoom leggero su hover
   }
 }
 
@@ -75,6 +82,7 @@
     background-color: #1976d2;
     color: white;
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
 
     &:hover {
       background-color: #1565c0;
@@ -116,7 +124,7 @@
     color: #333;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 
-    // Immagine o video
+    // Miniatura immagine o video
     .file-thumb {
       width: 40px;
       height: 40px;
@@ -125,14 +133,14 @@
       flex-shrink: 0;
     }
 
-    // Audio player
+    // Player audio
     .file-thumb-audio {
       width: 120px;
       height: 30px;
       flex-shrink: 0;
     }
 
-    // Icona generica per altri file
+    // Icona generica (altri file)
     .file-icon {
       width: 40px;
       height: 40px;
@@ -145,6 +153,7 @@
       flex-shrink: 0;
     }
 
+    // Nome file
     .file-name {
       flex: 1;
       overflow: hidden;
@@ -152,6 +161,7 @@
       white-space: nowrap;
     }
 
+    // Pulsante rimuovi
     .btn-remove {
       background: none;
       border: none;
@@ -168,9 +178,9 @@
   }
 }
 
-button[mat-stroked-button] {
-  cursor: pointer; // Rende il cursore una mano al passaggio
-}
-button[mat-flat-button] {
-  cursor: pointer; // Rende il cursore una mano al passaggio
+/* Rimuove eventuale scroll orizzontale globale (opzionale) */
+::ng-deep .mat-dialog-container {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+  box-sizing: border-box;
 }
