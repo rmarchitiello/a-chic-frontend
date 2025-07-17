@@ -43,9 +43,16 @@
 
   <!-- Elenco dei file da caricare -->
   <div class="anteprima-container" *ngIf="filesDaCaricare.length > 0">
-    <h4>File selezionati per il caricamento:</h4>
-    <div class="file-list">
 
+    <!-- Intestazione con titolo e pulsante "Rimuovi tutti" -->
+    <div class="anteprima-header">
+      <h4>File selezionati per il caricamento:</h4>
+      <button mat-flat-button color="warn" (click)="rimuoviTuttiIFiles()">
+        Rimuovi tutti i file
+      </button>
+    </div>
+
+    <div class="file-list">
       <!-- Itera tutti i file -->
       <div class="file-item" *ngFor="let file of filesDaCaricare">
         
@@ -83,7 +90,6 @@
         <!-- Pulsante rimozione -->
         <button class="btn-remove" (click)="rimuoviFile(file)">✖</button>
       </div>
-
     </div>
   </div>
 

@@ -76,6 +76,14 @@ rimuoviFile(file: File): void {
 }
 
 
+rimuoviTuttiIFiles(): void {
+  // Svuota l'elenco dei file da caricare
+  this.filesDaCaricare = [];
+
+  // Svuota tutte le anteprime
+  this.anteprimeFile.clear();
+}
+
 
 
   ngOnDestroy(): void {
