@@ -1,0 +1,41 @@
+.delete-dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
+
+  .preview-img {
+    width: 150px;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .confirm-text {
+    font-size: 1.1rem;
+    text-align: center;
+    color: #333;
+    margin-bottom: 0;
+  }
+}
+
+.delete-dialog-actions {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  button {
+    min-width: 140px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-transform: none;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &.mat-warn {
+      color: #fff;
+    }
+  }
+}

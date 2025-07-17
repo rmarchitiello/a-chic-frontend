@@ -73,7 +73,7 @@ onSubmit(): void {
           this.cmsService.login(email,password).subscribe({
               next: (data) => {
                   console.log("Login effettuata: ");
-                  localStorage.setItem('cms-login', data.accessToken); //salvo l access token che dura 1 ora
+                  sessionStorage.setItem('admin-cms', data.accessToken); //salvo l access token che dura 1 ora
                 this.router.navigate(['/cms/dashboard']);
 
       },

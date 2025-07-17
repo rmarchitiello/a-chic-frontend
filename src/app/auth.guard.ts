@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
 
     // Verifico se si tratta di una rotta CMS
     if (url.startsWith('/cms')) {
-      const cmsToken = localStorage.getItem('cms-login');
+      const cmsToken = sessionStorage.getItem('admin-cms');
 
       // Se il token CMS non è presente, reindirizzo alla pagina di login CMS
       if (!cmsToken) {
@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
 
     // Verifico se si tratta della sezione admin (modifica contenuti del sito)
     if (url.startsWith('/admin')) {
-      const adminToken = sessionStorage.getItem('admin-login');
+      const adminToken = sessionStorage.getItem('admin-cms');
 
       // Se il token Admin non è presente, reindirizzo alla pagina di login Admin
       if (!adminToken) {

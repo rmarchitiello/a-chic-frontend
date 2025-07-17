@@ -31,34 +31,29 @@ export class SharedDataService {
   }
 
 
-// ====== 4. Stato admin ======
+// ====== 4. Stato admin (token JWT) ======
 
-// Variabile privata che rappresenta lo stato attuale dell'utente admin.
-// Viene inizializzata leggendo il valore dal localStorage tramite il metodo checkAdminLogin().
-private isAdminSubject = new BehaviorSubject<boolean>(this.checkAdminLogin());
+// Inizializzo leggendo il token dal sessionStorage, oppure null se non presente
+private isAdminSubject = new BehaviorSubject<string | null>(this.getAdminToken());
 
-// Observable pubblico che espone lo stato admin a tutti i componenti.
-// I componenti possono iscriversi per reagire a eventuali cambiamenti (es. login o logout admin).
+// Observable pubblico
 isAdmin$ = this.isAdminSubject.asObservable();
 
-// Metodo privato che controlla se l'utente è loggato come admin.
-// Ritorna true se nel localStorage esiste la voce "admin-login" con valore "true".
-private checkAdminLogin(): boolean {
-  return sessionStorage.getItem('admin-login') === 'true';
+// Metodo privato che legge il token dallo storage
+private getAdminToken(): string | null {
+  return sessionStorage.getItem('admin-cms');
 }
 
-// Metodo pubblico per aggiornare lo stato di login admin.
-// Se status è true → salva il flag nel localStorage e aggiorna lo stato reattivo.
-// Se status è false → rimuove il flag dal localStorage e aggiorna lo stato reattivo.
-setIsAdmin(status: boolean): void {
-  if (status) {
-    sessionStorage.setItem('admin-login', 'true');
+// Metodo pubblico per aggiornare il token (oppure rimuoverlo)
+setAdminToken(token: string | null): void {
+  if (token) {
+    sessionStorage.setItem('admin-cms', token);
+    this.isAdminSubject.next(token); // Notifica con il token aggiornato
   } else {
-    sessionStorage.removeItem('admin-login');
+    sessionStorage.removeItem('admin-cms');
+    this.isAdminSubject.next(null); // Notifica logout
   }
-
-  // Aggiorna il valore del BehaviorSubject, notificando tutti gli iscritti.
-  this.isAdminSubject.next(status);
 }
+
 
 }

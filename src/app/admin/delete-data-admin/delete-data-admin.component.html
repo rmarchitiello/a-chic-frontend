@@ -1,1 +1,18 @@
-<p>delete-data-admin works!</p>
+<div mat-dialog-content class="delete-dialog-content">
+  <img [src]="mediaInput" alt="Anteprima immagine" class="preview-img" />
+  <p class="confirm-text">
+    Sei sicuro di voler eliminare questa immagine dal carosello?
+  </p>
+</div>
+
+<div mat-dialog-actions align="end" class="delete-dialog-actions">
+  <!-- Annulla -->
+  <button mat-stroked-button color="primary" type="button" (click)="annulla()">
+    Annulla
+  </button>
+
+  <!-- Elimina -->
+  <button mat-flat-button color="warn" type="button" (click)="deleteMedia()">
+    Elimina immagine
+  </button>
+</div>

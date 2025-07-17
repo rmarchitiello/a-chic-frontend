@@ -32,7 +32,7 @@ export class CmsService {
 
   //metodo per passare il token a ogni metodo sotto lo prendo dal localstorage
   private getAuthHeaders() {
-  const token = localStorage.getItem('cms-login');
+  const token = sessionStorage.getItem('admin-cms');
   return {
     Authorization: `Bearer ${token}`
   };

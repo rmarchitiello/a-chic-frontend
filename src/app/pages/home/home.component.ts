@@ -136,7 +136,7 @@ mapUrlBorseCompletamente(): string[] {
   return Array.from(urlSet);
 }
 
-apriEditorCarosello(){
+apriPopUpEditorCarosello(){
      this.dialog.open(CaroselloEditComponent, {
           width: '90vw', // per grandezza pop up
           data: {
@@ -148,13 +148,13 @@ apriEditorCarosello(){
 
   ngOnInit(): void {
 
- this.sharedDataService.isAdmin$.subscribe((value: boolean) => {
-    this.isAdmin = value;
-        if(this.isAdmin){
-            console.log('[HomeComponent] in modalita ADMIN');
+this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
+  this.isAdmin = !!token; // converte in booleano
 
-    }
-  });
+  if (this.isAdmin) {
+    console.log('[HomeComponent] in modalità ADMIN');
+  }
+});
 
 
     

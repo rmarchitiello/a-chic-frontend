@@ -38,7 +38,7 @@ goToCmsUpload(){
   }
 
   logout(): void {
-    localStorage.removeItem('cms-login');
+    sessionStorage.removeItem('admin-cms');
     this.router.navigate(['/cms-login']);
   }
 

@@ -210,7 +210,7 @@ Array = Array;
 
 logoutAdmin(): void {
   // Rimuove il flag di login admin dal localStorage
-  sessionStorage.removeItem('admin-login');
+  sessionStorage.removeItem('admin-cms');
 
   // Forza il ricaricamento della pagina per uscire dalla modalità admin
   window.location.reload();
@@ -219,13 +219,14 @@ logoutAdmin(): void {
 
 ngOnInit(): void {
 
-   this.sharedDataService.isAdmin$.subscribe((value: boolean) => {
-    this.isAdmin = value;
-        if(this.isAdmin){
-            console.log('[AppComponent] in modalita ADMIN');
+this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
+  this.isAdmin = !!token; // true se c'è un token, false se null
 
-    }
-  });
+  if (this.isAdmin) {
+    console.log('[AppComponent] In modalità ADMIN');
+  }
+});
+
 
   // Osserva la larghezza dello schermo per determinare se siamo su mobile
   this.breakpointObserver

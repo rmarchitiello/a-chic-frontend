@@ -2,8 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { CmsService } from '../../../../services/cms.service';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { DeleteDataAdminComponent } from '../../../delete-data-admin/delete-data-admin.component';
 
 interface CaroselloEditData {
   caroselloImmaginiInput: string[];      
@@ -25,14 +26,16 @@ immaginiCarosello: CaroselloEditData = {
   currentIndex: number = 0;
 
   constructor(
+    //ricevo il dato dalla home
     @Inject(MAT_DIALOG_DATA) public data: CaroselloEditData,
-    private cmsService: CmsService,
-    private dialogRef: MatDialogRef<CaroselloEditComponent>
+    private dialogRef: MatDialogRef<CaroselloEditComponent>,
+    private dialog: MatDialog
+
   ) {}
 
   ngOnInit(): void {
     this.immaginiCarosello = this.data;
-    console.log("wewewewe: ", JSON.stringify(this.immaginiCarosello));
+    console.log("Dati ricevuti dalla home: ", JSON.stringify(this.immaginiCarosello));
   }
 
   prevImage(): void {
@@ -47,24 +50,37 @@ immaginiCarosello: CaroselloEditData = {
     }
   }
 
-  eliminaImmagine(): void {
-    const urlDaEliminare = this.immaginiCarosello.caroselloImmaginiInput[this.currentIndex];
-    const confermato = window.confirm('Sei sicuro di voler eliminare questa immagine dal carosello?');
-    if (!confermato) return;
+apriPopUpEliminaImmagine(): void {
+  // Recupero l'URL dell'immagine attualmente selezionata
+  const urlDaEliminare = this.immaginiCarosello.caroselloImmaginiInput[this.currentIndex];
 
-    this.cmsService.deleteImages([urlDaEliminare],true).subscribe({
-      next: () => {
-        console.log('Eliminazione riuscita:', urlDaEliminare);
-        this.immaginiCarosello.caroselloImmaginiInput.splice(this.currentIndex, 1);
-        if (this.currentIndex >= this.immaginiCarosello.caroselloImmaginiInput.length) {
-          this.currentIndex = Math.max(0, this.immaginiCarosello.caroselloImmaginiInput.length - 1);
-        }
-      },
-      error: (err) => {
-        console.error('Errore durante eliminazione:', err);
+  // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
+  const dialogRef = this.dialog.open(DeleteDataAdminComponent, {
+    width: '90vw',
+    data: urlDaEliminare
+  });
+
+  // Dopo la chiusura del dialog (conferma o annulla)
+  dialogRef.afterClosed().subscribe((eliminatoConSuccesso: boolean) => {
+
+    // Solo se il figlio ha confermato e l'eliminazione è andata a buon fine
+    if (eliminatoConSuccesso) {
+
+      // Rimuovo l'immagine dall'array
+      this.immaginiCarosello.caroselloImmaginiInput.splice(this.currentIndex, 1);
+
+      // Correggo l'indice se siamo alla fine dell'array
+      if (this.currentIndex >= this.immaginiCarosello.caroselloImmaginiInput.length) {
+        this.currentIndex = Math.max(0, this.immaginiCarosello.caroselloImmaginiInput.length - 1);
       }
-    });
-  }
+    } else {
+      // Opzionale: puoi loggare o gestire un messaggio se l'eliminazione è stata annullata o fallita
+      console.log('Eliminazione annullata o fallita.');
+    }
+  });
+}
+
+
 
   caricaNuovaImmagine(){
     
