@@ -5,12 +5,9 @@
      Il file è stato scaricato correttamente.
   </p>
 
-  <p class="messaggio errore" *ngIf="downloadSuccess === false">
-     Si è verificato un errore durante il download.
+    <p class="messaggio errore" *ngIf="downloadSuccess === false">
+     Errore durante il download del file
   </p>
 
-  <div class="azioni">
-    <button mat-flat-button color="primary" (click)="downloadMedia()">Scarica</button>
-    <button mat-button mat-dialog-close (click)="chiudiPopUp()">Chiudi</button>
-  </div>
+
 </div>

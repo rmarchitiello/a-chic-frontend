@@ -15,7 +15,7 @@ export class DownloadDataAdminComponent {
   displayNameInput: string = ''
   estensione: string = ''
 
-  downloadSuccess: boolean = false;
+  downloadSuccess: any = null;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig, // dato ricevuto dal componente padre (es. URL immagine da scaricare )
     private dialogRef: MatDialogRef<DownloadDataAdminComponent>    
@@ -32,10 +32,16 @@ export class DownloadDataAdminComponent {
 
     this.estensione = this.getEstensione(this.urlInput)
     console.log("Estensione da scaricare: ", this.estensione);
+
+      //scarico il file
+      this.downloadMedia();
+      setTimeout(() => this.chiudiPopUp(), 1000); //chiudo il pop up dopo 3 secondi
+
+
   }
 
 
-  downloadMedia(): void {
+    downloadMedia(): void {
   const url = this.urlInput;
   const fileName = `${this.displayNameInput}.${this.estensione}`;
 
@@ -49,7 +55,7 @@ export class DownloadDataAdminComponent {
     .then(blob => {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = fileName;
+      link.download = fileName ;
       link.click();
       URL.revokeObjectURL(link.href);
       this.downloadSuccess = true; //  Successo
@@ -59,6 +65,7 @@ export class DownloadDataAdminComponent {
       this.downloadSuccess = false; //  Errore
     });
 }
+
 
 
  getEstensione(url: string): string {
