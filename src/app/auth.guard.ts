@@ -37,7 +37,7 @@ export class AuthGuard implements CanActivate {
 
     // Verifico se si tratta della sezione admin (modifica contenuti del sito)
     if (url.startsWith('/admin')) {
-      const adminToken = localStorage.getItem('admin-login');
+      const adminToken = sessionStorage.getItem('admin-login');
 
       // Se il token Admin non è presente, reindirizzo alla pagina di login Admin
       if (!adminToken) {

@@ -44,7 +44,7 @@ isAdmin$ = this.isAdminSubject.asObservable();
 // Metodo privato che controlla se l'utente è loggato come admin.
 // Ritorna true se nel localStorage esiste la voce "admin-login" con valore "true".
 private checkAdminLogin(): boolean {
-  return localStorage.getItem('admin-login') === 'true';
+  return sessionStorage.getItem('admin-login') === 'true';
 }
 
 // Metodo pubblico per aggiornare lo stato di login admin.
@@ -52,9 +52,9 @@ private checkAdminLogin(): boolean {
 // Se status è false → rimuove il flag dal localStorage e aggiorna lo stato reattivo.
 setIsAdmin(status: boolean): void {
   if (status) {
-    localStorage.setItem('admin-login', 'true');
+    sessionStorage.setItem('admin-login', 'true');
   } else {
-    localStorage.removeItem('admin-login');
+    sessionStorage.removeItem('admin-login');
   }
 
   // Aggiorna il valore del BehaviorSubject, notificando tutti gli iscritti.

@@ -210,7 +210,7 @@ Array = Array;
 
 logoutAdmin(): void {
   // Rimuove il flag di login admin dal localStorage
-  localStorage.removeItem('admin-login');
+  sessionStorage.removeItem('admin-login');
 
   // Forza il ricaricamento della pagina per uscire dalla modalità admin
   window.location.reload();

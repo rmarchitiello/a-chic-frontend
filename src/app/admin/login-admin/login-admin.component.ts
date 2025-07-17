@@ -75,7 +75,7 @@ onSubmit(): void {
           console.log("Login effettuata con successo");
 
           // Salva lo stato nel localStorage
-          localStorage.setItem('admin-login', 'true');
+          sessionStorage.setItem('admin-login', 'true');
 
           // Notifica lo stato admin al servizio condiviso
           this.sharedDataService.setIsAdmin(true);
