@@ -16,7 +16,7 @@ import { DeleteDataAdminComponent } from '../../../common/delete-data-admin/dele
 import { DownloadDataAdminComponent } from '../../../common/download-data-admin/download-data-admin.component';
 import { ImmagineConfig } from '../../../../pages/home/home.component';
 import { UploadDataAdminComponent } from '../../../common/upload-data-admin/upload-data-admin.component';
-
+import { CloudinaryDataUpload } from '../../../../cms/cms-upload/cms-upload.component';
 
 @Component({
   selector: 'app-carosello-edit',
@@ -32,6 +32,18 @@ immaginiCarosello: ImmagineConfig[] = [];
 
   displayName: string = '';
   currentIndex: number = 0;
+
+  prepareFileForUpload: CloudinaryDataUpload = {
+      folder: 'config/home/carosello',
+      context: {
+        nome_file: '',
+        descrizione:  '',
+        quantita:  '0',
+        angolazione: 'frontale' 
+      }
+    };
+
+
 
   constructor(
     //ricevo il dato dalla home
@@ -111,7 +123,8 @@ apriPopUpEliminaImmagine(): void {
 
      this.dialog.open(UploadDataAdminComponent, {
         width: '90vw',
-        disableClose: false
+        disableClose: false,
+        data: this.prepareFileForUpload
   });
   }
 
