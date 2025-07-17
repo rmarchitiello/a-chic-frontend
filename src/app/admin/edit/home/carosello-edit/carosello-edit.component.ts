@@ -2,7 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { CmsService } from '../../../services/cms.service';
+import { CmsService } from '../../../../services/cms.service';
 import { MatDialogRef } from '@angular/material/dialog';
 
 interface CaroselloEditData {
@@ -64,6 +64,10 @@ immaginiCarosello: CaroselloEditData = {
         console.error('Errore durante eliminazione:', err);
       }
     });
+  }
+
+  caricaNuovaImmagine(){
+    
   }
 
   downloadMedia(): void {

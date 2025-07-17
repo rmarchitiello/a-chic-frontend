@@ -22,7 +22,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CaroselloEditComponent } from '../../edit/home/carosello-edit/carosello-edit.component';
+import { CaroselloEditComponent } from '../../admin/edit/home/carosello-edit/carosello-edit.component';
 // Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
   url: string;

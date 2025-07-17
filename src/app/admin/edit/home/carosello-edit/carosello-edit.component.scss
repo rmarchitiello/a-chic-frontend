@@ -11,7 +11,7 @@
   z-index: 1100;
 }
 
-/* Contenitore principale popup */
+/* Contenitore principale del popup */
 .carosello-container {
   background: #ffffff;
   padding: 2rem 2.5rem;
@@ -31,63 +31,69 @@
   }
 }
 
-/* Titolo sopra immagine */
-.titolo-immagine {
-  font-size: 1.2rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-/* Pulsante elimina */
-.delete-button {
+/* Pulsanti in alto a destra */
+.action-buttons {
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background-color: #f44336;
-  color: #fff;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  gap: 0.5rem;
+  z-index: 20;
 
-  mat-icon {
-    font-size: 22px;
+  button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+    mat-icon {
+      font-size: 22px;
+    }
   }
 
-  &:hover {
-    background-color: #d32f2f;
+  .add-button {
+    background-color: #e8f5e9;
+    color: #388e3c;
+
+    &:hover {
+      background-color: #c8e6c9;
+    }
+  }
+
+  .download-button {
+    background-color: #e3f2fd;
+    color: #1565c0;
+
+    &:hover {
+      background-color: #bbdefb;
+    }
+  }
+
+  .delete-button {
+    background-color: #ffebee;
+    color: #d32f2f;
+
+    &:hover {
+      background-color: #ffcdd2;
+    }
   }
 }
 
-/* Pulsante download */
-.download-button {
-  position: absolute;
-  top: 64px;
-  right: 16px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background-color: #2196f3;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  mat-icon {
-    font-size: 22px;
-  }
-
-  &:hover {
-    background-color: #1976d2;
-  }
+/* Titolo */
+.titolo-immagine {
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  color: #333;
+  text-align: center;
 }
 
-/* Immagine principale */
+/* Immagine */
 .immagine-wrapper {
   background: #fdfdfd;
   padding: 1rem;
@@ -108,46 +114,42 @@
   }
 }
 
-/* Navigazione */
-.controls {
+/* Controlli di navigazione e chiusura */
+.bottom-controls {
   display: flex;
   justify-content: center;
-  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 2rem;
+  flex-wrap: wrap;
 
-  button {
-    min-width: 64px;
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 500;
+  .controls {
+    display: flex;
+    gap: 1rem;
 
-    mat-icon {
-      font-size: 20px;
+    button {
+      min-width: 64px;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 20px;
+      }
     }
   }
-}
 
-/* Messaggio "vuoto" */
-p {
-  text-align: center;
-  font-size: 1rem;
-  color: #999;
-}
-
-.chiudi-wrapper {
-  margin-top: 2rem;
-
-  button {
+  .chiudi-button {
     padding: 0.6rem 1.4rem;
-    cursor: pointer;
-    border-radius: 8px;
     font-weight: 500;
     font-size: 0.95rem;
+    border-radius: 8px;
+    min-width: 100px;
+    cursor: pointer;
   }
 }
 
-/* ----------------------------------------------------------------
-   Messaggio di fallback galleria vuota
-   ---------------------------------------------------------------- */
+/* Messaggio "nessuna immagine" */
 .messaggio-vuoto {
   text-align: center;
   padding: 3rem 2rem;
@@ -177,14 +179,15 @@ p {
 
   button {
     padding: 0.6rem 2rem;
-    cursor: pointer;
     font-weight: 500;
     border-radius: 8px;
     text-transform: none;
+    cursor: pointer;
     transition: background 0.2s ease;
 
     &:hover {
       background-color: #1976d2;
+      color: #fff;
     }
   }
 }
