@@ -1,3 +1,6 @@
+//qui avrò i metodi per modificare solo il carosello 
+/* Nella home impostiamo il tasto di modifica, quel tasto di modifica chiama questo pop up 
+e poi questo component chiama il pop up dinamicamente se in abse a una cancellazione ecc chiama i pop up common*/
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -8,9 +11,7 @@ import { DeleteDataAdminComponent } from '../../../delete-data-admin/delete-data
 import { DownloadDataAdminComponent } from '../../../download-data-admin/download-data-admin.component';
 import { ImmagineConfig } from '../../../../pages/home/home.component';
 
-interface CaroselloEditData {
-  caroselloImmaginiInput: string[];      
-}
+
 
 @Component({
   selector: 'app-carosello-edit',
@@ -85,7 +86,7 @@ apriPopUpEliminaImmagine(): void {
 
 
 
-  downloadMedia(): void {
+  apriPopUpdownloadMedia(): void {
     const dataInputDownload: ImmagineConfig = {
       url: this.immaginiCarosello[this.currentIndex].url,
       display_name: this.immaginiCarosello[this.currentIndex].display_name
@@ -101,7 +102,7 @@ apriPopUpEliminaImmagine(): void {
 
   
 
-  caricaNuovaImmagine(){
+  apriPopUpCaricaImmagine(){
     
   }
 
