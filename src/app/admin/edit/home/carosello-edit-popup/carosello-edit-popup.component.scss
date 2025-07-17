@@ -11,7 +11,7 @@
   z-index: 1100;
 }
 
-/* Contenitore principale del popup */
+/* Contenitore popup principale */
 .carosello-container {
   background: #ffffff;
   padding: 2rem 2.5rem;
@@ -31,7 +31,7 @@
   }
 }
 
-/* Pulsanti in alto a destra */
+/* Pulsanti azione in alto a destra */
 .action-buttons {
   position: absolute;
   top: 16px;
@@ -83,7 +83,7 @@
   }
 }
 
-/* Titolo */
+/* Titolo sopra immagine */
 .titolo-immagine {
   font-size: 1.2rem;
   font-weight: 500;
@@ -93,7 +93,7 @@
   text-align: center;
 }
 
-/* Immagine */
+/* Immagine visualizzata */
 .immagine-wrapper {
   background: #fdfdfd;
   padding: 1rem;
@@ -114,7 +114,26 @@
   }
 }
 
-/* Controlli di navigazione e chiusura */
+/* Bottone "+" grande per caricare immagini */
+.upload-plus-button {
+  font-size: 48px;
+  font-weight: bold;
+  color: #2e7d32;
+  background: none;
+  border: 3px dashed #c8e6c9;
+  border-radius: 16px;
+  padding: 2rem 3rem;
+  margin: 1.5rem 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #e8f5e9;
+    transform: scale(1.05);
+  }
+}
+
+/* Controlli frecce e bottone chiudi */
 .bottom-controls {
   display: flex;
   justify-content: center;
@@ -149,7 +168,7 @@
   }
 }
 
-/* Messaggio "nessuna immagine" */
+/* Blocco "nessuna immagine disponibile" */
 .messaggio-vuoto {
   text-align: center;
   padding: 3rem 2rem;

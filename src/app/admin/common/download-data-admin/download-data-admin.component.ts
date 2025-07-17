@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { ImmagineConfig } from '../../pages/home/home.component';
+import { ImmagineConfig } from '../../../pages/home/home.component';
 
 @Component({
   selector: 'app-download-data-admin',

@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteDataAdminComponent } from '../../../delete-data-admin/delete-data-admin.component';
-import { DownloadDataAdminComponent } from '../../../download-data-admin/download-data-admin.component';
+import { DeleteDataAdminComponent } from '../../../common/delete-data-admin/delete-data-admin.component';
+import { DownloadDataAdminComponent } from '../../../common/download-data-admin/download-data-admin.component';
 import { ImmagineConfig } from '../../../../pages/home/home.component';
 
 
@@ -16,11 +16,11 @@ import { ImmagineConfig } from '../../../../pages/home/home.component';
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
-  templateUrl: './carosello-edit.component.html',
-  styleUrl: './carosello-edit.component.scss',
+  templateUrl: './carosello-edit-popup.component.html',
+  styleUrl: './carosello-edit-popup.component.scss',
   imports: [CommonModule, MatIconModule]
 })
-export class CaroselloEditComponent implements OnInit {
+export class CaroselloEditPopUpComponent implements OnInit {
 
 immaginiCarosello: ImmagineConfig[] = [];
 
@@ -31,7 +31,7 @@ immaginiCarosello: ImmagineConfig[] = [];
   constructor(
     //ricevo il dato dalla home
     @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[],
-    private dialogRef: MatDialogRef<CaroselloEditComponent>,
+    private dialogRef: MatDialogRef<CaroselloEditPopUpComponent>,
     private dialog: MatDialog
 
   ) {}

@@ -2,7 +2,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { CmsService } from '../../services/cms.service';
+import { CmsService } from '../../../services/cms.service';
 
 @Component({
   selector: 'app-upload-data-admin',

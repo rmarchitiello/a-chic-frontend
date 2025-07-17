@@ -1,3 +1,4 @@
+<!-- Contenitore principale visibile solo se ci sono immagini -->
 <div class="carosello-container" *ngIf="immaginiCarosello.length > 0; else noImages">
 
   <!-- Pulsanti azione in alto a destra -->
@@ -20,35 +21,41 @@
 
   <!-- Immagine corrente -->
   <div class="immagine-wrapper">
-    <img [src]="immaginiCarosello[currentIndex].url"
-         alt="Immagine carosello {{ currentIndex + 1 }}" />
+    <img [src]="immaginiCarosello[currentIndex].url" alt="Immagine carosello {{ currentIndex + 1 }}" />
   </div>
 
 
 
+  <!-- Navigazione e chiusura -->
   <div class="bottom-controls">
-  <div class="controls">
-    <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="prevImage()" [disabled]="currentIndex === 0">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
+    <div class="controls">
+      <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="prevImage()" [disabled]="currentIndex === 0">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
 
-    <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.length - 1">
-      <mat-icon>chevron_right</mat-icon>
+      <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.length - 1">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+
+    <button mat-stroked-button color="primary" class="chiudi-button" (click)="chiudiDialog()">
+      Chiudi
     </button>
   </div>
 
-  <button mat-stroked-button color="primary" class="chiudi-button" (click)="chiudiDialog()">
-    Chiudi
-  </button>
 </div>
 
-</div>
-
-<!-- Nessuna immagine -->
+<!-- Caso in cui NON ci sono immagini -->
 <ng-template #noImages>
   <div class="messaggio-vuoto">
     <mat-icon class="icona-vuoto">image_not_supported</mat-icon>
     <h3>Nessuna immagine disponibile.</h3>
+
+    <!-- Pulsante "+" grande per aggiungere -->
+    <button class="upload-plus-button" (click)="apriPopUpCaricaImmagine()" aria-label="Carica immagine">
+      +
+    </button>
+
     <button mat-flat-button color="primary" (click)="chiudiDialog()">Chiudi</button>
   </div>
 </ng-template>

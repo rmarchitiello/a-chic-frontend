@@ -22,7 +22,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CaroselloEditComponent } from '../../admin/edit/home/carosello-edit/carosello-edit.component';
+import { CaroselloEditPopUpComponent } from '../../admin/edit/home/carosello-edit-popup/carosello-edit-popup.component';
 // Interfaccia per ogni immagine nella lista meta
 export interface ImmagineMeta {
   url: string;
@@ -139,7 +139,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
 apriPopUpEditorCarosello(): void {
-  this.dialog.open(CaroselloEditComponent, {
+  this.dialog.open(CaroselloEditPopUpComponent, {
     width: '90vw',
     disableClose: false,
     data: this.caroselloImmagini,
