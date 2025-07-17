@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { RenameFolder } from '../cms/cms-media/cms-media.component';
@@ -142,21 +142,37 @@ const body = {
   return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
 }
 
-
 uploadMedia(formData: FormData, config?: boolean): Observable<any> {
-const url = `${this.baseUrl}${this.mediaUpload}`;
-  
+  const url = `${this.baseUrl}${this.mediaUpload}`;
   let params = new HttpParams();
 
-  if(config){
-         params = new HttpParams().set('config', config);
-
+  // Se richiesto, aggiungo il flag "config=true" per indicare al backend che si tratta di una configurazione speciale
+  if (config) {
+    params = params.set('config', 'true');
   }
 
+  // Log dettagliato del contenuto del FormData
+  console.log("📤 Avvio uploadMedia() con il seguente contenuto:");
+  for (const [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(`📎 ${key}: FILE - ${value.name} (${value.type}, ${value.size} bytes)`);
+    } else {
+      console.log(`📝 ${key}:`, value);
+    }
+  }
 
-  console.log("Request inviata:", JSON.stringify(formData)); //per forza form data perche sto inviando un file al backend 
-  return this.http.post<any>(url, formData, {params, headers: this.getAuthHeaders()}); // 
+  // Uso i miei headers con token recuperato da sessionStorage
+  const headers = this.getAuthHeaders(); // ✅ Metodo già esistente nella classe
+
+  // Invio la richiesta POST con FormData e parametri eventuali
+  return this.http.post<any>(url, formData, {
+    params,
+    headers
+  });
 }
+
+
+
 
 
 }

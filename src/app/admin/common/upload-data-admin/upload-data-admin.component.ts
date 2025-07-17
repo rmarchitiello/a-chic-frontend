@@ -169,82 +169,100 @@ onFileSelected(event: Event): void {
  * Metodo che gestisce l'upload multiplo di file verso Cloudinary,
  * inviando uno a uno ogni file selezionato o trascinato.
  */
+// Stato di caricamento per ogni file (verde = ok, rosso = errore)
+statoUpload: Map<File, 'ok' | 'ko'> = new Map();
+
 uploadFiles(): void {
-  // Verifica se ci sono file da caricare
+  // Verifico che ci siano file selezionati
   if (this.filesDaCaricare.length === 0) {
     console.warn("Nessun file selezionato per l'upload.");
     alert("Errore: seleziona almeno un file da caricare.");
     return;
   }
 
-  // Controlla che la cartella di destinazione sia valorizzata
+  // Recupero e valido il nome della cartella
   const folder = this.prepareDataUpload.folder?.trim();
   if (!folder) {
     alert("Errore: specifica una cartella di destinazione.");
     return;
   }
 
-  // Verifica che la cartella non abbia più di 3 livelli (es. A/B/C)
+  // Valido profondità della cartella (massimo 3 livelli)
   const livelli = folder.split('/').filter(p => p.trim() !== '');
   if (livelli.length > 3) {
     alert("Errore: puoi usare al massimo 3 livelli di cartella (es. \"Borse/Conchiglia/Grande\").");
     return;
   }
 
-  // Per ogni file, costruisce un FormData e lo invia separatamente
-  this.filesDaCaricare.forEach((file: File) => {
-    const formData = new FormData();
+  // Svuoto la mappa di stato per ogni file
+  this.statoUpload.clear();
 
-    // Inserisce il file effettivo da caricare
+  // Preparo il FormData per una singola chiamata con più file
+  const formData = new FormData();
+
+  // Array di metadati da inviare (stessa lunghezza di this.filesDaCaricare)
+  const metadataList: CloudinaryDataUpload[] = [];
+
+  this.filesDaCaricare.forEach((file: File) => {
+    // Aggiungo il file al FormData con chiave "file" (verrà trasformato in array dal backend)
     formData.append('file', file);
 
-    // Crea una copia dei metadati aggiornati dal form (descrizione, quantità, angolazione)
-    const cloudinaryData: CloudinaryDataUpload = {
-      folder: this.prepareDataUpload.folder,
+    // Creo oggetto metadata corrispondente al file
+    const metadata: CloudinaryDataUpload = {
+      folder: folder,
       context: {
-        nome_file: file.name.split('.')[0], // Nome base senza estensione
+        nome_file: file.name.split('.')[0], // prendo il nome senza estensione
         descrizione: this.prepareDataUpload.context.descrizione,
         quantita: this.prepareDataUpload.context.quantita,
         angolazione: this.prepareDataUpload.context.angolazione
       }
     };
 
-    // Log per verifica
-    console.log("Caricamento in folder:", cloudinaryData.folder);
-    console.log("Metadati associati:", cloudinaryData);
-
-    // Inserisce il campo "cloudinary" come JSON stringificato
-    formData.append('cloudinary', JSON.stringify(cloudinaryData));
-
-    // Verifica se si tratta di contenuti di configurazione (usato per distinguere le cache)
-    const isConfig = folder.toLowerCase().includes('config');
-
-    // Chiama il servizio backend per l'upload del file
-    this.cmsService.uploadMedia(formData, isConfig).subscribe({
-      next: (res) => {
-        console.log(`Upload riuscito per: ${file.name}`, res);
-      },
-      error: (err) => {
-        console.error(`Errore durante l'upload di ${file.name}:`, err);
-        if (err.error?.message) {
-          alert(`Errore per ${file.name}: ${err.error.message}`);
-        } else {
-          alert(`Errore generico durante l'upload di ${file.name}.`);
-        }
-      }
-    });
+    // Aggiungo il metadata all'elenco da inviare
+    metadataList.push(metadata);
   });
 
-  // Dopo l'invio, resetta tutti i campi e stati
-  this.filesDaCaricare = [];
-  this.anteprimeFile.clear();
-  this.prepareDataUpload.context.descrizione = '';
-  this.prepareDataUpload.context.quantita = '0';
-  this.prepareDataUpload.context.angolazione = '';
+  // Aggiungo il JSON dei metadati al FormData con chiave "cloudinary"
+  formData.append('cloudinary', JSON.stringify(metadataList));
 
-  // Notifica finale all'utente
-  alert("Upload in corso. Attendi la conferma per ogni file.");
+  // Determino se si tratta della configurazione (influenza la cache lato backend)
+  const isConfig = folder.toLowerCase().includes('config');
+
+  // Chiamata unica al backend per tutti i file
+  this.cmsService.uploadMedia(formData, isConfig).subscribe({
+    next: (res) => {
+      console.log('Upload completato:', res);
+
+      // Se il backend ha restituito l'elenco dei file caricati, segno quelli riusciti
+      if (Array.isArray(res.data)) {
+        res.data.forEach((uploadResult: any) => {
+          const fileUrl: string = uploadResult.secure_url;
+          const nomeFileCaricato = fileUrl.split('/').pop()?.split('.')[0];
+
+          const fileMatch = this.filesDaCaricare.find(f =>
+            f.name.split('.')[0] === nomeFileCaricato
+          );
+
+          if (fileMatch) {
+            this.statoUpload.set(fileMatch, 'ok');
+          }
+        });
+      }
+    },
+    error: (err) => {
+      console.error("Errore durante l'upload dei file:", err);
+
+      // Segno tutti i file come errore (oppure potresti gestire meglio se il backend restituisce info parziali)
+      this.filesDaCaricare.forEach((file: File) => {
+        this.statoUpload.set(file, 'ko');
+      });
+    }
+  });
+
+  // Non rimuovo i file: permetto visualizzazione colorata post-upload
 }
+
+
 
 
 }
