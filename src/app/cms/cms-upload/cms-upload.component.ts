@@ -56,6 +56,15 @@ export interface BodyUploadMedia {
 }
 
 
+interface UploadResult {
+  nome_file: string;
+  status: 'ok' | 'ko';
+  reason?: string;
+  secure_url?: string;
+  resource_type?: string;
+}
+
+
 @Component({
   selector: 'app-cms-upload',
   templateUrl: './cms-upload.component.html',
@@ -208,43 +217,38 @@ getCartelleFinali(structure: any): string[] {
 
 
 
-  uploadFile() {
+  uploadFile(): void {
   console.log("📂 Cartella di destinazione:", this.folderCloudinary);
 
-  // Verifico se è una cartella di configurazione
+  // ───── Verifico se è una cartella di configurazione ─────
   const config = this.folderCloudinary.toLowerCase().includes('config');
-  console.log(config ? "🛠 Modalità CONFIG attiva (verrà aggiornata cache_config_*)" : "📁 Modalità normale attiva (verrà aggiornata cache_*)");
+  console.log(config ? "🛠 Modalità CONFIG attiva" : "📁 Modalità normale attiva");
 
-  // Controllo il numero massimo di sottocartelle (max 3 livelli)
-  const maxLivelliConsentiti = 3;
+  // ───── Controllo livello massimo ─────
   const livelliCartella = this.folderCloudinary.split('/').filter(part => part.trim() !== '');
-  if (livelliCartella.length > maxLivelliConsentiti) {
-    console.warn(`⚠️ Cartella troppo profonda: massimo ${maxLivelliConsentiti} livelli. Inserito: ${this.folderCloudinary}`);
-    alert(`Errore: puoi usare al massimo ${maxLivelliConsentiti} livelli di cartella (es. "Borse/Conchiglia/Grande")`);
+  if (livelliCartella.length > 3) {
+    alert(`Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande")`);
     return;
   }
 
-  // Verifico se è stato selezionato un file
+  // ───── Controllo file selezionato ─────
   if (!this.selectedFile) {
-    console.warn("📭 Nessun file selezionato per l'upload.");
     alert("Errore: devi prima selezionare un file da caricare.");
     return;
   }
 
   console.log("📄 File selezionato:", this.selectedFile.name);
 
-  // Creo l'oggetto FormData da inviare al backend
+  // ───── Costruzione FormData ─────
   const formData = new FormData();
-  formData.append('file', this.selectedFile); // Allego il file
+  formData.append('file', this.selectedFile);
 
-  // Se è audio o video, forzo angolazione 'frontale'
   let angolazione;
   if (this.isAudioOrVideo) {
     angolazione = 'frontale';
     console.log("🎵 File audio/video rilevato → angolazione forzata: 'frontale'");
   }
 
-  // Preparo i metadati da inviare come JSON
   const cloudinaryData: CloudinaryDataUpload = {
     folder: this.folderCloudinary,
     context: {
@@ -257,36 +261,50 @@ getCartelleFinali(structure: any): string[] {
 
   formData.append('cloudinary', JSON.stringify(cloudinaryData));
 
-  console.log("📦 FormData pronto per l'upload:");
-  console.log("🔹 File:", this.selectedFile.name);
-  console.log("🔹 Cloudinary Data:", cloudinaryData);
+  console.log("📦 FormData pronto per l'upload:", {
+    file: this.selectedFile.name,
+    metadata: cloudinaryData
+  });
 
-  // Invio la richiesta al backend
+  // ───── Invio al backend ─────
   console.log("⏫ Inizio upload verso il backend...");
   this.cmsService.uploadMedia(formData, config).subscribe({
     next: (response) => {
-      console.log("✅ Upload riuscito!", response);
-      alert("Upload riuscito ✅");
+      console.log("📬 Risposta dal backend:", response);
 
-      // Aggiorno la lista delle cartelle
-      this.refreshFolders();
+      const risultati: UploadResult[] = response?.data || [];
+      const errore = risultati.find((r: UploadResult) => r.status === 'ko');
+      const successo = risultati.find((r: UploadResult) => r.status === 'ok');
 
-      // Reset dei campi della form
-      this.fileInput.nativeElement.value = '';
-      this.fileNameCloudinary = '';
-      this.descrizioneCloudinary = '';
-      this.quantitaCloudinary = '0';
-      this.angolazioneCloudinary = '';
-      this.folderCloudinary = '';
-      this.menuATendinaFolder = true;
-
-      // Reset anche del campo input file DOM (fallback)
-      const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-      if (fileInput) {
-        fileInput.value = '';
+      if (errore) {
+        const motivo = errore.reason || 'Errore sconosciuto';
+        console.warn(`❌ Upload fallito per "${errore.nome_file}": ${motivo}`);
+        alert(`Upload non riuscito ❌\nMotivo: ${motivo}`);
+        return; // NON resetto nulla
       }
 
-      console.log("🧼 Form ripristinata per nuovo caricamento.");
+      if (successo) {
+        alert("Upload riuscito ✅");
+
+        // ───── Aggiorna cartelle ─────
+        this.refreshFolders();
+
+        // ───── Reset form ─────
+        this.fileInput.nativeElement.value = '';
+        this.fileNameCloudinary = '';
+        this.descrizioneCloudinary = '';
+        this.quantitaCloudinary = '0';
+        this.angolazioneCloudinary = '';
+        this.folderCloudinary = '';
+        this.menuATendinaFolder = true;
+
+        const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
+
+        console.log("🧼 Form ripristinata per nuovo caricamento.");
+      } else {
+        alert("Upload fallito ❌\nNessun file è stato caricato.");
+      }
     },
     error: (error) => {
       console.error("❌ Errore durante l’upload:", error);
@@ -298,6 +316,7 @@ getCartelleFinali(structure: any): string[] {
     }
   });
 }
+
 
 
 

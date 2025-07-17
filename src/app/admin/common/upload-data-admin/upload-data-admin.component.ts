@@ -171,96 +171,96 @@ onFileSelected(event: Event): void {
  */
 // Stato di caricamento per ogni file (verde = ok, rosso = errore)
 statoUpload: Map<File, 'ok' | 'ko'> = new Map();
+uploadInCorso: boolean = false; // dichiarala all'inizio del componente
 
 uploadFiles(): void {
-  // Verifico che ci siano file selezionati
   if (this.filesDaCaricare.length === 0) {
-    console.warn("Nessun file selezionato per l'upload.");
     alert("Errore: seleziona almeno un file da caricare.");
     return;
   }
 
-  // Recupero e valido il nome della cartella
   const folder = this.prepareDataUpload.folder?.trim();
   if (!folder) {
     alert("Errore: specifica una cartella di destinazione.");
     return;
   }
 
-  // Valido profondità della cartella (massimo 3 livelli)
   const livelli = folder.split('/').filter(p => p.trim() !== '');
   if (livelli.length > 3) {
     alert("Errore: puoi usare al massimo 3 livelli di cartella (es. \"Borse/Conchiglia/Grande\").");
     return;
   }
 
-  // Svuoto la mappa di stato per ogni file
+  // Inizio upload → disattivo il pulsante
+  this.uploadInCorso = true;
   this.statoUpload.clear();
 
-  // Preparo il FormData per una singola chiamata con più file
   const formData = new FormData();
-
-  // Array di metadati da inviare (stessa lunghezza di this.filesDaCaricare)
   const metadataList: CloudinaryDataUpload[] = [];
 
   this.filesDaCaricare.forEach((file: File) => {
-    // Aggiungo il file al FormData con chiave "file" (verrà trasformato in array dal backend)
     formData.append('file', file);
 
-    // Creo oggetto metadata corrispondente al file
     const metadata: CloudinaryDataUpload = {
       folder: folder,
       context: {
-        nome_file: file.name.split('.')[0], // prendo il nome senza estensione
+        nome_file: file.name.split('.')[0],
         descrizione: this.prepareDataUpload.context.descrizione,
         quantita: this.prepareDataUpload.context.quantita,
         angolazione: this.prepareDataUpload.context.angolazione
       }
     };
 
-    // Aggiungo il metadata all'elenco da inviare
     metadataList.push(metadata);
   });
 
-  // Aggiungo il JSON dei metadati al FormData con chiave "cloudinary"
-  formData.append('cloudinary', JSON.stringify(metadataList));
+  metadataList.forEach(metadata => {
+    formData.append('cloudinary', JSON.stringify(metadata));
+  });
 
-  // Determino se si tratta della configurazione (influenza la cache lato backend)
   const isConfig = folder.toLowerCase().includes('config');
 
-  // Chiamata unica al backend per tutti i file
   this.cmsService.uploadMedia(formData, isConfig).subscribe({
     next: (res) => {
       console.log('Upload completato:', res);
 
-      // Se il backend ha restituito l'elenco dei file caricati, segno quelli riusciti
       if (Array.isArray(res.data)) {
         res.data.forEach((uploadResult: any) => {
-          const fileUrl: string = uploadResult.secure_url;
-          const nomeFileCaricato = fileUrl.split('/').pop()?.split('.')[0];
+          const nomeFile = uploadResult.nome_file;
+          const stato = uploadResult.status;
 
           const fileMatch = this.filesDaCaricare.find(f =>
-            f.name.split('.')[0] === nomeFileCaricato
+            f.name.split('.')[0] === nomeFile
           );
 
           if (fileMatch) {
-            this.statoUpload.set(fileMatch, 'ok');
+            this.statoUpload.set(fileMatch, stato);
+
+            if (stato === 'ok') {
+              setTimeout(() => {
+                this.statoUpload.delete(fileMatch);
+                this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+              }, 2000);
+            }
           }
         });
       }
+
+      // Fine upload
+      this.uploadInCorso = false;
     },
     error: (err) => {
       console.error("Errore durante l'upload dei file:", err);
 
-      // Segno tutti i file come errore (oppure potresti gestire meglio se il backend restituisce info parziali)
       this.filesDaCaricare.forEach((file: File) => {
         this.statoUpload.set(file, 'ko');
       });
+
+      this.uploadInCorso = false;
     }
   });
-
-  // Non rimuovo i file: permetto visualizzazione colorata post-upload
 }
+
 
 
 

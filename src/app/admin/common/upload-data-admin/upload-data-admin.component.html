@@ -1,85 +1,75 @@
 <!-- Contenitore scrollabile dell'intero contenuto della dialog -->
 <div class="dialog-scroll-content">
 
-  <!-- Area drag-and-drop -->
-  <div class="upload-drop-area" 
-       [class.hover-active]="isHovering"
-       (dragover)="onDragOver($event)"
-       (dragleave)="onDragLeave($event)"
-       (drop)="onDrop($event)">
+    <!-- Area drag-and-drop -->
+    <div class="upload-drop-area" [class.hover-active]="isHovering" (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
 
-    <mat-icon class="upload-icon" color="primary">cloud_upload</mat-icon>
+        <mat-icon class="upload-icon" color="primary">cloud_upload</mat-icon>
 
-    <p class="upload-instructions">
-      Trascina qui uno o più file da caricare<br/>
-      oppure
-    </p>
+        <p class="upload-instructions">
+            Trascina qui uno o più file da caricare<br />
+            oppure
+        </p>
 
-    <button mat-stroked-button color="primary" (click)="fileInput.click()">
-      Seleziona dal dispositivo
-    </button>
-
-    <!-- Input nascosto per selezione manuale -->
-    <input
-      #fileInput
-      type="file"
-      multiple
-      accept="*/*"
-      hidden
-      (change)="onFileSelected($event)"
-    />
-  </div>
-
-  <!-- Pulsante Upload -->
-  <div class="upload-action" *ngIf="filesDaCaricare.length > 0">
-    <button mat-flat-button color="primary" (click)="uploadFiles()">
-      Upload in cloud
-    </button>
-  </div>
-
-  <!-- Lista dei file in caricamento -->
-  <div class="anteprima-container" *ngIf="filesDaCaricare.length > 0">
-    
-    <div class="anteprima-header">
-      <h4>File selezionati per il caricamento:</h4>
-      <button mat-flat-button color="warn" (click)="rimuoviTuttiIFiles()">
-        Rimuovi tutti i file
-      </button>
-    </div>
-
-    <div class="file-list">
-      <div class="file-item" *ngFor="let file of filesDaCaricare">
-        
-        <!-- Miniatura -->
-        <ng-container *ngIf="anteprimeFile.has(file)">
-          <ng-container [ngSwitch]="file.type.split('/')[0]">
-
-            <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)" [alt]="file.name" />
-            <video *ngSwitchCase="'video'" class="file-thumb" [src]="anteprimeFile.get(file)" muted></video>
-            <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls [src]="anteprimeFile.get(file)"></audio>
-            <div *ngSwitchDefault class="file-icon">📁</div>
-
-          </ng-container>
-        </ng-container>
-
-        <!-- Nome + stato colore + icona OK/KO -->
-        <span 
-          class="file-name"
-          [ngStyle]="{
-            color: statoUpload.get(file) === 'ok' ? 'green' :
-                   statoUpload.get(file) === 'ko' ? 'red' : 'black'
-          }">
-          {{ file.name }}
-          <ng-container *ngIf="statoUpload.get(file) === 'ok'">✅</ng-container>
-          <ng-container *ngIf="statoUpload.get(file) === 'ko'">❌</ng-container>
-        </span>
-
-        <!-- Pulsante per rimuovere solo file non già caricati -->
-        <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
-          ✖
+        <button mat-stroked-button color="primary" (click)="fileInput.click()">
+            Seleziona dal dispositivo
         </button>
-      </div>
+
+        <!-- Input nascosto per selezione manuale -->
+        <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
     </div>
 
-  </div>
+    <!-- Pulsante Upload -->
+    <div class="upload-action" *ngIf="filesDaCaricare.length > 0">
+        <button mat-flat-button color="primary" (click)="uploadFiles()" [disabled]="uploadInCorso">
+            {{ uploadInCorso ? 'Caricamento in corso...' : 'Upload in cloud' }}
+        </button>
+
+    </div>
+
+    <!-- Lista dei file in caricamento -->
+    <div class="anteprima-container" *ngIf="filesDaCaricare.length > 0">
+
+        <div class="anteprima-header">
+            <h4>File selezionati per il caricamento:</h4>
+            <button mat-flat-button color="warn" (click)="rimuoviTuttiIFiles()">
+                Rimuovi tutti i file
+            </button>
+        </div>
+
+        <div class="file-list">
+            <div class="file-item" *ngFor="let file of filesDaCaricare" [ngClass]="{
+      'file-ok': statoUpload.get(file) === 'ok',
+      'file-ko': statoUpload.get(file) === 'ko'
+    }">
+
+                <!-- Miniatura -->
+                <ng-container *ngIf="anteprimeFile.has(file)">
+                    <ng-container [ngSwitch]="file.type.split('/')[0]">
+                        <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)"
+                            [alt]="file.name" />
+                        <video *ngSwitchCase="'video'" class="file-thumb" [src]="anteprimeFile.get(file)" muted></video>
+                        <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls
+                            [src]="anteprimeFile.get(file)"></audio>
+                        <div *ngSwitchDefault class="file-icon">📁</div>
+                    </ng-container>
+                </ng-container>
+
+                <!-- Nome file + icona stato -->
+                <span class="file-name">
+                    {{ file.name }}
+                    <ng-container *ngIf="statoUpload.get(file) === 'ok'">✅</ng-container>
+                    <ng-container *ngIf="statoUpload.get(file) === 'ko'">❌</ng-container>
+                </span>
+
+                <!-- Pulsante rimozione, solo se non OK -->
+                <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
+                    ✖
+                </button>
+            </div>
+        </div>
+
+
+    </div>
 </div>

@@ -131,6 +131,24 @@
     font-size: 15px;
     color: #333;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s ease;
+    opacity: 1;
+
+    /* File OK → verde e dissolvenza */
+    &.file-ok {
+      border: 1px solid green;
+      background-color: #e6ffe6;
+      color: green;
+      animation: fadeOut 2s ease forwards;
+      animation-delay: 2s;
+    }
+
+    /* File KO → rosso */
+    &.file-ko {
+      border: 1px solid red;
+      background-color: #ffe6e6;
+      color: red;
+    }
 
     .file-thumb {
       width: 40px;
@@ -180,6 +198,17 @@
         color: darkred;
       }
     }
+  }
+}
+
+/* Dissolvenza dei file-ok */
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
   }
 }
 
