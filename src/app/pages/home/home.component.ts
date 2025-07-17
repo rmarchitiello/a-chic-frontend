@@ -38,11 +38,13 @@ export interface ImmagineCloudinary {
 }
 
 // Interfaccia per i modelli in evidenza (video)
-interface ModelloEvidenza {
+export interface ImmagineConfig {
   url: string;
   display_name: string;
-  descrizione: string;
+  descrizione?: string;
 }
+
+
 
 @Component({
   selector: 'app-home',
@@ -73,13 +75,13 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
   // Array di URL delle immagini del carosello principale
-  caroselloImmagini: string[] = [];
+  caroselloImmagini: ImmagineConfig[] = [];
 
   // Array di URL delle immagini delle recensioni
-  recensioniImmagini: string[] = [];
+  recensioniImmagini: ImmagineConfig[] = [];
 
   // Array di video modelli in evidenza
-  modelliVideoInEvidenza: ModelloEvidenza[] = [];
+  modelliVideoInEvidenza: ImmagineConfig[] = [];
 
   // Indici per i caroselli
   currentIndex = 0;
@@ -98,15 +100,15 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   immaginiCreazioni: string[] = [];
 
 
-  
-    //faccio questo perche quando inserisco un Home/Config/Video e il video è cliccabile in base al nome del file caricato sul cms lui
-    //va direttamente sulla categoria
-    /* Esempio nei modelli in evidenza ho Perlata, Naturale ecc.. quando clicco sul video o sul modello in evidenza lui mi porta direttamente
-    su borse/naturale*/
-    strutturaCategorie: { [key: string]: string[] | undefined } = {};
-    categorieSottoCategorie: string[] = [];
-    filtriSottoCategorie: Record<string, string[]> = {};
-    onlyUrlBorse: string[] = [];
+
+  //faccio questo perche quando inserisco un Home/Config/Video e il video è cliccabile in base al nome del file caricato sul cms lui
+  //va direttamente sulla categoria
+  /* Esempio nei modelli in evidenza ho Perlata, Naturale ecc.. quando clicco sul video o sul modello in evidenza lui mi porta direttamente
+  su borse/naturale*/
+  strutturaCategorie: { [key: string]: string[] | undefined } = {};
+  categorieSottoCategorie: string[] = [];
+  filtriSottoCategorie: Record<string, string[]> = {};
+  onlyUrlBorse: string[] = [];
 
   constructor(
     private cloudinaryService: CloudinaryService,
@@ -116,110 +118,112 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private router: Router,
     private sharedDataService: SharedDataService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
 
   //creo la map url per le immagini cliccabili della home
-mapUrlBorseCompletamente(): string[] {
-  const urlSet: Set<string> = new Set();
+  mapUrlBorseCompletamente(): string[] {
+    const urlSet: Set<string> = new Set();
 
-  this.categorieSottoCategorie.forEach(path => {
-    const [categoria, sottoCategoria] = path.split('/');
+    this.categorieSottoCategorie.forEach(path => {
+      const [categoria, sottoCategoria] = path.split('/');
 
- 
+
       // Se non ci sono filtri associati, metti comunque la voce con "Tutte"
       const url = `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`;
       urlSet.add(url);
-    
+
+    });
+
+    return Array.from(urlSet);
+  }
+
+apriPopUpEditorCarosello(): void {
+  this.dialog.open(CaroselloEditComponent, {
+    width: '90vw',
+    disableClose: false,
+    data: this.caroselloImmagini,
   });
 
-  return Array.from(urlSet);
-}
-
-apriPopUpEditorCarosello(){
-     this.dialog.open(CaroselloEditComponent, {
-          width: '90vw', // per grandezza pop up
-          data: {
-              caroselloImmaginiInput: this.caroselloImmagini,
-      }      });
-        
   console.log("admin carosello aperto");
 }
 
+
+
   ngOnInit(): void {
 
-this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
-  this.isAdmin = !!token; // converte in booleano
+    this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
+      this.isAdmin = !!token; // converte in booleano
 
-  if (this.isAdmin) {
-    console.log('[HomeComponent] in modalità ADMIN');
-  }
-});
-
-
-    
-      console.log('[HomeComponent] ngOnInit chiamato');
-
-  // === 1. Ricevo la struttura categorie → sottocategorie ===
-  this.sharedDataService.strutturaCategorie$.subscribe(data => {
-    if (Object.keys(data).length > 0) {
-      this.strutturaCategorie = data;
-      console.log('[HomeComponent] strutturaCategorie ricevuta:', this.strutturaCategorie);
-    }
-  });
-
-  // === 2. Ricevo l'elenco completo categoria/sottocategoria ===
-  this.sharedDataService.categorieSottoCategorie$.subscribe(data => {
-    if (data.length > 0) {
-      this.categorieSottoCategorie = data;
-      console.log('[HomeComponent] categorieSottoCategorie ricevute:', this.categorieSottoCategorie);
-    }
-  });
-
-  // === 3. Ricevo i filtri per ogni sottocategoria ===
-  this.sharedDataService.filtriSottoCategorie$.subscribe(data => {
-    if (Object.keys(data).length > 0) {
-      this.filtriSottoCategorie = data;
-      console.log('[HomeComponent] filtriSottoCategorie ricevuti:', this.filtriSottoCategorie);
-    }
-  });
-
-
-  // recupero solo la url delle borse
-setTimeout(() => {
-const result = this.mapUrlBorseCompletamente().find(mB => mB.includes("borse"));
-if (result) {
-  this.onlyUrlBorse = [result]; // oppure fai quello che ti serve
-} else {
-  this.onlyUrlBorse = [];
-}
-  console.log('Mappa url borse dinamica:', this.onlyUrlBorse);
-}, 0);
+      if (this.isAdmin) {
+        console.log('[HomeComponent] in modalità ADMIN');
+      }
+    });
 
 
 
+    console.log('[HomeComponent] ngOnInit chiamato');
 
-        // Titolo della pagina
+    // === 1. Ricevo la struttura categorie → sottocategorie ===
+    this.sharedDataService.strutturaCategorie$.subscribe(data => {
+      if (Object.keys(data).length > 0) {
+        this.strutturaCategorie = data;
+        console.log('[HomeComponent] strutturaCategorie ricevuta:', this.strutturaCategorie);
+      }
+    });
+
+    // === 2. Ricevo l'elenco completo categoria/sottocategoria ===
+    this.sharedDataService.categorieSottoCategorie$.subscribe(data => {
+      if (data.length > 0) {
+        this.categorieSottoCategorie = data;
+        console.log('[HomeComponent] categorieSottoCategorie ricevute:', this.categorieSottoCategorie);
+      }
+    });
+
+    // === 3. Ricevo i filtri per ogni sottocategoria ===
+    this.sharedDataService.filtriSottoCategorie$.subscribe(data => {
+      if (Object.keys(data).length > 0) {
+        this.filtriSottoCategorie = data;
+        console.log('[HomeComponent] filtriSottoCategorie ricevuti:', this.filtriSottoCategorie);
+      }
+    });
+
+
+    // recupero solo la url delle borse
+    setTimeout(() => {
+      const result = this.mapUrlBorseCompletamente().find(mB => mB.includes("borse"));
+      if (result) {
+        this.onlyUrlBorse = [result]; // oppure fai quello che ti serve
+      } else {
+        this.onlyUrlBorse = [];
+      }
+      console.log('Mappa url borse dinamica:', this.onlyUrlBorse);
+    }, 0);
+
+
+
+
+    // Titolo della pagina
     this.titleService.setTitle('A-Chic | Borse all\'uncinetto e Accessori artigianali');
 
     this.metaService.addTags([
-  { name: 'description', content: 'Borse all\'uncinetto fatte a mano, carillon artigianali e accessori unici. A-Chic è passione, eleganza e artigianalità.' },
-  { name: 'keywords', content: 'borse uncinetto, borse fatte a mano, carillon artigianali, accessori crochet, manici artigianali, borse handmade, moda artigianale' },
-  { name: 'robots', content: 'index, follow' },
+      { name: 'description', content: 'Borse all\'uncinetto fatte a mano, carillon artigianali e accessori unici. A-Chic è passione, eleganza e artigianalità.' },
+      { name: 'keywords', content: 'borse uncinetto, borse fatte a mano, carillon artigianali, accessori crochet, manici artigianali, borse handmade, moda artigianale' },
+      { name: 'robots', content: 'index, follow' },
 
-  // Open Graph
-  { property: 'og:title', content: 'A-Chic | Borse e Carillon fatti a mano' },
-  { property: 'og:description', content: 'Scopri le borse all\'uncinetto e i carillon artigianali di A-Chic. Ogni creazione è fatta a mano con amore.' },
-  { property: 'og:image', content: 'https://www.a-chic.it/assets/og-image.jpg' },
-  { property: 'og:url', content: 'https://www.a-chic.it/home' },
-  { property: 'og:type', content: 'website' },
+      // Open Graph
+      { property: 'og:title', content: 'A-Chic | Borse e Carillon fatti a mano' },
+      { property: 'og:description', content: 'Scopri le borse all\'uncinetto e i carillon artigianali di A-Chic. Ogni creazione è fatta a mano con amore.' },
+      { property: 'og:image', content: 'https://www.a-chic.it/assets/og-image.jpg' },
+      { property: 'og:url', content: 'https://www.a-chic.it/home' },
+      { property: 'og:type', content: 'website' },
 
-  // Twitter Card
-  { name: 'twitter:card', content: 'summary_large_image' },
-  { name: 'twitter:title', content: 'A-Chic | Borse all\'uncinetto e Carillon artigianali' },
-  { name: 'twitter:description', content: 'Eleganza e artigianato si incontrano: borse uniche, manici lavorati a mano e carillon dal sapore unico.' },
-  { name: 'twitter:image', content: 'https://www.a-chic.it/assets/og-image.jpg' }
-]);
+      // Twitter Card
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: 'A-Chic | Borse all\'uncinetto e Carillon artigianali' },
+      { name: 'twitter:description', content: 'Eleganza e artigianato si incontrano: borse uniche, manici lavorati a mano e carillon dal sapore unico.' },
+      { name: 'twitter:image', content: 'https://www.a-chic.it/assets/og-image.jpg' }
+    ]);
 
 
 
@@ -253,14 +257,26 @@ if (result) {
         }
 
         // Popola array immagini carosello
-        this.caroselloImmagini = data[caroselloKey]
-          .flatMap(item => item.meta)
-          .map(m => m.url);
+        this.caroselloImmagini = data[caroselloKey].flatMap(item =>
+          item.meta.map(metaItem => ({
+            url: metaItem.url,
+            display_name: item.display_name
+          }))
+        );
+
+
+        console.log("[HomeComponent] carosello immagini: ", this.caroselloImmagini);
 
         // Popola array recensioni
-        this.recensioniImmagini = data[recensioniKey]
-          .flatMap(item => item.meta)
-          .map(m => m.url);
+        this.recensioniImmagini = data[recensioniKey].flatMap(item =>
+          item.meta.map(metaItem => ({
+            url: metaItem.url,
+            display_name: item.display_name
+          }))
+        );
+
+        console.log("[HomeComponent] recensioni immagini: ", this.recensioniImmagini);
+
 
         // Popola array video modelli in evidenza
         this.modelliVideoInEvidenza = data[videoEvidenzaHomeKey].flatMap(item =>
@@ -283,19 +299,19 @@ if (result) {
     // Controlla se è necessario mostrare i contenuti successivi
     this.checkScroll();
   }
-goTo(urlOrFilter: string, fromModelliInEvidenza?: boolean): void {
-  // Se la navigazione proviene dai modelli in evidenza, costruisco l'URL completo con parametro query
-  if (fromModelliInEvidenza) {
-    const url = `${this.onlyUrlBorse}?filtri=${encodeURIComponent(urlOrFilter)}`;
+  goTo(urlOrFilter: string, fromModelliInEvidenza?: boolean): void {
+    // Se la navigazione proviene dai modelli in evidenza, costruisco l'URL completo con parametro query
+    if (fromModelliInEvidenza) {
+      const url = `${this.onlyUrlBorse}?filtri=${encodeURIComponent(urlOrFilter)}`;
 
-    // Uso navigateByUrl per evitare che Angular interpreti il path come relativo alla route corrente
-    this.router.navigateByUrl(url);
-    return; // Evito che venga eseguita anche la seconda navigazione
+      // Uso navigateByUrl per evitare che Angular interpreti il path come relativo alla route corrente
+      this.router.navigateByUrl(url);
+      return; // Evito che venga eseguita anche la seconda navigazione
+    }
+
+    // Altrimenti, navigazione semplice verso il path indicato
+    this.router.navigate([urlOrFilter]);
   }
-
-  // Altrimenti, navigazione semplice verso il path indicato
-  this.router.navigate([urlOrFilter]);
-}
 
 
 

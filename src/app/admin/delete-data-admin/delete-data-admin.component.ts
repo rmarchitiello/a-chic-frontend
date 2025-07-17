@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CmsService } from '../../services/cms.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
+
 @Component({
   selector: 'app-delete-data-admin',
   templateUrl: './delete-data-admin.component.html',

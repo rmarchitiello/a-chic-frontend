@@ -1,4 +1,4 @@
-<div class="carosello-container" *ngIf="immaginiCarosello.caroselloImmaginiInput.length > 0; else noImages">
+<div class="carosello-container" *ngIf="immaginiCarosello.length > 0; else noImages">
 
   <!-- Pulsanti azione in alto a destra -->
   <div class="action-buttons">
@@ -16,11 +16,11 @@
   </div>
 
   <!-- Titolo -->
-  <h3 class="titolo-immagine">Immagine {{ currentIndex + 1 }} di {{ immaginiCarosello.caroselloImmaginiInput.length }}</h3>
+  <h3 class="titolo-immagine">Immagine {{ currentIndex + 1 }} di {{ immaginiCarosello.length }}</h3>
 
   <!-- Immagine corrente -->
   <div class="immagine-wrapper">
-    <img [src]="immaginiCarosello.caroselloImmaginiInput[currentIndex]"
+    <img [src]="immaginiCarosello[currentIndex].url"
          alt="Immagine carosello {{ currentIndex + 1 }}" />
   </div>
 
@@ -32,7 +32,7 @@
       <mat-icon>chevron_left</mat-icon>
     </button>
 
-    <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.caroselloImmaginiInput.length - 1">
+    <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.length - 1">
       <mat-icon>chevron_right</mat-icon>
     </button>
   </div>

@@ -5,6 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDataAdminComponent } from '../../../delete-data-admin/delete-data-admin.component';
+import { DownloadDataAdminComponent } from '../../../download-data-admin/download-data-admin.component';
+import { ImmagineConfig } from '../../../../pages/home/home.component';
 
 interface CaroselloEditData {
   caroselloImmaginiInput: string[];      
@@ -19,15 +21,15 @@ interface CaroselloEditData {
 })
 export class CaroselloEditComponent implements OnInit {
 
-immaginiCarosello: CaroselloEditData = {
-  caroselloImmaginiInput: []
-};
+immaginiCarosello: ImmagineConfig[] = [];
+
+
   displayName: string = '';
   currentIndex: number = 0;
 
   constructor(
     //ricevo il dato dalla home
-    @Inject(MAT_DIALOG_DATA) public data: CaroselloEditData,
+    @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[],
     private dialogRef: MatDialogRef<CaroselloEditComponent>,
     private dialog: MatDialog
 
@@ -45,18 +47,19 @@ immaginiCarosello: CaroselloEditData = {
   }
 
   nextImage(): void {
-    if (this.currentIndex < this.immaginiCarosello.caroselloImmaginiInput.length - 1) {
+    if (this.currentIndex < this.immaginiCarosello.length - 1) {
       this.currentIndex++;
     }
   }
 
 apriPopUpEliminaImmagine(): void {
   // Recupero l'URL dell'immagine attualmente selezionata
-  const urlDaEliminare = this.immaginiCarosello.caroselloImmaginiInput[this.currentIndex];
-
+  const urlDaEliminare = this.immaginiCarosello[this.currentIndex].url;
+  console.log("Url immagine da eliminare: ", urlDaEliminare)
   // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
   const dialogRef = this.dialog.open(DeleteDataAdminComponent, {
     width: '90vw',
+    disableClose: false,
     data: urlDaEliminare
   });
 
@@ -67,11 +70,11 @@ apriPopUpEliminaImmagine(): void {
     if (eliminatoConSuccesso) {
 
       // Rimuovo l'immagine dall'array
-      this.immaginiCarosello.caroselloImmaginiInput.splice(this.currentIndex, 1);
+      this.immaginiCarosello.splice(this.currentIndex, 1);
 
       // Correggo l'indice se siamo alla fine dell'array
-      if (this.currentIndex >= this.immaginiCarosello.caroselloImmaginiInput.length) {
-        this.currentIndex = Math.max(0, this.immaginiCarosello.caroselloImmaginiInput.length - 1);
+      if (this.currentIndex >= this.immaginiCarosello.length) {
+        this.currentIndex = Math.max(0, this.immaginiCarosello.length - 1);
       }
     } else {
       // Opzionale: puoi loggare o gestire un messaggio se l'eliminazione è stata annullata o fallita
@@ -82,24 +85,24 @@ apriPopUpEliminaImmagine(): void {
 
 
 
-  caricaNuovaImmagine(){
-    
+  downloadMedia(): void {
+    const dataInputDownload: ImmagineConfig = {
+      url: this.immaginiCarosello[this.currentIndex].url,
+      display_name: this.immaginiCarosello[this.currentIndex].display_name
+    }
+
+     this.dialog.open(DownloadDataAdminComponent, {
+        width: '90vw',
+        disableClose: false,
+        data: dataInputDownload
+  });
+
   }
 
-  downloadMedia(): void {
-    const url = this.immaginiCarosello.caroselloImmaginiInput[this.currentIndex];
-    const nomeFile = `${this.displayName}_carosello_${this.currentIndex + 1}.jpg`;
+  
 
-    fetch(url)
-      .then(r => r.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = nomeFile;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      })
-      .catch(err => console.error('Errore nel download:', err));
+  caricaNuovaImmagine(){
+    
   }
 
 chiudiDialog(): void {

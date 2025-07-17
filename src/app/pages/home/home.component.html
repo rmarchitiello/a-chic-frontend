@@ -20,7 +20,7 @@
 </button>
 
       <div class="carousel-container-desktop">
-        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img" (click)="goTo('/borse')"
+        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img.url" (click)="goTo('/borse')"
           [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello desktop" />
       </div>
     </div>
@@ -62,7 +62,7 @@
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
       <div class="carousel-container-recensioni-desktop">
-        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione"
+        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione.url"
           [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-desktop"
           alt="Recensione cliente" />
       </div>
@@ -80,7 +80,7 @@
     <!-- Carosello immagini principale (si vede subito, senza effetto) -->
     <div class="carousel-wrapper-mobile">
       <div class="carousel-container-mobile">
-        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img" (click)="goTo('/borse')"
+        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img.url" (click)="goTo('/borse')"
           [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello mobile" />
       </div>
     </div>
@@ -122,7 +122,7 @@
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-mobile">Dicono di noi</h2>
       <div class="carousel-container-recensioni-mobile">
-        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione"
+        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione.url"
           [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-mobile"
           alt="Recensione cliente" />
       </div>

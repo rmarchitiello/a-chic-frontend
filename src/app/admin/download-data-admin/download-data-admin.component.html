@@ -1,1 +1,16 @@
-<p>download-data-admin works!</p>
+<div class="popup-container">
+  <h2 class="titolo-pop-up">Download file</h2>
+
+  <p class="messaggio" *ngIf="downloadSuccess === true">
+     Il file è stato scaricato correttamente.
+  </p>
+
+  <p class="messaggio errore" *ngIf="downloadSuccess === false">
+     Si è verificato un errore durante il download.
+  </p>
+
+  <div class="azioni">
+    <button mat-flat-button color="primary" (click)="downloadMedia()">Scarica</button>
+    <button mat-button mat-dialog-close (click)="chiudiPopUp()">Chiudi</button>
+  </div>
+</div>
