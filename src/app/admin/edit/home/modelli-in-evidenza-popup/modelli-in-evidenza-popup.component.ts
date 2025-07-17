@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
   selector: 'app-modelli-in-evidenza-popup',
   imports: [],
   templateUrl: './modelli-in-evidenza-popup.component.html',
-  styleUrl: './modelli-in-evidenza-popup.component.css'
+  styleUrl: './modelli-in-evidenza-popup.component.scss'
 })
 export class ModelliInEvidenzaPopupComponent {
 

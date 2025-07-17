@@ -1,1 +1,25 @@
-<p>upload-data-admin works!</p>
+<!-- Zona principale per l’upload, visivamente riconoscibile -->
+<div class="upload-drop-area">
+
+  <!-- Messaggio di istruzioni per l’utente -->
+  <p class="upload-instructions">
+    Trascina qui una o più file da caricare
+    <br>
+    oppure
+  </p>
+
+  <!-- Pulsante Material per aprire il selettore file manuale -->
+  <button mat-stroked-button color="primary" (click)="fileInput.click()">
+    Seleziona dal dispositivo
+  </button>
+
+  <!-- Input file nascosto, attivato via click dal bottone sopra -->
+  <input
+    #fileInput
+    type="file"
+    multiple
+    accept="image/*"
+    hidden
+  />
+
+</div>

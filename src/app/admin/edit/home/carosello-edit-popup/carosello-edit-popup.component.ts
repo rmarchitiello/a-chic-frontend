@@ -1,6 +1,11 @@
 //qui avrò i metodi per modificare solo il carosello 
 /* Nella home impostiamo il tasto di modifica, quel tasto di modifica chiama questo pop up 
 e poi questo component chiama il pop up dinamicamente se in abse a una cancellazione ecc chiama i pop up common*/
+
+
+/* Per l'upload per farlo piu veloce e piu efficiente uso il drag and drop
+Anche come per gli altri component ci sara il pop up di caricamento
+*/
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -10,7 +15,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DeleteDataAdminComponent } from '../../../common/delete-data-admin/delete-data-admin.component';
 import { DownloadDataAdminComponent } from '../../../common/download-data-admin/download-data-admin.component';
 import { ImmagineConfig } from '../../../../pages/home/home.component';
-
+import { UploadDataAdminComponent } from '../../../common/upload-data-admin/upload-data-admin.component';
 
 
 @Component({
@@ -103,7 +108,11 @@ apriPopUpEliminaImmagine(): void {
   
 
   apriPopUpCaricaImmagine(){
-    
+
+     this.dialog.open(UploadDataAdminComponent, {
+        width: '90vw',
+        disableClose: false
+  });
   }
 
 chiudiDialog(): void {
