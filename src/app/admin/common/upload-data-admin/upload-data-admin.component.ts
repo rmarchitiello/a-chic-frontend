@@ -172,6 +172,7 @@ onFileSelected(event: Event): void {
 // Stato di caricamento per ogni file (verde = ok, rosso = errore)
 statoUpload: Map<File, 'ok' | 'ko'> = new Map();
 uploadInCorso: boolean = false; // dichiarala all'inizio del componente
+motiviErroreUpload = new Map<File, string>(); //tooltip mi appoggio e vedo qual e l errore
 
 uploadFiles(): void {
   if (this.filesDaCaricare.length === 0) {
@@ -187,13 +188,13 @@ uploadFiles(): void {
 
   const livelli = folder.split('/').filter(p => p.trim() !== '');
   if (livelli.length > 3) {
-    alert("Errore: puoi usare al massimo 3 livelli di cartella (es. \"Borse/Conchiglia/Grande\").");
+    alert('Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande").');
     return;
   }
 
-  // Inizio upload → disattivo il pulsante
   this.uploadInCorso = true;
   this.statoUpload.clear();
+  this.motiviErroreUpload.clear(); // ⬅️ Resetto i motivi precedenti
 
   const formData = new FormData();
   const metadataList: CloudinaryDataUpload[] = [];
@@ -228,6 +229,7 @@ uploadFiles(): void {
         res.data.forEach((uploadResult: any) => {
           const nomeFile = uploadResult.nome_file;
           const stato = uploadResult.status;
+          const motivo = uploadResult.reason;
 
           const fileMatch = this.filesDaCaricare.find(f =>
             f.name.split('.')[0] === nomeFile
@@ -235,6 +237,10 @@ uploadFiles(): void {
 
           if (fileMatch) {
             this.statoUpload.set(fileMatch, stato);
+
+            if (stato === 'ko' && motivo) {
+              this.motiviErroreUpload.set(fileMatch, motivo); // ⬅️ Tooltip errore
+            }
 
             if (stato === 'ok') {
               setTimeout(() => {
@@ -246,7 +252,6 @@ uploadFiles(): void {
         });
       }
 
-      // Fine upload
       this.uploadInCorso = false;
     },
     error: (err) => {
@@ -254,6 +259,7 @@ uploadFiles(): void {
 
       this.filesDaCaricare.forEach((file: File) => {
         this.statoUpload.set(file, 'ko');
+        this.motiviErroreUpload.set(file, 'Errore generico durante l\'upload');
       });
 
       this.uploadInCorso = false;

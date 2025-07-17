@@ -143,9 +143,9 @@
       animation-delay: 2s;
     }
 
-    /* File KO → rosso */
+    /* File KO → rosso visivo */
     &.file-ko {
-      border: 1px solid red;
+      border: 2px solid red;
       background-color: #ffe6e6;
       color: red;
     }
