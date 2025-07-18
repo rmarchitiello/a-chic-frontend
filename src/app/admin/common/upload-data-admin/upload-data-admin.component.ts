@@ -94,7 +94,6 @@ rimuoviTuttiIFiles(): void {
     // Rimuove gli event listener globali quando il componente viene distrutto
     window.removeEventListener('dragover', this.preventBrowserDefault, false);
     window.removeEventListener('drop', this.preventBrowserDefault, false);
-    this.chiudiDialog();
   }
 
   /**
@@ -162,10 +161,12 @@ onFileSelected(event: Event): void {
   /**
    * Metodo per chiudere il dialog (popup) manualmente, es. tramite pulsante "Chiudi"
    */
-  chiudiDialog(): void {
+  chiudiDialog(reload: boolean): void {
     this.dialogRef.close();
             setTimeout(() => {
+         if(reload) {
           window.location.reload();
+         }
         }, 400);
   }
 

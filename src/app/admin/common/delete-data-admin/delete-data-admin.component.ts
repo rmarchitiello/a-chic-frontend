@@ -48,7 +48,6 @@ export class DeleteDataAdminComponent implements OnInit {
   ) {}
 
   ngOnDestroy(): void {
-    this.chiudiDialog();
   }
 
   ngOnInit(): void {
@@ -151,10 +150,13 @@ deleteMedia(allImages: boolean = false, immagineSingola?: ImmagineConErrore): vo
     this.dialogRef.close(false);
   }
 
-    chiudiDialog(): void {
+    chiudiDialog(reload: boolean): void {
     this.dialogRef.close();
             setTimeout(() => {
-          window.location.reload();
+              if(reload){
+              window.location.reload();
+
+              }
         }, 400);
   }
 
