@@ -1,18 +1,71 @@
+<!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
-  <img [src]="mediaInput" alt="Anteprima immagine" class="preview-img" />
+
+  <!-- Container che mostra le anteprime delle immagini -->
+  <div class="preview-container">
+    
+    <!-- Cicla su tutte le immagini da eliminare -->
+    <div *ngFor="let img of mediaInput"
+         class="preview-wrapper"
+         [ngClass]="{ 'errore': img.erroreEliminazione }"
+         [matTooltip]="img.dettaglioErrore || ''"
+         matTooltipPosition="above">
+
+      <!-- Pulsante elimina immagine specifica (in alto a destra della card) -->
+      <button class="delete-btn"
+              mat-icon-button
+              color="warn"
+              aria-label="Elimina immagine"
+              (click)="deleteMedia(false, img)">
+        <mat-icon>delete</mat-icon>
+      </button>
+
+      <!-- Immagine di anteprima -->
+      <img [src]="img.url"
+           [alt]="img.display_name"
+           class="preview-img" />
+
+      <!-- Nome dell'immagine -->
+      <p>{{ img.display_name }}</p>
+    </div>
+  </div>
+
+  <!-- Messaggio di conferma -->
   <p class="confirm-text">
-    Sei sicuro di voler eliminare questa immagine dal carosello?
+    Sei sicuro di voler eliminare
+    <ng-container *ngIf="mediaInput.length === 1; else multiple">
+      questa immagine dal carosello?
+    </ng-container>
+    <ng-template #multiple>
+      queste {{ mediaInput.length }} immagini dal carosello?
+    </ng-template>
   </p>
 </div>
 
+<!-- Azioni nella parte inferiore del dialog -->
 <div mat-dialog-actions align="end" class="delete-dialog-actions">
-  <!-- Annulla -->
-  <button mat-stroked-button color="primary" type="button" (click)="annulla()">
+
+  <!-- Pulsante per annullare e chiudere il dialog -->
+  <button mat-stroked-button
+          color="primary"
+          type="button"
+          (click)="annulla()">
     Annulla
   </button>
 
-  <!-- Elimina -->
-  <button mat-flat-button color="warn" type="button" (click)="deleteMedia()">
+  <!-- Pulsante per eliminare solo la prima immagine della lista -->
+  <button mat-flat-button
+          color="warn"
+          type="button"
+          (click)="deleteMedia(false)">
     Elimina immagine
+  </button>
+
+  <!-- Pulsante per eliminare tutte le immagini mostrate -->
+  <button mat-flat-button
+          color="warn"
+          type="button"
+          (click)="deleteMedia(true)">
+    Elimina tutte le immagini
   </button>
 </div>

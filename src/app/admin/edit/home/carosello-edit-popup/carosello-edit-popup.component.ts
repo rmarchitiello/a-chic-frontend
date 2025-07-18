@@ -34,7 +34,7 @@ immaginiCarosello: ImmagineConfig[] = [];
   currentIndex: number = 0;
 
   prepareFileForUpload: CloudinaryDataUpload = {
-      folder: 'config/home/carosello',
+      folder: 'Config/Home/Carosello',
       context: {
         nome_file: '',
         descrizione:  '',
@@ -72,13 +72,13 @@ immaginiCarosello: ImmagineConfig[] = [];
 
 apriPopUpEliminaImmagine(): void {
   // Recupero l'URL dell'immagine attualmente selezionata
-  const urlDaEliminare = this.immaginiCarosello[this.currentIndex].url;
-  console.log("Url immagine da eliminare: ", urlDaEliminare)
+  const urlsDaEliminare = this.immaginiCarosello;
+  console.log("Urls immagine da eliminare: ", urlsDaEliminare)
   // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
   const dialogRef = this.dialog.open(DeleteDataAdminComponent, {
     width: '90vw',
     disableClose: false,
-    data: urlDaEliminare
+    data: urlsDaEliminare
   });
 
   // Dopo la chiusura del dialog (conferma o annulla)
