@@ -3,7 +3,7 @@
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
 
-    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso" (click)="annulla()">
+    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso" (click)="chiudiDialog(true)">
       <mat-icon>close</mat-icon>
     </button>
 
