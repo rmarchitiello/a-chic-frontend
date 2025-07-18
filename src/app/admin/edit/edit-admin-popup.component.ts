@@ -36,7 +36,7 @@ mediaInput: MediaCloudinary[] = [];
   currentIndex: number = 0;
 
   prepareFileForUpload: CloudinaryDataUpload = {
-      folder: 'Config/Home/Carosello',
+      folder: 'Config/Home/Carosello', //anche qui rendere dinamico
       context: {
         nome_file: '',
         descrizione:  '',
