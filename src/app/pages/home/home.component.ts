@@ -210,13 +210,21 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate([urlOrFilter]);
   }
 
-  apriPopUpEditorAdmin(): void {
-    this.dialog.open(EditAdminPopUpComponent, {
-      width: '90vw',
-      disableClose: false,
-      data: this.caroselloImmagini,
-    });
-  }
+  /* Uso questo metodo dove voglio per editare il contenuto dei media di quella*/
+apriPopUpEditorAdmin(): void {
+
+  this.dialog.open(EditAdminPopUpComponent, {
+  width: '90vw',
+  disableClose: false,
+  data: this.caroselloImmagini,
+  panelClass: 'popup-edit-admin',
+  backdropClass: 'popup-edit-admin' // importante per lo sfondo trasparente
+});
+
+
+}
+
+
 
   ngAfterViewInit(): void {
     setTimeout(() => {

@@ -41,3 +41,28 @@ html, body {
     overflow: visible;
   }
 }
+
+
+/* ========== STILI PER IL DIALOG MODALE CUSTOM (popup-edit-admin) ========== */
+
+/* Rimuove padding e ombre inutili dai dialog */
+::ng-deep .popup-edit-admin .mat-dialog-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  height: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+::ng-deep .cdk-overlay-pane.popup-edit-admin {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  max-width: 100vw !important;
+  width: auto !important;
+}

@@ -5,6 +5,8 @@ e poi questo component chiama il pop up dinamicamente se in abse a una cancellaz
 
 /* Per l'upload per farlo piu veloce e piu efficiente uso il drag and drop
 Anche come per gli altri component ci sara il pop up di caricamento
+
+Questo component genera sempre dei tasti di upload delete download di qualche media 
 */
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -22,7 +24,7 @@ import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component'
   selector: 'app-carosello-edit',
   standalone: true,
   templateUrl: './edit-admin-popup.component.html',
-  styleUrl: './edit-admin-popup.component.scss',
+  styleUrls: ['./edit-admin-popup.component.scss','../../../styles.scss'],
   imports: [CommonModule, MatIconModule]
 })
 export class EditAdminPopUpComponent implements OnInit {
@@ -70,7 +72,7 @@ immaginiCarosello: ImmagineConfig[] = [];
     }
   }
 
-apriPopUpEliminaImmagine(): void {
+apriPopUpEliminaMedia(): void {
   // Recupero l'URL dell'immagine attualmente selezionata
   const urlsDaEliminare = this.immaginiCarosello;
   console.log("Urls immagine da eliminare: ", urlsDaEliminare)
@@ -125,7 +127,7 @@ apriPopUpEliminaImmagine(): void {
 
 
 
-  apriPopUpCaricaImmagine(){
+  apriPopUpCaricaMedia(){
 
      this.dialog.open(UploadDataAdminComponent, {
         width: '90vw',

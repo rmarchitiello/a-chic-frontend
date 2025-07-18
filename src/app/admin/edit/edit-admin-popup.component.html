@@ -1,21 +1,35 @@
-<!-- Contenitore principale visibile solo se ci sono media -->
-<div class="carosello-container">
+<div class="popup-wrapper">
+  <div class="carosello-container">
+    <h2 class="titolo">Modifica carosello</h2>
+    <p class="sottotitolo">Gestisci i contenuti del carosello:</p>
 
-  <!-- Pulsanti azione in alto a destra -->
-  <div class="action-buttons">
-    <button mat-icon-button class="add-button" (click)="apriPopUpCaricaImmagine()" matTooltip="Aggiungi media" aria-label="Aggiungi">
-      <mat-icon color="primary">add</mat-icon>
-    </button>
+    <div class="bottoni-centrati">
+      <button
+        mat-icon-button
+        class="bottone add"
+        matTooltip="Clicca qui per caricare un media"
+        (click)="apriPopUpCaricaMedia()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
 
-    <button mat-icon-button class="download-button" (click)="apriPopUpdownloadMedia()" matTooltip="Scarica media" aria-label="Download">
-      <mat-icon>download</mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        class="bottone download"
+        matTooltip="Clicca qui per scaricare un media"
+        (click)="apriPopUpdownloadMedia()"
+      >
+        <mat-icon>download</mat-icon>
+      </button>
 
-    <button mat-icon-button class="delete-button" (click)="apriPopUpEliminaImmagine()" matTooltip="Elimina media" aria-label="Elimina">
-      <mat-icon color="warn">delete</mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        class="bottone delete"
+        matTooltip="Clicca qui per cancellare un media"
+        (click)="apriPopUpEliminaMedia()"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
   </div>
-
-  
 </div>
-
