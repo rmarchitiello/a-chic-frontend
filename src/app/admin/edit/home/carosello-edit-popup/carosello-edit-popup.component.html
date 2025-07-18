@@ -23,7 +23,7 @@
 
   <!-- Rilevamento tipo di media -->
   <div class="media-wrapper">
-    <ng-container [ngSwitch]="getMediaType(immaginiCarosello[currentIndex].url)">
+    <ng-container [ngSwitch]="immaginiCarosello[currentIndex].type">
 
       <!-- Immagine -->
       <img *ngSwitchCase="'image'" 

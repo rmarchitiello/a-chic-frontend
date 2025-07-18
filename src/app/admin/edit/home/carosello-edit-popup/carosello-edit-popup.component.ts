@@ -121,15 +121,7 @@ apriPopUpEliminaImmagine(): void {
   }
 
   
-getMediaType(url: string): 'image' | 'video' | 'audio' | 'unknown' {
-  const estensione = url.split('.').pop()?.toLowerCase() || '';
 
-  if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].includes(estensione)) return 'image';
-  if (['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(estensione)) return 'video';
-  if (['mp3', 'wav', 'ogg', 'aac', 'flac'].includes(estensione)) return 'audio';
-
-  return 'unknown';
-}
 
 
 
