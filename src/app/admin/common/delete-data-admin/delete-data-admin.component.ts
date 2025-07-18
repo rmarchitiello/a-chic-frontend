@@ -45,6 +45,10 @@ export class DeleteDataAdminComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[]
   ) {}
 
+  ngOnDestroy(): void {
+    this.chiudiDialog();
+  }
+
   ngOnInit(): void {
     // All'avvio del componente, clono ogni immagine con i flag per errore/animazione
     this.mediaInput = this.data.map(img => ({
@@ -146,5 +150,12 @@ export class DeleteDataAdminComponent implements OnInit {
    */
   annulla(): void {
     this.dialogRef.close(false);
+  }
+
+    chiudiDialog(): void {
+    this.dialogRef.close();
+            setTimeout(() => {
+          window.location.reload();
+        }, 400);
   }
 }

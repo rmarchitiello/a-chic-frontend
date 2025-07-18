@@ -166,7 +166,7 @@ onFileSelected(event: Event): void {
     this.dialogRef.close();
             setTimeout(() => {
           window.location.reload();
-        }, 800);
+        }, 400);
   }
 
 
