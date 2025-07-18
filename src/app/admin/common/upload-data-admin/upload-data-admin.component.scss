@@ -1,4 +1,4 @@
-/* Contenitore principale dell'area di drop */
+/* Contenitore principale dell'area di drop per selezione o drag file */
 .upload-drop-area {
   width: 100%;
   max-width: 100%;
@@ -15,14 +15,15 @@
   cursor: pointer;
   z-index: 10;
   position: relative;
-  margin-top: 0;
 
+  /* Cambio colore e ombra quando l'utente sta trascinando file sopra */
   &.hover-active {
     background: linear-gradient(145deg, #e3f2fd, #ffffff);
     border-color: #1e88e5;
     box-shadow: 0 10px 28px rgba(33, 150, 243, 0.2);
   }
 
+  /* Stile del pulsante "Seleziona dal dispositivo" */
   button[mat-stroked-button] {
     margin-top: 16px;
     font-weight: 600;
@@ -41,19 +42,20 @@
   }
 }
 
-/* Icona cloud_upload centrale */
+/* Icona cloud al centro */
 .upload-icon {
   font-size: 72px;
   margin-bottom: 20px;
   color: #1976d2;
   transition: transform 0.3s ease;
 
+  /* Leggero ingrandimento quando l'area è attiva */
   .upload-drop-area.hover-active & {
     transform: scale(1.1);
   }
 }
 
-/* Testo con istruzioni */
+/* Testo di istruzioni per il caricamento */
 .upload-instructions {
   font-size: 20px;
   font-weight: 500;
@@ -62,7 +64,7 @@
   line-height: 1.6;
 }
 
-/* Pulsante Upload in Cloud */
+/* Pulsante per avviare l'upload */
 .upload-action {
   text-align: center;
   margin-top: 24px;
@@ -84,13 +86,14 @@
   }
 }
 
-/* Contenitore dei file caricati */
+/* Contenitore dell'elenco file caricati */
 .anteprima-container {
   margin-top: 32px;
   max-height: 300px;
   overflow-y: auto;
   padding: 0 16px;
 
+  /* Intestazione con titolo e pulsante rimuovi tutto */
   .anteprima-header {
     display: flex;
     justify-content: space-between;
@@ -104,15 +107,21 @@
       color: #333;
     }
 
+    /* Pulsante "Rimuovi tutti" */
     button {
       font-weight: 600;
       font-size: 14px;
       border-radius: 6px;
       text-transform: none;
       cursor: pointer;
+
+      &.nascosto {
+        display: none;
+      }
     }
   }
 
+  /* Lista dei file */
   .file-list {
     display: flex;
     flex-direction: column;
@@ -121,6 +130,7 @@
     margin: 0 auto;
   }
 
+  /* Singolo file */
   .file-item {
     display: flex;
     align-items: center;
@@ -134,7 +144,7 @@
     transition: all 0.4s ease;
     opacity: 1;
 
-    /* File OK → verde e dissolvenza */
+    /* Stato OK (file caricato) */
     &.file-ok {
       border: 1px solid green;
       background-color: #e6ffe6;
@@ -143,13 +153,14 @@
       animation-delay: 2s;
     }
 
-    /* File KO → rosso visivo */
+    /* Stato KO (errore) */
     &.file-ko {
       border: 2px solid red;
       background-color: #ffe6e6;
       color: red;
     }
 
+    /* Miniatura immagine o video */
     .file-thumb {
       width: 40px;
       height: 40px;
@@ -158,12 +169,14 @@
       flex-shrink: 0;
     }
 
+    /* Audio più largo */
     .file-thumb-audio {
       width: 120px;
       height: 30px;
       flex-shrink: 0;
     }
 
+    /* Icona fallback */
     .file-icon {
       width: 40px;
       height: 40px;
@@ -176,6 +189,7 @@
       flex-shrink: 0;
     }
 
+    /* Nome file */
     .file-name {
       flex: 1;
       overflow: hidden;
@@ -185,6 +199,7 @@
       font-size: 15px;
     }
 
+    /* Pulsante per rimuovere singolo file */
     .btn-remove {
       background: none;
       border: none;
@@ -201,7 +216,7 @@
   }
 }
 
-/* Dissolvenza dei file-ok */
+/* Animazione dissolvenza dei file andati a buon fine */
 @keyframes fadeOut {
   to {
     opacity: 0;
@@ -212,7 +227,36 @@
   }
 }
 
-/* Rimuove scroll orizzontale in dialog Angular Material */
+/* Overlay durante l'upload per disabilitare le interazioni */
+.overlay-uploading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.6);
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin-top: 16px;
+    font-weight: 500;
+    color: #333;
+  }
+}
+
+/* Oscuro tutto quando upload in corso */
+.blur {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Elimino scroll orizzontale dalle dialog Angular Material */
 ::ng-deep .mat-dialog-container {
   overflow-x: hidden !important;
   max-width: 100vw;

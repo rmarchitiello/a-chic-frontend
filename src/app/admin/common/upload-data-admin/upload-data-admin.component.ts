@@ -19,10 +19,12 @@ import { CmsService } from '../../../services/cms.service';
 import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { CloudinaryDataUpload } from '../../../cms/cms-upload/cms-upload.component'; //interfaccia per poter chiamare l'upload di cmsservice per uploadare un file
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
-  imports: [MatIcon,CommonModule],
+  imports: [MatIcon,CommonModule,MatProgressSpinnerModule],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
 })
@@ -92,6 +94,7 @@ rimuoviTuttiIFiles(): void {
     // Rimuove gli event listener globali quando il componente viene distrutto
     window.removeEventListener('dragover', this.preventBrowserDefault, false);
     window.removeEventListener('drop', this.preventBrowserDefault, false);
+    this.chiudiDialog();
   }
 
   /**
@@ -161,6 +164,9 @@ onFileSelected(event: Event): void {
    */
   chiudiDialog(): void {
     this.dialogRef.close();
+            setTimeout(() => {
+          window.location.reload();
+        }, 800);
   }
 
 
@@ -173,6 +179,7 @@ onFileSelected(event: Event): void {
 statoUpload: Map<File, 'ok' | 'ko'> = new Map();
 uploadInCorso: boolean = false; // dichiarala all'inizio del componente
 motiviErroreUpload = new Map<File, string>(); //tooltip mi appoggio e vedo qual e l errore
+
 
 uploadFiles(): void {
   if (this.filesDaCaricare.length === 0) {
@@ -225,6 +232,9 @@ uploadFiles(): void {
     next: (res) => {
       console.log('Upload completato:', res);
 
+            let ciSonoErrori = false;
+
+
       if (Array.isArray(res.data)) {
         res.data.forEach((uploadResult: any) => {
           const nomeFile = uploadResult.nome_file;
@@ -238,11 +248,15 @@ uploadFiles(): void {
           if (fileMatch) {
             this.statoUpload.set(fileMatch, stato);
 
-            if (stato === 'ko' && motivo) {
-              this.motiviErroreUpload.set(fileMatch, motivo); // ⬅️ Tooltip errore
+            if (stato === 'ko') {
+              ciSonoErrori = true;
+              if (motivo) {
+                this.motiviErroreUpload.set(fileMatch, motivo);
+              }
             }
 
             if (stato === 'ok') {
+              
               setTimeout(() => {
                 this.statoUpload.delete(fileMatch);
                 this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
@@ -254,9 +268,12 @@ uploadFiles(): void {
 
       this.uploadInCorso = false;
       //ricarico la pagina dopo l'upload
-            setTimeout(() => {
-        window.location.reload();
-      }, 800); // leggero delay per completare eventuali animazioni o chiusura dialog
+            if (!ciSonoErrori) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 800);
+      }
+
     },
     error: (err) => {
       console.error("Errore durante l'upload dei file:", err);
@@ -268,6 +285,9 @@ uploadFiles(): void {
 
       this.uploadInCorso = false;
     }
+    
+
+    
   });
 }
 
