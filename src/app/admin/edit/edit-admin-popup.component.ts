@@ -22,7 +22,6 @@ import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component'
 
 @Component({
   selector: 'app-carosello-edit',
-  standalone: true,
   templateUrl: './edit-admin-popup.component.html',
   styleUrls: ['./edit-admin-popup.component.scss','../../../styles.scss'],
   imports: [CommonModule, MatIconModule]
@@ -35,15 +34,7 @@ mediaInput: MediaCloudinary[] = [];
   displayName: string = '';
   currentIndex: number = 0;
 
-  prepareFileForUpload: CloudinaryDataUpload = {
-      folder: 'Config/Home/Carosello', //anche qui rendere dinamico
-      context: {
-        nome_file: '',
-        descrizione:  '',
-        quantita:  '0',
-        angolazione: 'frontale' 
-      }
-    };
+
 
 
 
@@ -131,14 +122,16 @@ apriPopUpDownloadMedia(): void {
   
 
 
-
-
+//input statico al momento 
+  //input che serve per caricare il file
+  folderToUpload: string =  'Config/Home/Carosello'; //anche qui rendere dinamico
+   
   apriPopUpCaricaMedia(){
 
      this.dialog.open(UploadDataAdminComponent, {
         width: '90vw',
         disableClose: false,
-        data: this.prepareFileForUpload
+        data: this.folderToUpload
   });
   }
 

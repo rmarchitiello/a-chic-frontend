@@ -10,7 +10,6 @@ import { CmsService } from '../../services/cms.service';
 
 @Component({
   selector: 'app-login-admin',
-  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,

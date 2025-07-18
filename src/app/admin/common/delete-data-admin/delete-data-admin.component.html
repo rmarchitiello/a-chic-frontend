@@ -82,16 +82,6 @@
     </ng-container>
   </div>
 
-  <!-- Messaggio di conferma -->
-  <p class="confirm-text" [class.blur]="eliminazioneInCorso">
-    Sei sicuro di voler eliminare
-    <ng-container *ngIf="mediaInput.length === 1; else multiple">
-      questo media dal carosello?
-    </ng-container>
-    <ng-template #multiple>
-      questi {{ mediaInput.length }} media dal carosello?
-    </ng-template>
-  </p>
 </div>
 
 <!-- Azioni in basso -->

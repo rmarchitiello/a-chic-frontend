@@ -25,7 +25,6 @@ interface ImmagineConErrore extends MediaCloudinary {
   selector: 'app-delete-data-admin',
   templateUrl: './delete-data-admin.component.html',
   styleUrl: './delete-data-admin.component.scss',
-  standalone: true,
   imports: [
     CommonModule,
     MatTooltipModule,

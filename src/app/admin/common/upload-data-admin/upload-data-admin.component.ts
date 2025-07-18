@@ -20,11 +20,12 @@ import { MatIcon } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { CloudinaryDataUpload } from '../../../cms/cms-upload/cms-upload.component'; //interfaccia per poter chiamare l'upload di cmsservice per uploadare un file
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-
+import { MatDialog } from '@angular/material/dialog';
+import { EditContextBeforeUploadComponent } from '../../edit-media-upload/edit-context-before-upload.component';
+import { MatDialogModule } from '@angular/material/dialog';
 @Component({
   selector: 'app-upload-data-admin',
-  standalone: true,
-  imports: [MatIcon,CommonModule,MatProgressSpinnerModule],
+  imports: [MatIcon,CommonModule,MatProgressSpinnerModule,MatDialogModule],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
 })
@@ -32,8 +33,9 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
   constructor(
     private cmsService: CmsService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public prepareDataUpload: CloudinaryDataUpload //LA FOLDER VIENE PASSATA DAL PADRE
+    @Inject(MAT_DIALOG_DATA) public folder: string //LA FOLDER VIENE PASSATA DAL PADRE
   ) {}
 
   // Variabile booleana per attivare lo stile visivo quando un file è sopra l’area di drop
@@ -182,13 +184,19 @@ uploadInCorso: boolean = false; // dichiarala all'inizio del componente
 motiviErroreUpload = new Map<File, string>(); //tooltip mi appoggio e vedo qual e l errore
 
 
+//setto il context da popUp
+nome_file: string = '';
+descrizione: string = '';
+quantita: string = '';
+angolazione: string = '';
+
 uploadFiles(): void {
   if (this.filesDaCaricare.length === 0) {
     alert("Errore: seleziona almeno un file da caricare.");
     return;
   }
 
-  const folder = this.prepareDataUpload.folder?.trim();
+  const folder = this.folder?.trim();
   if (!folder) {
     alert("Errore: specifica una cartella di destinazione.");
     return;
@@ -210,15 +218,21 @@ uploadFiles(): void {
   this.filesDaCaricare.forEach((file: File) => {
     formData.append('file', file);
 
+    
+    const context = this.metadatiPerFile.get(file) || {
+        nome_file: file.name.split('.')[0],
+        descrizione: '',
+        quantita: '0',
+        angolazione: 'frontale'
+      };
+
     const metadata: CloudinaryDataUpload = {
       folder: folder,
-      context: {
-        nome_file: file.name.split('.')[0],
-        descrizione: this.prepareDataUpload.context.descrizione,
-        quantita: this.prepareDataUpload.context.quantita,
-        angolazione: this.prepareDataUpload.context.angolazione
-      }
+      context
     };
+
+
+    console.log("File da caricare: ", metadata);
 
     metadataList.push(metadata);
   });
@@ -290,8 +304,32 @@ uploadFiles(): void {
 
     
   });
+
+
+ 
 }
 
+// Questo metodo serve per poter editare un anteprima di un file aprendo un pop up 
+//in input passo il file in modo da creare una mappa file metadati
+metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
+
+apriPopUpEditFile(file: File) {
+  const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
+    width: '90vw',
+    disableClose: false
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result) {
+      this.metadatiPerFile.set(file, {
+        nome_file: result.nome_file,
+        descrizione: result.descrizione,
+        quantita: result.quantita,
+        angolazione: result.angolazione
+      });
+    }
+  });
+}
 
 
 

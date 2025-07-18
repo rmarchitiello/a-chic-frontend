@@ -1,0 +1,64 @@
+<!-- Wrapper del dialog -->
+<div class="dialog-scroll-content">
+
+  <!-- Pulsante per chiudere il popup -->
+  <!-- Pulsante "Chiudi" senza cerchio -->
+<button class="chiudi-btn" matTooltip="Chiudi" (click)="annulla()">
+  <mat-icon>close</mat-icon>
+</button>
+
+
+  <!-- Contenuto principale del popup -->
+  <div class="upload-main-content">
+
+    <h2 class="titolo-form">Modifica metadati del file</h2>
+
+    <!-- Form di modifica -->
+    <form class="form-metadata" (ngSubmit)="conferma()" autocomplete="off">
+
+      <!-- Nome file -->
+      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+        <mat-label>Nome file</mat-label>
+        <input matInput [(ngModel)]="nome_file" name="nome_file" required />
+      </mat-form-field>
+
+      <!-- Descrizione -->
+      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+        <mat-label>Descrizione</mat-label>
+        <textarea matInput [(ngModel)]="descrizione" name="descrizione" rows="3"></textarea>
+      </mat-form-field>
+
+      <!-- Quantità -->
+      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+        <mat-label>Quantità</mat-label>
+        <input
+          matInput
+          type="number"
+          min="0"
+          [(ngModel)]="quantita"
+          name="quantita"
+          required
+        />
+      </mat-form-field>
+
+      <!-- Angolazione -->
+      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+        <mat-label>Angolazione</mat-label>
+        <mat-select [(ngModel)]="angolazione" name="angolazione" required>
+          <mat-option value="frontale">Frontale</mat-option>
+          <mat-option value="profilo">Profilo</mat-option>
+          <mat-option value="retro">Retro</mat-option>
+          <mat-option value="alto">Alto</mat-option>
+          <mat-option value="dettaglio">Dettaglio</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Bottoni azione -->
+      <div class="bottoni-form">
+        <button mat-flat-button color="primary" type="submit">Salva</button>
+        <button mat-stroked-button color="warn" type="button" (click)="annulla()">Annulla</button>
+      </div>
+
+    </form>
+  </div>
+</div>

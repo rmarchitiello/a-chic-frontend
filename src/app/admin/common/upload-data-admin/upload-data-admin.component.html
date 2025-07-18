@@ -1,22 +1,21 @@
-<!-- Contenitore scrollabile del contenuto del dialog -->
-<div class="dialog-scroll-content">
+<mat-dialog-content class="dialog-scroll-content">
 
-      <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!uploadInCorso" (click)="chiudiDialog(false)">
-      <mat-icon>close</mat-icon>
-    </button>
+  <!-- Pulsante di chiusura fisso in alto a destra -->
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!uploadInCorso" (click)="chiudiDialog(false)">
+    <mat-icon>close</mat-icon>
+  </button>
 
-  <!-- Overlay visibile durante l'upload con spinner e messaggio -->
+  <!-- Overlay visibile durante l'upload -->
   <div class="upload-overlay" *ngIf="uploadInCorso">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Caricamento in corso...</p>
   </div>
 
-  <!-- Questo contenitore viene sfocato quando l'upload è in corso -->
+  <!-- Contenuto principale del popup (con blur se in upload) -->
   <div class="upload-main-content" [class.blur]="uploadInCorso">
 
-    <!-- Sezione drag-and-drop per trascinare file -->
-    <div class="upload-drop-area"
-         [class.hover-active]="isHovering"
+    <!-- Area drag-and-drop -->
+    <div class="upload-drop-area" [class.hover-active]="isHovering"
          (dragover)="onDragOver($event)"
          (dragleave)="onDragLeave($event)"
          (drop)="onDrop($event)">
@@ -28,39 +27,30 @@
         oppure
       </p>
 
-      <!-- Pulsante per selezionare file dal dispositivo -->
       <button mat-stroked-button color="primary" (click)="fileInput.click()">
         Seleziona dal dispositivo
       </button>
 
-      <!-- Input file nascosto associato al pulsante -->
       <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
     </div>
 
-    <!-- Pulsante per iniziare l'upload, mostrato solo se ci sono file selezionati -->
+    <!-- Bottone "Upload in cloud" -->
     <div class="upload-action" *ngIf="filesDaCaricare.length > 0">
-      <button mat-flat-button color="primary"
-              (click)="uploadFiles()"
-              [disabled]="uploadInCorso">
+      <button mat-flat-button color="primary" (click)="uploadFiles()" [disabled]="uploadInCorso">
         {{ uploadInCorso ? 'Upload in corso...' : 'Upload in cloud' }}
       </button>
     </div>
 
-    <!-- Sezione che mostra l'elenco dei file selezionati -->
+    <!-- Lista file selezionati -->
     <div class="anteprima-container" *ngIf="filesDaCaricare.length > 0">
-
       <div class="anteprima-header">
         <h4>File selezionati per il caricamento:</h4>
-
-        <!-- Pulsante per rimuovere tutti i file, nascosto se l'upload è in corso -->
-        <button mat-flat-button color="warn"
-                (click)="rimuoviTuttiIFiles()"
-                *ngIf="!uploadInCorso">
+        <button mat-flat-button color="warn" (click)="rimuoviTuttiIFiles()" *ngIf="!uploadInCorso">
           Rimuovi tutti i file da caricare
         </button>
       </div>
 
-      <!-- Ciclo per ogni file da caricare -->
+      <!-- Ogni singolo file -->
       <div class="file-list">
         <div class="file-item"
              *ngFor="let file of filesDaCaricare"
@@ -69,7 +59,7 @@
                'file-ko': statoUpload.get(file) === 'ko'
              }">
 
-          <!-- Anteprima in base al tipo di file -->
+          <!-- Anteprima -->
           <ng-container *ngIf="anteprimeFile.has(file)">
             <ng-container [ngSwitch]="file.type.split('/')[0]">
               <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)" [alt]="file.name" />
@@ -79,7 +69,7 @@
             </ng-container>
           </ng-container>
 
-          <!-- Nome file con eventuale icona di stato -->
+          <!-- Nome + Stato -->
           <span class="file-name"
                 [ngStyle]="{
                   color: statoUpload.get(file) === 'ok' ? 'green' :
@@ -91,12 +81,22 @@
             <ng-container *ngIf="statoUpload.get(file) === 'ko'">❌</ng-container>
           </span>
 
-          <!-- Pulsante per rimuovere un file singolo, visibile solo se non caricato con successo -->
-          <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
-            ✖
+          <!-- Metadati visibili -->
+          <div class="file-metadata" *ngIf="metadatiPerFile.has(file)">
+            <div><strong>Nome:</strong> {{ metadatiPerFile.get(file)?.nome_file }}</div>
+            <div><strong>Descrizione:</strong> {{ metadatiPerFile.get(file)?.descrizione || '—' }}</div>
+            <div><strong>Quantità:</strong> {{ metadatiPerFile.get(file)?.quantita }}</div>
+            <div><strong>Angolazione:</strong> {{ metadatiPerFile.get(file)?.angolazione }}</div>
+          </div>
+
+          <!-- Azioni -->
+          <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">✖</button>
+          <button class="btn-edit" (click)="apriPopUpEditFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
+            <mat-icon>edit</mat-icon>
           </button>
         </div>
       </div>
     </div>
+
   </div>
-</div>
+</mat-dialog-content>

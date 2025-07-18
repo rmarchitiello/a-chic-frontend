@@ -1,0 +1,105 @@
+.dialog-scroll-content {
+  position: relative;
+  padding-top: 3rem;
+}
+
+.upload-main-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 32px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, rgba(250, 250, 250, 0.95), rgba(230, 244, 255, 0.95));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.titolo-form {
+  font-size: 1.8rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.form-metadata {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.campo-form {
+  width: 100%;
+
+  ::ng-deep .mat-form-field-outline {
+    border-radius: 8px;
+  }
+
+  ::ng-deep .mat-form-field-infix {
+    padding: 0.8rem 0.75rem;
+  }
+
+  ::ng-deep textarea.mat-input-element {
+    resize: vertical;
+  }
+}
+
+.bottoni-form {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button {
+    min-width: 120px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 8px;
+  }
+}
+
+.chiudi-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none; // niente sfondo
+  border: none;     // nessun bordo
+  box-shadow: none; // nessuna ombra
+  padding: 0;       // rimuove padding
+  margin: 0;
+  cursor: pointer;
+  z-index: 10000;
+  line-height: 1;
+  height: auto;
+  width: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 24px;
+    color: #888;
+    transition: color 0.3s ease;
+  }
+
+  &:hover mat-icon {
+    color: #000;
+  }
+}
+
+
+@media (max-width: 600px) {
+  .upload-main-content {
+    padding: 20px;
+    box-shadow: none;
+  }
+
+  .bottoni-form {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}
