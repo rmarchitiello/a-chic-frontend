@@ -9,6 +9,9 @@
 
     <!-- Carosello multimediale (immagini, video, audio) -->
     <div class="carousel-wrapper-desktop">
+
+
+      <div class="carousel-container-desktop">
       <button *ngIf="isAdmin"
               mat-icon-button
               class="edit-admin-carosello-icon"
@@ -16,8 +19,6 @@
               matTooltip="Modifica carosello">
         <mat-icon>edit</mat-icon>
       </button>
-
-      <div class="carousel-container-desktop">
         <ng-container *ngFor="let media of caroselloImmagini; let i = index">
           <img *ngIf="media.type === 'image'" [src]="media.url" (click)="goTo('/borse')"
                [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello" />
