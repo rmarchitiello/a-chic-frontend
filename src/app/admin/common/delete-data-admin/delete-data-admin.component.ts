@@ -67,83 +67,91 @@ export class DeleteDataAdminComponent implements OnInit {
    * tutte le immagini (se allImages=true), o la prima della lista.
    */
   deleteMedia(allImages: boolean = false, immagineSingola?: ImmagineConErrore): void {
-    // Attivo lo spinner globale solo se è un'eliminazione totale o batch
-    if (!immagineSingola) {
-      this.eliminazioneInCorso = true;
-    }
-
-    // Determino le immagini da inviare al backend
-    const immaginiDaEliminare: ImmagineConErrore[] = immagineSingola
-      ? [immagineSingola]
-      : allImages
-        ? this.mediaInput
-        : [this.mediaInput[0]];
-
-    // Estraggo gli URL per la richiesta HTTP
-    const urls: string[] = immaginiDaEliminare.map(img => img.url);
-
-    console.log('Sto per eliminare queste immagini:', urls);
-
-    this.cmsService.deleteImages(urls, true).subscribe({
-      next: (res) => {
-        // Disattivo lo spinner globale (se attivo)
-        this.eliminazioneInCorso = false;
-
-        if (res?.success) {
-          console.log('Eliminazione riuscita');
-
-          // Caso: eliminazione immagine singola da pulsante icona
-          if (immagineSingola) {
-            immagineSingola.inEliminazione = true;
-
-            setTimeout(() => {
-              this.mediaInput = this.mediaInput.filter(img => img.url !== immagineSingola.url);
-            }, 300);
-          }
-
-          // Caso: elimina solo la prima immagine
-          else if (!allImages) {
-            this.mediaInput[0].inEliminazione = true;
-
-            setTimeout(() => {
-              this.mediaInput = this.mediaInput.slice(1);
-            }, 300);
-          }
-
-          // Caso: elimina tutte le immagini
-          else {
-            // Chiudo il dialog con esito positivo
-            this.dialogRef.close(true);
-
-            // Ricarico la pagina per forzare aggiornamento della lista completa
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
-          }
-        } else {
-          console.warn('Il backend ha risposto ma non ha eliminato alcun file');
-          this.dialogRef.close(false);
-        }
-      },
-
-      error: (err) => {
-        this.eliminazioneInCorso = false;
-
-        console.error('Errore durante l\'eliminazione:', err);
-
-        // Imposto errore su ogni immagine coinvolta
-        for (const img of immaginiDaEliminare) {
-          img.erroreEliminazione = true;
-          img.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
-        }
-
-        // Se batch, chiudo il dialog. Se singola, lo mantengo aperto per mostrare errore visivo
-        if (!immagineSingola) {
-          this.dialogRef.close(false);
-        }
-      }
-    });
+  // Attivo lo spinner visivo solo per eliminazioni massive o batch
+  if (!immagineSingola) {
+    this.eliminazioneInCorso = true;
   }
+
+  // Costruisco l'elenco delle immagini da eliminare:
+  // - una singola se viene passata come parametro
+  // - tutte se allImages è true
+  // - solo la prima immagine se nessun parametro specificato
+  const immaginiDaEliminare: ImmagineConErrore[] = immagineSingola
+    ? [immagineSingola]
+    : allImages
+      ? this.mediaInput
+      : [this.mediaInput[0]];
+
+  // Estraggo gli URL da inviare al backend per la cancellazione
+  const urls: string[] = immaginiDaEliminare.map(img => img.url);
+
+  console.log('Sto per eliminare queste immagini:', urls);
+
+  // Chiamo il servizio che si occupa dell'eliminazione lato server
+  this.cmsService.deleteImages(urls, true).subscribe({
+    next: (res) => {
+      // Disattivo lo spinner visivo (solo per eliminazione batch)
+      this.eliminazioneInCorso = false;
+
+      // Se il backend ha confermato il successo
+      if (res?.success) {
+        console.log('Eliminazione riuscita');
+
+        // Se sto eliminando una singola immagine (da pulsante su card)
+        if (immagineSingola) {
+          immagineSingola.inEliminazione = true;
+
+          // Rimuovo l'immagine dalla lista dopo breve delay
+          setTimeout(() => {
+            this.mediaInput = this.mediaInput.filter(img => img.url !== immagineSingola.url);
+          }, 300);
+        }
+
+        // Se sto eliminando solo la prima immagine dell'elenco
+        else if (!allImages) {
+          this.mediaInput[0].inEliminazione = true;
+
+          // Rimuovo solo la prima immagine dopo breve delay
+          setTimeout(() => {
+            this.mediaInput = this.mediaInput.slice(1);
+          }, 300);
+        }
+
+        // Se sto eliminando tutte le immagini contemporaneamente
+        else {
+          // Chiudo il dialog passando "true" per notificare esito positivo
+          this.dialogRef.close(true);
+
+          // Forzo il refresh della pagina dopo breve ritardo
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
+        }
+      } else {
+        // Il backend ha risposto ma non ha confermato alcuna eliminazione
+        console.warn('Il backend ha risposto ma non ha eliminato alcun file');
+
+        // In questo caso non chiudo il dialog: lascio che l'utente lo faccia manualmente
+      }
+    },
+
+    error: (err) => {
+      // Disattivo lo spinner anche in caso di errore
+      this.eliminazioneInCorso = false;
+
+      console.error('Errore durante l\'eliminazione:', err);
+
+      // Per ogni immagine coinvolta, assegno un errore visivo e un dettaglio descrittivo
+      for (const img of immaginiDaEliminare) {
+        img.erroreEliminazione = true;
+        img.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
+      }
+
+      // Non chiudo il dialog: voglio che l'utente possa vedere i messaggi di errore sulle immagini
+    }
+  });
+}
+
 
   /**
    * Metodo per chiudere manualmente il dialog (pulsante "Annulla")
