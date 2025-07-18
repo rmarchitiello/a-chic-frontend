@@ -2,68 +2,74 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { ImmagineConfig } from '../../../pages/home/home.component';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-download-data-admin',
-  imports: [CommonModule],
+  imports: [CommonModule,MatIconModule,MatProgressSpinnerModule],
   templateUrl: './download-data-admin.component.html',
   styleUrl: './download-data-admin.component.scss'
 })
 export class DownloadDataAdminComponent {
 
-  urlInput: string = '';
-  displayNameInput: string = ''
+  mediaInput: ImmagineConfig[] = [];
   estensione: string = ''
-
-  downloadSuccess: any = null;
+  downloadInCorso: boolean = false;
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig, // dato ricevuto dal componente padre (es. URL immagine da scaricare )
+    @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[], // dato ricevuto dal componente padre (es. URL immagine da scaricare )
     private dialogRef: MatDialogRef<DownloadDataAdminComponent>    
 
   ) { }
 
   ngOnInit(): void {
     // All'inizializzazione, assegno il dato ricevuto alla variabile di lavoro
-    this.urlInput = this.data.url;
-    console.log("Url ricevuta da scaricare:", this.urlInput);
-
-    this.displayNameInput = this.data.display_name;
-    console.log("Nome file ricevuto da scaricare:", this.displayNameInput);
-
-    this.estensione = this.getEstensione(this.urlInput)
-    console.log("Estensione da scaricare: ", this.estensione);
+      console.log("[DownloadDataAdminComponent] oggetti ricevuti da scaricare: ", this.mediaInput);
+      this.mediaInput = this.data;
 
       //scarico il file
-      this.downloadMedia();
-      setTimeout(() => this.chiudiPopUp(), 1000); //chiudo il pop up dopo 3 secondi
+     // setTimeout(() => this.chiudiPopUp(), 1000); //chiudo il pop up dopo 3 secondi
 
 
   }
 
 
-    downloadMedia(): void {
-  const url = this.urlInput;
-  const fileName = `${this.displayNameInput}.${this.estensione}`;
+ downloadMedia(piuFile: boolean = false, media?: ImmagineConfig): void {
+  this.downloadInCorso = true;
 
-  fetch(url)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Errore HTTP: ${response.status}`);
-      }
-      return response.blob();
-    })
-    .then(blob => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName ;
-      link.click();
-      URL.revokeObjectURL(link.href);
-      this.downloadSuccess = true; //  Successo
-    })
-    .catch(err => {
-      console.error('Errore nel download:', err);
-      this.downloadSuccess = false; //  Errore
-    });
+  const scaricaFile = (file: ImmagineConfig) => {
+    const estensione = this.getEstensione(file.url);
+    const nomeFile = `${file.display_name}.${estensione}`;
+
+    fetch(file.url)
+      .then(response => {
+        if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
+        return response.blob();
+      })
+      .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = nomeFile;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      })
+      .catch(err => {
+        console.error(`Errore nel download di ${file.display_name}:`, err);
+      });
+  };
+
+  if (piuFile) {
+    // Download di tutti i media uno alla volta
+    this.mediaInput.forEach(file => scaricaFile(file));
+  } else if (media) {
+    // Download di un singolo file
+    scaricaFile(media);
+  }
+
+  setTimeout(() => {
+    this.downloadInCorso = false;
+    // this.chiudiPopUp(); // opzionale se vuoi chiudere subito dopo
+  }, 1000);
 }
 
 

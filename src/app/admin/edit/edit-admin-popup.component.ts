@@ -29,7 +29,7 @@ import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component'
 })
 export class EditAdminPopUpComponent implements OnInit {
 
-immaginiCarosello: ImmagineConfig[] = [];
+mediaInput: ImmagineConfig[] = [];
 
 
   displayName: string = '';
@@ -56,8 +56,8 @@ immaginiCarosello: ImmagineConfig[] = [];
   ) {}
 
   ngOnInit(): void {
-    this.immaginiCarosello = this.data;
-    console.log("Dati ricevuti dalla home: ", JSON.stringify(this.immaginiCarosello));
+    this.mediaInput = this.data;
+    console.log("Dati ricevuti dalla home: ", JSON.stringify(this.mediaInput));
   }
 
   prevImage(): void {
@@ -71,14 +71,14 @@ immaginiCarosello: ImmagineConfig[] = [];
   }
 
   nextImage(): void {
-    if (this.currentIndex < this.immaginiCarosello.length - 1) {
+    if (this.currentIndex < this.mediaInput.length - 1) {
       this.currentIndex++;
     }
   }
 
 apriPopUpEliminaMedia(): void {
   // Recupero l'URL dell'immagine attualmente selezionata
-  const urlsDaEliminare = this.immaginiCarosello;
+  const urlsDaEliminare = this.mediaInput;
   console.log("Urls immagine da eliminare: ", urlsDaEliminare)
   // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
   const dialogRef = this.dialog.open(DeleteDataAdminComponent, {
@@ -86,6 +86,8 @@ apriPopUpEliminaMedia(): void {
     disableClose: false,
     data: urlsDaEliminare
   });
+
+
 
 
   
@@ -97,11 +99,11 @@ apriPopUpEliminaMedia(): void {
     if (eliminatoConSuccesso) {
 
       // Rimuovo l'immagine dall'array
-      this.immaginiCarosello.splice(this.currentIndex, 1);
+      this.mediaInput.splice(this.currentIndex, 1);
 
       // Correggo l'indice se siamo alla fine dell'array
-      if (this.currentIndex >= this.immaginiCarosello.length) {
-        this.currentIndex = Math.max(0, this.immaginiCarosello.length - 1);
+      if (this.currentIndex >= this.mediaInput.length) {
+        this.currentIndex = Math.max(0, this.mediaInput.length - 1);
       }
     } else {
       // Opzionale: puoi loggare o gestire un messaggio se l'eliminazione è stata annullata o fallita
@@ -112,17 +114,17 @@ apriPopUpEliminaMedia(): void {
 
 
 
-  apriPopUpdownloadMedia(): void {
-    const dataInputDownload: ImmagineConfig = {
-      url: this.immaginiCarosello[this.currentIndex].url,
-      display_name: this.immaginiCarosello[this.currentIndex].display_name
-    }
-
-     this.dialog.open(DownloadDataAdminComponent, {
-        width: '90vw',
-        disableClose: false,
-        data: dataInputDownload
+apriPopUpDownloadMedia(): void {
+  const mediaDaScaricare = this.mediaInput;
+  console.log("Oggetti da scaricare: ", mediaDaScaricare)
+  this.dialog.open(DownloadDataAdminComponent, {
+    width: '90vw',
+    disableClose: false,
+    data: mediaDaScaricare
   });
+
+
+ 
 
   }
 
@@ -139,6 +141,9 @@ apriPopUpEliminaMedia(): void {
         data: this.prepareFileForUpload
   });
   }
+
+
+
 
   chiudiDialog(): void {
     this.dialogRef.close();
