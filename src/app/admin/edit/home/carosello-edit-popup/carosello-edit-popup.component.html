@@ -1,39 +1,64 @@
-<!-- Contenitore principale visibile solo se ci sono immagini -->
-<div class="carosello-container" *ngIf="immaginiCarosello.length > 0; else noImages">
+<!-- Contenitore principale visibile solo se ci sono media -->
+<div class="carosello-container" *ngIf="immaginiCarosello.length > 0; else noMedia">
 
   <!-- Pulsanti azione in alto a destra -->
   <div class="action-buttons">
-    <button mat-icon-button class="add-button" (click)="apriPopUpCaricaImmagine()" matTooltip="Aggiungi immagine" aria-label="Aggiungi">
+    <button mat-icon-button class="add-button" (click)="apriPopUpCaricaImmagine()" matTooltip="Aggiungi media" aria-label="Aggiungi">
       <mat-icon color="primary">add</mat-icon>
     </button>
 
-    <button mat-icon-button class="download-button" (click)="apriPopUpdownloadMedia()" matTooltip="Scarica immagine" aria-label="Download">
+    <button mat-icon-button class="download-button" (click)="apriPopUpdownloadMedia()" matTooltip="Scarica media" aria-label="Download">
       <mat-icon>download</mat-icon>
     </button>
 
-    <button mat-icon-button class="delete-button" (click)="apriPopUpEliminaImmagine()" matTooltip="Elimina immagine" aria-label="Elimina">
+    <button mat-icon-button class="delete-button" (click)="apriPopUpEliminaImmagine()" matTooltip="Elimina media" aria-label="Elimina">
       <mat-icon color="warn">delete</mat-icon>
     </button>
   </div>
 
   <!-- Titolo -->
-  <h3 class="titolo-immagine">Immagine {{ currentIndex + 1 }} di {{ immaginiCarosello.length }}</h3>
+  <h3 class="titolo-immagine">
+    File {{ currentIndex + 1 }} di {{ immaginiCarosello.length }}
+  </h3>
 
-  <!-- Immagine corrente -->
-  <div class="immagine-wrapper">
-    <img [src]="immaginiCarosello[currentIndex].url" alt="Immagine carosello {{ currentIndex + 1 }}" />
+  <!-- Rilevamento tipo di media -->
+  <div class="media-wrapper">
+    <ng-container [ngSwitch]="getMediaType(immaginiCarosello[currentIndex].url)">
+
+      <!-- Immagine -->
+      <img *ngSwitchCase="'image'" 
+           [src]="immaginiCarosello[currentIndex].url" 
+           [alt]="immaginiCarosello[currentIndex].display_name" />
+
+      <!-- Video -->
+      <video *ngSwitchCase="'video'" 
+             [src]="immaginiCarosello[currentIndex].url" 
+             controls
+             autoplay
+             muted
+             playsinline></video>
+
+      <!-- Audio -->
+      <audio *ngSwitchCase="'audio'" 
+             [src]="immaginiCarosello[currentIndex].url" 
+             controls></audio>
+
+      <!-- Estensione sconosciuta -->
+      <div *ngSwitchDefault class="unknown-file">
+        <mat-icon>help_outline</mat-icon>
+        <p>Formato non supportato: {{ immaginiCarosello[currentIndex].display_name }}</p>
+      </div>
+    </ng-container>
   </div>
 
-
-
-  <!-- Navigazione e chiusura -->
+  <!-- Navigazione -->
   <div class="bottom-controls">
     <div class="controls">
-      <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="prevImage()" [disabled]="currentIndex === 0">
+      <button mat-raised-button color="primary" (click)="prevImage()" [disabled]="currentIndex === 0">
         <mat-icon>chevron_left</mat-icon>
       </button>
 
-      <button mat-raised-button color="primary" [ngStyle]="{ cursor: 'pointer' }" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.length - 1">
+      <button mat-raised-button color="primary" (click)="nextImage()" [disabled]="currentIndex === immaginiCarosello.length - 1">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </div>
@@ -42,20 +67,14 @@
       Chiudi
     </button>
   </div>
-
 </div>
 
-<!-- Caso in cui NON ci sono immagini -->
-<ng-template #noImages>
+<!-- Nessun file -->
+<ng-template #noMedia>
   <div class="messaggio-vuoto">
     <mat-icon class="icona-vuoto">image_not_supported</mat-icon>
-    <h3>Nessuna immagine disponibile.</h3>
-
-    <!-- Pulsante "+" grande per aggiungere -->
-    <button class="upload-plus-button" (click)="apriPopUpCaricaImmagine()" aria-label="Carica immagine">
-      +
-    </button>
-
+    <h3>Nessun media disponibile.</h3>
+    <button class="upload-plus-button" (click)="apriPopUpCaricaImmagine()">+</button>
     <button mat-flat-button color="primary" (click)="chiudiDialog()">Chiudi</button>
   </div>
 </ng-template>

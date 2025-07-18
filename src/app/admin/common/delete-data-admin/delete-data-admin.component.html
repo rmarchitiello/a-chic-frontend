@@ -1,37 +1,48 @@
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
 
-  <!-- Container che mostra le anteprime delle immagini -->
-  <div class="preview-container">
-    
-    <!-- Cicla su tutte le immagini da eliminare -->
-    <div *ngFor="let img of mediaInput"
-         class="preview-wrapper"
-         [ngClass]="{ 'errore': img.erroreEliminazione }"
-         [matTooltip]="img.dettaglioErrore || ''"
-         matTooltipPosition="above">
+  <!-- Overlay con spinner visibile durante l'eliminazione -->
+  <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Eliminazione in corso...</p>
+  </div>
 
-      <!-- Pulsante elimina immagine specifica (in alto a destra della card) -->
-      <button class="delete-btn"
-              mat-icon-button
-              color="warn"
-              aria-label="Elimina immagine"
-              (click)="deleteMedia(false, img)">
-        <mat-icon>delete</mat-icon>
-      </button>
+  <!-- Contenitore anteprime immagini -->
+  <div class="preview-container" [class.blur]="eliminazioneInCorso">
 
-      <!-- Immagine di anteprima -->
-      <img [src]="img.url"
-           [alt]="img.display_name"
-           class="preview-img" />
+    <!-- Ciclo su ogni immagine da mostrare (usando ng-container per evitare conflitto con *ngIf) -->
+    <ng-container *ngFor="let img of mediaInput">
+      <div *ngIf="!img.inEliminazione"
+           class="preview-wrapper"
+           [ngClass]="{
+             'errore': img.erroreEliminazione,
+             'in-eliminazione': img.inEliminazione
+           }"
+           [matTooltip]="img.dettaglioErrore || ''"
+           matTooltipPosition="above">
 
-      <!-- Nome dell'immagine -->
-      <p>{{ img.display_name }}</p>
-    </div>
+        <!-- Pulsante elimina singola immagine -->
+        <button class="delete-btn"
+                mat-icon-button
+                color="warn"
+                aria-label="Elimina immagine"
+                (click)="deleteMedia(false, img)">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+        <!-- Anteprima immagine -->
+        <img [src]="img.url"
+             [alt]="img.display_name"
+             class="preview-img" />
+
+        <!-- Nome dell'immagine -->
+        <p>{{ img.display_name }}</p>
+      </div>
+    </ng-container>
   </div>
 
   <!-- Messaggio di conferma -->
-  <p class="confirm-text">
+  <p class="confirm-text" [class.blur]="eliminazioneInCorso">
     Sei sicuro di voler eliminare
     <ng-container *ngIf="mediaInput.length === 1; else multiple">
       questa immagine dal carosello?
@@ -42,10 +53,12 @@
   </p>
 </div>
 
-<!-- Azioni nella parte inferiore del dialog -->
-<div mat-dialog-actions align="end" class="delete-dialog-actions">
+<!-- Azioni in basso -->
+<div mat-dialog-actions align="end"
+     class="delete-dialog-actions"
+     [class.blur]="eliminazioneInCorso">
 
-  <!-- Pulsante per annullare e chiudere il dialog -->
+  <!-- Pulsante Annulla -->
   <button mat-stroked-button
           color="primary"
           type="button"
@@ -53,8 +66,7 @@
     Annulla
   </button>
 
-
-  <!-- Pulsante per eliminare tutte le immagini mostrate -->
+  <!-- Pulsante elimina tutte -->
   <button mat-flat-button
           color="warn"
           type="button"

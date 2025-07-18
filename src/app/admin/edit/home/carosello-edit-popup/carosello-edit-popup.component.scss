@@ -83,7 +83,7 @@
   }
 }
 
-/* Titolo sopra immagine */
+/* Titolo sopra il media */
 .titolo-immagine {
   font-size: 1.2rem;
   font-weight: 500;
@@ -93,28 +93,61 @@
   text-align: center;
 }
 
-/* Immagine visualizzata */
-.immagine-wrapper {
+/* Wrapper del media (immagine, video o audio) */
+.media-wrapper {
   background: #fdfdfd;
   padding: 1rem;
   border-radius: 12px;
   margin-bottom: 1.5rem;
   width: 100%;
+  max-height: 65vh;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+  position: relative;
 
-  img {
+  img,
+  video {
     max-width: 100%;
     max-height: 65vh;
     object-fit: contain;
     border-radius: 12px;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  audio {
+    width: 100%;
+    max-width: 500px;
+    outline: none;
+  }
+
+  .unknown-file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #888;
+
+    mat-icon {
+      font-size: 48px;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #999;
+    }
   }
 }
 
-/* Bottone "+" grande per caricare immagini */
+/* Bottone "+" grande per caricare media */
 .upload-plus-button {
   font-size: 48px;
   font-weight: bold;
@@ -151,6 +184,7 @@
       padding: 0.6rem 1.2rem;
       border-radius: 8px;
       font-weight: 500;
+      cursor: pointer;
 
       mat-icon {
         font-size: 20px;
@@ -168,7 +202,7 @@
   }
 }
 
-/* Blocco "nessuna immagine disponibile" */
+/* Blocco "nessun media disponibile" */
 .messaggio-vuoto {
   text-align: center;
   padding: 3rem 2rem;
