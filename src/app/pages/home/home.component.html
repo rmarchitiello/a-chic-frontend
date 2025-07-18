@@ -22,12 +22,12 @@
           <img *ngIf="media.type === 'image'" [src]="media.url" (click)="goTo('/borse')"
                [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello" />
 
-          <video *ngIf="media.type === 'video'" controls (click)="goTo('/borse')"
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
                  [class.active]="i === currentIndex" class="carousel-image-desktop">
             <source [src]="media.url" type="video/mp4" />
           </video>
 
-          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-desktop">
+          <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-desktop">
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>
@@ -54,10 +54,10 @@
       <div class="creazioni-gallery-desktop">
         <ng-container *ngFor="let media of immaginiCreazioni">
           <img *ngIf="media.type === 'image'" [src]="media.url" alt="Creazione artigianale" />
-          <video *ngIf="media.type === 'video'" controls>
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline>
             <source [src]="media.url" type="video/mp4" />
           </video>
-          <audio *ngIf="media.type === 'audio'" controls>
+          <audio *ngIf="media.type === 'audio'" autoplay>
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>
@@ -82,11 +82,11 @@
         <ng-container *ngFor="let media of recensioniImmagini; let i = index">
           <img *ngIf="media.type === 'image'" [src]="media.url" [class.active]="i === currentRecensioneIndex"
                class="carousel-image-recensioni-desktop" alt="Recensione cliente" />
-          <video *ngIf="media.type === 'video'" controls [class.active]="i === currentRecensioneIndex"
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline [class.active]="i === currentRecensioneIndex"
                  class="carousel-image-recensioni-desktop">
             <source [src]="media.url" type="video/mp4" />
           </video>
-          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-desktop">
+          <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-desktop">
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>
@@ -107,12 +107,12 @@
           <img *ngIf="media.type === 'image'" [src]="media.url" (click)="goTo('/borse')"
                [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello" />
 
-          <video *ngIf="media.type === 'video'" controls (click)="goTo('/borse')"
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
                  [class.active]="i === currentIndex" class="carousel-image-mobile">
             <source [src]="media.url" type="video/mp4" />
           </video>
 
-          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-mobile">
+          <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-mobile">
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>
@@ -139,10 +139,10 @@
       <div class="creazioni-gallery-mobile">
         <ng-container *ngFor="let media of immaginiCreazioni">
           <img *ngIf="media.type === 'image'" [src]="media.url" alt="Creazione" />
-          <video *ngIf="media.type === 'video'" controls>
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline>
             <source [src]="media.url" type="video/mp4" />
           </video>
-          <audio *ngIf="media.type === 'audio'" controls>
+          <audio *ngIf="media.type === 'audio'" autoplay>
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>
@@ -167,11 +167,11 @@
         <ng-container *ngFor="let media of recensioniImmagini; let i = index">
           <img *ngIf="media.type === 'image'" [src]="media.url" [class.active]="i === currentRecensioneIndex"
                class="carousel-image-recensioni-mobile" alt="Recensione" />
-          <video *ngIf="media.type === 'video'" controls [class.active]="i === currentRecensioneIndex"
+          <video *ngIf="media.type === 'video'" autoplay muted loop playsinline [class.active]="i === currentRecensioneIndex"
                  class="carousel-image-recensioni-mobile">
             <source [src]="media.url" type="video/mp4" />
           </video>
-          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-mobile">
+          <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-mobile">
             <source [src]="media.url" type="audio/mpeg" />
           </audio>
         </ng-container>

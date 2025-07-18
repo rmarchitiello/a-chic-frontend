@@ -4,6 +4,7 @@
   overflow-y: auto;
   max-height: 65vh;
 
+  // Overlay durante l’eliminazione
   .eliminazione-overlay {
     position: absolute;
     top: 0;
@@ -26,6 +27,7 @@
     }
   }
 
+  // Contenitore delle anteprime
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -39,6 +41,7 @@
     }
   }
 
+  // Singolo box anteprima
   .preview-wrapper {
     position: relative;
     background: #f5f5f5;
@@ -47,7 +50,7 @@
     text-align: center;
     transition: all 0.3s ease;
     border: 2px solid transparent;
-    cursor: pointer; // Imposta cursore a mano su tutta la card
+    cursor: pointer;
 
     &:hover {
       transform: scale(1.02);
@@ -65,6 +68,7 @@
       transition: all 0.3s ease;
     }
 
+    // Stile per immagine anteprima
     .preview-img {
       width: 150px;
       height: auto;
@@ -72,12 +76,48 @@
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     }
 
+    // Stile per video anteprima (senza controlli)
+    video.preview-img {
+      width: 150px;
+      height: auto;
+      border-radius: 10px;
+      object-fit: cover;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      pointer-events: none; // Disabilita interazione video
+    }
+
+    // Stile per player audio semplice
+    .preview-audio {
+      width: 150px;
+      margin-bottom: 0.5rem;
+      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
+      pointer-events: none; // Disabilita interazione audio
+    }
+
+    // Fallback in caso di tipo non supportato
+    .anteprima-non-disponibile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      height: 140px;
+      padding: 1rem;
+
+      mat-icon {
+        font-size: 32px;
+        margin-bottom: 0.3rem;
+      }
+    }
+
+    // Nome file sotto anteprima
     p {
       margin-top: 0.5rem;
       font-size: 0.85rem;
       color: #555;
     }
 
+    // Bottone elimina singolo
     .delete-btn {
       position: absolute;
       top: 4px;
@@ -92,7 +132,7 @@
       align-items: center;
       justify-content: center;
       transition: background-color 0.2s ease;
-      cursor: pointer; // Cursore anche sul bottone
+      cursor: pointer;
 
       &:hover {
         background-color: #ffcdd2;
@@ -100,11 +140,12 @@
 
       mat-icon {
         font-size: 22px;
-        cursor: pointer; // Cursore sulla singola icona
+        cursor: pointer;
       }
     }
   }
 
+  // Testo di conferma sotto la griglia
   .confirm-text {
     font-size: 1.1rem;
     text-align: center;
@@ -116,6 +157,7 @@
   }
 }
 
+// Azioni in basso (sticky)
 .delete-dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -138,11 +180,11 @@
     font-size: 0.95rem;
     text-transform: none;
     border-radius: 8px;
-    cursor: pointer; // Cursore su tutti i pulsanti dell’area azioni
+    cursor: pointer;
   }
 }
 
-// Imposto dimensione e scroll sul contenitore del dialog
+// Altezza massima e scroll su dialog intero
 ::ng-deep .mat-dialog-container {
   max-height: 90vh;
   overflow-x: hidden !important;

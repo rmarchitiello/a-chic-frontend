@@ -7,10 +7,10 @@
     <p>Eliminazione in corso...</p>
   </div>
 
-  <!-- Contenitore anteprime immagini -->
+  <!-- Contenitore anteprime media -->
   <div class="preview-container" [class.blur]="eliminazioneInCorso">
 
-    <!-- Ciclo su ogni immagine da mostrare (usando ng-container per evitare conflitto con *ngIf) -->
+    <!-- Ciclo su ogni media da mostrare -->
     <ng-container *ngFor="let img of mediaInput">
       <div *ngIf="!img.inEliminazione"
            class="preview-wrapper"
@@ -21,21 +21,52 @@
            [matTooltip]="img.dettaglioErrore || ''"
            matTooltipPosition="above">
 
-        <!-- Pulsante elimina singola immagine -->
+        <!-- Pulsante elimina singolo media -->
         <button class="delete-btn"
                 mat-icon-button
                 color="warn"
-                aria-label="Elimina immagine"
+                aria-label="Elimina media"
                 (click)="deleteMedia(false, img)">
           <mat-icon>delete</mat-icon>
         </button>
 
-        <!-- Anteprima immagine -->
-        <img [src]="img.url"
-             [alt]="img.display_name"
-             class="preview-img" />
+        <!-- Anteprima dinamica: immagine / video / audio -->
+        <ng-container [ngSwitch]="img.type">
 
-        <!-- Nome dell'immagine -->
+          <!-- Immagine -->
+          <img *ngSwitchCase="'image'"
+               [src]="img.url"
+               [alt]="img.display_name"
+               class="preview-img" />
+
+          <!-- Video senza controlli, con click disabilitato -->
+          <video *ngSwitchCase="'video'"
+                 [src]="img.url"
+                 autoplay
+                 muted
+                 loop
+                 playsinline
+                 class="preview-img"
+                 style="pointer-events: none;">
+          </video>
+
+          <!-- Audio con autoplay e click disabilitato -->
+          <audio *ngSwitchCase="'audio'"
+                 [src]="img.url"
+                 autoplay
+                 class="preview-audio"
+                 style="pointer-events: none;">
+          </audio>
+
+          <!-- Fallback per tipi sconosciuti -->
+          <div *ngSwitchDefault class="anteprima-non-disponibile">
+            <mat-icon>error_outline</mat-icon>
+            <span>Tipo non supportato</span>
+          </div>
+
+        </ng-container>
+
+        <!-- Nome del file -->
         <p>{{ img.display_name }}</p>
       </div>
     </ng-container>
@@ -45,10 +76,10 @@
   <p class="confirm-text" [class.blur]="eliminazioneInCorso">
     Sei sicuro di voler eliminare
     <ng-container *ngIf="mediaInput.length === 1; else multiple">
-      questa immagine dal carosello?
+      questo media dal carosello?
     </ng-container>
     <ng-template #multiple>
-      queste {{ mediaInput.length }} immagini dal carosello?
+      questi {{ mediaInput.length }} media dal carosello?
     </ng-template>
   </p>
 </div>
@@ -66,11 +97,11 @@
     Annulla
   </button>
 
-  <!-- Pulsante elimina tutte -->
+  <!-- Pulsante elimina tutti -->
   <button mat-flat-button
           color="warn"
           type="button"
           (click)="deleteMedia(true)">
-    Elimina tutte le immagini
+    Elimina tutti i media
   </button>
 </div>
