@@ -53,29 +53,52 @@ export class DeleteDataAdminComponent implements OnInit {
    * Altrimenti elimina solo la prima immagine corrente.
    */
   deleteMedia(allImages: boolean = false, immagineSingola?: ImmagineConErrore): void {
-  // Preparo la lista delle immagini da eliminare (una, tutte o solo la prima)
+  // Preparo la lista delle immagini da eliminare:
+  // - Se viene passata un'immagine singola: elimino solo quella
+  // - Se viene richiesto allImages: elimino tutte
+  // - Altrimenti elimino solo la prima della lista
   const immaginiDaEliminare: ImmagineConErrore[] = immagineSingola
     ? [immagineSingola]
     : allImages
       ? this.mediaInput
       : [this.mediaInput[0]];
 
-  // Estrai solo gli URL da inviare al backend
+  // Estraggo solo gli URL da inviare al backend per l’eliminazione
   const urls: string[] = immaginiDaEliminare.map(img => img.url);
 
   console.log("Sto per eliminare l'immagine o le immagini . . .", urls);
+
+  // Chiamo il servizio backend per eliminare le immagini
   this.cmsService.deleteImages(urls, true).subscribe({
     next: (res) => {
       if (res?.success) {
         console.log('Eliminazione completata con successo');
 
-        // Rimuove l'immagine dalla lista se è singola
+        // Caso 1: Eliminazione di una singola immagine specificata (da pulsante icona)
         if (immagineSingola) {
+          // Rimuovo l'immagine dalla lista locale, senza chiudere il dialog
           this.mediaInput = this.mediaInput.filter(img => img.url !== immagineSingola.url);
-        } else {
-          this.dialogRef.close(true); // Chiude se è batch
+        }
+
+        // Caso 2: Eliminazione della prima immagine (da pulsante "Elimina immagine")
+        else if (!allImages) {
+          // Rimuovo la prima immagine dalla lista
+          this.mediaInput = this.mediaInput.slice(1);
+        }
+
+        // Caso 3: Eliminazione di tutte le immagini (da pulsante "Elimina tutte le immagini")
+        else {
+          // Chiudo il dialog con successo
+          this.dialogRef.close(true);
+
+          // Forzo il reload della pagina per aggiornare completamente la vista
+          // Questo evita che rimangano elementi in cache o visivamente non aggiornati
+          setTimeout(() => {
+            window.location.reload();
+          }, 100);
         }
       } else {
+        // Il backend ha risposto ma non ha eseguito l'eliminazione
         console.warn('Errore lato backend, nessun file eliminato');
         this.dialogRef.close(false);
       }
@@ -83,17 +106,23 @@ export class DeleteDataAdminComponent implements OnInit {
     error: (err) => {
       console.error('Errore nella richiesta di eliminazione:', err);
 
+      // Imposto stato di errore su ogni immagine che si tentava di eliminare
       for (const img of immaginiDaEliminare) {
         img.erroreEliminazione = true;
         img.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
       }
 
+      // Chiudo il dialog solo se era una eliminazione batch
       if (!immagineSingola) {
-        this.dialogRef.close(false); // Chiude il dialog solo se batch
+        this.dialogRef.close(false);
       }
+
+      // In caso di errore su immagine singola, mantengo il dialog aperto per mostrare errore visivo
     }
   });
 }
+
+
 
 
   /**

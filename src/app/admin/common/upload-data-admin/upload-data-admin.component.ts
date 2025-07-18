@@ -253,6 +253,10 @@ uploadFiles(): void {
       }
 
       this.uploadInCorso = false;
+      //ricarico la pagina dopo l'upload
+            setTimeout(() => {
+        window.location.reload();
+      }, 800); // leggero delay per completare eventuali animazioni o chiusura dialog
     },
     error: (err) => {
       console.error("Errore durante l'upload dei file:", err);
