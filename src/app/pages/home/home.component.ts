@@ -17,19 +17,21 @@ import {
 } from '@angular/animations';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive'; // percorso corretto
+import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { CaroselloEditPopUpComponent } from '../../admin/edit/home/carosello-edit-popup/carosello-edit-popup.component';
-// Interfaccia per ogni immagine nella lista meta
+
+// Interfaccia per ogni angolazione o asset (immagine/video/audio)
 export interface ImmagineMeta {
   url: string;
   angolazione: string;
+  format?: string;
 }
 
-// Interfaccia per ogni oggetto immagine Cloudinary
+// Interfaccia completa di un file Cloudinary con metadati
 export interface ImmagineCloudinary {
   display_name: string;
   descrizione: string;
@@ -37,14 +39,13 @@ export interface ImmagineCloudinary {
   meta: ImmagineMeta[];
 }
 
-// Interfaccia per i modelli in evidenza (video)
+// Interfaccia per ogni asset da visualizzare nel template
 export interface ImmagineConfig {
   url: string;
   display_name: string;
+  type?: 'image' | 'video' | 'audio';
   descrizione?: string;
 }
-
-
 
 @Component({
   selector: 'app-home',
@@ -71,40 +72,17 @@ export interface ImmagineConfig {
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
-  isAdmin: boolean = false;
-
-
-  // Array di URL delle immagini del carosello principale
+  isAdmin = false;
   caroselloImmagini: ImmagineConfig[] = [];
-
-  // Array di URL delle immagini delle recensioni
   recensioniImmagini: ImmagineConfig[] = [];
-
-  // Array di video modelli in evidenza
   modelliVideoInEvidenza: ImmagineConfig[] = [];
-
-  // Indici per i caroselli
+  immaginiCreazioni: ImmagineConfig[] = [];
   currentIndex = 0;
   currentRecensioneIndex = 0;
-
-  // Timer per i caroselli
   intervalId!: ReturnType<typeof setInterval>;
   recensioneIntervalId!: ReturnType<typeof setInterval>;
-
-  // Flag per distinguere mobile/desktop
   isMobile = false;
-
-  // Flag per mostrare contenuti dopo lo scroll oltre il carosello
   mostraContenutoDopoCarosello = false;
-
-  immaginiCreazioni: string[] = [];
-
-
-
-  //faccio questo perche quando inserisco un Home/Config/Video e il video è cliccabile in base al nome del file caricato sul cms lui
-  //va direttamente sulla categoria
-  /* Esempio nei modelli in evidenza ho Perlata, Naturale ecc.. quando clicco sul video o sul modello in evidenza lui mi porta direttamente
-  su borse/naturale*/
   strutturaCategorie: { [key: string]: string[] | undefined } = {};
   categorieSottoCategorie: string[] = [];
   filtriSottoCategorie: Record<string, string[]> = {};
@@ -120,240 +98,157 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialog: MatDialog
   ) { }
 
-
-  //creo la map url per le immagini cliccabili della home
-  mapUrlBorseCompletamente(): string[] {
-    const urlSet: Set<string> = new Set();
-
-    this.categorieSottoCategorie.forEach(path => {
-      const [categoria, sottoCategoria] = path.split('/');
-
-
-      // Se non ci sono filtri associati, metti comunque la voce con "Tutte"
-      const url = `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`;
-      urlSet.add(url);
-
-    });
-
-    return Array.from(urlSet);
-  }
-
-apriPopUpEditorCarosello(): void {
-  this.dialog.open(CaroselloEditPopUpComponent, {
-    width: '90vw',
-    disableClose: false,
-    data: this.caroselloImmagini,
-  });
-
-  console.log("admin carosello aperto");
-}
-
-
-
   ngOnInit(): void {
-
     this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
-      this.isAdmin = !!token; // converte in booleano
-
-      if (this.isAdmin) {
-        console.log('[HomeComponent] in modalità ADMIN');
-      }
+      this.isAdmin = !!token;
     });
 
-
-
-    console.log('[HomeComponent] ngOnInit chiamato');
-
-    // === 1. Ricevo la struttura categorie → sottocategorie ===
     this.sharedDataService.strutturaCategorie$.subscribe(data => {
-      if (Object.keys(data).length > 0) {
-        this.strutturaCategorie = data;
-        console.log('[HomeComponent] strutturaCategorie ricevuta:', this.strutturaCategorie);
-      }
+      if (Object.keys(data).length > 0) this.strutturaCategorie = data;
     });
 
-    // === 2. Ricevo l'elenco completo categoria/sottocategoria ===
     this.sharedDataService.categorieSottoCategorie$.subscribe(data => {
-      if (data.length > 0) {
-        this.categorieSottoCategorie = data;
-        console.log('[HomeComponent] categorieSottoCategorie ricevute:', this.categorieSottoCategorie);
-      }
+      if (data.length > 0) this.categorieSottoCategorie = data;
     });
 
-    // === 3. Ricevo i filtri per ogni sottocategoria ===
     this.sharedDataService.filtriSottoCategorie$.subscribe(data => {
-      if (Object.keys(data).length > 0) {
-        this.filtriSottoCategorie = data;
-        console.log('[HomeComponent] filtriSottoCategorie ricevuti:', this.filtriSottoCategorie);
-      }
+      if (Object.keys(data).length > 0) this.filtriSottoCategorie = data;
     });
 
-
-    // recupero solo la url delle borse
     setTimeout(() => {
       const result = this.mapUrlBorseCompletamente().find(mB => mB.includes("borse"));
-      if (result) {
-        this.onlyUrlBorse = [result]; // oppure fai quello che ti serve
-      } else {
-        this.onlyUrlBorse = [];
-      }
-      console.log('Mappa url borse dinamica:', this.onlyUrlBorse);
-    }, 0);
+      this.onlyUrlBorse = result ? [result] : [];
+    });
 
-
-
-
-    // Titolo della pagina
     this.titleService.setTitle('A-Chic | Borse all\'uncinetto e Accessori artigianali');
-
     this.metaService.addTags([
-      { name: 'description', content: 'Borse all\'uncinetto fatte a mano, carillon artigianali e accessori unici. A-Chic è passione, eleganza e artigianalità.' },
-      { name: 'keywords', content: 'borse uncinetto, borse fatte a mano, carillon artigianali, accessori crochet, manici artigianali, borse handmade, moda artigianale' },
-      { name: 'robots', content: 'index, follow' },
-
-      // Open Graph
-      { property: 'og:title', content: 'A-Chic | Borse e Carillon fatti a mano' },
-      { property: 'og:description', content: 'Scopri le borse all\'uncinetto e i carillon artigianali di A-Chic. Ogni creazione è fatta a mano con amore.' },
+      { name: 'description', content: 'Borse fatte a mano...' },
+      { name: 'keywords', content: 'borse, artigianato, carillon...' },
       { property: 'og:image', content: 'https://www.a-chic.it/assets/og-image.jpg' },
       { property: 'og:url', content: 'https://www.a-chic.it/home' },
-      { property: 'og:type', content: 'website' },
-
-      // Twitter Card
-      { name: 'twitter:card', content: 'summary_large_image' },
-      { name: 'twitter:title', content: 'A-Chic | Borse all\'uncinetto e Carillon artigianali' },
-      { name: 'twitter:description', content: 'Eleganza e artigianato si incontrano: borse uniche, manici lavorati a mano e carillon dal sapore unico.' },
       { name: 'twitter:image', content: 'https://www.a-chic.it/assets/og-image.jpg' }
     ]);
 
-
-
-
-
-
-    // Scroll iniziale in cima alla pagina
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Rileva se lo schermo è mobile
-    this.breakpointObserver
-      .observe(['(max-width: 768px)'])
-      .subscribe(result => {
-        this.isMobile = result.matches;
-      });
+    this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
+      this.isMobile = result.matches;
+    });
 
-    // Avvia rotazione immagini carosello e recensioni
     this.intervalId = setInterval(() => this.nextImage(), 2000);
     this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
-    // Carica i contenuti multimediali da Cloudinary
     this.cloudinaryService.getImmagini('', true).subscribe({
       next: (data: Record<string, ImmagineCloudinary[]>) => {
-        const caroselloKey = Object.keys(data).find(d => d.toLowerCase().includes('home/carosello'));
-        const recensioniKey = Object.keys(data).find(d => d.toLowerCase().includes('config/recensioni'));
-        const videoEvidenzaHomeKey = Object.keys(data).find(d => d.toLowerCase().includes('home/video'));
-        const mieCreazioniKey = Object.keys(data).find(d => d.toLowerCase().includes('config/home/mie creazioni'));
-        if (!caroselloKey || !recensioniKey || !videoEvidenzaHomeKey || !mieCreazioniKey) {
-          console.warn('Chiavi mancanti in Cloudinary');
-          return;
-        }
+        const caroselloKey = Object.keys(data).find(k => k.toLowerCase().includes('home/carosello'));
+        const recensioniKey = Object.keys(data).find(k => k.toLowerCase().includes('config/recensioni'));
+        const videoEvidenzaKey = Object.keys(data).find(k => k.toLowerCase().includes('home/video'));
+        const mieCreazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('config/home/mie creazioni'));
+        if (!caroselloKey || !recensioniKey || !videoEvidenzaKey || !mieCreazioniKey) return;
 
-        // Popola array immagini carosello
         this.caroselloImmagini = data[caroselloKey].flatMap(item =>
-          item.meta.map(metaItem => ({
-            url: metaItem.url,
-            display_name: item.display_name
-          }))
-        );
-
-
-        console.log("[HomeComponent] carosello immagini: ", this.caroselloImmagini);
-
-        // Popola array recensioni
-        this.recensioniImmagini = data[recensioniKey].flatMap(item =>
-          item.meta.map(metaItem => ({
-            url: metaItem.url,
-            display_name: item.display_name
-          }))
-        );
-
-        console.log("[HomeComponent] recensioni immagini: ", this.recensioniImmagini);
-
-
-        // Popola array video modelli in evidenza
-        this.modelliVideoInEvidenza = data[videoEvidenzaHomeKey].flatMap(item =>
-          item.meta.map(metaItem => ({
-            url: metaItem.url,
+          item.meta.map(meta => ({
+            url: meta.url,
             display_name: item.display_name,
-            descrizione: item.descrizione
+            type: this.detectType(meta.url)
           }))
         );
-        console.log("Modelli in evidenza: ", this.modelliVideoInEvidenza);
 
-        this.immaginiCreazioni = data[mieCreazioniKey].flatMap(item => item.meta)
-          .map(m => m.url);
+        this.recensioniImmagini = data[recensioniKey].flatMap(item =>
+          item.meta.map(meta => ({
+            url: meta.url,
+            display_name: item.display_name,
+            type: this.detectType(meta.url)
+          }))
+        );
+
+        this.modelliVideoInEvidenza = data[videoEvidenzaKey].flatMap(item =>
+          item.meta.map(meta => ({
+            url: meta.url,
+            display_name: item.display_name,
+            descrizione: item.descrizione,
+            type: this.detectType(meta.url)
+          }))
+        );
+
+        this.immaginiCreazioni = data[mieCreazioniKey].flatMap(item =>
+          item.meta.map(meta => ({
+            url: meta.url,
+            display_name: item.display_name,
+            type: this.detectType(meta.url)
+          }))
+        );
       },
-      error: (err) => {
-        console.error('Errore nel caricamento delle immagini da Cloudinary', err);
-      }
+      error: err => console.error('Errore caricamento media', err)
     });
 
-    // Controlla se è necessario mostrare i contenuti successivi
     this.checkScroll();
   }
+
+  detectType(url: string): 'image' | 'video' | 'audio' {
+    if (url.match(/\.(mp4|webm)$/i)) return 'video';
+    if (url.match(/\.(mp3|wav|ogg)$/i)) return 'audio';
+    return 'image';
+  }
+
+  mapUrlBorseCompletamente(): string[] {
+    const urlSet: Set<string> = new Set();
+    this.categorieSottoCategorie.forEach(path => {
+      const [categoria, sottoCategoria] = path.split('/');
+      const url = `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`;
+      urlSet.add(url);
+    });
+    return Array.from(urlSet);
+  }
+
   goTo(urlOrFilter: string, fromModelliInEvidenza?: boolean): void {
-    // Se la navigazione proviene dai modelli in evidenza, costruisco l'URL completo con parametro query
     if (fromModelliInEvidenza) {
       const url = `${this.onlyUrlBorse}?filtri=${encodeURIComponent(urlOrFilter)}`;
-
-      // Uso navigateByUrl per evitare che Angular interpreti il path come relativo alla route corrente
       this.router.navigateByUrl(url);
-      return; // Evito che venga eseguita anche la seconda navigazione
+      return;
     }
-
-    // Altrimenti, navigazione semplice verso il path indicato
     this.router.navigate([urlOrFilter]);
   }
 
-
+  apriPopUpEditorCarosello(): void {
+    this.dialog.open(CaroselloEditPopUpComponent, {
+      width: '90vw',
+      disableClose: false,
+      data: this.caroselloImmagini,
+    });
+  }
 
   ngAfterViewInit(): void {
-    // Avvia i video visibili al caricamento iniziale
     setTimeout(() => {
       const videos: NodeListOf<HTMLVideoElement> = document.querySelectorAll('video');
       videos.forEach(video => {
         video.muted = true;
-        video.play().catch(err => {
-          console.warn('Video non avviato:', err);
-        });
+        video.play().catch(err => console.warn('Video non avviato:', err));
       });
     }, 300);
   }
 
-  // Ascolta lo scroll della finestra
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.checkScroll();
   }
 
-  // Verifica se mostrare la sezione dopo il carosello
   checkScroll() {
     const soglia = window.innerHeight * 0.6;
     this.mostraContenutoDopoCarosello = window.scrollY > soglia;
   }
 
-  // Scorri avanti nel carosello principale
   nextImage(): void {
     if (this.caroselloImmagini.length === 0) return;
     this.currentIndex = (this.currentIndex + 1) % this.caroselloImmagini.length;
   }
 
-  // Scorri avanti nelle recensioni
   nextRecensione(): void {
     if (this.recensioniImmagini.length === 0) return;
     this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % this.recensioniImmagini.length;
   }
 
   ngOnDestroy(): void {
-    // Interrompi i timer dei caroselli per evitare memory leak
     clearInterval(this.intervalId);
     clearInterval(this.recensioneIntervalId);
   }

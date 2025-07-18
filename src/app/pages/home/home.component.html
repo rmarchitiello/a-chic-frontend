@@ -1,134 +1,182 @@
+<!-- Banner per l'amministratore -->
 <div *ngIf="isAdmin" class="admin-banner">
   <p>Stai visualizzando il sito in modalità amministratore</p>
 </div>
 
-
-<!-- HOME DESKTOP -->
-<!-- DESKTOP -->
+<!-- ============================= VERSIONE DESKTOP ============================= -->
 <section *ngIf="!isMobile" class="modelli-evidenza-desktop">
   <div class="desktop-container">
 
-    <!-- Carosello immagini principale (si vede subito, senza effetto) -->
+    <!-- Carosello multimediale (immagini, video, audio) -->
     <div class="carousel-wrapper-desktop">
-
-     <button *ngIf="isAdmin"
-        mat-icon-button
-        class="edit-carosello-icon"
-        (click)="apriPopUpEditorCarosello()"
-        matTooltip="Modifica carosello">
-  <mat-icon>edit</mat-icon>
-</button>
+      <button *ngIf="isAdmin"
+              mat-icon-button
+              class="edit-carosello-icon"
+              (click)="apriPopUpEditorCarosello()"
+              matTooltip="Modifica carosello">
+        <mat-icon>edit</mat-icon>
+      </button>
 
       <div class="carousel-container-desktop">
-        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img.url" (click)="goTo('/borse')"
-          [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello desktop" />
+        <ng-container *ngFor="let media of caroselloImmagini; let i = index">
+          <img *ngIf="media.type === 'image'" [src]="media.url" (click)="goTo('/borse')"
+               [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello" />
+
+          <video *ngIf="media.type === 'video'" controls (click)="goTo('/borse')"
+                 [class.active]="i === currentIndex" class="carousel-image-desktop">
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+
+          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-desktop">
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
 
-    <!-- Modelli in evidenza -->
+    <!-- Modelli in evidenza (solo video) -->
     <div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
       <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-desktop">
-        <video autoplay muted loop playsinline preload="auto" (click)="goTo(modello.display_name,true)"
-          class="video-responsive-desktop" mat-card-image>
+        <video autoplay muted loop playsinline preload="auto" (click)="goTo(modello.display_name, true)"
+               class="video-responsive-desktop" mat-card-image>
           <source [src]="modello.url" type="video/mp4" />
         </video>
         <mat-card-title class="card-title-desktop">{{ modello.display_name }}</mat-card-title>
       </mat-card>
     </div>
 
-    <!-- Le mie creazioni artigianali -->
+    <!-- Galleria creazioni artigianali -->
     <div class="scroll-reveal creazioni-desktop" appScrollReveal>
       <h2 class="titolo-creazioni-desktop">Le mie creazioni</h2>
       <p class="testo-creazioni-desktop">
-        Ogni creazione è un pezzo unico, frutto di creatività e dedizione artigianale. Scopri un mondo fatto a mano.
+        Ogni creazione è un pezzo unico, frutto di creatività e dedizione artigianale.
       </p>
       <div class="creazioni-gallery-desktop">
-        <img *ngFor="let img of immaginiCreazioni" [src]="img" alt="Creazione artigianale" />
+        <ng-container *ngFor="let media of immaginiCreazioni">
+          <img *ngIf="media.type === 'image'" [src]="media.url" alt="Creazione artigianale" />
+          <video *ngIf="media.type === 'video'" controls>
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+          <audio *ngIf="media.type === 'audio'" controls>
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
 
-    <!-- Perché scegliere A-Chic -->
+    <!-- Sezione valori -->
     <div class="scroll-reveal valori-desktop" appScrollReveal>
       <h2 class="titolo-valori-desktop">Perché scegliere A-Chic</h2>
       <ul class="lista-valori-desktop">
-        <li> Realizzato a mano con amore</li>
-        <li> Personalizzazioni uniche</li>
-        <li> Materiali di qualità</li>
-        <li> Assistenza diretta </li>
+        <li>Realizzato a mano con amore</li>
+        <li>Personalizzazioni uniche</li>
+        <li>Materiali di qualità</li>
+        <li>Assistenza diretta</li>
       </ul>
     </div>
 
-    <!-- Recensioni -->
+    <!-- Carosello recensioni -->
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
       <div class="carousel-container-recensioni-desktop">
-        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione.url"
-          [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-desktop"
-          alt="Recensione cliente" />
+        <ng-container *ngFor="let media of recensioniImmagini; let i = index">
+          <img *ngIf="media.type === 'image'" [src]="media.url" [class.active]="i === currentRecensioneIndex"
+               class="carousel-image-recensioni-desktop" alt="Recensione cliente" />
+          <video *ngIf="media.type === 'video'" controls [class.active]="i === currentRecensioneIndex"
+                 class="carousel-image-recensioni-desktop">
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-desktop">
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
-
-
 
   </div>
 </section>
 
-<!-- MOBILE -->
+<!-- ============================= VERSIONE MOBILE ============================= -->
 <section *ngIf="isMobile" class="modelli-evidenza-mobile">
   <div class="mobile-container">
 
-    <!-- Carosello immagini principale (si vede subito, senza effetto) -->
+    <!-- Carosello mobile -->
     <div class="carousel-wrapper-mobile">
       <div class="carousel-container-mobile">
-        <img *ngFor="let img of caroselloImmagini; let i = index" [src]="img.url" (click)="goTo('/borse')"
-          [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello mobile" />
+        <ng-container *ngFor="let media of caroselloImmagini; let i = index">
+          <img *ngIf="media.type === 'image'" [src]="media.url" (click)="goTo('/borse')"
+               [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello" />
+
+          <video *ngIf="media.type === 'video'" controls (click)="goTo('/borse')"
+                 [class.active]="i === currentIndex" class="carousel-image-mobile">
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+
+          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-mobile">
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
 
     <!-- Modelli in evidenza -->
     <div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
       <mat-card *ngFor="let modello of modelliVideoInEvidenza" class="modello-card-mobile">
-        <video autoplay muted loop playsinline preload="auto" (click)="goTo(modello.display_name,true)"
-          class="video-responsive-mobile" mat-card-image>
+        <video autoplay muted loop playsinline preload="auto" (click)="goTo(modello.display_name, true)"
+               class="video-responsive-mobile" mat-card-image>
           <source [src]="modello.url" type="video/mp4" />
         </video>
         <mat-card-title class="card-title-mobile">{{ modello.display_name }}</mat-card-title>
       </mat-card>
     </div>
 
-    <!-- Le mie creazioni artigianali -->
+    <!-- Galleria creazioni -->
     <div class="scroll-reveal creazioni-mobile" appScrollReveal>
       <h2 class="titolo-creazioni-mobile">Le mie creazioni</h2>
       <p class="testo-creazioni-mobile">
         Ogni borsa e ogni accessorio è unico. Realizzato a mano, con passione e uno stile senza tempo.
       </p>
       <div class="creazioni-gallery-mobile">
-        <img *ngFor="let img of immaginiCreazioni" [src]="img" alt="Creazione artigianale" />
+        <ng-container *ngFor="let media of immaginiCreazioni">
+          <img *ngIf="media.type === 'image'" [src]="media.url" alt="Creazione" />
+          <video *ngIf="media.type === 'video'" controls>
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+          <audio *ngIf="media.type === 'audio'" controls>
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
 
-    <!-- Perché scegliere A-Chic -->
+    <!-- Sezione valori -->
     <div class="scroll-reveal valori-mobile" appScrollReveal>
       <h2 class="titolo-valori-mobile">Perché scegliere A-Chic</h2>
       <ul class="lista-valori-mobile">
-        <li> Realizzato a mano con amore</li>
-        <li> Personalizzazioni uniche</li>
-        <li> Materiali di qualità</li>
-        <li> Assistenza diretta </li>
+        <li>Realizzato a mano con amore</li>
+        <li>Personalizzazioni uniche</li>
+        <li>Materiali di qualità</li>
+        <li>Assistenza diretta</li>
       </ul>
     </div>
 
-    <!-- Recensioni -->
+    <!-- Carosello recensioni -->
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-mobile">Dicono di noi</h2>
       <div class="carousel-container-recensioni-mobile">
-        <img *ngFor="let imgRecensione of recensioniImmagini; let i = index" [src]="imgRecensione.url"
-          [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-mobile"
-          alt="Recensione cliente" />
+        <ng-container *ngFor="let media of recensioniImmagini; let i = index">
+          <img *ngIf="media.type === 'image'" [src]="media.url" [class.active]="i === currentRecensioneIndex"
+               class="carousel-image-recensioni-mobile" alt="Recensione" />
+          <video *ngIf="media.type === 'video'" controls [class.active]="i === currentRecensioneIndex"
+                 class="carousel-image-recensioni-mobile">
+            <source [src]="media.url" type="video/mp4" />
+          </video>
+          <audio *ngIf="media.type === 'audio'" controls class="carousel-audio-mobile">
+            <source [src]="media.url" type="audio/mpeg" />
+          </audio>
+        </ng-container>
       </div>
     </div>
-
-
 
   </div>
 </section>
