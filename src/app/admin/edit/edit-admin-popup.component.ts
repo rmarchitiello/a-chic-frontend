@@ -8,7 +8,7 @@ Anche come per gli altri component ci sara il pop up di caricamento
 
 Questo component genera sempre dei tasti di upload delete download di qualche media 
 */
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -64,6 +64,10 @@ immaginiCarosello: ImmagineConfig[] = [];
     if (this.currentIndex > 0) {
       this.currentIndex--;
     }
+  }
+
+    ngOnDestroy(): void {
+    this.chiudiDialog();
   }
 
   nextImage(): void {
@@ -136,7 +140,11 @@ apriPopUpEliminaMedia(): void {
   });
   }
 
-chiudiDialog(): void {
-  this.dialogRef.close();
-}
+  chiudiDialog(): void {
+    this.dialogRef.close();
+            setTimeout(() => {
+          window.location.reload();
+        }, 400);
+  }
+
 }

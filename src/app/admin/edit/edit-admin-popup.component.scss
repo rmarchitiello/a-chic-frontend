@@ -14,7 +14,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent; // Nessun colore di sfondo visivo
+  background: transparent;
   box-sizing: border-box;
   padding: 0;
   margin: 0;
@@ -32,7 +32,32 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  position: relative; // necessaria per il posizionamento assoluto del tasto chiusura
   box-sizing: border-box;
+}
+
+// Pulsante di chiusura (in alto a destra)
+.chiudi-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 24px;
+    color: #888;
+    transition: color 0.3s ease;
+  }
+
+  &:hover mat-icon {
+    color: #000;
+  }
 }
 
 // Titolo
@@ -61,6 +86,7 @@
 }
 
 // Stile base bottoni
+// Stile base bottoni
 .bottone {
   width: 64px;
   height: 64px;
@@ -70,9 +96,15 @@
   justify-content: center;
   transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-
+  padding: 0;
+  cursor: pointer; //
   mat-icon {
     font-size: 30px;
+    line-height: 1;
+    vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &:hover {
@@ -80,21 +112,31 @@
   }
 }
 
+
 // Colori bottoni
 .bottone.add {
   background-color: #e8f5e9;
   color: #2e7d32;
-  &:hover { background-color: #c8e6c9; }
+
+  &:hover {
+    background-color: #c8e6c9;
+  }
 }
 
 .bottone.download {
   background-color: #e3f2fd;
   color: #1565c0;
-  &:hover { background-color: #bbdefb; }
+
+  &:hover {
+    background-color: #bbdefb;
+  }
 }
 
 .bottone.delete {
   background-color: #ffebee;
   color: #c62828;
-  &:hover { background-color: #ffcdd2; }
+
+  &:hover {
+    background-color: #ffcdd2;
+  }
 }

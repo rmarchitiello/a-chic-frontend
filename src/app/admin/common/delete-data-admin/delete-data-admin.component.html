@@ -1,5 +1,12 @@
+
+
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
+
+    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso" (click)="annulla()">
+      <mat-icon>close</mat-icon>
+    </button>
+
 
   <!-- Overlay con spinner visibile durante l'eliminazione -->
   <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
