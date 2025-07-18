@@ -16,7 +16,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-data-admin.component';
 import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
-import { ImmagineConfig } from '../../pages/home/home.component';
+import { MediaCloudinary } from '../../pages/home/home.component';
 import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
 import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component';
 
@@ -29,7 +29,7 @@ import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component'
 })
 export class EditAdminPopUpComponent implements OnInit {
 
-mediaInput: ImmagineConfig[] = [];
+mediaInput: MediaCloudinary[] = [];
 
 
   displayName: string = '';
@@ -49,7 +49,7 @@ mediaInput: ImmagineConfig[] = [];
 
   constructor(
     //ricevo il dato dalla home
-    @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[],
+    @Inject(MAT_DIALOG_DATA) public data: MediaCloudinary[],
     private dialogRef: MatDialogRef<EditAdminPopUpComponent>,
     private dialog: MatDialog
 
@@ -78,13 +78,13 @@ mediaInput: ImmagineConfig[] = [];
 
 apriPopUpEliminaMedia(): void {
   // Recupero l'URL dell'immagine attualmente selezionata
-  const urlsDaEliminare = this.mediaInput;
-  console.log("Urls immagine da eliminare: ", urlsDaEliminare)
+  const mediaDaEliminare = this.mediaInput;
+  console.log("Media da eliminare: ", mediaDaEliminare)
   // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
   const dialogRef = this.dialog.open(DeleteDataAdminComponent, {
     width: '90vw',
     disableClose: false,
-    data: urlsDaEliminare
+    data: mediaDaEliminare
   });
 
 

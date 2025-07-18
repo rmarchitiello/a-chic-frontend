@@ -1,10 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { ImmagineConfig } from '../../../pages/home/home.component';
+import { MediaCloudinary } from '../../../pages/home/home.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MediaMeta } from '../../../pages/home/home.component';
 
+//ATTUALMENTE POSSIAMO SCARICARE SOLO QUELLE FRONTALI
 @Component({
   selector: 'app-download-data-admin',
   imports: [CommonModule,MatIconModule,MatProgressSpinnerModule],
@@ -13,11 +15,11 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 })
 export class DownloadDataAdminComponent {
 
-  mediaInput: ImmagineConfig[] = [];
+  mediaInput: MediaCloudinary[] = [];
   estensione: string = ''
   downloadInCorso: boolean = false;
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[], // dato ricevuto dal componente padre (es. URL immagine da scaricare )
+    @Inject(MAT_DIALOG_DATA) public data: MediaCloudinary[], // dato ricevuto dal componente padre (es. URL immagine da scaricare )
     private dialogRef: MatDialogRef<DownloadDataAdminComponent>    
 
   ) { }
@@ -34,14 +36,20 @@ export class DownloadDataAdminComponent {
   }
 
 
- downloadMedia(piuFile: boolean = false, media?: ImmagineConfig): void {
+downloadMedia(piuFile: boolean = false, media?: MediaCloudinary): void {
   this.downloadInCorso = true;
 
-  const scaricaFile = (file: ImmagineConfig) => {
-    const estensione = this.getEstensione(file.url);
+  const scaricaFile = (file: MediaCloudinary) => {
+    const mediaFrontale = this.getMediaFrontale(file);
+    if (!mediaFrontale) {
+      console.warn(`Nessuna angolazione frontale trovata per: ${file.display_name}`);
+      return;
+    }
+
+    const estensione = this.getEstensione(mediaFrontale.url);
     const nomeFile = `${file.display_name}.${estensione}`;
 
-    fetch(file.url)
+    fetch(mediaFrontale.url)
       .then(response => {
         if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
         return response.blob();
@@ -68,7 +76,7 @@ export class DownloadDataAdminComponent {
 
   setTimeout(() => {
     this.downloadInCorso = false;
-    // this.chiudiPopUp(); // opzionale se vuoi chiudere subito dopo
+    // this.chiudiPopUp(); // opzionale
   }, 1000);
 }
 
@@ -81,6 +89,11 @@ export class DownloadDataAdminComponent {
 
 chiudiPopUp(){
   this.dialogRef.close();
+}
+
+ //di immagine cloduinary ottengo solo quelle con angolazione frontale poi vediamo come fare per le altre
+  getMediaFrontale(item: MediaCloudinary): MediaMeta | null {
+  return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
 }
 
 }

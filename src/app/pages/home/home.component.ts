@@ -25,27 +25,24 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditAdminPopUpComponent } from '../../admin/edit/edit-admin-popup.component';
 
 // Interfaccia per ogni angolazione o asset (immagine/video/audio)
-export interface ImmagineMeta {
+export interface MediaMeta {
   url: string;
   angolazione: string;
   format?: string;
 }
 
 // Interfaccia completa di un file Cloudinary con metadati
-export interface ImmagineCloudinary {
-  display_name: string;
-  descrizione: string;
-  quantita: string;
-  meta: ImmagineMeta[];
-}
-
-// Interfaccia per ogni asset da visualizzare nel template
-export interface ImmagineConfig {
-  url: string;
+export interface MediaCloudinary {
   display_name: string;
   type?: 'image' | 'video' | 'audio';
-  descrizione?: string;
+  descrizione: string;
+  quantita: string;
+  meta: MediaMeta[];
 }
+
+
+
+
 
 @Component({
   selector: 'app-home',
@@ -73,10 +70,12 @@ export interface ImmagineConfig {
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   isAdmin = false;
-  caroselloImmagini: ImmagineConfig[] = [];
-  recensioniImmagini: ImmagineConfig[] = [];
-  modelliVideoInEvidenza: ImmagineConfig[] = [];
-  immaginiCreazioni: ImmagineConfig[] = [];
+
+  carosello: MediaCloudinary[] = [];
+  recensioni: MediaCloudinary[] = [];
+  modelliInEvidenza: MediaCloudinary[] = [];
+  creazioni: MediaCloudinary[] = [];
+
   currentIndex = 0;
   currentRecensioneIndex = 0;
   intervalId!: ReturnType<typeof setInterval>;
@@ -99,6 +98,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
     this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
       this.isAdmin = !!token;
     });
@@ -129,7 +130,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       { name: 'twitter:image', content: 'https://www.a-chic.it/assets/og-image.jpg' }
     ]);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     this.breakpointObserver.observe(['(max-width: 768px)']).subscribe(result => {
       this.isMobile = result.matches;
@@ -139,45 +139,54 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
     this.cloudinaryService.getImmagini('', true).subscribe({
-      next: (data: Record<string, ImmagineCloudinary[]>) => {
+      next: (data: Record<string, MediaCloudinary[]>) => {
         const caroselloKey = Object.keys(data).find(k => k.toLowerCase().includes('home/carosello'));
         const recensioniKey = Object.keys(data).find(k => k.toLowerCase().includes('config/recensioni'));
         const videoEvidenzaKey = Object.keys(data).find(k => k.toLowerCase().includes('home/video'));
         const mieCreazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('config/home/mie creazioni'));
         if (!caroselloKey || !recensioniKey || !videoEvidenzaKey || !mieCreazioniKey) return;
 
-        this.caroselloImmagini = data[caroselloKey].flatMap(item =>
+        this.carosello = data[caroselloKey].flatMap(item =>
           item.meta.map(meta => ({
-            url: meta.url,
             display_name: item.display_name,
-            type: this.detectType(meta.url)
-          }))
-        );
-
-        this.recensioniImmagini = data[recensioniKey].flatMap(item =>
-          item.meta.map(meta => ({
-            url: meta.url,
-            display_name: item.display_name,
-            type: this.detectType(meta.url)
-          }))
-        );
-
-        this.modelliVideoInEvidenza = data[videoEvidenzaKey].flatMap(item =>
-          item.meta.map(meta => ({
-            url: meta.url,
-            display_name: item.display_name,
+            type: this.detectType(meta.url),
             descrizione: item.descrizione,
-            type: this.detectType(meta.url)
+            quantita: item.quantita,
+            meta: [{ url: meta.url, angolazione: meta.angolazione || 'default' }]
           }))
         );
+        console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
 
-        this.immaginiCreazioni = data[mieCreazioniKey].flatMap(item =>
-          item.meta.map(meta => ({
-            url: meta.url,
-            display_name: item.display_name,
-            type: this.detectType(meta.url)
-          }))
-        );
+        this.recensioni = data[recensioniKey].map(item => ({
+          display_name: item.display_name,
+          descrizione: item.descrizione,
+          quantita: item.quantita,
+          type: this.detectType(item.meta?.[0]?.url || ''),
+          meta: item.meta
+        }));
+
+        console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
+
+
+        this.modelliInEvidenza = data[videoEvidenzaKey].map(item => ({
+          display_name: item.display_name,
+          descrizione: item.descrizione,
+          quantita: item.quantita,
+          type: this.detectType(item.meta?.[0]?.url || ''),
+          meta: item.meta
+        }));
+
+        console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
+
+
+        this.creazioni = data[mieCreazioniKey].map(item => ({
+          display_name: item.display_name,
+          descrizione: item.descrizione,
+          quantita: item.quantita,
+          type: this.detectType(item.meta?.[0]?.url || ''),
+          meta: item.meta
+        }));
+
       },
       error: err => console.error('Errore caricamento media', err)
     });
@@ -211,18 +220,18 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   /* Uso questo metodo dove voglio per editare il contenuto dei media di quella*/
-apriPopUpEditorAdmin(): void {
+  apriPopUpEditorAdmin(): void {
 
-  this.dialog.open(EditAdminPopUpComponent, {
-  width: '90vw',
-  disableClose: false,
-  data: this.caroselloImmagini,
-  panelClass: 'popup-edit-admin',
-  backdropClass: 'popup-edit-admin' // importante per lo sfondo trasparente
-});
+    this.dialog.open(EditAdminPopUpComponent, {
+      width: '90vw',
+      disableClose: false,
+      data: this.carosello, //ovviamente ora sto passando il carosello ma questo deve essere dinamico in base a cosa voglio editare
+      panelClass: 'popup-edit-admin',
+      backdropClass: 'popup-edit-admin' // importante per lo sfondo trasparente
+    });
 
 
-}
+  }
 
 
 
@@ -247,17 +256,25 @@ apriPopUpEditorAdmin(): void {
   }
 
   nextImage(): void {
-    if (this.caroselloImmagini.length === 0) return;
-    this.currentIndex = (this.currentIndex + 1) % this.caroselloImmagini.length;
+    if (this.carosello.length === 0) return;
+    this.currentIndex = (this.currentIndex + 1) % this.carosello.length;
   }
 
   nextRecensione(): void {
-    if (this.recensioniImmagini.length === 0) return;
-    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % this.recensioniImmagini.length;
+    if (this.recensioni.length === 0) return;
+    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % this.recensioni.length;
   }
 
   ngOnDestroy(): void {
     clearInterval(this.intervalId);
     clearInterval(this.recensioneIntervalId);
   }
+
+
+
+  //di immagine cloduinary ottengo solo quelle con angolazione frontale
+  getMediaFrontale(item: MediaCloudinary): MediaMeta | null {
+  return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
+}
+
 }

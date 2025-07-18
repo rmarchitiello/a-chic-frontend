@@ -38,40 +38,43 @@
         </button>
 
         <!-- Anteprima dinamica: immagine / video / audio -->
-        <ng-container [ngSwitch]="img.type">
+        <ng-container *ngIf="getMediaFrontale(img) as mediaFrontale">
+  <ng-container [ngSwitch]="img.type">
 
-          <!-- Immagine -->
-          <img *ngSwitchCase="'image'"
-               [src]="img.url"
-               [alt]="img.display_name"
-               class="preview-img" />
+    <!-- Immagine -->
+    <img *ngSwitchCase="'image'"
+         [src]="mediaFrontale.url"
+         [alt]="img.display_name"
+         class="preview-img" />
 
-          <!-- Video senza controlli, con click disabilitato -->
-          <video *ngSwitchCase="'video'"
-                 [src]="img.url"
-                 autoplay
-                 muted
-                 loop
-                 playsinline
-                 class="preview-img"
-                 style="pointer-events: none;">
-          </video>
+    <!-- Video senza controlli, con click disabilitato -->
+    <video *ngSwitchCase="'video'"
+           [src]="mediaFrontale.url"
+           autoplay
+           muted
+           loop
+           playsinline
+           class="preview-img"
+           style="pointer-events: none;">
+    </video>
 
-          <!-- Audio con autoplay e click disabilitato -->
-          <audio *ngSwitchCase="'audio'"
-                 [src]="img.url"
-                 autoplay
-                 class="preview-audio"
-                 style="pointer-events: none;">
-          </audio>
+    <!-- Audio con autoplay e click disabilitato -->
+    <audio *ngSwitchCase="'audio'"
+           [src]="mediaFrontale.url"
+           autoplay
+           class="preview-audio"
+           style="pointer-events: none;">
+    </audio>
 
-          <!-- Fallback per tipi sconosciuti -->
-          <div *ngSwitchDefault class="anteprima-non-disponibile">
-            <mat-icon>error_outline</mat-icon>
-            <span>Tipo non supportato</span>
-          </div>
+    <!-- Fallback per tipi sconosciuti -->
+    <div *ngSwitchDefault class="anteprima-non-disponibile">
+      <mat-icon>error_outline</mat-icon>
+      <span>Tipo non supportato</span>
+    </div>
 
-        </ng-container>
+  </ng-container>
+</ng-container>
+
 
         <!-- Nome del file -->
         <p>{{ img.display_name }}</p>
