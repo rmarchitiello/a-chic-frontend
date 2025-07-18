@@ -210,7 +210,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.router.navigate([urlOrFilter]);
   }
 
-  apriPopUpEditorCarosello(): void {
+  apriPopUpEditorAdmin(): void {
     this.dialog.open(EditAdminPopUpComponent, {
       width: '90vw',
       disableClose: false,
