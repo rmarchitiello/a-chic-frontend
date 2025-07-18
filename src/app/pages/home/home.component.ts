@@ -22,7 +22,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CaroselloEditPopUpComponent } from '../../admin/edit/home/carosello-edit-popup/carosello-edit-popup.component';
+import { EditAdminPopUpComponent } from '../../admin/edit/edit-admin-popup.component';
 
 // Interfaccia per ogni angolazione o asset (immagine/video/audio)
 export interface ImmagineMeta {
@@ -211,7 +211,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   apriPopUpEditorCarosello(): void {
-    this.dialog.open(CaroselloEditPopUpComponent, {
+    this.dialog.open(EditAdminPopUpComponent, {
       width: '90vw',
       disableClose: false,
       data: this.caroselloImmagini,

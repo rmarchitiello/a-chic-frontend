@@ -1,0 +1,21 @@
+<!-- Contenitore principale visibile solo se ci sono media -->
+<div class="carosello-container">
+
+  <!-- Pulsanti azione in alto a destra -->
+  <div class="action-buttons">
+    <button mat-icon-button class="add-button" (click)="apriPopUpCaricaImmagine()" matTooltip="Aggiungi media" aria-label="Aggiungi">
+      <mat-icon color="primary">add</mat-icon>
+    </button>
+
+    <button mat-icon-button class="download-button" (click)="apriPopUpdownloadMedia()" matTooltip="Scarica media" aria-label="Download">
+      <mat-icon>download</mat-icon>
+    </button>
+
+    <button mat-icon-button class="delete-button" (click)="apriPopUpEliminaImmagine()" matTooltip="Elimina media" aria-label="Elimina">
+      <mat-icon color="warn">delete</mat-icon>
+    </button>
+  </div>
+
+  
+</div>
+

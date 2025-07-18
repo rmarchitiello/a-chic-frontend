@@ -12,20 +12,20 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteDataAdminComponent } from '../../../common/delete-data-admin/delete-data-admin.component';
-import { DownloadDataAdminComponent } from '../../../common/download-data-admin/download-data-admin.component';
-import { ImmagineConfig } from '../../../../pages/home/home.component';
-import { UploadDataAdminComponent } from '../../../common/upload-data-admin/upload-data-admin.component';
-import { CloudinaryDataUpload } from '../../../../cms/cms-upload/cms-upload.component';
+import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-data-admin.component';
+import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
+import { ImmagineConfig } from '../../pages/home/home.component';
+import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
+import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component';
 
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
-  templateUrl: './carosello-edit-popup.component.html',
-  styleUrl: './carosello-edit-popup.component.scss',
+  templateUrl: './edit-admin-popup.component.html',
+  styleUrl: './edit-admin-popup.component.scss',
   imports: [CommonModule, MatIconModule]
 })
-export class CaroselloEditPopUpComponent implements OnInit {
+export class EditAdminPopUpComponent implements OnInit {
 
 immaginiCarosello: ImmagineConfig[] = [];
 
@@ -48,7 +48,7 @@ immaginiCarosello: ImmagineConfig[] = [];
   constructor(
     //ricevo il dato dalla home
     @Inject(MAT_DIALOG_DATA) public data: ImmagineConfig[],
-    private dialogRef: MatDialogRef<CaroselloEditPopUpComponent>,
+    private dialogRef: MatDialogRef<EditAdminPopUpComponent>,
     private dialog: MatDialog
 
   ) {}
