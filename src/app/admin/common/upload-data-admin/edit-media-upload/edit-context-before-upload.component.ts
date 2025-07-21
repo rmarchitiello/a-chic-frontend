@@ -57,7 +57,7 @@ export class EditContextBeforeUploadComponent implements OnInit {
     this.context['nome_file'] = ctx['nome_file'] || this.data.file.name.split('.')[0] || '';
     this.context['descrizione'] = ctx['descrizione'] || '';
     this.context['quantita'] = ctx['quantita'] || '0';
-    this.context['angolazione'] = ctx['angolazione'] || '';
+    this.context['angolazione'] = ctx['angolazione'] || 'frontale';
 
     // Aggiungo tutti gli altri metadati dinamici (escludendo quelli statici noti)
     const staticKeys = ['nome_file', 'descrizione', 'quantita', 'angolazione'];

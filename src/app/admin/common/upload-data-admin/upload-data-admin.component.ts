@@ -61,25 +61,34 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     window.addEventListener('drop', this.preventBrowserDefault, false);
   }
 
-  aggiungiFiles(files: File[]) {
-    files.forEach(file => {
-      const giaPresente = this.filesDaCaricare.some(
-        f => f.name === file.name && f.size === file.size
-      );
+aggiungiFiles(files: File[]) {
+  files.forEach(file => {
+    const giaPresente = this.filesDaCaricare.some(
+      f => f.name === file.name && f.size === file.size
+    );
 
-      if (!giaPresente) {
-        this.filesDaCaricare.push(file);
+    if (!giaPresente) {
+      // ✅ Aggiungo alla lista dei file da caricare
+      this.filesDaCaricare.push(file);
 
-        const tipoGenerico = file.type.split('/')[0]; // image, video, audio, application...
-
-        // Se è image, video o audio  creo un URL per preview
-        if (['image', 'video', 'audio'].includes(tipoGenerico)) {
-          const previewUrl = URL.createObjectURL(file);
-          this.anteprimeFile.set(file, previewUrl);
-        }
+      // ✅ Creo anteprima se è immagine, video o audio
+      const tipoGenerico = file.type.split('/')[0];
+      if (['image', 'video', 'audio'].includes(tipoGenerico)) {
+        const previewUrl = URL.createObjectURL(file);
+        this.anteprimeFile.set(file, previewUrl);
       }
-    });
-  }
+
+      // ✅ Imposto i metadati iniziali predefiniti per il file
+      this.metadatiPerFile.set(file, {
+        nome_file: file.name.split('.')[0],
+        angolazione: 'frontale',
+        quantita: '0',
+        descrizione: 'Descrizione da inserire'
+      });
+    }
+  });
+}
+
 
 
   rimuoviFile(file: File): void {
@@ -157,7 +166,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = input.files;
-
+    console.log("File aggiunto all array: ", files);
     if (files && files.length > 0) {
       const fileArray = Array.from(files);
       this.aggiungiFiles(fileArray);

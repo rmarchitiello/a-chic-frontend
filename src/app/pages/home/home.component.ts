@@ -240,7 +240,7 @@ this.creazioni = data[mieCreazioniKey].map(item => ({
 
   /* Uso questo metodo dove voglio per editare il contenuto dei media di quella*/
   apriPopUpEditorAdmin(): void {
-
+    console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
     this.dialog.open(EditAdminPopUpComponent, {
       width: '90vw',
       disableClose: false,
