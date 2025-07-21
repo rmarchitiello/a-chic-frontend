@@ -158,7 +158,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
       this.isAdmin = !!token;
@@ -204,95 +204,100 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         console.log("Carosellokey: ", caroselloKey);
         const recensioniKey = Object.keys(data).find(k => k.toLowerCase().includes('home/recensioni'));
         console.log("RecensioniKey: ", recensioniKey);
-        const videoEvidenzaKey = Object.keys(data).find(k => k.toLowerCase().includes('home/modelli evidenza'));
-        console.log("VideoEvidenzaKey: ", videoEvidenzaKey);
-        const mieCreazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('/home/mie creazioni'));
-        console.log("MieCreazioniKey: ", mieCreazioniKey);
-
-        console.log("Dati completi ricevuti: ", JSON.stringify(data));
-        if (!caroselloKey || !recensioniKey || !videoEvidenzaKey || !mieCreazioniKey) return;
-
-// Trasformo i dati del carosello raggruppando tutte le angolazioni (meta[]) per ogni media
-// Ricostruisco this.carosello come un array di un solo oggetto MediaCollection
-
-this.carosello = [
-  {
-    folder: 'Config/Home/Carosello',
-    media: (data[caroselloKey] || []).map((item: any) => ({
-      display_name: item.display_name,
-      descrizione: item.descrizione,
-      quantita: item.quantita,
-      type: this.detectType(item.meta?.[0]?.url || ''),
-      meta: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  }
-];
+        const modelliEvidenzaKey = Object.keys(data).find(k => k.toLowerCase().includes('home/modelli evidenza'));
+        console.log("VideoEvidenzaKey: ", modelliEvidenzaKey);
+        const creazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('/home/mie creazioni'));
+        console.log("MieCreazioniKey: ", creazioniKey);
 
 
-
+        // Trasformo i dati del carosello raggruppando tutte le angolazioni (meta[]) per ogni media
+        // Ricostruisco this.carosello come un array di un solo oggetto MediaCollection
+        if(caroselloKey){
+        this.carosello = [
+          {
+            folder: 'Config/Home/Carosello',
+            media: (data[caroselloKey] || []).map((item: any) => ({
+              display_name: item.display_name,
+              descrizione: item.descrizione,
+              quantita: item.quantita,
+              type: this.detectType(item.meta?.[0]?.url || ''),
+              meta: (item.meta || []).map((meta: any) => ({
+                url: meta.url,
+                angolazione: meta.angolazione || 'default'
+              }))
+            }))
+          }
+        ];
+        }
 
 
         console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
+        if(recensioniKey){
 
-this.recensioni = [
-  {
-    folder: 'Config/Recensioni',
-    media: (data[recensioniKey] || []).map((item: any) => ({
-      display_name: item.display_name,
-      descrizione: item.descrizione,
-      quantita: item.quantita,
-      type: this.detectType(item.meta?.[0]?.url || ''),
-      meta: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  }
-];
+        this.recensioni = [
+          {
+            folder: 'Config/Recensioni',
+            media: (data[recensioniKey] || []).map((item: any) => ({
+              display_name: item.display_name,
+              descrizione: item.descrizione,
+              quantita: item.quantita,
+              type: this.detectType(item.meta?.[0]?.url || ''),
+              meta: (item.meta || []).map((meta: any) => ({
+                url: meta.url,
+                angolazione: meta.angolazione || 'default'
+              }))
+            }))
+          }
+        ];
+      }
 
 
         console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
 
-
-this.modelliInEvidenza = [
-  {
-    folder: 'Config/Home/Video',
-    media: (data[videoEvidenzaKey] || []).map((item: any) => ({
-      display_name: item.display_name,
-      descrizione: item.descrizione,
-      quantita: item.quantita,
-      type: this.detectType(item.meta?.[0]?.url || ''),
-      meta: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  }
-];
-
-
-        console.log("[HomeComponent] -  Modelli in Evidenza  ", JSON.stringify(this.modelliInEvidenza));
+      if(modelliEvidenzaKey){
+        this.modelliInEvidenza = [
+          {
+            folder: 'Config/Home/Video',
+            media: (data[modelliEvidenzaKey] || []).map((item: any) => ({
+              display_name: item.display_name,
+              descrizione: item.descrizione,
+              quantita: item.quantita,
+              type: this.detectType(item.meta?.[0]?.url || ''),
+              meta: (item.meta || []).map((meta: any) => ({
+                url: meta.url,
+                angolazione: meta.angolazione || 'default'
+              }))
+            }))
+          }
+        ];
+      }
 
 
-// Trasformo i dati della sezione "Mie Creazioni" in un unico oggetto MediaCollection
-this.creazioni = [
-  {
-    folder: 'Config/Home/MieCreazioni',
-    media: (data[mieCreazioniKey] || []).map((item: any) => ({
-      display_name: item.display_name,
-      descrizione: item.descrizione,
-      quantita: item.quantita,
-      type: this.detectType(item.meta?.[0]?.url || ''),
-      meta: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  }
-];
+
+        console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
+
+
+        if(creazioniKey){
+        this.creazioni = [
+          {
+            folder: 'Config/Home/MieCreazioni',
+            media: (data[creazioniKey] || []).map((item: any) => ({
+              display_name: item.display_name,
+              descrizione: item.descrizione,
+              quantita: item.quantita,
+              type: this.detectType(item.meta?.[0]?.url || ''),
+              meta: (item.meta || []).map((meta: any) => ({
+                url: meta.url,
+                angolazione: meta.angolazione || 'default'
+              }))
+            }))
+          }
+        ];
+        }
+        // Trasformo i dati della sezione "Mie Creazioni" in un unico oggetto MediaCollection
+
+        
+        console.log("[HomeComponent] -  creazioni  ", this.creazioni);
 
 
 
@@ -365,17 +370,17 @@ this.creazioni = [
     this.mostraContenutoDopoCarosello = window.scrollY > soglia;
   }
 
-nextImage(): void {
-  if (this.carosello.length === 0 || this.carosello[0].media.length === 0) return;
-  const total = this.carosello[0].media.length;
-  this.currentIndex = (this.currentIndex + 1) % total;
-}
+  nextImage(): void {
+    if (this.carosello.length === 0 || this.carosello[0].media.length === 0) return;
+    const total = this.carosello[0].media.length;
+    this.currentIndex = (this.currentIndex + 1) % total;
+  }
 
-nextRecensione(): void {
-  if (this.recensioni.length === 0 || this.recensioni[0].media.length === 0) return;
-  const total = this.recensioni[0].media.length;
-  this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
-}
+  nextRecensione(): void {
+    if (this.recensioni.length === 0 || this.recensioni[0].media.length === 0) return;
+    const total = this.recensioni[0].media.length;
+    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
+  }
 
 
   ngOnDestroy(): void {
@@ -386,12 +391,20 @@ nextRecensione(): void {
 
 
   //di immagine cloduinary ottengo solo quelle con angolazione frontale
-getMediaFrontale(mediaItems: MediaItem[]): MediaAsset | null {
-  const item = mediaItems.find(m =>
-    m.meta?.some(asset => asset.angolazione?.toLowerCase() === 'frontale')
-  );
-  return item?.meta.find(asset => asset.angolazione?.toLowerCase() === 'frontale') || null;
-}
+  getMediaFrontale(mediaItems: MediaItem[]): MediaAsset | null {
+    const item = mediaItems.find(m =>
+      m.meta?.some(asset => asset.angolazione?.toLowerCase() === 'frontale')
+    );
+    return item?.meta.find(asset => asset.angolazione?.toLowerCase() === 'frontale') || null;
+  }
+
+  //controllo se esitono media per non far andare ngFor in errore
+  hasMedia(collection: any[]): boolean {
+    return Array.isArray(collection)
+      && collection.length > 0
+      && Array.isArray(collection[0]?.media)
+      && collection[0].media.length > 0;
+  }
 
 
 }
