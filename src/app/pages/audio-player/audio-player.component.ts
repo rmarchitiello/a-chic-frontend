@@ -16,7 +16,7 @@ import {
   transition
 } from '@angular/animations';
 import { MatListModule } from '@angular/material/list';
-import { MediaCloudinary } from '../home/home.component';
+import { MediaItem } from '../home/home.component';
 import { CloudinaryService } from '../../services/cloudinary.service';
 
 /** Modello per ogni traccia audio */
@@ -79,7 +79,7 @@ export class AudioPlayerComponent implements OnInit {
   ngOnInit(): void {
 
     this.cloudinaryService.getImmagini('', true).subscribe(
-      (response: Record<string, MediaCloudinary[]>) => {
+      (response: Record<string, MediaItem[]>) => {
         // 1. Trovo la cartella audio del carillon
         const audioKey = Object.keys(response)
           .find(k => k.toLowerCase().includes('config/carillon/audio'));

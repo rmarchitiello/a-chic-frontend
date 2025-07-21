@@ -1,40 +1,38 @@
-<!-- Banner per l'amministratore -->
+<!-- Banner amministratore -->
 <div *ngIf="isAdmin" class="admin-banner">
   <p>Stai visualizzando il sito in modalità amministratore</p>
 </div>
 
-<!-- ============================= VERSIONE DESKTOP ============================= -->
+<!-- ================= DESKTOP ================= -->
 <section *ngIf="!isMobile" class="modelli-evidenza-desktop">
   <div class="desktop-container">
 
-    <!-- Carosello multimediale (immagini, video, audio) -->
+    <!-- Carosello desktop -->
     <div class="carousel-wrapper-desktop">
-
-
       <div class="carousel-container-desktop">
 
-        <!-- bottone per editare il carosello-->
+        <!-- Modifica carosello (solo admin) -->
         <button *ngIf="isAdmin" mat-icon-button class="edit-admin-carosello-icon" (click)="apriPopUpEditorAdmin()"
           matTooltip="Modifica carosello">
           <mat-icon>edit</mat-icon>
         </button>
 
+        <!-- Ciclo diretto su carosello[0]?.media -->
+        <ng-container *ngFor="let media of carosello[0]?.media; let i = index">
+          <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
 
-        <ng-container *ngFor="let c of carosello; let i = index">
-          <ng-container *ngIf="getMediaFrontale(c.media) as mediaFrontale">
+            <!-- Immagine -->
+            <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" (click)="goTo('/borse')"
+              class="carousel-image-desktop" [class.active]="i === currentIndex" alt="Immagine carosello" />
 
-            <!-- IMMAGINE -->
-            <img *ngIf="c.media.type === 'image'" [src]="mediaFrontale.url" (click)="goTo('/borse')"
-              [class.active]="i === currentIndex" class="carousel-image-desktop" alt="Immagine carosello" />
-
-            <!-- VIDEO -->
-            <video *ngIf="c.media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
-              [class.active]="i === currentIndex" class="carousel-image-desktop">
+            <!-- Video -->
+            <video *ngIf="media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
+              class="carousel-image-desktop" [class.active]="i === currentIndex">
               <source [src]="mediaFrontale.url" type="video/mp4" />
             </video>
 
-            <!-- AUDIO -->
-            <audio *ngIf="c.media.type === 'audio'" autoplay class="carousel-audio-desktop">
+            <!-- Audio -->
+            <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-desktop">
               <source [src]="mediaFrontale.url" type="audio/mpeg" />
             </audio>
 
@@ -44,48 +42,50 @@
       </div>
     </div>
 
-    <!-- Modelli in evidenza (solo video) -->
-    <div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
-      <mat-card *ngFor="let modelloInEvidenza of modelliInEvidenza" class="modello-card-desktop">
-
-        <!-- Mostro solo se esiste una versione frontale -->
-        <ng-container *ngIf="getMediaFrontale(modelloInEvidenza.media) as mediaFrontale">
-          <video autoplay muted loop playsinline preload="auto" (click)="goTo(modelloInEvidenza.media.display_name, true)"
-            class="video-responsive-desktop" mat-card-image>
-            <source [src]="mediaFrontale.url" type="video/mp4" />
-          </video>
-          <mat-card-title class="card-title-desktop">
-            {{ modelloInEvidenza.media.display_name }}
-          </mat-card-title>
-        </ng-container>
-
-      </mat-card>
-    </div>
 
 
-    <!-- Galleria creazioni artigianali -->
+<!-- Video modelli in evidenza -->
+<div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
+  <mat-card *ngFor="let media of modelliInEvidenza[0]?.media" class="modello-card-desktop">
+    <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+      <video *ngIf="media.type === 'video'" autoplay muted loop playsinline preload="auto"
+        (click)="goTo(media.display_name, true)" class="video-responsive-desktop" mat-card-image>
+        <source [src]="mediaFrontale.url" type="video/mp4" />
+      </video>
+      <mat-card-title class="card-title-desktop">
+        {{ media.display_name }}
+      </mat-card-title>
+    </ng-container>
+  </mat-card>
+</div>
+
+
+
+
+
+    <!-- Le mie creazioni -->
     <div class="scroll-reveal creazioni-desktop" appScrollReveal>
       <h2 class="titolo-creazioni-desktop">Le mie creazioni</h2>
-      <p class="testo-creazioni-desktop">
-        Ogni creazione è un pezzo unico, frutto di creatività e dedizione artigianale.
+      <p class="testo-creazioni-desktop">Ogni creazione è un pezzo unico, frutto di creatività e dedizione artigianale.
       </p>
       <div class="creazioni-gallery-desktop">
         <ng-container *ngFor="let creazione of creazioni">
-          <ng-container *ngIf="getMediaFrontale(creazione.media) as mediaFrontale">
-            <img *ngIf="creazione.media.type === 'image'" [src]="mediaFrontale.url" alt="Creazione artigianale" />
-            <video *ngIf="creazione.media.type === 'video'" autoplay muted loop playsinline>
-              <source [src]="mediaFrontale.url" type="video/mp4" />
-            </video>
-            <audio *ngIf="creazione.media.type === 'audio'" autoplay>
-              <source [src]="mediaFrontale.url" type="audio/mpeg" />
-            </audio>
+          <ng-container *ngFor="let media of creazione.media">
+            <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+              <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" alt="Creazione artigianale" />
+              <video *ngIf="media.type === 'video'" autoplay muted loop playsinline>
+                <source [src]="mediaFrontale.url" type="video/mp4" />
+              </video>
+              <audio *ngIf="media.type === 'audio'" autoplay>
+                <source [src]="mediaFrontale.url" type="audio/mpeg" />
+              </audio>
+            </ng-container>
           </ng-container>
         </ng-container>
       </div>
     </div>
 
-
-    <!-- Sezione valori -->
+    <!-- Valori -->
     <div class="scroll-reveal valori-desktop" appScrollReveal>
       <h2 class="titolo-valori-desktop">Perché scegliere A-Chic</h2>
       <ul class="lista-valori-desktop">
@@ -96,70 +96,88 @@
       </ul>
     </div>
 
-    <!-- Carosello recensioni -->
+    <!-- Recensioni -->
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
       <div class="carousel-container-recensioni-desktop">
-        <ng-container *ngFor="let recensione of recensioni; let i = index">
-          <ng-container *ngIf="getMediaFrontale(recensione.media) as mediaFrontale">
-            <img *ngIf="recensione.media.type === 'image'" [src]="mediaFrontale.url"
-              [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-desktop"
-              alt="Recensione cliente" />
 
-            <video *ngIf="recensione.media.type === 'video'" autoplay muted loop playsinline
+        <!-- Ciclo diretto su recensioni[0]?.media -->
+        <ng-container *ngFor="let media of recensioni[0]?.media; let i = index">
+          <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+
+            <!-- Immagine -->
+            <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" [class.active]="i === currentRecensioneIndex"
+              class="carousel-image-recensioni-desktop" alt="Recensione cliente" />
+
+            <!-- Video -->
+            <video *ngIf="media.type === 'video'" autoplay muted loop playsinline
               [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-desktop">
               <source [src]="mediaFrontale.url" type="video/mp4" />
             </video>
 
-            <audio *ngIf="recensione.media.type === 'audio'" autoplay class="carousel-audio-desktop">
+            <!-- Audio -->
+            <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-desktop">
               <source [src]="mediaFrontale.url" type="audio/mpeg" />
             </audio>
+
           </ng-container>
         </ng-container>
+
       </div>
     </div>
-
 
   </div>
 </section>
 
-<!-- ============================= VERSIONE MOBILE ============================= -->
+<!-- ================= MOBILE ================= -->
 <section *ngIf="isMobile" class="modelli-evidenza-mobile">
   <div class="mobile-container">
 
-    <!-- Carosello mobile -->
+    <!-- Carosello -->
     <div class="carousel-wrapper-mobile">
       <div class="carousel-container-mobile">
-        <ng-container *ngFor="let c of carosello; let i = index">
-          <ng-container *ngIf="getMediaFrontale(c.media) as mediaFrontale">
-            <img *ngIf="c.media.type === 'image'" [src]="mediaFrontale.url" (click)="goTo('/borse')"
+
+        <!-- Ciclo diretto su carosello[0]?.media -->
+        <ng-container *ngFor="let media of carosello[0]?.media; let i = index">
+          <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+
+            <!-- Immagine -->
+            <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" (click)="goTo('/borse')"
               [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello" />
 
-            <video *ngIf="c.media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
+            <!-- Video -->
+            <video *ngIf="media.type === 'video'" autoplay muted loop playsinline (click)="goTo('/borse')"
               [class.active]="i === currentIndex" class="carousel-image-mobile">
               <source [src]="mediaFrontale.url" type="video/mp4" />
             </video>
 
-            <audio *ngIf="c.media.type === 'audio'" autoplay class="carousel-audio-mobile">
+            <!-- Audio -->
+            <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-mobile">
               <source [src]="mediaFrontale.url" type="audio/mpeg" />
             </audio>
+
           </ng-container>
         </ng-container>
+
       </div>
     </div>
 
+
     <!-- Modelli in evidenza -->
-    <div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
-      <mat-card *ngFor="let modelloInEvidenza of modelliInEvidenza" class="modello-card-mobile">
-        <ng-container *ngIf="getMediaFrontale(modelloInEvidenza.media) as mediaFrontale">
-          <video autoplay muted loop playsinline preload="auto" (click)="goTo(modelloInEvidenza.media.display_name, true)"
-            class="video-responsive-mobile" mat-card-image>
-            <source [src]="mediaFrontale.url" type="video/mp4" />
-          </video>
-        </ng-container>
-        <mat-card-title class="card-title-mobile">{{ modelloInEvidenza.media.display_name }}</mat-card-title>
-      </mat-card>
-    </div>
+<div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
+  <mat-card *ngFor="let media of modelliInEvidenza[0]?.media" class="modello-card-mobile">
+    <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+      <video *ngIf="media.type === 'video'" autoplay muted loop playsinline preload="auto"
+        (click)="goTo(media.display_name, true)" class="video-responsive-mobile" mat-card-image>
+        <source [src]="mediaFrontale.url" type="video/mp4" />
+      </video>
+      <mat-card-title class="card-title-mobile">
+        {{ media.display_name }}
+      </mat-card-title>
+    </ng-container>
+  </mat-card>
+</div>
+
 
 
     <!-- Galleria creazioni -->
@@ -170,21 +188,22 @@
       </p>
       <div class="creazioni-gallery-mobile">
         <ng-container *ngFor="let creazione of creazioni">
-          <ng-container *ngIf="getMediaFrontale(creazione.media) as mediaFrontale">
-            <img *ngIf="creazione.media.type === 'image'" [src]="mediaFrontale.url" alt="Creazione" />
-            <video *ngIf="creazione.media.type === 'video'" autoplay muted loop playsinline>
-              <source [src]="mediaFrontale.url" type="video/mp4" />
-            </video>
-            <audio *ngIf="creazione.media.type === 'audio'" autoplay>
-              <source [src]="mediaFrontale.url" type="audio/mpeg" />
-            </audio>
+          <ng-container *ngFor="let media of creazione.media">
+            <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+              <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" alt="Creazione" />
+              <video *ngIf="media.type === 'video'" autoplay muted loop playsinline>
+                <source [src]="mediaFrontale.url" type="video/mp4" />
+              </video>
+              <audio *ngIf="media.type === 'audio'" autoplay>
+                <source [src]="mediaFrontale.url" type="audio/mpeg" />
+              </audio>
+            </ng-container>
           </ng-container>
         </ng-container>
       </div>
     </div>
 
-
-    <!-- Sezione valori -->
+    <!-- Valori -->
     <div class="scroll-reveal valori-mobile" appScrollReveal>
       <h2 class="titolo-valori-mobile">Perché scegliere A-Chic</h2>
       <ul class="lista-valori-mobile">
@@ -194,24 +213,33 @@
         <li>Assistenza diretta</li>
       </ul>
     </div>
-
-    <!-- Carosello recensioni -->
+    <!-- Recensioni -->
     <div class="scroll-reveal" appScrollReveal>
       <h2 class="titolo-recensioni-mobile">Dicono di noi</h2>
       <div class="carousel-container-recensioni-mobile">
-        <ng-container *ngFor="let recensione of recensioni; let i = index">
-          <ng-container *ngIf="getMediaFrontale(recensione.media) as mediaFrontale">
-            <img *ngIf="recensione.media.type === 'image'" [src]="mediaFrontale.url"
-              [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-mobile" alt="Recensione" />
-            <video *ngIf="recensione.media.type === 'video'" autoplay muted loop playsinline
+
+        <!-- Ciclo diretto su recensioni[0]?.media -->
+        <ng-container *ngFor="let media of recensioni[0]?.media; let i = index">
+          <ng-container *ngIf="getMediaFrontale([media]) as mediaFrontale">
+
+            <!-- Immagine -->
+            <img *ngIf="media.type === 'image'" [src]="mediaFrontale.url" [class.active]="i === currentRecensioneIndex"
+              class="carousel-image-recensioni-mobile" alt="Recensione" />
+
+            <!-- Video -->
+            <video *ngIf="media.type === 'video'" autoplay muted loop playsinline
               [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-mobile">
               <source [src]="mediaFrontale.url" type="video/mp4" />
             </video>
-            <audio *ngIf="recensione.media.type === 'audio'" autoplay class="carousel-audio-mobile">
+
+            <!-- Audio -->
+            <audio *ngIf="media.type === 'audio'" autoplay class="carousel-audio-mobile">
               <source [src]="mediaFrontale.url" type="audio/mpeg" />
             </audio>
+
           </ng-container>
         </ng-container>
+
       </div>
     </div>
 

@@ -1,178 +1,145 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CmsService } from '../../../services/cms.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { MediaCloudinary } from '../../../pages/home/home.component';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MediaMeta } from '../../../pages/home/home.component';
-import { DataCloudinary } from '../../../pages/home/home.component';
-/**
- * Estensione dell'interfaccia ImmagineConfig per includere:
- * - stato di errore durante l'eliminazione
- * - messaggio di dettaglio errore
- * - stato di uscita animata (visiva)
- */
+import { MediaCollection, MediaItem, MediaAsset } from '../../../pages/home/home.component';
 
-// ATTUALMENTE POSSIAMO CANCELLARE SOLO QUELLE FRONTALI
-interface ImmagineConErrore extends MediaCloudinary {
+// Interfaccia estesa per gestire errori ed effetti visivi
+interface MediaItemConErrore extends MediaItem {
   erroreEliminazione?: boolean;
   dettaglioErrore?: string;
-  inEliminazione?: boolean; // Gestisce la scomparsa animata
+  inEliminazione?: boolean;
 }
 
 @Component({
   selector: 'app-delete-data-admin',
+  standalone: true,
+  imports: [CommonModule, MatTooltipModule, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './delete-data-admin.component.html',
-  styleUrl: './delete-data-admin.component.scss',
-  imports: [
-    CommonModule,
-    MatTooltipModule,
-    MatIconModule,
-    MatProgressSpinnerModule
-  ]
+  styleUrl: './delete-data-admin.component.scss'
 })
 export class DeleteDataAdminComponent implements OnInit {
 
+  // Lista di media (singoli) con flag di errore
+  mediaInput: MediaItemConErrore[] = [];
+
+  // Stato per spinner
+  eliminazioneInCorso: boolean = false;
+
+  // Stato per media vuoti
   checkDataIsEmpty: boolean = false;
-
-  // Lista delle immagini da eliminare, arricchite con flag per gestione errori e animazioni
-  mediaInput: ImmagineConErrore[] = [];
-
-  // Spinner globale per l'intera eliminazione batch
-  eliminazioneInCorso = false;
 
   constructor(
     private cmsService: CmsService,
     private dialogRef: MatDialogRef<DeleteDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DataCloudinary[]
+    @Inject(MAT_DIALOG_DATA) public data: MediaCollection[]
   ) {}
 
-  ngOnDestroy(): void {
-  }
-
   ngOnInit(): void {
-    // All'avvio del componente, clono ogni immagine con i flag per errore/animazione
-    this.mediaInput = this.data.map(item => ({
-  ...item.media,
-  erroreEliminazione: false,
-  dettaglioErrore: '',
-  inEliminazione: false
-}));
+    // Appiattisce tutti i media in un array unico con flag iniziali
+    this.mediaInput = this.data.flatMap(col => col.media).map(m => ({
+      ...m,
+      erroreEliminazione: false,
+      dettaglioErrore: '',
+      inEliminazione: false
+    }));
 
-//se e vuoto mostra a pop up che non ci sono file da eliminare
-this.checkDataIsEmpty = this.mediaInput.length === 0;
+    this.checkDataIsEmpty = this.mediaInput.length === 0;
 
-if (this.checkDataIsEmpty) {
-  setTimeout(() => this.chiudiDialog(false), 1000); 
-}
-
-
-
-    console.log('Dati ricevuti da eliminare:', this.mediaInput);
-  }
-
-  /**
-   * Metodo per gestire l'eliminazione delle immagini.
-   * Può eliminare una singola immagine (passata come parametro),
-   * tutte le immagini (se allImages=true), o la prima della lista.
-   */
-deleteMedia(allImages: boolean = false, immagineSingola?: ImmagineConErrore): void {
-  // Mostro lo spinner solo se non sto eliminando da una singola card
-  if (!immagineSingola) {
-    this.eliminazioneInCorso = true;
-  }
-
-  // Determino le immagini da elaborare:
-  const immaginiDaEliminare: ImmagineConErrore[] = immagineSingola
-    ? [immagineSingola]
-    : allImages
-      ? this.mediaInput
-      : [this.mediaInput[0]];
-
-  // Estraggo solo gli URL delle immagini frontali
-  const urls = immaginiDaEliminare
-    .map(img => this.getMediaFrontale(img)?.url)
-    .filter((url): url is string => !!url); // Elimina i null
-
-  // Se nessuna immagine ha angolazione frontale, segnalo e annullo
-  if (urls.length === 0) {
-    this.eliminazioneInCorso = false;
-
-    immaginiDaEliminare.forEach(img => {
-      img.erroreEliminazione = true;
-      img.dettaglioErrore = 'Nessuna immagine frontale trovata per questa risorsa.';
-    });
-
-    console.warn('Nessuna immagine frontale valida trovata per eliminazione.');
-    return;
-  }
-
-  // Chiamo il servizio per l’eliminazione dei file
-  this.cmsService.deleteImages(urls, true).subscribe({
-    next: (res) => {
-      this.eliminazioneInCorso = false;
-
-      if (res?.success) {
-        console.log('Eliminazione riuscita:', urls);
-
-        if (immagineSingola) {
-          immagineSingola.inEliminazione = true;
-          setTimeout(() => {
-            this.mediaInput = this.mediaInput.filter(img => img !== immagineSingola);
-          }, 300);
-        } else if (!allImages) {
-          this.mediaInput[0].inEliminazione = true;
-          setTimeout(() => {
-            this.mediaInput = this.mediaInput.slice(1);
-          }, 300);
-        } else {
-          this.dialogRef.close(true);
-          setTimeout(() => window.location.reload(), 100);
-        }
-
-      } else {
-        console.warn('Il backend ha risposto ma non ha confermato l’eliminazione.');
-      }
-    },
-
-    error: (err) => {
-      this.eliminazioneInCorso = false;
-      console.error('Errore durante l’eliminazione:', err);
-
-      immaginiDaEliminare.forEach(img => {
-        const urlFrontale = this.getMediaFrontale(img)?.url;
-        if (urlFrontale) {
-          img.erroreEliminazione = true;
-          img.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
-        }
-      });
+    if (this.checkDataIsEmpty) {
+      setTimeout(() => this.chiudiDialog(false), 1000);
     }
-  });
-}
-
-
+  }
 
   /**
-   * Metodo per chiudere manualmente il dialog (pulsante "Annulla")
+   * Elimina uno o più file
+   */
+  deleteMedia(allImages: boolean = false, immagineSingola?: MediaItemConErrore): void {
+    if (!immagineSingola) {
+      this.eliminazioneInCorso = true;
+    }
+
+    const immaginiDaEliminare: MediaItemConErrore[] = immagineSingola
+      ? [immagineSingola]
+      : allImages
+        ? this.mediaInput
+        : [this.mediaInput[0]];
+
+    const urls = immaginiDaEliminare
+      .map(media => this.getMediaFrontale(media)?.url)
+      .filter((url): url is string => !!url);
+
+    if (urls.length === 0) {
+      this.eliminazioneInCorso = false;
+
+      immaginiDaEliminare.forEach(media => {
+        media.erroreEliminazione = true;
+        media.dettaglioErrore = 'Nessuna angolazione frontale trovata.';
+      });
+
+      return;
+    }
+
+    this.cmsService.deleteImages(urls, true).subscribe({
+      next: res => {
+        this.eliminazioneInCorso = false;
+
+        if (res?.success) {
+          if (immagineSingola) {
+            immagineSingola.inEliminazione = true;
+            setTimeout(() => {
+              this.mediaInput = this.mediaInput.filter(m => m !== immagineSingola);
+            }, 300);
+          } else if (!allImages) {
+            this.mediaInput[0].inEliminazione = true;
+            setTimeout(() => {
+              this.mediaInput = this.mediaInput.slice(1);
+            }, 300);
+          } else {
+            this.dialogRef.close(true);
+            setTimeout(() => window.location.reload(), 100);
+          }
+        } else {
+          console.warn('Eliminazione non confermata dal backend.');
+        }
+      },
+      error: err => {
+        this.eliminazioneInCorso = false;
+        immaginiDaEliminare.forEach(media => {
+          const urlFrontale = this.getMediaFrontale(media)?.url;
+          if (urlFrontale) {
+            media.erroreEliminazione = true;
+            media.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Ritorna solo l’asset con angolazione frontale, se presente
+   */
+  getMediaFrontale(item: MediaItem): MediaAsset | null {
+    return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
+  }
+
+  /**
+   * Chiude il dialog
+   */
+  chiudiDialog(reload: boolean): void {
+    this.dialogRef.close();
+    if (reload) {
+      setTimeout(() => window.location.reload(), 400);
+    }
+  }
+
+  /**
+   * Chiude il dialog senza ricaricare
    */
   annulla(): void {
     this.dialogRef.close(false);
   }
-
-    chiudiDialog(reload: boolean): void {
-    this.dialogRef.close();
-            setTimeout(() => {
-              if(reload){
-              window.location.reload();
-
-              }
-        }, 400);
-  }
-
-    //di immagine cloduinary ottengo solo quelle con angolazione frontale poi vediamo come fare per le altre
-  getMediaFrontale(item: MediaCloudinary): MediaMeta | null {
-  return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
-}
 }
