@@ -13,7 +13,7 @@ dragleave = L’utente ha spostato il file fuori dall’area (serve a rimuovere 
 drop = L’utente ha rilasciato il file. Qui si accede a event.dataTransfer.files per leggere i file e processarli. ci sono i file o il file da caricare
 */
 
-import { Component, OnInit, OnDestroy, Inject  } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CmsService } from '../../../services/cms.service';
 import { MatIcon } from '@angular/material/icon';
@@ -23,9 +23,16 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { EditContextBeforeUploadComponent } from '../../edit-media-upload/edit-context-before-upload.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-upload-data-admin',
-  imports: [MatIcon,CommonModule,MatProgressSpinnerModule,MatDialogModule],
+  imports: [
+    MatIcon, 
+    CommonModule, 
+    MatProgressSpinnerModule, 
+    MatDialogModule,
+    MatTooltipModule],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
 })
@@ -36,7 +43,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public folder: string //LA FOLDER VIENE PASSATA DAL PADRE
-  ) {}
+  ) { }
 
   // Variabile booleana per attivare lo stile visivo quando un file è sopra l’area di drop
   isHovering = false;
@@ -52,43 +59,43 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     window.addEventListener('drop', this.preventBrowserDefault, false);
   }
 
-aggiungiFiles(files: File[]) {
-  files.forEach(file => {
-    const giaPresente = this.filesDaCaricare.some(
-      f => f.name === file.name && f.size === file.size
-    );
+  aggiungiFiles(files: File[]) {
+    files.forEach(file => {
+      const giaPresente = this.filesDaCaricare.some(
+        f => f.name === file.name && f.size === file.size
+      );
 
-    if (!giaPresente) {
-      this.filesDaCaricare.push(file);
+      if (!giaPresente) {
+        this.filesDaCaricare.push(file);
 
-      const tipoGenerico = file.type.split('/')[0]; // image, video, audio, application...
+        const tipoGenerico = file.type.split('/')[0]; // image, video, audio, application...
 
-      // Se è image, video o audio  creo un URL per preview
-      if (['image', 'video', 'audio'].includes(tipoGenerico)) {
-        const previewUrl = URL.createObjectURL(file);
-        this.anteprimeFile.set(file, previewUrl);
+        // Se è image, video o audio  creo un URL per preview
+        if (['image', 'video', 'audio'].includes(tipoGenerico)) {
+          const previewUrl = URL.createObjectURL(file);
+          this.anteprimeFile.set(file, previewUrl);
+        }
       }
-    }
-  });
-}
+    });
+  }
 
 
-rimuoviFile(file: File): void {
-  // Rimuove dalla lista file
-  this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
+  rimuoviFile(file: File): void {
+    // Rimuove dalla lista file
+    this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
 
-  // Rimuove anche l’anteprima se presente
-  this.anteprimeFile.delete(file);
-}
+    // Rimuove anche l’anteprima se presente
+    this.anteprimeFile.delete(file);
+  }
 
 
-rimuoviTuttiIFiles(): void {
-  // Svuota l'elenco dei file da caricare
-  this.filesDaCaricare = [];
+  rimuoviTuttiIFiles(): void {
+    // Svuota l'elenco dei file da caricare
+    this.filesDaCaricare = [];
 
-  // Svuota tutte le anteprime
-  this.anteprimeFile.clear();
-}
+    // Svuota tutte le anteprime
+    this.anteprimeFile.clear();
+  }
 
 
 
@@ -130,7 +137,7 @@ rimuoviTuttiIFiles(): void {
    * Recupera i file da event.dataTransfer.files e li gestisce (es. invio al backend)
    */
   onDrop(event: DragEvent): void {
-    console.log("File caricato: ",JSON.stringify(event));
+    console.log("File caricato: ", JSON.stringify(event));
     event.preventDefault(); // Impedisce comportamento predefinito del browser
     this.isHovering = false;
 
@@ -140,23 +147,23 @@ rimuoviTuttiIFiles(): void {
       const fileArray = Array.from(files); // Converte FileList in array
       console.log('File ricevuti nel drop:', fileArray);
       //riempio l'array
-    this.aggiungiFiles(fileArray);
+      this.aggiungiFiles(fileArray);
 
     }
   }
 
-onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const files = input.files;
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
 
-  if (files && files.length > 0) {
-    const fileArray = Array.from(files);
-    this.aggiungiFiles(fileArray);
+    if (files && files.length > 0) {
+      const fileArray = Array.from(files);
+      this.aggiungiFiles(fileArray);
+    }
+
+    //reset
+    input.value = '';
   }
-
-  //reset
-  input.value = '';
-}
 
 
 
@@ -165,171 +172,175 @@ onFileSelected(event: Event): void {
    */
   chiudiDialog(reload: boolean): void {
     this.dialogRef.close();
-            setTimeout(() => {
-         if(reload) {
-          window.location.reload();
-         }
-        }, 400);
+    setTimeout(() => {
+      if (reload) {
+        window.location.reload();
+      }
+    }, 400);
   }
 
 
 
- /**
- * Metodo che gestisce l'upload multiplo di file verso Cloudinary,
- * inviando uno a uno ogni file selezionato o trascinato.
- */
-// Stato di caricamento per ogni file (verde = ok, rosso = errore)
-statoUpload: Map<File, 'ok' | 'ko'> = new Map();
-uploadInCorso: boolean = false; // dichiarala all'inizio del componente
-motiviErroreUpload = new Map<File, string>(); //tooltip mi appoggio e vedo qual e l errore
+  /**
+  * Metodo che gestisce l'upload multiplo di file verso Cloudinary,
+  * inviando uno a uno ogni file selezionato o trascinato.
+  */
+  // Stato di caricamento per ogni file (verde = ok, rosso = errore)
+  statoUpload: Map<File, 'ok' | 'ko'> = new Map();
+  uploadInCorso: boolean = false; // dichiarala all'inizio del componente
+  motiviErroreUpload = new Map<File, string>(); //tooltip mi appoggio e vedo qual e l errore
 
 
-//setto il context da popUp
-nome_file: string = '';
-descrizione: string = '';
-quantita: string = '';
-angolazione: string = '';
+  //setto il context da popUp
+  nome_file: string = '';
+  descrizione: string = '';
+  quantita: string = '';
+  angolazione: string = '';
 
-uploadFiles(): void {
-  if (this.filesDaCaricare.length === 0) {
-    alert("Errore: seleziona almeno un file da caricare.");
-    return;
-  }
+  uploadFiles(): void {
+    if (this.filesDaCaricare.length === 0) {
+      alert("Errore: seleziona almeno un file da caricare.");
+      return;
+    }
 
-  const folder = this.folder?.trim();
-  if (!folder) {
-    alert("Errore: specifica una cartella di destinazione.");
-    return;
-  }
+    const folder = this.folder?.trim();
+    if (!folder) {
+      alert("Errore: specifica una cartella di destinazione.");
+      return;
+    }
 
-  const livelli = folder.split('/').filter(p => p.trim() !== '');
-  if (livelli.length > 3) {
-    alert('Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande").');
-    return;
-  }
+    const livelli = folder.split('/').filter(p => p.trim() !== '');
+    if (livelli.length > 3) {
+      alert('Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande").');
+      return;
+    }
 
-  this.uploadInCorso = true;
-  this.statoUpload.clear();
-  this.motiviErroreUpload.clear(); // ⬅️ Resetto i motivi precedenti
+    this.uploadInCorso = true;
+    this.statoUpload.clear();
+    this.motiviErroreUpload.clear(); // ⬅️ Resetto i motivi precedenti
 
-  const formData = new FormData();
-  const metadataList: CloudinaryDataUpload[] = [];
+    const formData = new FormData();
+    const metadataList: CloudinaryDataUpload[] = [];
 
-  this.filesDaCaricare.forEach((file: File) => {
-    formData.append('file', file);
+    this.filesDaCaricare.forEach((file: File) => {
+      formData.append('file', file);
 
-    
-    const context = this.metadatiPerFile.get(file) || {
+
+      const context = this.metadatiPerFile.get(file) || {
         nome_file: file.name.split('.')[0],
         descrizione: '',
         quantita: '0',
         angolazione: 'frontale'
       };
 
-    const metadata: CloudinaryDataUpload = {
-      folder: folder,
-      context
-    };
+      const metadata: CloudinaryDataUpload = {
+        folder: folder,
+        context
+      };
 
 
-    console.log("File da caricare: ", metadata);
+      console.log("File da caricare: ", metadata);
 
-    metadataList.push(metadata);
-  });
+      metadataList.push(metadata);
+    });
 
-  metadataList.forEach(metadata => {
-    formData.append('cloudinary', JSON.stringify(metadata));
-  });
+    metadataList.forEach(metadata => {
+      formData.append('cloudinary', JSON.stringify(metadata));
+    });
 
-  const isConfig = folder.toLowerCase().includes('config');
+    const isConfig = folder.toLowerCase().includes('config');
 
-  this.cmsService.uploadMedia(formData, isConfig).subscribe({
-    next: (res) => {
-      console.log('Upload completato:', res);
+    this.cmsService.uploadMedia(formData, isConfig).subscribe({
+      next: (res) => {
+        console.log('Upload completato:', res);
 
-            let ciSonoErrori = false;
+        let ciSonoErrori = false;
 
 
-      if (Array.isArray(res.data)) {
-        res.data.forEach((uploadResult: any) => {
-          const nomeFile = uploadResult.nome_file;
-          const stato = uploadResult.status;
-          const motivo = uploadResult.reason;
+        if (Array.isArray(res.data)) {
+          res.data.forEach((uploadResult: any) => {
+            const nomeFile = uploadResult.nome_file;
+            const stato = uploadResult.status;
+            const motivo = uploadResult.reason;
 
-          const fileMatch = this.filesDaCaricare.find(f =>
-            f.name.split('.')[0] === nomeFile
-          );
+            //Se l’utente modifica nome_file da popup, viene usato come riferimento per associare la risposta.
+const fileMatch = this.filesDaCaricare.find(f => {
+  const meta = this.metadatiPerFile.get(f);
+  const nomeAssociato = meta?.nome_file || f.name.split('.')[0];
+  return nomeAssociato === nomeFile;
+});
 
-          if (fileMatch) {
-            this.statoUpload.set(fileMatch, stato);
 
-            if (stato === 'ko') {
-              ciSonoErrori = true;
-              if (motivo) {
-                this.motiviErroreUpload.set(fileMatch, motivo);
+            if (fileMatch) {
+              this.statoUpload.set(fileMatch, stato);
+
+              if (stato === 'ko') {
+                ciSonoErrori = true;
+                if (motivo) {
+                  this.motiviErroreUpload.set(fileMatch, motivo);
+                }
+              }
+
+              if (stato === 'ok') {
+
+                setTimeout(() => {
+                  this.statoUpload.delete(fileMatch);
+                  this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+                }, 2000);
               }
             }
+          });
+        }
 
-            if (stato === 'ok') {
-              
-              setTimeout(() => {
-                this.statoUpload.delete(fileMatch);
-                this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
-              }, 2000);
-            }
-          }
+        this.uploadInCorso = false;
+        //ricarico la pagina dopo l'upload
+        if (!ciSonoErrori) {
+          setTimeout(() => {
+            window.location.reload();
+          }, 800);
+        }
+
+      },
+      error: (err) => {
+        console.error("Errore durante l'upload dei file:", err);
+
+        this.filesDaCaricare.forEach((file: File) => {
+          this.statoUpload.set(file, 'ko');
+          this.motiviErroreUpload.set(file, 'Errore generico durante l\'upload');
+        });
+
+        this.uploadInCorso = false;
+      }
+
+
+
+    });
+
+
+
+  }
+
+  // Questo metodo serve per poter editare un anteprima di un file aprendo un pop up 
+  //in input passo il file in modo da creare una mappa file metadati
+  metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
+
+  apriPopUpEditFile(file: File) {
+    const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
+      width: '90vw',
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.metadatiPerFile.set(file, {
+          nome_file: result.nome_file,
+          descrizione: result.descrizione,
+          quantita: result.quantita,
+          angolazione: result.angolazione
         });
       }
-
-      this.uploadInCorso = false;
-      //ricarico la pagina dopo l'upload
-            if (!ciSonoErrori) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 800);
-      }
-
-    },
-    error: (err) => {
-      console.error("Errore durante l'upload dei file:", err);
-
-      this.filesDaCaricare.forEach((file: File) => {
-        this.statoUpload.set(file, 'ko');
-        this.motiviErroreUpload.set(file, 'Errore generico durante l\'upload');
-      });
-
-      this.uploadInCorso = false;
-    }
-    
-
-    
-  });
-
-
- 
-}
-
-// Questo metodo serve per poter editare un anteprima di un file aprendo un pop up 
-//in input passo il file in modo da creare una mappa file metadati
-metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
-
-apriPopUpEditFile(file: File) {
-  const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
-    width: '90vw',
-    disableClose: false
-  });
-
-  dialogRef.afterClosed().subscribe((result) => {
-    if (result) {
-      this.metadatiPerFile.set(file, {
-        nome_file: result.nome_file,
-        descrizione: result.descrizione,
-        quantita: result.quantita,
-        angolazione: result.angolazione
-      });
-    }
-  });
-}
+    });
+  }
 
 
 

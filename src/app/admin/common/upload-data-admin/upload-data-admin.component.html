@@ -15,10 +15,8 @@
   <div class="upload-main-content" [class.blur]="uploadInCorso">
 
     <!-- Area drag-and-drop -->
-    <div class="upload-drop-area" [class.hover-active]="isHovering"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)">
+    <div class="upload-drop-area" [class.hover-active]="isHovering" (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
 
       <mat-icon class="upload-icon" color="primary">cloud_upload</mat-icon>
 
@@ -52,9 +50,7 @@
 
       <!-- Ogni singolo file -->
       <div class="file-list">
-        <div class="file-item"
-             *ngFor="let file of filesDaCaricare"
-             [ngClass]="{
+        <div class="file-item" *ngFor="let file of filesDaCaricare" [ngClass]="{
                'file-ok': statoUpload.get(file) === 'ok',
                'file-ko': statoUpload.get(file) === 'ko'
              }">
@@ -70,16 +66,17 @@
           </ng-container>
 
           <!-- Nome + Stato -->
-          <span class="file-name"
-                [ngStyle]="{
-                  color: statoUpload.get(file) === 'ok' ? 'green' :
-                         statoUpload.get(file) === 'ko' ? 'red' : 'black'
-                }"
-                [title]="statoUpload.get(file) === 'ko' ? motiviErroreUpload.get(file) : ''">
+          <span class="file-name" [ngStyle]="{
+        color: statoUpload.get(file) === 'ok' ? 'green' :
+               statoUpload.get(file) === 'ko' ? 'red' : 'black'
+      }" [matTooltip]="statoUpload.get(file) === 'ko' ? motiviErroreUpload.get(file) : null"
+            matTooltipPosition="above">
             {{ file.name }}
             <ng-container *ngIf="statoUpload.get(file) === 'ok'">✅</ng-container>
             <ng-container *ngIf="statoUpload.get(file) === 'ko'">❌</ng-container>
           </span>
+
+
 
           <!-- Metadati visibili -->
           <div class="file-metadata" *ngIf="metadatiPerFile.has(file)">

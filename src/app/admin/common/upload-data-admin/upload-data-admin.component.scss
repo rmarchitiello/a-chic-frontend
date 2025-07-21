@@ -1,7 +1,7 @@
 /* Contenitore principale scrollabile del dialog */
 .dialog-scroll-content {
   position: relative; // necessario per posizionare correttamente il pulsante "X"
-  padding-top: 3rem;  // spazio per la "X" in alto a destra
+  padding-top: 3rem; // spazio per la "X" in alto a destra
   max-height: 85vh;
   overflow-y: auto;
   padding-bottom: 2rem;
@@ -10,6 +10,7 @@
   &::-webkit-scrollbar {
     width: 6px;
   }
+
   &::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 4px;
@@ -196,11 +197,16 @@
 
     .file-name {
       flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       font-weight: 500;
       font-size: 15px;
+      white-space: nowrap; // Tronca il testo su una riga sola
+      overflow: hidden; // Nasconde il testo in eccesso
+      text-overflow: ellipsis; // Mostra i 3 puntini finali (...)
+
+      display: inline-block; // Necessario per matTooltip su span troncato
+      max-width: 100%; // Evita che il testo esca dai limiti
+      vertical-align: middle; // Allineamento più pulito con icone accanto
+      cursor: default; // Indica che è leggibile ma non cliccabile
     }
 
     .btn-remove {
