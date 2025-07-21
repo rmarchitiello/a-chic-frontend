@@ -2,7 +2,7 @@
 <div mat-dialog-content class="download-dialog-content">
 
   <!-- Pulsante chiudi visibile solo se non si sta scaricando -->
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!downloadInCorso" (click)="chiudiPopUp()">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!downloadInCorso  && !checkDataIsEmpty" (click)="chiudiPopUp()">
     <mat-icon>close</mat-icon>
   </button>
 
