@@ -2,7 +2,7 @@
 <div mat-dialog-content class="delete-dialog-content">
 
   <!-- Pulsante chiudi -->
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso && !checkDataIsEmpty"
+  <button mat-icon-button class="chiudi-btn"  *ngIf="!eliminazioneInCorso && !checkDataIsEmpty"
     (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
@@ -30,7 +30,7 @@
             <button *ngIf="getAllAssets(media).length > 1"
                     mat-icon-button class="prev-btn"
                     (click)="prevImage(media.display_name)"
-                    matTooltip="Precedente">
+                    >
               <mat-icon>chevron_left</mat-icon>
             </button>
 
@@ -44,7 +44,7 @@
                 <!-- Pulsante Elimina -->
                 <button mat-icon-button class="delete-current-btn"
                         (click)="eliminaAssetSingolo(media)"
-                        matTooltip="Elimina immagine corrente"
+                        
                         color="warn">
                   <mat-icon>delete_forever</mat-icon>
                 </button>
@@ -64,7 +64,7 @@
             <button *ngIf="getAllAssets(media).length > 1"
                     mat-icon-button class="next-btn"
                     (click)="nextImage(media.display_name)"
-                    matTooltip="Successivo">
+                    >
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
