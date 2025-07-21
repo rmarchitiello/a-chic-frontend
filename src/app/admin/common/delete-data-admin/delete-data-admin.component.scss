@@ -1,10 +1,11 @@
+// Contenuto principale del dialog (incluso padding e max altezza)
 .delete-dialog-content {
   padding: 2rem;
   position: relative;
   overflow-y: auto;
   max-height: 65vh;
 
-  // Overlay durante l’eliminazione
+  // Overlay che appare durante l’eliminazione dei file
   .eliminazione-overlay {
     position: absolute;
     top: 0;
@@ -27,7 +28,7 @@
     }
   }
 
-  // Contenitore delle anteprime
+  // Contenitore griglia delle anteprime dei media
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -35,13 +36,14 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
 
+    // Effetto sfocatura durante l’eliminazione
     &.blur {
       filter: blur(2px);
       pointer-events: none;
     }
   }
 
-  // Singolo box anteprima
+  // Ogni riquadro che rappresenta un media (immagine, video, audio)
   .preview-wrapper {
     position: relative;
     background: #f5f5f5;
@@ -52,15 +54,18 @@
     border: 2px solid transparent;
     cursor: pointer;
 
+    // Effetto hover
     &:hover {
       transform: scale(1.02);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
     }
 
+    // Stile per stato di errore (bordo rosso)
     &.errore {
       border-color: red;
     }
 
+    // Stile per quando un media è in eliminazione (fade out)
     &.in-eliminazione {
       opacity: 0;
       transform: scale(0.95);
@@ -76,7 +81,7 @@
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     }
 
-    // Stile per video anteprima (senza controlli)
+    // Stile video (senza controlli)
     video.preview-img {
       width: 150px;
       height: auto;
@@ -86,7 +91,7 @@
       pointer-events: none; // Disabilita interazione video
     }
 
-    // Stile per player audio semplice
+    // Player audio minimale
     .preview-audio {
       width: 150px;
       margin-bottom: 0.5rem;
@@ -94,7 +99,7 @@
       pointer-events: none; // Disabilita interazione audio
     }
 
-    // Fallback in caso di tipo non supportato
+    // Layout per file di tipo non supportato
     .anteprima-non-disponibile {
       display: flex;
       flex-direction: column;
@@ -110,14 +115,14 @@
       }
     }
 
-    // Nome file sotto anteprima
+    // Nome del file mostrato sotto l’anteprima
     p {
       margin-top: 0.5rem;
       font-size: 0.85rem;
       color: #555;
     }
 
-    // Bottone elimina singolo
+    // Bottone per eliminare un singolo file
     .delete-btn {
       position: absolute;
       top: 4px;
@@ -145,7 +150,7 @@
     }
   }
 
-  // Testo di conferma sotto la griglia
+  // Testo di conferma se presente sotto la griglia
   .confirm-text {
     font-size: 1.1rem;
     text-align: center;
@@ -155,9 +160,31 @@
       filter: blur(2px);
     }
   }
+
+  // Messaggio mostrato se non ci sono media da eliminare
+  .messaggio-nessun-media {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #777;
+
+    mat-icon {
+      font-size: 48px;
+      margin-bottom: 1rem;
+      color: #aaa;
+    }
+
+    p {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+  }
 }
 
-// Azioni in basso (sticky)
+// Sezione in basso del dialog con i pulsanti di azione (sticky)
 .delete-dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -184,6 +211,7 @@
   }
 }
 
+// Stile del pulsante di chiusura in alto a destra
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -207,8 +235,7 @@
   }
 }
 
-
-// Altezza massima e scroll su dialog intero
+// Limita l’altezza complessiva del contenitore del dialog
 ::ng-deep .mat-dialog-container {
   max-height: 90vh;
   overflow-x: hidden !important;

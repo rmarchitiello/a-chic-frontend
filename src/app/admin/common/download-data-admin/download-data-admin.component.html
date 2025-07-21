@@ -1,98 +1,92 @@
-
-
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="download-dialog-content">
 
-    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!downloadInCorso" (click)="chiudiPopUp()">
-      <mat-icon>close</mat-icon>
-    </button>
+  <!-- Pulsante chiudi visibile solo se non si sta scaricando -->
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!downloadInCorso" (click)="chiudiPopUp()">
+    <mat-icon>close</mat-icon>
+  </button>
 
-
-  <!-- Overlay con spinner visibile durante l'eliminazione -->
+  <!-- Overlay con spinner durante il download -->
   <div class="eliminazione-overlay" *ngIf="downloadInCorso">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Download in corso...</p>
   </div>
 
-  <!-- Contenitore anteprime media -->
-  <div class="preview-container" [class.blur]="downloadInCorso">
+  <!-- Se ci sono media da scaricare -->
+  <ng-container *ngIf="!checkDataIsEmpty; else noData">
+    <div class="preview-container" [class.blur]="downloadInCorso">
+      <ng-container *ngFor="let media of mediaInput">
+        <div class="preview-wrapper">
 
-    <!-- Ciclo su ogni media da mostrare -->
-    <ng-container *ngFor="let media of mediaInput">
-      <div 
-           class="preview-wrapper">
+          <!-- Pulsante download singolo -->
+          <button class="download-btn"
+                  mat-icon-button
+                  color="warn"
+                  aria-label="Download media"
+                  (click)="downloadMedia(false, media)">
+            <mat-icon>download</mat-icon>
+          </button>
 
-        <!-- Pulsante elimina singolo media -->
-        <button class="download-btn"
-                mat-icon-button
-                color="warn"
-                aria-label="Elimina media"
-                (click)="downloadMedia(false, media)">
-          <mat-icon>download</mat-icon>
-        </button>
+          <!-- Anteprima dinamica -->
+          <ng-container *ngIf="getMediaFrontale(media) as mediaFrontale">
+            <ng-container [ngSwitch]="media.type">
 
-        <!-- Anteprima dinamica: immagine / video / audio -->
-        <ng-container *ngIf="getMediaFrontale(media) as mediaFrontale">
-  <ng-container [ngSwitch]="media.type">
+              <!-- Immagine -->
+              <img *ngSwitchCase="'image'"
+                   [src]="mediaFrontale.url"
+                   [alt]="media.display_name"
+                   class="preview-img" />
 
-    <!-- Immagine -->
-    <img *ngSwitchCase="'image'"
-         [src]="mediaFrontale.url"
-         [alt]="media.display_name"
-         class="preview-img" />
+              <!-- Video -->
+              <video *ngSwitchCase="'video'"
+                     [src]="mediaFrontale.url"
+                     autoplay muted loop playsinline
+                     class="preview-img"
+                     style="pointer-events: none;"></video>
 
-    <!-- Video senza controlli, con click disabilitato -->
-    <video *ngSwitchCase="'video'"
-           [src]="mediaFrontale.url"
-           autoplay
-           muted
-           loop
-           playsinline
-           class="preview-img"
-           style="pointer-events: none;">
-    </video>
+              <!-- Audio -->
+              <audio *ngSwitchCase="'audio'"
+                     [src]="mediaFrontale.url"
+                     autoplay
+                     class="preview-audio"
+                     style="pointer-events: none;"></audio>
 
-    <!-- Audio con autoplay e click disabilitato -->
-    <audio *ngSwitchCase="'audio'"
-           [src]="mediaFrontale.url"
-           autoplay
-           class="preview-audio"
-           style="pointer-events: none;">
-    </audio>
+              <!-- Fallback -->
+              <div *ngSwitchDefault class="anteprima-non-disponibile">
+                <mat-icon>error_outline</mat-icon>
+                <span>Tipo non supportato</span>
+              </div>
 
-    <!-- Fallback per tipi sconosciuti -->
-    <div *ngSwitchDefault class="anteprima-non-disponibile">
-      <mat-icon>error_outline</mat-icon>
-      <span>Tipo non supportato</span>
+            </ng-container>
+          </ng-container>
+
+          <!-- Nome file -->
+          <p>{{ media.display_name }}</p>
+        </div>
+      </ng-container>
     </div>
-
   </ng-container>
-</ng-container>
 
-        <!-- Nome del file -->
-        <p>{{ media.display_name }}</p>
-      </div>
-    </ng-container>
-  </div>
-
-  
+  <!-- Template alternativo: Nessun file da scaricare -->
+  <ng-template #noData>
+    <div class="no-data-message">
+      <mat-icon>info</mat-icon>
+      <p>Non ci sono file da scaricare.</p>
+    </div>
+  </ng-template>
 </div>
 
 <!-- Azioni in basso -->
 <div mat-dialog-actions align="end"
      class="download-dialog-actions"
-     [class.blur]="downloadInCorso">
+     [class.blur]="downloadInCorso"
+     *ngIf="!checkDataIsEmpty">
 
-
-
-  <!-- Pulsante elimina tutti -->
+  <!-- Pulsante scarica tutti -->
   <button mat-flat-button
           color="warn"
           type="button"
           (click)="downloadMedia(true)">
-          Scarica tutto
+    Scarica tutto
   </button>
 </div>
-
-
-

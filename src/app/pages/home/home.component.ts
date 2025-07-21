@@ -167,7 +167,7 @@ this.carosello = data[caroselloKey].flatMap(item =>
         console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
 
 this.recensioni = data[recensioniKey].map(item => ({
-  folder: 'Config/Home/Recensioni',
+  folder: 'Config/Recensioni',
   media: {
     display_name: item.display_name,
     descrizione: item.descrizione,
@@ -181,7 +181,7 @@ this.recensioni = data[recensioniKey].map(item => ({
 
 
 this.modelliInEvidenza = data[videoEvidenzaKey].map(item => ({
-  folder: 'Config/Home/ModelliInEvidenza',
+  folder: 'Config/Home/Video',
   media: {
     display_name: item.display_name,
     descrizione: item.descrizione,

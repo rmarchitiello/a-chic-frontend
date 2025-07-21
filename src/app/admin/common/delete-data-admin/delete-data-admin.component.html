@@ -1,93 +1,101 @@
-
-
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
+
+  <!-- Se ci sono media, mostra contenuto normale -->
+  <ng-container *ngIf="!checkDataIsEmpty; else noMediaTemplate">
 
     <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso" (click)="chiudiDialog(true)">
       <mat-icon>close</mat-icon>
     </button>
 
+    <!-- Overlay con spinner visibile durante l'eliminazione -->
+    <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Eliminazione in corso...</p>
+    </div>
 
-  <!-- Overlay con spinner visibile durante l'eliminazione -->
-  <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
-    <mat-spinner diameter="48"></mat-spinner>
-    <p>Eliminazione in corso...</p>
-  </div>
+    <!-- Contenitore anteprime media -->
+    <div class="preview-container" [class.blur]="eliminazioneInCorso">
+      <ng-container *ngFor="let img of mediaInput">
+        <div *ngIf="!img.inEliminazione"
+             class="preview-wrapper"
+             [ngClass]="{
+               'errore': img.erroreEliminazione,
+               'in-eliminazione': img.inEliminazione
+             }"
+             [matTooltip]="img.dettaglioErrore || ''"
+             matTooltipPosition="above">
 
-  <!-- Contenitore anteprime media -->
-  <div class="preview-container" [class.blur]="eliminazioneInCorso">
+          <!-- Pulsante elimina singolo media -->
+          <button class="delete-btn"
+                  mat-icon-button
+                  color="warn"
+                  aria-label="Elimina media"
+                  (click)="deleteMedia(false, img)">
+            <mat-icon>delete</mat-icon>
+          </button>
 
-    <!-- Ciclo su ogni media da mostrare -->
-    <ng-container *ngFor="let img of mediaInput">
-      <div *ngIf="!img.inEliminazione"
-           class="preview-wrapper"
-           [ngClass]="{
-             'errore': img.erroreEliminazione,
-             'in-eliminazione': img.inEliminazione
-           }"
-           [matTooltip]="img.dettaglioErrore || ''"
-           matTooltipPosition="above">
+          <!-- Anteprima dinamica: immagine / video / audio -->
+          <ng-container *ngIf="getMediaFrontale(img) as mediaFrontale">
+            <ng-container [ngSwitch]="img.type">
 
-        <!-- Pulsante elimina singolo media -->
-        <button class="delete-btn"
-                mat-icon-button
-                color="warn"
-                aria-label="Elimina media"
-                (click)="deleteMedia(false, img)">
-          <mat-icon>delete</mat-icon>
-        </button>
+              <!-- Immagine -->
+              <img *ngSwitchCase="'image'"
+                   [src]="mediaFrontale.url"
+                   [alt]="img.display_name"
+                   class="preview-img" />
 
-        <!-- Anteprima dinamica: immagine / video / audio -->
-        <ng-container *ngIf="getMediaFrontale(img) as mediaFrontale">
-  <ng-container [ngSwitch]="img.type">
+              <!-- Video -->
+              <video *ngSwitchCase="'video'"
+                     [src]="mediaFrontale.url"
+                     autoplay
+                     muted
+                     loop
+                     playsinline
+                     class="preview-img"
+                     style="pointer-events: none;">
+              </video>
 
-    <!-- Immagine -->
-    <img *ngSwitchCase="'image'"
-         [src]="mediaFrontale.url"
-         [alt]="img.display_name"
-         class="preview-img" />
+              <!-- Audio -->
+              <audio *ngSwitchCase="'audio'"
+                     [src]="mediaFrontale.url"
+                     autoplay
+                     class="preview-audio"
+                     style="pointer-events: none;">
+              </audio>
 
-    <!-- Video senza controlli, con click disabilitato -->
-    <video *ngSwitchCase="'video'"
-           [src]="mediaFrontale.url"
-           autoplay
-           muted
-           loop
-           playsinline
-           class="preview-img"
-           style="pointer-events: none;">
-    </video>
+              <!-- Fallback -->
+              <div *ngSwitchDefault class="anteprima-non-disponibile">
+                <mat-icon>error_outline</mat-icon>
+                <span>Tipo non supportato</span>
+              </div>
 
-    <!-- Audio con autoplay e click disabilitato -->
-    <audio *ngSwitchCase="'audio'"
-           [src]="mediaFrontale.url"
-           autoplay
-           class="preview-audio"
-           style="pointer-events: none;">
-    </audio>
+            </ng-container>
+          </ng-container>
 
-    <!-- Fallback per tipi sconosciuti -->
-    <div *ngSwitchDefault class="anteprima-non-disponibile">
-      <mat-icon>error_outline</mat-icon>
-      <span>Tipo non supportato</span>
+          <!-- Nome del file -->
+          <p>{{ img.display_name }}</p>
+        </div>
+      </ng-container>
     </div>
 
   </ng-container>
-</ng-container>
 
-
-        <!-- Nome del file -->
-        <p>{{ img.display_name }}</p>
-      </div>
-    </ng-container>
-  </div>
+  <!-- Template alternativo se nessun file da eliminare -->
+  <ng-template #noMediaTemplate>
+    <div class="messaggio-nessun-media">
+      <mat-icon>info</mat-icon>
+      <p>Nessun file disponibile da eliminare.</p>
+    </div>
+  </ng-template>
 
 </div>
 
-<!-- Azioni in basso -->
+<!-- Azioni in basso, solo se ci sono media -->
 <div mat-dialog-actions align="end"
      class="delete-dialog-actions"
-     [class.blur]="eliminazioneInCorso">
+     [class.blur]="eliminazioneInCorso"
+     *ngIf="!checkDataIsEmpty">
 
   <!-- Pulsante Annulla -->
   <button mat-stroked-button

@@ -4,7 +4,7 @@
   overflow-y: auto;
   max-height: 65vh;
 
-  // Overlay durante l’eliminazione
+  // Overlay durante il download
   .eliminazione-overlay {
     position: absolute;
     top: 0;
@@ -27,7 +27,7 @@
     }
   }
 
-  // Contenitore delle anteprime
+  // Contenitore che raccoglie tutte le anteprime media
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -41,7 +41,7 @@
     }
   }
 
-  // Singolo box anteprima
+  // Box singolo di anteprima (immagine, video o audio)
   .preview-wrapper {
     position: relative;
     background: #f5f5f5;
@@ -65,10 +65,9 @@
       opacity: 0;
       transform: scale(0.95);
       pointer-events: none;
-      transition: all 0.3s ease;
     }
 
-    // Stile per immagine anteprima
+    // Immagine
     .preview-img {
       width: 150px;
       height: auto;
@@ -76,25 +75,25 @@
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
     }
 
-    // Stile per video anteprima (senza controlli)
+    // Video (senza controlli e con click disabilitato)
     video.preview-img {
       width: 150px;
       height: auto;
       border-radius: 10px;
       object-fit: cover;
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-      pointer-events: none; // Disabilita interazione video
+      pointer-events: none;
     }
 
-    // Stile per player audio semplice
+    // Audio (semplice player con autoplay)
     .preview-audio {
       width: 150px;
       margin-bottom: 0.5rem;
       filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-      pointer-events: none; // Disabilita interazione audio
+      pointer-events: none;
     }
 
-    // Fallback in caso di tipo non supportato
+    // Fallback per tipo non supportato
     .anteprima-non-disponibile {
       display: flex;
       flex-direction: column;
@@ -110,14 +109,14 @@
       }
     }
 
-    // Nome file sotto anteprima
+    // Nome file sotto l'anteprima
     p {
       margin-top: 0.5rem;
       font-size: 0.85rem;
       color: #555;
     }
 
-    // Bottone elimina singolo
+    // Bottone download singolo
     .download-btn {
       position: absolute;
       top: 4px;
@@ -145,7 +144,29 @@
     }
   }
 
-  // Testo di conferma sotto la griglia
+  // Messaggio mostrato se non ci sono media disponibili
+  .no-data-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    color: #888;
+    text-align: center;
+
+    mat-icon {
+      font-size: 40px;
+      margin-bottom: 0.5rem;
+      color: #aaa;
+    }
+
+    p {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+  }
+
+  // Testo eventuale sotto la griglia
   .confirm-text {
     font-size: 1.1rem;
     text-align: center;
@@ -157,7 +178,7 @@
   }
 }
 
-// Azioni in basso (sticky)
+// Azioni in basso (sticky in fondo al dialog)
 .download-dialog-actions {
   display: flex;
   justify-content: flex-end;
@@ -184,6 +205,7 @@
   }
 }
 
+// Pulsante per chiudere il dialog
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -207,8 +229,7 @@
   }
 }
 
-
-// Altezza massima e scroll su dialog intero
+// Forza altezza massima del contenitore dialog
 ::ng-deep .mat-dialog-container {
   max-height: 90vh;
   overflow-x: hidden !important;

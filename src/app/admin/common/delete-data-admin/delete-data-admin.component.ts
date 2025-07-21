@@ -35,6 +35,8 @@ interface ImmagineConErrore extends MediaCloudinary {
 })
 export class DeleteDataAdminComponent implements OnInit {
 
+  checkDataIsEmpty: boolean = false;
+
   // Lista delle immagini da eliminare, arricchite con flag per gestione errori e animazioni
   mediaInput: ImmagineConErrore[] = [];
 
@@ -52,13 +54,20 @@ export class DeleteDataAdminComponent implements OnInit {
 
   ngOnInit(): void {
     // All'avvio del componente, clono ogni immagine con i flag per errore/animazione
-
     this.mediaInput = this.data.map(item => ({
   ...item.media,
   erroreEliminazione: false,
   dettaglioErrore: '',
   inEliminazione: false
 }));
+
+//se e vuoto mostra a pop up che non ci sono file da eliminare
+this.checkDataIsEmpty = this.mediaInput.length === 0;
+
+if (this.checkDataIsEmpty) {
+  setTimeout(() => this.chiudiDialog(false), 1000); 
+}
+
 
 
     console.log('Dati ricevuti da eliminare:', this.mediaInput);
