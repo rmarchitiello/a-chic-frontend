@@ -1,3 +1,7 @@
+/*
+  QUESTO COMPONENTE VIENE UTILIZZATO DA UploadDataAdmin per modificare i metadata di cio che sto caricando
+*/
+
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';

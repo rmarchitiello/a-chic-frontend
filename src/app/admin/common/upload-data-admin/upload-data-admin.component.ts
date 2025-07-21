@@ -11,6 +11,8 @@ dragover =  Succede quando il file è sopra l’area di drop. Devi impedire il
 dragleave = L’utente ha spostato il file fuori dall’area (serve a rimuovere effetti visivi di hover).
 
 drop = L’utente ha rilasciato il file. Qui si accede a event.dataTransfer.files per leggere i file e processarli. ci sono i file o il file da caricare
+
+QUESTO COMPONENTE, CONSENTE DI UPLOADARE UN MEDIA LA FOLDER IN INGRESSO VIENE FORNITA DAL PADRE
 */
 
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
