@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 import { CloudinaryDataUpload } from '../../../cms/cms-upload/cms-upload.component'; //interfaccia per poter chiamare l'upload di cmsservice per uploadare un file
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-import { EditContextBeforeUploadComponent } from '../../edit-media-upload/edit-context-before-upload.component';
+import { EditContextBeforeUploadComponent } from './edit-media-upload/edit-context-before-upload.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
