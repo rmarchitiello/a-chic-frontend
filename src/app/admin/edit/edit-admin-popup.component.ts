@@ -16,9 +16,8 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
 import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-data-admin.component';
 import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
-import { MediaCloudinary } from '../../pages/home/home.component';
 import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
-import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component';
+import { DataCloudinary } from '../../pages/home/home.component';
 
 @Component({
   selector: 'app-carosello-edit',
@@ -28,7 +27,7 @@ import { CloudinaryDataUpload } from '../../cms/cms-upload/cms-upload.component'
 })
 export class EditAdminPopUpComponent implements OnInit {
 
-mediaInput: MediaCloudinary[] = [];
+mediaInput: DataCloudinary[] = [];
 
 
   displayName: string = '';
@@ -40,7 +39,7 @@ mediaInput: MediaCloudinary[] = [];
 
   constructor(
     //ricevo il dato dalla home
-    @Inject(MAT_DIALOG_DATA) public data: MediaCloudinary[],
+    @Inject(MAT_DIALOG_DATA) public data: DataCloudinary[],
     private dialogRef: MatDialogRef<EditAdminPopUpComponent>,
     private dialog: MatDialog
 

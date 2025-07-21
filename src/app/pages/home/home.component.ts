@@ -40,6 +40,11 @@ export interface MediaCloudinary {
   meta: MediaMeta[];
 }
 
+export interface DataCloudinary {
+  folder: string,
+  media: MediaCloudinary
+}
+
 
 
 
@@ -71,10 +76,10 @@ export interface MediaCloudinary {
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   isAdmin = false;
 
-  carosello: MediaCloudinary[] = [];
-  recensioni: MediaCloudinary[] = [];
-  modelliInEvidenza: MediaCloudinary[] = [];
-  creazioni: MediaCloudinary[] = [];
+  carosello: DataCloudinary[] = [];
+  recensioni: DataCloudinary[] = [];
+  modelliInEvidenza: DataCloudinary[] = [];
+  creazioni: DataCloudinary[] = [];
 
   currentIndex = 0;
   currentRecensioneIndex = 0;
@@ -146,46 +151,60 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         const mieCreazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('config/home/mie creazioni'));
         if (!caroselloKey || !recensioniKey || !videoEvidenzaKey || !mieCreazioniKey) return;
 
-        this.carosello = data[caroselloKey].flatMap(item =>
-          item.meta.map(meta => ({
-            display_name: item.display_name,
-            type: this.detectType(meta.url),
-            descrizione: item.descrizione,
-            quantita: item.quantita,
-            meta: [{ url: meta.url, angolazione: meta.angolazione || 'default' }]
-          }))
-        );
+this.carosello = data[caroselloKey].flatMap(item =>
+  item.meta.map(meta => ({
+    folder: 'Config/Home/Carosello',
+    media: {
+      display_name: item.display_name,
+      type: this.detectType(meta.url),
+      descrizione: item.descrizione,
+      quantita: item.quantita,
+      meta: [{ url: meta.url, angolazione: meta.angolazione || 'default' }]
+    }
+  }))
+);
+
         console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
 
-        this.recensioni = data[recensioniKey].map(item => ({
-          display_name: item.display_name,
-          descrizione: item.descrizione,
-          quantita: item.quantita,
-          type: this.detectType(item.meta?.[0]?.url || ''),
-          meta: item.meta
-        }));
+this.recensioni = data[recensioniKey].map(item => ({
+  folder: 'Config/Home/Recensioni',
+  media: {
+    display_name: item.display_name,
+    descrizione: item.descrizione,
+    quantita: item.quantita,
+    type: this.detectType(item.meta?.[0]?.url || ''),
+    meta: item.meta
+  }
+}));
 
         console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
 
 
-        this.modelliInEvidenza = data[videoEvidenzaKey].map(item => ({
-          display_name: item.display_name,
-          descrizione: item.descrizione,
-          quantita: item.quantita,
-          type: this.detectType(item.meta?.[0]?.url || ''),
-          meta: item.meta
-        }));
+this.modelliInEvidenza = data[videoEvidenzaKey].map(item => ({
+  folder: 'Config/Home/ModelliInEvidenza',
+  media: {
+    display_name: item.display_name,
+    descrizione: item.descrizione,
+    quantita: item.quantita,
+    type: this.detectType(item.meta?.[0]?.url || ''),
+    meta: item.meta
+  }
+}));
 
         console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
 
 
-        this.creazioni = data[mieCreazioniKey].map(item => ({
-          display_name: item.display_name,
-          descrizione: item.descrizione,
-          quantita: item.quantita,
-          type: this.detectType(item.meta?.[0]?.url || ''),
-          meta: item.meta
-        }));
+this.creazioni = data[mieCreazioniKey].map(item => ({
+  folder: 'Config/Home/MieCreazioni',
+  media: {
+    display_name: item.display_name,
+    descrizione: item.descrizione,
+    quantita: item.quantita,
+    type: this.detectType(item.meta?.[0]?.url || ''),
+    meta: item.meta
+  }
+}));
+
 
       },
       error: err => console.error('Errore caricamento media', err)

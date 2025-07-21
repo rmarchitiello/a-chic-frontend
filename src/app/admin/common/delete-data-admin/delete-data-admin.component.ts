@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MediaMeta } from '../../../pages/home/home.component';
+import { DataCloudinary } from '../../../pages/home/home.component';
 /**
  * Estensione dell'interfaccia ImmagineConfig per includere:
  * - stato di errore durante l'eliminazione
@@ -43,7 +44,7 @@ export class DeleteDataAdminComponent implements OnInit {
   constructor(
     private cmsService: CmsService,
     private dialogRef: MatDialogRef<DeleteDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: MediaCloudinary[]
+    @Inject(MAT_DIALOG_DATA) public data: DataCloudinary[]
   ) {}
 
   ngOnDestroy(): void {
@@ -51,12 +52,14 @@ export class DeleteDataAdminComponent implements OnInit {
 
   ngOnInit(): void {
     // All'avvio del componente, clono ogni immagine con i flag per errore/animazione
-    this.mediaInput = this.data.map(img => ({
-      ...img,
-      erroreEliminazione: false,
-      dettaglioErrore: '',
-      inEliminazione: false
-    }));
+
+    this.mediaInput = this.data.map(item => ({
+  ...item.media,
+  erroreEliminazione: false,
+  dettaglioErrore: '',
+  inEliminazione: false
+}));
+
 
     console.log('Dati ricevuti da eliminare:', this.mediaInput);
   }

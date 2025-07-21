@@ -324,24 +324,41 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
   // Questo metodo serve per poter editare un anteprima di un file aprendo un pop up 
   //in input passo il file in modo da creare una mappa file metadati
-  metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
+  // Mappa che associa ciascun file ai suoi metadati (nome file, descrizione, quantità, angolazione e altri campi personalizzati)
+// Viene aggiornata ogni volta che si apre il popup per modificare i metadati del file
+metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
 
-  apriPopUpEditFile(file: File) {
-const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
-  width: '720px', // oppure '60vw'
-  maxHeight: '90vh',
-  panelClass: 'popup-metadati-dialog'
-});
+// Questo metodo serve per aprire un popup e modificare i metadati di un file selezionato
+// In input passo il file, così da leggere o creare i metadati associati
+apriPopUpEditFile(file: File): void {
+  // Recupero i metadati già salvati per il file, se presenti; altrimenti uso un oggetto vuoto
+  const metadataEsistenti = this.metadatiPerFile.get(file) || {};
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.metadatiPerFile.set(file, result);
-    console.log("Metadati ricevuti da [EditContextBeforeUploadComponent]", result );
+  // Clono i metadati per evitare modifiche dirette in memoria se l'utente annulla il popup
+  const metadataClonati = JSON.parse(JSON.stringify(metadataEsistenti));
 
-      }
-    });
+  // Apro il popup passando il file e i metadati correnti (già salvati o vuoti)
+  // In questo modo se l’utente ha già compilato qualcosa, ritrova i valori precedenti
+  const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
+    width: '720px',
+    maxHeight: '90vh',
+    panelClass: 'popup-metadati-dialog',
+    data: {
+      file,
+      context: metadataClonati
+    }
+  });
 
-  }
+  // Quando il popup viene chiuso, controllo se l'utente ha cliccato su "Salva"
+  // Se sì, aggiorno la mappa dei metadati con i nuovi valori restituiti
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result) {
+      this.metadatiPerFile.set(file, result);
+      console.log("Metadati ricevuti da [EditContextBeforeUploadComponent]:", result);
+    }
+  });
+}
+
 
 
 

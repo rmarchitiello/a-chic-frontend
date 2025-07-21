@@ -5,7 +5,7 @@ import { MediaCloudinary } from '../../../pages/home/home.component';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MediaMeta } from '../../../pages/home/home.component';
-
+import { DataCloudinary } from '../../../pages/home/home.component';
 //ATTUALMENTE POSSIAMO SCARICARE SOLO QUELLE FRONTALI
 @Component({
   selector: 'app-download-data-admin',
@@ -19,7 +19,7 @@ export class DownloadDataAdminComponent {
   estensione: string = ''
   downloadInCorso: boolean = false;
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: MediaCloudinary[], // dato ricevuto dal componente padre (es. URL immagine da scaricare )
+    @Inject(MAT_DIALOG_DATA) public data: DataCloudinary[], // dato ricevuto dal componente padre (es. URL immagine da scaricare )
     private dialogRef: MatDialogRef<DownloadDataAdminComponent>    
 
   ) { }
@@ -27,7 +27,7 @@ export class DownloadDataAdminComponent {
   ngOnInit(): void {
     // All'inizializzazione, assegno il dato ricevuto alla variabile di lavoro
       console.log("[DownloadDataAdminComponent] oggetti ricevuti da scaricare: ", this.mediaInput);
-      this.mediaInput = this.data;
+      this.mediaInput = this.data.map(item => item.media);
 
       //scarico il file
      // setTimeout(() => this.chiudiPopUp(), 1000); //chiudo il pop up dopo 3 secondi
