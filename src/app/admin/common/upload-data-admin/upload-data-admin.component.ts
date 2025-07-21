@@ -199,130 +199,142 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   quantita: string = '';
   angolazione: string = '';
 
-  uploadFiles(): void {
-    if (this.filesDaCaricare.length === 0) {
-      alert("Errore: seleziona almeno un file da caricare.");
-      return;
-    }
+    //variabile che se ho 3 file da caricare e ne carico uno alla volta, viene incrementato sempre cosi non faccio la reload del pop up 
+    //quando questa variabile assume la length di filesDaCaricare.length allora effettua la reload perche vuol dire che è andato tutto bene 
+  counterFile: number = 0;
+  uploadFiles(fileInput?: File): void {
 
-    const folder = this.folder?.trim();
-    if (!folder) {
-      alert("Errore: specifica una cartella di destinazione.");
-      return;
-    }
+  // ✅ Caso 1: Nessun file da caricare → blocco e avviso
+  if (this.filesDaCaricare.length === 0) {
+    alert("Errore: seleziona almeno un file da caricare.");
+    return;
+  }
 
-    const livelli = folder.split('/').filter(p => p.trim() !== '');
-    if (livelli.length > 3) {
-      alert('Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande").');
-      return;
-    }
+  // ✅ Caso 2: Caricamento singolo (se è stato passato fileInput)
+  // Altrimenti carico l'intera lista
+  let filesDaCaricare: File[];
+  if (fileInput) {
+    filesDaCaricare = this.filesDaCaricare.filter(f => f === fileInput);
+    console.log("Carico singolo file:", fileInput.name);
+  } else {
+    filesDaCaricare = this.filesDaCaricare;
+    console.log("Carico tutti i file:", filesDaCaricare.map(f => f.name));
+  }
 
-    this.uploadInCorso = true;
-    this.statoUpload.clear();
-    this.motiviErroreUpload.clear(); // ⬅️ Resetto i motivi precedenti
+  // ✅ Controllo che sia stata specificata una cartella di destinazione
+  const folder = this.folder?.trim();
+  if (!folder) {
+    alert("Errore: specifica una cartella di destinazione.");
+    return;
+  }
 
-    const formData = new FormData();
-    const metadataList: CloudinaryDataUpload[] = [];
+  // ✅ Verifico che la struttura della cartella sia valida (massimo 3 livelli)
+  const livelli = folder.split('/').filter(p => p.trim() !== '');
+  if (livelli.length > 3) {
+    alert('Errore: puoi usare al massimo 3 livelli di cartella (es. "Borse/Conchiglia/Grande").');
+    return;
+  }
 
-    this.filesDaCaricare.forEach((file: File) => {
-      formData.append('file', file);
+  // ✅ Inizio fase di upload: resetto gli stati di caricamento
+  this.uploadInCorso = true;
+  this.statoUpload.clear();
+  this.motiviErroreUpload.clear();
 
+  const formData = new FormData();
+  const metadataList: CloudinaryDataUpload[] = [];
 
-      const context = this.metadatiPerFile.get(file) || {
-        nome_file: file.name.split('.')[0],
-        descrizione: '',
-        quantita: '0',
-        angolazione: 'frontale'
-      };
+  // ✅ Preparo ogni file con i relativi metadati
+  filesDaCaricare.forEach((file: File) => {
+    formData.append('file', file);
 
-      console.log("[UploadDataAdminComponent] context totale recuperato: ", context);
+    const context = this.metadatiPerFile.get(file) || {
+      nome_file: file.name.split('.')[0],
+      descrizione: '',
+      quantita: '0',
+      angolazione: 'frontale'
+    };
 
-      const metadata: CloudinaryDataUpload = {
-        folder: folder,
-        context
-      };
+    const metadata: CloudinaryDataUpload = {
+      folder,
+      context
+    };
 
+    metadataList.push(metadata);
+  });
 
-      console.log("File da caricare: ", metadata);
+  // ✅ Aggiungo i metadati al FormData
+  metadataList.forEach(metadata => {
+    formData.append('cloudinary', JSON.stringify(metadata));
+  });
 
-      metadataList.push(metadata);
-    });
+  // ✅ Verifico se è una cartella di configurazione
+  const isConfig = folder.toLowerCase().includes('config');
 
-    metadataList.forEach(metadata => {
-      formData.append('cloudinary', JSON.stringify(metadata));
-    });
+  // ✅ Invio al backend
+  this.cmsService.uploadMedia(formData, isConfig).subscribe({
+    next: (res) => {
+      console.log('Upload completato:', res);
+      let ciSonoErrori = false;
 
-    const isConfig = folder.toLowerCase().includes('config');
+      // ✅ Gestisco la risposta del backend
+      if (Array.isArray(res.data)) {
+        res.data.forEach((uploadResult: any) => {
+          const nomeFile = uploadResult.nome_file;
+          const stato = uploadResult.status;
+          const motivo = uploadResult.reason;
 
-    this.cmsService.uploadMedia(formData, isConfig).subscribe({
-      next: (res) => {
-        console.log('Upload completato:', res);
+          // ✅ Cerco il file corrispondente nella lista caricata
+          const fileMatch = filesDaCaricare.find(f => {
+            const meta = this.metadatiPerFile.get(f);
+            const nomeAssociato = meta && 'nome_file' in meta ? meta['nome_file'] : f.name.split('.')[0];
+            return nomeAssociato === nomeFile;
+          });
 
-        let ciSonoErrori = false;
+          if (fileMatch) {
+            this.statoUpload.set(fileMatch, stato);
 
-
-        if (Array.isArray(res.data)) {
-          res.data.forEach((uploadResult: any) => {
-            const nomeFile = uploadResult.nome_file;
-            const stato = uploadResult.status;
-            const motivo = uploadResult.reason;
-
-            //Se l’utente modifica nome_file da popup, viene usato come riferimento per associare la risposta.
-            const fileMatch = this.filesDaCaricare.find(f => {
-              const meta = this.metadatiPerFile.get(f);
-              const nomeAssociato = meta && 'nome_file' in meta ? meta['nome_file'] : f.name.split('.')[0];
-              return nomeAssociato === nomeFile;
-            });
-
-
-            if (fileMatch) {
-              this.statoUpload.set(fileMatch, stato);
-
-              if (stato === 'ko') {
-                ciSonoErrori = true;
-                if (motivo) {
-                  this.motiviErroreUpload.set(fileMatch, motivo);
-                }
-              }
-
-              if (stato === 'ok') {
-
-                setTimeout(() => {
-                  this.statoUpload.delete(fileMatch);
-                  this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
-                }, 2000);
+            if (stato === 'ko') {
+              ciSonoErrori = true;
+              if (motivo) {
+                this.motiviErroreUpload.set(fileMatch, motivo);
               }
             }
-          });
-        }
 
-        this.uploadInCorso = false;
-        //ricarico la pagina dopo l'upload
-        if (!ciSonoErrori) {
-          setTimeout(() => {
-            window.location.reload();
-          }, 800);
-        }
+            // ✅ Se OK → rimuovo file da lista e da stato dopo 2s
+            if (stato === 'ok') {
+              setTimeout(() => {
+                this.statoUpload.delete(fileMatch);
+                this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
 
-      },
-      error: (err) => {
-        console.error("Errore durante l'upload dei file:", err);
-
-        this.filesDaCaricare.forEach((file: File) => {
-          this.statoUpload.set(file, 'ko');
-          this.motiviErroreUpload.set(file, 'Errore generico durante l\'upload');
+                // ✅ Se tutti i file sono stati caricati, ricarico la pagina
+                if (!ciSonoErrori && this.filesDaCaricare.length === 0) {
+                  setTimeout(() => {
+                    window.location.reload();
+                  }, 800);
+                }
+              }, 2000);
+            }
+          }
         });
-
-        this.uploadInCorso = false;
       }
 
+      this.uploadInCorso = false;
+    },
 
+    error: (err) => {
+      console.error("Errore durante l'upload dei file:", err);
 
-    });
+      // ✅ In caso di errore generico → segno tutti i file come KO
+      this.filesDaCaricare.forEach((file: File) => {
+        this.statoUpload.set(file, 'ko');
+        this.motiviErroreUpload.set(file, 'Errore generico durante l\'upload');
+      });
 
+      this.uploadInCorso = false;
+    }
+  });
+}
 
-
-  }
 
   // Questo metodo serve per poter editare un anteprima di un file aprendo un pop up 
   //in input passo il file in modo da creare una mappa file metadati

@@ -35,7 +35,7 @@
     <!-- Bottone "Upload in cloud" -->
     <div class="upload-action" *ngIf="filesDaCaricare.length > 0">
       <button mat-flat-button color="primary" (click)="uploadFiles()" [disabled]="uploadInCorso">
-        {{ uploadInCorso ? 'Upload in corso...' : 'Upload in cloud' }}
+        {{ uploadInCorso ? 'Caricamento in corso...' : 'Carica tutto' }}
       </button>
     </div>
 
@@ -88,11 +88,21 @@
 
 
 
-          <!-- Azioni -->
-          <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">✖</button>
+          <!-- Azioni per singolo file-->
+          <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
+            <mat-icon>close</mat-icon>
+          </button>
+
           <button class="btn-edit" (click)="apriPopUpEditFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
             <mat-icon>edit</mat-icon>
           </button>
+
+          <button class="btn-upload" (click)="uploadFiles(file)" *ngIf="statoUpload.get(file) !== 'ok'">
+            <mat-icon>upload</mat-icon>
+          </button>
+
+
+
         </div>
       </div>
     </div>
