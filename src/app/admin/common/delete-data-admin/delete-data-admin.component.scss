@@ -1,11 +1,10 @@
-// Contenuto principale del dialog (incluso padding e max altezza)
 .delete-dialog-content {
   padding: 2rem;
   position: relative;
   overflow-y: auto;
   max-height: 65vh;
 
-  // Overlay che appare durante l’eliminazione dei file
+  // Overlay durante l’eliminazione
   .eliminazione-overlay {
     position: absolute;
     top: 0;
@@ -28,7 +27,7 @@
     }
   }
 
-  // Contenitore griglia delle anteprime dei media
+  // Contenitore delle card
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -36,144 +35,152 @@
     gap: 1rem;
     margin-bottom: 1.5rem;
 
-    // Effetto sfocatura durante l’eliminazione
     &.blur {
       filter: blur(2px);
       pointer-events: none;
     }
   }
 
-  // Ogni riquadro che rappresenta un media (immagine, video, audio)
+  // Singola card multiview
   .preview-wrapper {
     position: relative;
-    background: #f5f5f5;
-    padding: 0.5rem;
-    border-radius: 12px;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 14px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
-    cursor: pointer;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 
-    // Effetto hover
-    &:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-    }
-
-    // Stile per stato di errore (bordo rosso)
-    &.errore {
-      border-color: red;
-    }
-
-    // Stile per quando un media è in eliminazione (fade out)
-    &.in-eliminazione {
-      opacity: 0;
-      transform: scale(0.95);
-      pointer-events: none;
-      transition: all 0.3s ease;
-    }
-
-    // Stile per immagine anteprima
-    .preview-img {
-      width: 150px;
-      height: auto;
-      border-radius: 10px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    // Stile video (senza controlli)
-    video.preview-img {
-      width: 150px;
-      height: auto;
-      border-radius: 10px;
-      object-fit: cover;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-      pointer-events: none; // Disabilita interazione video
-    }
-
-    // Player audio minimale
-    .preview-audio {
-      width: 150px;
-      margin-bottom: 0.5rem;
-      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-      pointer-events: none; // Disabilita interazione audio
-    }
-
-    // Layout per file di tipo non supportato
-    .anteprima-non-disponibile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-      height: 140px;
-      padding: 1rem;
-
-      mat-icon {
-        font-size: 32px;
-        margin-bottom: 0.3rem;
-      }
-    }
-
-    // Nome del file mostrato sotto l’anteprima
     p {
       margin-top: 0.5rem;
       font-size: 0.85rem;
-      color: #555;
+      font-weight: 500;
+      color: #333;
     }
 
-    // Bottone per eliminare un singolo file
-    .delete-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background-color: #ffebee;
-      color: #d32f2f;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s ease;
-      cursor: pointer;
+    &.errore {
+      border: 2px solid red;
+    }
 
-      &:hover {
-        background-color: #ffcdd2;
+    .preview-multi {
+      position: relative;
+      width: 160px;
+      height: 120px;
+      margin: auto;
+
+      .media-item {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 2;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        img, video {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 10px;
+        }
+
+        audio {
+          width: 100%;
+          height: 100%;
+        }
+
+        &:hover {
+          transform: scale(1.03);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        // Pulsante elimina asset corrente
+        .delete-current-btn {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: #ffebee;
+          color: #d32f2f;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.2s ease;
+          cursor: pointer;
+
+          &:hover {
+            background-color: #ffcdd2;
+          }
+
+          mat-icon {
+            font-size: 20px;
+          }
+        }
       }
 
-      mat-icon {
-        font-size: 22px;
+      // Angolazioni secondarie sovrapposte
+      .extra-angle {
+        z-index: 1;
+        transform: rotate(3deg) translate(8px, 8px);
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      // Pulsanti freccia prev/next
+      .prev-btn, .next-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        width: 32px;
+        height: 32px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease, border 0.2s ease;
+
+        mat-icon {
+          font-size: 20px;
+          color: #444;
+        }
+
+        &:hover {
+          background-color: #f5f5f5;
+          border-color: #999;
+        }
+      }
+
+      .prev-btn {
+        left: -18px;
+      }
+
+      .next-btn {
+        right: -18px;
       }
     }
   }
 
-  // Testo di conferma se presente sotto la griglia
-  .confirm-text {
-    font-size: 1.1rem;
-    text-align: center;
-    color: #333;
-
-    &.blur {
-      filter: blur(2px);
-    }
-  }
-
-  // Messaggio mostrato se non ci sono media da eliminare
+  // Messaggio se non ci sono media da eliminare
   .messaggio-nessun-media {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 3rem 1rem;
+    padding: 2rem 1rem;
+    color: #888;
     text-align: center;
-    color: #777;
 
     mat-icon {
-      font-size: 48px;
-      margin-bottom: 1rem;
+      font-size: 40px;
+      margin-bottom: 0.5rem;
       color: #aaa;
     }
 
@@ -184,34 +191,44 @@
   }
 }
 
-// Sezione in basso del dialog con i pulsanti di azione (sticky)
+// Footer dialog (Elimina tutto)
 .delete-dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
   padding: 1.5rem 2rem;
-  background-color: #fff;
   border-top: 1px solid #eee;
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-
-  &.blur {
-    filter: blur(2px);
-    pointer-events: none;
-  }
+  background-color: #fff;
 
   button {
     min-width: 140px;
     font-weight: 500;
     font-size: 0.95rem;
+    border-radius: 24px;
     text-transform: none;
-    border-radius: 8px;
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease, transform 0.2s ease;
     cursor: pointer;
+
+    &:hover {
+      background-color: #ffcdd2;
+      transform: scale(1.03);
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
+  &.blur {
+    filter: blur(2px);
+    pointer-events: none;
   }
 }
 
-// Stile del pulsante di chiusura in alto a destra
+// Pulsante chiudi in alto
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -223,6 +240,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 3;
 
   mat-icon {
     font-size: 24px;
@@ -235,7 +253,7 @@
   }
 }
 
-// Limita l’altezza complessiva del contenitore del dialog
+// Dialog container principale
 ::ng-deep .mat-dialog-container {
   max-height: 90vh;
   overflow-x: hidden !important;

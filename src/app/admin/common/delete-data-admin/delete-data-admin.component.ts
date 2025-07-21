@@ -1,4 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
+// Componente Angular per la gestione dell’eliminazione media da Cloudinary
+import { Component, OnInit, Inject } from '@angular/core';
 import { CmsService } from '../../../services/cms.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -7,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MediaCollection, MediaItem, MediaAsset } from '../../../pages/home/home.component';
 
-// Interfaccia estesa per gestire errori ed effetti visivi
+// Estensione dell’interfaccia MediaItem per gestire errori, spinner e stato locale
 interface MediaItemConErrore extends MediaItem {
   erroreEliminazione?: boolean;
   dettaglioErrore?: string;
@@ -23,14 +24,17 @@ interface MediaItemConErrore extends MediaItem {
 })
 export class DeleteDataAdminComponent implements OnInit {
 
-  // Lista di media (singoli) con flag di errore
+  // Media da mostrare e gestire (con estensioni di stato)
   mediaInput: MediaItemConErrore[] = [];
 
-  // Stato per spinner
-  eliminazioneInCorso: boolean = false;
+  // Flag per mostrare lo spinner globale durante operazioni
+  eliminazioneInCorso = false;
 
-  // Stato per media vuoti
-  checkDataIsEmpty: boolean = false;
+  // Flag se non ci sono media
+  checkDataIsEmpty = false;
+
+  // Gestisce l’indice attivo dello slider per ogni media
+  currentIndexes: { [displayName: string]: number } = {};
 
   constructor(
     private cmsService: CmsService,
@@ -39,7 +43,7 @@ export class DeleteDataAdminComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Appiattisce tutti i media in un array unico con flag iniziali
+    // Appiattisce le collezioni ricevute in un unico array di media con flag inizializzati
     this.mediaInput = this.data.flatMap(col => col.media).map(m => ({
       ...m,
       erroreEliminazione: false,
@@ -47,95 +51,79 @@ export class DeleteDataAdminComponent implements OnInit {
       inEliminazione: false
     }));
 
+    // Se non ci sono media, chiudi automaticamente il dialog
     this.checkDataIsEmpty = this.mediaInput.length === 0;
-
     if (this.checkDataIsEmpty) {
       setTimeout(() => this.chiudiDialog(false), 1000);
     }
   }
 
   /**
-   * Elimina uno o più file
+   * Elimina l’asset attualmente visibile nella card (immagine frontale o laterale selezionata)
    */
-  deleteMedia(allImages: boolean = false, immagineSingola?: MediaItemConErrore): void {
-    if (!immagineSingola) {
-      this.eliminazioneInCorso = true;
-    }
+  eliminaAssetSingolo(media: MediaItemConErrore): void {
+    const activeAsset = this.getActiveAsset(media.display_name);
+    if (!activeAsset) return;
 
-    const immaginiDaEliminare: MediaItemConErrore[] = immagineSingola
-      ? [immagineSingola]
-      : allImages
-        ? this.mediaInput
-        : [this.mediaInput[0]];
-
-    const urls = immaginiDaEliminare
-      .map(media => this.getMediaFrontale(media)?.url)
-      .filter((url): url is string => !!url);
-
-    if (urls.length === 0) {
-      this.eliminazioneInCorso = false;
-
-      immaginiDaEliminare.forEach(media => {
-        media.erroreEliminazione = true;
-        media.dettaglioErrore = 'Nessuna angolazione frontale trovata.';
-      });
-
-      return;
-    }
-
-    this.cmsService.deleteImages(urls, true).subscribe({
+    this.cmsService.deleteImages([activeAsset.url], true).subscribe({
       next: res => {
-        this.eliminazioneInCorso = false;
-
         if (res?.success) {
-          if (immagineSingola) {
-            immagineSingola.inEliminazione = true;
+          // Rimuove l’asset visibile dalla lista meta
+          media.meta = media.meta.filter(a => a !== activeAsset);
+
+          // Se non restano asset, rimuove tutto il media
+          if (media.meta.length === 0) {
+            media.inEliminazione = true;
             setTimeout(() => {
-              this.mediaInput = this.mediaInput.filter(m => m !== immagineSingola);
-            }, 300);
-          } else if (!allImages) {
-            this.mediaInput[0].inEliminazione = true;
-            setTimeout(() => {
-              this.mediaInput = this.mediaInput.slice(1);
+              this.mediaInput = this.mediaInput.filter(m => m !== media);
             }, 300);
           } else {
-            this.dialogRef.close(true);
-            setTimeout(() => window.location.reload(), 100);
+            // Se ci sono ancora asset, aggiorna l’indice corrente
+            const tot = media.meta.length;
+            const cur = this.currentIndexes[media.display_name] ?? 0;
+            this.currentIndexes[media.display_name] = cur >= tot ? 0 : cur;
           }
-        } else {
-          console.warn('Eliminazione non confermata dal backend.');
         }
       },
       error: err => {
-        this.eliminazioneInCorso = false;
-        immaginiDaEliminare.forEach(media => {
-          const urlFrontale = this.getMediaFrontale(media)?.url;
-          if (urlFrontale) {
-            media.erroreEliminazione = true;
-            media.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
-          }
-        });
+        media.erroreEliminazione = true;
+        media.dettaglioErrore = err?.error?.message || 'Errore durante l’eliminazione';
       }
     });
   }
 
   /**
-   * Ritorna solo l’asset con angolazione frontale, se presente
+   * Elimina **tutti** i media e tutti gli asset associati (frontale + laterali)
    */
-  getMediaFrontale(item: MediaItem): MediaAsset | null {
-    return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
-  }
+  eliminaTuttiIMedia(): void {
+  if (this.mediaInput.length === 0) return;
 
-  //come sopra prende in input un media item ed esce un media asset anzi un array di media asset perche posso avere piu immagini non frontali
-getMediaNoFrontale(item: MediaItem): MediaAsset[] {
-  return (item.meta || []).filter(m => m.angolazione?.toLowerCase() === 'altra');
+  this.eliminazioneInCorso = true;
+
+  const tutteLeUrl = this.mediaInput.flatMap(media => media.meta.map(m => m.url));
+
+  this.cmsService.deleteImages(tutteLeUrl, true).subscribe({
+    next: res => {
+      this.eliminazioneInCorso = false;
+      if (res?.success) {
+        this.mediaInput = [];
+        this.checkDataIsEmpty = true;
+        setTimeout(() => this.chiudiDialog(true), 500);
+      }
+    },
+    error: err => {
+      this.eliminazioneInCorso = false;
+      // Puoi anche gestire un errore globale qui
+    }
+  });
 }
 
+
   /**
-   * Chiude il dialog
+   * Chiude il dialog e opzionalmente ricarica la pagina
    */
-  chiudiDialog(reload: boolean): void {
-    this.dialogRef.close();
+  chiudiDialog(reload?: boolean): void {
+    this.dialogRef.close(reload);
     if (reload) {
       setTimeout(() => window.location.reload(), 400);
     }
@@ -148,48 +136,62 @@ getMediaNoFrontale(item: MediaItem): MediaAsset[] {
     this.dialogRef.close(false);
   }
 
+  /**
+   * Restituisce l’asset con angolazione 'frontale', se presente
+   */
+  getMediaFrontale(item: MediaItem): MediaAsset | null {
+    return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
+  }
 
+  /**
+   * Restituisce tutti gli asset con angolazione diversa da 'frontale'
+   */
+  getMediaNoFrontale(item: MediaItem): MediaAsset[] {
+    return (item.meta || []).filter(m => m.angolazione?.toLowerCase() === 'altra');
+  }
 
+  /**
+   * Restituisce tutti gli asset (frontale + altri)
+   */
+  getAllAssets(media: MediaItem): MediaAsset[] {
+    const front = this.getMediaFrontale(media);
+    const extras = this.getMediaNoFrontale(media);
+    return front ? [front, ...extras] : [...extras];
+  }
 
-//qua quando ho piu immagini le slido io quindi devo creare per ogni nome file il suo indice corrente
-// Mappa per tenere traccia dell'indice attuale per ogni media
-currentIndexes: { [displayName: string]: number } = {};
+  /**
+   * Restituisce l’asset visibile correntemente per un certo media
+   */
+  getActiveAsset(displayName: string): MediaAsset | null {
+    const media = this.mediaInput.find(m => m.display_name === displayName);
+    if (!media) return null;
 
-// Ritorna l’array completo (frontale + extra) per il media
-getAllAssets(media: MediaItem): MediaAsset[] {
-  const front = this.getMediaFrontale(media);
-  const extras = this.getMediaNoFrontale(media);
-  return front ? [front, ...extras] : [...extras];
-}
+    const assets = this.getAllAssets(media);
+    const index = this.currentIndexes[displayName] ?? 0;
+    return assets[index] || null;
+  }
 
-// Ottieni l’elemento attivo
-getActiveAsset(displayName: string): MediaAsset | null {
-  const media = this.mediaInput.find(m => m.display_name === displayName);
-  if (!media) return null;
+  /**
+   * Naviga all’asset precedente nella card
+   */
+  prevImage(displayName: string): void {
+    const media = this.mediaInput.find(m => m.display_name === displayName);
+    if (!media) return;
 
-  const assets = this.getAllAssets(media);
-  const index = this.currentIndexes[displayName] ?? 0;
-  return assets[index] || null;
-}
+    const total = this.getAllAssets(media).length;
+    const current = this.currentIndexes[displayName] ?? 0;
+    this.currentIndexes[displayName] = (current - 1 + total) % total;
+  }
 
-// Vai all’immagine precedente
-prevImage(displayName: string): void {
-  const media = this.mediaInput.find(m => m.display_name === displayName);
-  if (!media) return;
+  /**
+   * Naviga all’asset successivo nella card
+   */
+  nextImage(displayName: string): void {
+    const media = this.mediaInput.find(m => m.display_name === displayName);
+    if (!media) return;
 
-  const total = this.getAllAssets(media).length;
-  const current = this.currentIndexes[displayName] ?? 0;
-  this.currentIndexes[displayName] = (current - 1 + total) % total;
-}
-
-// Vai all’immagine successiva
-nextImage(displayName: string): void {
-  const media = this.mediaInput.find(m => m.display_name === displayName);
-  if (!media) return;
-
-  const total = this.getAllAssets(media).length;
-  const current = this.currentIndexes[displayName] ?? 0;
-  this.currentIndexes[displayName] = (current + 1) % total;
-}
-
+    const total = this.getAllAssets(media).length;
+    const current = this.currentIndexes[displayName] ?? 0;
+    this.currentIndexes[displayName] = (current + 1) % total;
+  }
 }

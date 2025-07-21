@@ -1,115 +1,96 @@
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="delete-dialog-content">
 
-  <!-- Se ci sono media, mostra contenuto normale -->
-  <ng-container *ngIf="!checkDataIsEmpty; else noMediaTemplate">
+  <!-- Pulsante chiudi -->
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso && !checkDataIsEmpty"
+    (click)="chiudiDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
 
-    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!eliminazioneInCorso" (click)="chiudiDialog(true)">
-      <mat-icon>close</mat-icon>
-    </button>
+  <!-- Overlay durante l'eliminazione -->
+  <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
+    <mat-spinner diameter="48"></mat-spinner>
+    <p>Eliminazione in corso...</p>
+  </div>
 
-    <!-- Overlay con spinner visibile durante l'eliminazione -->
-    <div class="eliminazione-overlay" *ngIf="eliminazioneInCorso">
-      <mat-spinner diameter="48"></mat-spinner>
-      <p>Eliminazione in corso...</p>
-    </div>
-
-    <!-- Contenitore anteprime media -->
+  <!-- Se ci sono media -->
+  <ng-container *ngIf="!checkDataIsEmpty; else noData">
     <div class="preview-container" [class.blur]="eliminazioneInCorso">
-      <ng-container *ngFor="let img of mediaInput">
-        <div *ngIf="!img.inEliminazione"
-             class="preview-wrapper"
-             [ngClass]="{
-               'errore': img.erroreEliminazione,
-               'in-eliminazione': img.inEliminazione
-             }"
-             [matTooltip]="img.dettaglioErrore || ''"
+
+      <ng-container *ngFor="let media of mediaInput; let i = index">
+        <div *ngIf="!media.inEliminazione"
+             class="preview-wrapper card-multiview"
+             [ngClass]="{ 'errore': media.erroreEliminazione }"
+             [matTooltip]="media.dettaglioErrore || ''"
              matTooltipPosition="above">
 
-          <!-- Pulsante elimina singolo media -->
-          <button class="delete-btn"
-                  mat-icon-button
-                  color="warn"
-                  aria-label="Elimina media"
-                  (click)="deleteMedia(false, img)">
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="preview-multi">
 
-          <!-- Anteprima dinamica: immagine / video / audio -->
-          <ng-container *ngIf="getMediaFrontale(img) as mediaFrontale">
-            <ng-container [ngSwitch]="img.type">
+            <!-- Tasto PREV -->
+            <button *ngIf="getAllAssets(media).length > 1"
+                    mat-icon-button class="prev-btn"
+                    (click)="prevImage(media.display_name)"
+                    matTooltip="Precedente">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
 
-              <!-- Immagine -->
-              <img *ngSwitchCase="'image'"
-                   [src]="mediaFrontale.url"
-                   [alt]="img.display_name"
-                   class="preview-img" />
+            <!-- Immagine attiva -->
+            <ng-container *ngIf="getActiveAsset(media.display_name) as active">
+              <div class="media-item">
+                <img *ngIf="media.type === 'image'" [src]="active.url" alt="preview" class="preview-img" />
+                <video *ngIf="media.type === 'video'" [src]="active.url" autoplay muted loop playsinline class="preview-img"></video>
+                <audio *ngIf="media.type === 'audio'" [src]="active.url" autoplay class="preview-audio"></audio>
 
-              <!-- Video -->
-              <video *ngSwitchCase="'video'"
-                     [src]="mediaFrontale.url"
-                     autoplay
-                     muted
-                     loop
-                     playsinline
-                     class="preview-img"
-                     style="pointer-events: none;">
-              </video>
-
-              <!-- Audio -->
-              <audio *ngSwitchCase="'audio'"
-                     [src]="mediaFrontale.url"
-                     autoplay
-                     class="preview-audio"
-                     style="pointer-events: none;">
-              </audio>
-
-              <!-- Fallback -->
-              <div *ngSwitchDefault class="anteprima-non-disponibile">
-                <mat-icon>error_outline</mat-icon>
-                <span>Tipo non supportato</span>
+                <!-- Pulsante Elimina -->
+                <button mat-icon-button class="delete-current-btn"
+                        (click)="eliminaAssetSingolo(media)"
+                        matTooltip="Elimina immagine corrente"
+                        color="warn">
+                  <mat-icon>delete_forever</mat-icon>
+                </button>
               </div>
-
             </ng-container>
-          </ng-container>
+
+            <!-- Altre angolazioni -->
+            <ng-container *ngFor="let extra of getMediaNoFrontale(media)">
+              <div class="media-item extra-angle">
+                <img *ngIf="media.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
+                <video *ngIf="media.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>
+                <audio *ngIf="media.type === 'audio'" [src]="extra.url" autoplay class="preview-audio"></audio>
+              </div>
+            </ng-container>
+
+            <!-- Tasto NEXT -->
+            <button *ngIf="getAllAssets(media).length > 1"
+                    mat-icon-button class="next-btn"
+                    (click)="nextImage(media.display_name)"
+                    matTooltip="Successivo">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
 
           <!-- Nome del file -->
-          <p>{{ img.display_name }}</p>
+          <p>{{ media.display_name }}</p>
         </div>
       </ng-container>
-    </div>
 
+    </div>
   </ng-container>
 
-  <!-- Template alternativo se nessun file da eliminare -->
-  <ng-template #noMediaTemplate>
+  <!-- Template alternativo: nessun media -->
+  <ng-template #noData>
     <div class="messaggio-nessun-media">
       <mat-icon>info</mat-icon>
       <p>Nessun file disponibile da eliminare.</p>
     </div>
   </ng-template>
-
 </div>
 
-<!-- Azioni in basso, solo se ci sono media -->
-<div mat-dialog-actions align="end"
-     class="delete-dialog-actions"
-     [class.blur]="eliminazioneInCorso"
-     *ngIf="!checkDataIsEmpty">
+<!-- Azioni -->
+<div mat-dialog-actions class="delete-dialog-actions" align="end" [class.blur]="eliminazioneInCorso"
+  *ngIf="!checkDataIsEmpty">
+  <button mat-flat-button color="warn" type="button" (click)="eliminaTuttiIMedia()">
+  Elimina tutti i media
+</button>
 
-  <!-- Pulsante Annulla -->
-  <button mat-stroked-button
-          color="primary"
-          type="button"
-          (click)="annulla()">
-    Annulla
-  </button>
-
-  <!-- Pulsante elimina tutti -->
-  <button mat-flat-button
-          color="warn"
-          type="button"
-          (click)="deleteMedia(true)">
-    Elimina tutti i media
-  </button>
 </div>
