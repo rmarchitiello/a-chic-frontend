@@ -1,77 +1,74 @@
 <!-- Contenuto principale del dialog -->
 <div mat-dialog-content class="download-dialog-content">
 
-  <!-- Pulsante chiudi visibile solo se non si sta scaricando e ci sono dati -->
-  <button mat-icon-button
-          class="chiudi-btn"
-          matTooltip="Chiudi"
-          *ngIf="!downloadInCorso && !checkDataIsEmpty"
-          (click)="chiudiPopUp()">
+  <!-- Pulsante chiudi -->
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!downloadInCorso && !checkDataIsEmpty"
+    (click)="chiudiPopUp()">
     <mat-icon>close</mat-icon>
   </button>
 
-  <!-- Overlay con spinner durante il download -->
+  <!-- Overlay durante il download -->
   <div class="eliminazione-overlay" *ngIf="downloadInCorso">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Download in corso...</p>
   </div>
 
-  <!-- Se ci sono media da scaricare -->
+  <!-- Se ci sono dati -->
   <ng-container *ngIf="!checkDataIsEmpty; else noData">
     <div class="preview-container" [class.blur]="downloadInCorso">
+
       <ng-container *ngFor="let media of mediaInput">
-        <div class="preview-wrapper">
+        <div class="preview-wrapper card-multiview">
 
-          <!-- Pulsante per scaricare solo questo media -->
-          <button mat-icon-button
-                  class="download-btn"
-                  color="warn"
-                  aria-label="Download media"
-                  (click)="downloadSingolo(media)">
-            <mat-icon>download</mat-icon>
-          </button>
+          <div class="preview-multi">
+            <!-- Tasto PREV solo se ci sono più immagini -->
+            <button *ngIf="getMediaNoFrontale(media).length > 0"
+                    mat-icon-button class="prev-btn"
+                    (click)="prevImage(media.display_name)">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
 
-          <!-- Anteprima dinamica (immagine, video o audio frontale) -->
-          <ng-container *ngIf="getMediaFrontale(media) as mediaFrontale">
-            <ng-container [ngSwitch]="media.type">
+            <!-- Immagine attiva -->
+            <ng-container *ngIf="getActiveAsset(media.display_name) as active">
+              <div class="media-item">
+                <img *ngIf="media.type === 'image'" [src]="active.url" alt="preview" class="preview-img" />
+                <video *ngIf="media.type === 'video'" [src]="active.url" autoplay muted loop playsinline class="preview-img"></video>
+                <audio *ngIf="media.type === 'audio'" [src]="active.url" autoplay class="preview-audio"></audio>
 
-              <!-- Immagine -->
-              <img *ngSwitchCase="'image'"
-                   [src]="mediaFrontale.url"
-                   [alt]="media.display_name"
-                   class="preview-img" />
-
-              <!-- Video -->
-              <video *ngSwitchCase="'video'"
-                     [src]="mediaFrontale.url"
-                     autoplay muted loop playsinline
-                     class="preview-img"
-                     style="pointer-events: none;"></video>
-
-              <!-- Audio -->
-              <audio *ngSwitchCase="'audio'"
-                     [src]="mediaFrontale.url"
-                     autoplay
-                     class="preview-audio"
-                     style="pointer-events: none;"></audio>
-
-              <!-- Tipo non supportato -->
-              <div *ngSwitchDefault class="anteprima-non-disponibile">
-                <mat-icon>error_outline</mat-icon>
-                <span>Tipo non supportato</span>
+                <!-- Bottone download -->
+                <button mat-icon-button class="download-btn"
+                        (click)="downloadSingoloAsset(active, media.display_name)">
+                  <mat-icon>download</mat-icon>
+                </button>
               </div>
-
             </ng-container>
-          </ng-container>
 
-          <!-- Nome del file sotto l'anteprima -->
+            <!-- Altre angolazioni (sovrapposte) -->
+            <ng-container *ngFor="let extra of getMediaNoFrontale(media)">
+              <div class="media-item extra-angle">
+                <img *ngIf="media.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
+                <video *ngIf="media.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>
+                <audio *ngIf="media.type === 'audio'" [src]="extra.url" autoplay class="preview-audio"></audio>
+              </div>
+            </ng-container>
+
+            <!-- Tasto NEXT solo se ci sono più immagini -->
+            <button *ngIf="getMediaNoFrontale(media).length > 0"
+                    mat-icon-button class="next-btn"
+                    (click)="nextImage(media.display_name)">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+
+          <!-- Nome sotto -->
           <p>{{ media.display_name }}</p>
         </div>
       </ng-container>
+
     </div>
   </ng-container>
 
-  <!-- Nessun file da scaricare -->
+  <!-- Nessun dato -->
   <ng-template #noData>
     <div class="no-data-message">
       <mat-icon>info</mat-icon>
@@ -80,18 +77,8 @@
   </ng-template>
 </div>
 
-<!-- Pulsante azione in basso -->
-<div mat-dialog-actions
-     align="end"
-     class="download-dialog-actions"
-     [class.blur]="downloadInCorso"
-     *ngIf="!checkDataIsEmpty">
-
-  <!-- Scarica tutto -->
-  <button mat-flat-button
-          color="warn"
-          type="button"
-          (click)="downloadTutti()">
-    Scarica tutto
-  </button>
+<!-- Azioni -->
+<div mat-dialog-actions class="download-dialog-actions" align="end" [class.blur]="downloadInCorso"
+  *ngIf="!checkDataIsEmpty">
+  <button mat-flat-button color="warn" type="button" (click)="downloadTutti()">Scarica tutto</button>
 </div>

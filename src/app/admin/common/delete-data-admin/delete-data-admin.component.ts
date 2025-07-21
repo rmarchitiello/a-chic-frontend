@@ -126,6 +126,11 @@ export class DeleteDataAdminComponent implements OnInit {
     return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
   }
 
+  //come sopra prende in input un media item ed esce un media asset anzi un array di media asset perche posso avere piu immagini non frontali
+getMediaNoFrontale(item: MediaItem): MediaAsset[] {
+  return (item.meta || []).filter(m => m.angolazione?.toLowerCase() === 'altra');
+}
+
   /**
    * Chiude il dialog
    */
@@ -142,4 +147,49 @@ export class DeleteDataAdminComponent implements OnInit {
   annulla(): void {
     this.dialogRef.close(false);
   }
+
+
+
+
+//qua quando ho piu immagini le slido io quindi devo creare per ogni nome file il suo indice corrente
+// Mappa per tenere traccia dell'indice attuale per ogni media
+currentIndexes: { [displayName: string]: number } = {};
+
+// Ritorna l’array completo (frontale + extra) per il media
+getAllAssets(media: MediaItem): MediaAsset[] {
+  const front = this.getMediaFrontale(media);
+  const extras = this.getMediaNoFrontale(media);
+  return front ? [front, ...extras] : [...extras];
+}
+
+// Ottieni l’elemento attivo
+getActiveAsset(displayName: string): MediaAsset | null {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return null;
+
+  const assets = this.getAllAssets(media);
+  const index = this.currentIndexes[displayName] ?? 0;
+  return assets[index] || null;
+}
+
+// Vai all’immagine precedente
+prevImage(displayName: string): void {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return;
+
+  const total = this.getAllAssets(media).length;
+  const current = this.currentIndexes[displayName] ?? 0;
+  this.currentIndexes[displayName] = (current - 1 + total) % total;
+}
+
+// Vai all’immagine successiva
+nextImage(displayName: string): void {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return;
+
+  const total = this.getAllAssets(media).length;
+  const current = this.currentIndexes[displayName] ?? 0;
+  this.currentIndexes[displayName] = (current + 1) % total;
+}
+
 }

@@ -4,7 +4,6 @@
   overflow-y: auto;
   max-height: 65vh;
 
-  // Overlay durante il download
   .eliminazione-overlay {
     position: absolute;
     top: 0;
@@ -27,7 +26,6 @@
     }
   }
 
-  // Contenitore che raccoglie tutte le anteprime media
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -41,115 +39,115 @@
     }
   }
 
-  // Box singolo di anteprima (immagine, video o audio)
   .preview-wrapper {
     position: relative;
-    background: #f5f5f5;
-    padding: 0.5rem;
-    border-radius: 12px;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 14px;
     text-align: center;
     transition: all 0.3s ease;
-    border: 2px solid transparent;
-    cursor: pointer;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 
-    &:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-    }
-
-    &.errore {
-      border-color: red;
-    }
-
-    &.in-eliminazione {
-      opacity: 0;
-      transform: scale(0.95);
-      pointer-events: none;
-    }
-
-    // Immagine
-    .preview-img {
-      width: 150px;
-      height: auto;
-      border-radius: 10px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    // Video (senza controlli e con click disabilitato)
-    video.preview-img {
-      width: 150px;
-      height: auto;
-      border-radius: 10px;
-      object-fit: cover;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-      pointer-events: none;
-    }
-
-    // Audio (semplice player con autoplay)
-    .preview-audio {
-      width: 150px;
-      margin-bottom: 0.5rem;
-      filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.2));
-      pointer-events: none;
-    }
-
-    // Fallback per tipo non supportato
-    .anteprima-non-disponibile {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #999;
-      height: 140px;
-      padding: 1rem;
-
-      mat-icon {
-        font-size: 32px;
-        margin-bottom: 0.3rem;
-      }
-    }
-
-    // Nome file sotto l'anteprima
     p {
       margin-top: 0.5rem;
       font-size: 0.85rem;
-      color: #555;
+      font-weight: 500;
+      color: #333;
     }
 
-    // Bottone download singolo
-    .download-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      background-color: #ffebee;
-      color: #d32f2f;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s ease;
-      cursor: pointer;
+    .preview-multi {
+      position: relative;
+      width: 160px;
+      height: 120px;
+      margin: auto;
 
-      &:hover {
-        background-color: #ffcdd2;
+      .media-item {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        z-index: 2;
+
+        img, video {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        audio {
+          width: 100%;
+          height: 100%;
+        }
+
+        .download-btn {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background-color: #ffebee;
+          color: #d32f2f;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #ffcdd2;
+          }
+
+          mat-icon {
+            font-size: 20px;
+          }
+        }
       }
 
-      mat-icon {
-        font-size: 22px;
-        cursor: pointer;
+      .extra-angle {
+        z-index: 1;
+        transform: rotate(3deg) translate(8px, 8px);
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .prev-btn, .next-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 3;
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        width: 28px;
+        height: 28px;
+
+        mat-icon {
+          font-size: 20px;
+          color: #333;
+        }
+
+        &:hover {
+          background-color: #fff;
+        }
+      }
+
+      .prev-btn {
+        left: -16px;
+      }
+
+      .next-btn {
+        right: -16px;
       }
     }
   }
 
-  // Messaggio mostrato se non ci sono media disponibili
   .no-data-message {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     padding: 2rem 1rem;
     color: #888;
     text-align: center;
@@ -165,58 +163,34 @@
       font-weight: 500;
     }
   }
-
-  // Testo eventuale sotto la griglia
-  .confirm-text {
-    font-size: 1.1rem;
-    text-align: center;
-    color: #333;
-
-    &.blur {
-      filter: blur(2px);
-    }
-  }
 }
 
-// Azioni in basso (sticky in fondo al dialog)
 .download-dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
   padding: 1.5rem 2rem;
-  background-color: #fff;
   border-top: 1px solid #eee;
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-
-  &.blur {
-    filter: blur(2px);
-    pointer-events: none;
-  }
+  background-color: #fff;
 
   button {
     min-width: 140px;
     font-weight: 500;
     font-size: 0.95rem;
-    text-transform: none;
     border-radius: 8px;
-    cursor: pointer;
+    text-transform: none;
+  }
+
+  &.blur {
+    filter: blur(2px);
+    pointer-events: none;
   }
 }
 
-// Pulsante per chiudere il dialog
 .chiudi-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 5;
 
   mat-icon {
     font-size: 24px;
@@ -229,7 +203,6 @@
   }
 }
 
-// Forza altezza massima del contenitore dialog
 ::ng-deep .mat-dialog-container {
   max-height: 90vh;
   overflow-x: hidden !important;

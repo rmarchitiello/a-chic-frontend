@@ -49,28 +49,58 @@ export class DownloadDataAdminComponent implements OnInit {
   /**
    * Scarica tutti i file presenti nella lista
    */
-  downloadTutti(): void {
-    this.downloadInCorso = true;
+downloadTutti(): void {
+  this.downloadInCorso = true;
 
-    this.mediaInput.forEach(media => this.scaricaSingolo(media));
+  this.mediaInput.forEach(media => {
+    const assetsValidi: MediaAsset[] = [
+      this.getMediaFrontale(media),
+      ...this.getMediaNoFrontale(media)
+    ].filter((a): a is MediaAsset => a !== null);
 
-    setTimeout(() => {
-      this.downloadInCorso = false;
-    }, 1000);
-  }
+    assetsValidi.forEach(asset => this.scaricaAsset(asset, media.display_name));
+  });
+
+  setTimeout(() => {
+    this.downloadInCorso = false;
+  }, 1000);
+}
+
 
   /**
    * Scarica un singolo media
    */
-  downloadSingolo(media: MediaItem): void {
-    this.downloadInCorso = true;
+downloadSingoloAsset(asset: MediaAsset, displayName: string): void {
+  this.downloadInCorso = true;
+  this.scaricaAsset(asset, displayName);
 
-    this.scaricaSingolo(media);
+  setTimeout(() => {
+    this.downloadInCorso = false;
+  }, 1000);
+}
 
-    setTimeout(() => {
-      this.downloadInCorso = false;
-    }, 1000);
-  }
+
+private scaricaAsset(asset: MediaAsset, displayName: string): void {
+  const estensione = this.getEstensione(asset.url);
+  const nomeFile = `${displayName}-${asset.angolazione || 'unknown'}.${estensione}`;
+
+  fetch(asset.url)
+    .then(response => {
+      if (!response.ok) throw new Error(`Errore HTTP: ${response.status}`);
+      return response.blob();
+    })
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = nomeFile;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    })
+    .catch(err => {
+      console.error(`Errore nel download di ${displayName}:`, err);
+    });
+}
+
 
   /**
    * Esegue il download effettivo di un media
@@ -110,6 +140,13 @@ export class DownloadDataAdminComponent implements OnInit {
     return item.meta.find(m => m.angolazione?.toLowerCase() === 'frontale') || null;
   }
 
+  //come sopra prende in input un media item ed esce un media asset anzi un array di media asset perche posso avere piu immagini non frontali
+getMediaNoFrontale(item: MediaItem): MediaAsset[] {
+  return (item.meta || []).filter(m => m.angolazione?.toLowerCase() === 'altra');
+}
+
+
+
   /**
    * Estrae l'estensione dal file partendo dall'URL Cloudinary
    */
@@ -124,4 +161,48 @@ export class DownloadDataAdminComponent implements OnInit {
   chiudiPopUp(): void {
     this.dialogRef.close();
   }
+
+
+//qua quando ho piu immagini le slido io quindi devo creare per ogni nome file il suo indice corrente
+// Mappa per tenere traccia dell'indice attuale per ogni media
+currentIndexes: { [displayName: string]: number } = {};
+
+// Ritorna l’array completo (frontale + extra) per il media
+getAllAssets(media: MediaItem): MediaAsset[] {
+  const front = this.getMediaFrontale(media);
+  const extras = this.getMediaNoFrontale(media);
+  return front ? [front, ...extras] : [...extras];
+}
+
+// Ottieni l’elemento attivo
+getActiveAsset(displayName: string): MediaAsset | null {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return null;
+
+  const assets = this.getAllAssets(media);
+  const index = this.currentIndexes[displayName] ?? 0;
+  return assets[index] || null;
+}
+
+// Vai all’immagine precedente
+prevImage(displayName: string): void {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return;
+
+  const total = this.getAllAssets(media).length;
+  const current = this.currentIndexes[displayName] ?? 0;
+  this.currentIndexes[displayName] = (current - 1 + total) % total;
+}
+
+// Vai all’immagine successiva
+nextImage(displayName: string): void {
+  const media = this.mediaInput.find(m => m.display_name === displayName);
+  if (!media) return;
+
+  const total = this.getAllAssets(media).length;
+  const current = this.currentIndexes[displayName] ?? 0;
+  this.currentIndexes[displayName] = (current + 1) % total;
+}
+
+
 }
