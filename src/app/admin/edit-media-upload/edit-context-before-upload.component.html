@@ -1,61 +1,76 @@
-<!-- Wrapper del dialog -->
+<!-- Contenitore scrollabile del dialog -->
 <div class="dialog-scroll-content">
 
-  <!-- Pulsante per chiudere il popup -->
-  <!-- Pulsante "Chiudi" senza cerchio -->
-<button class="chiudi-btn" matTooltip="Chiudi" (click)="annulla()">
-  <mat-icon>close</mat-icon>
-</button>
+  <!-- Pulsante di chiusura -->
+  <button class="chiudi-btn" matTooltip="Chiudi" (click)="annulla()">
+    <mat-icon>close</mat-icon>
+  </button>
 
-
-  <!-- Contenuto principale del popup -->
+  <!-- Corpo principale -->
   <div class="upload-main-content">
-
     <h2 class="titolo-form">Modifica metadati del file</h2>
 
-    <!-- Form di modifica -->
     <form class="form-metadata" (ngSubmit)="conferma()" autocomplete="off">
 
-      <!-- Nome file -->
-      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+      <!-- Campi statici -->
+      <mat-form-field appearance="outline" floatLabel="always">
         <mat-label>Nome file</mat-label>
-        <input matInput [(ngModel)]="nome_file" name="nome_file" required />
+        <input matInput [(ngModel)]="context['nome_file']" name="nome_file" required />
       </mat-form-field>
 
-      <!-- Descrizione -->
-      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+      <mat-form-field appearance="outline" floatLabel="always">
         <mat-label>Descrizione</mat-label>
-        <textarea matInput [(ngModel)]="descrizione" name="descrizione" rows="3"></textarea>
+        <textarea matInput [(ngModel)]="context['descrizione']" name="descrizione" rows="3"></textarea>
       </mat-form-field>
 
-      <!-- Quantità -->
-      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+      <mat-form-field appearance="outline" floatLabel="always">
         <mat-label>Quantità</mat-label>
-        <input
-          matInput
-          type="number"
-          min="0"
-          [(ngModel)]="quantita"
-          name="quantita"
-          required
-        />
+        <input matInput type="number" min="0" [(ngModel)]="context['quantita']" name="quantita" required />
       </mat-form-field>
 
-      <!-- Angolazione -->
-      <mat-form-field appearance="outline" class="campo-form" floatLabel="always">
+      <mat-form-field appearance="outline" floatLabel="always">
         <mat-label>Angolazione</mat-label>
-        <mat-select [(ngModel)]="angolazione" name="angolazione" required>
+        <mat-select [(ngModel)]="context['angolazione']" name="angolazione" required>
           <mat-option value="frontale">Frontale</mat-option>
-          <mat-option value="profilo">Profilo</mat-option>
-          <mat-option value="retro">Retro</mat-option>
-          <mat-option value="alto">Alto</mat-option>
-          <mat-option value="dettaglio">Dettaglio</mat-option>
+          <mat-option value="alto">Altra</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <!-- Bottoni azione -->
+      <!-- Metadati dinamici -->
+      <div class="dynamic-metadata-section" *ngFor="let metadato of altriMetadati; let i = index">
+        <div class="metadata-pair" [ngClass]="{ 'duplicata': isChiaveDuplicata(i) }">
+
+          <!-- Campo chiave -->
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Chiave</mat-label>
+            <input matInput [(ngModel)]="metadato.key" [name]="'chiave_' + i" placeholder="es. prezzo" />
+            <div *ngIf="isChiaveDuplicata(i)" class="errore-duplicato">
+              Chiave già presente
+            </div>
+          </mat-form-field>
+
+          <!-- Campo valore dinamico -->
+          <mat-form-field appearance="outline" floatLabel="always">
+            <mat-label>Valore</mat-label>
+            <input matInput [type]="isNumericKey(metadato.key) ? 'number' : 'text'" [(ngModel)]="metadato.value"
+              [name]="'valore_' + i" [placeholder]="isNumericKey(metadato.key) ? 'es. 29.90' : 'es. pelle'" />
+          </mat-form-field>
+
+          <!-- Rimuovi -->
+          <button mat-icon-button color="warn" type="button" (click)="rimuoviMetadato(i)" matTooltip="Rimuovi metadato">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Aggiungi -->
+      <button mat-stroked-button color="primary" type="button" class="add-metadata-btn" (click)="aggiungiMetadato()">
+        + Aggiungi metadato
+      </button>
+
+      <!-- Azioni -->
       <div class="bottoni-form">
-        <button mat-flat-button color="primary" type="submit">Salva</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="hasChiaviDuplicate()">Salva</button>
         <button mat-stroked-button color="warn" type="button" (click)="annulla()">Annulla</button>
       </div>
 

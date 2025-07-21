@@ -66,3 +66,14 @@ html, body {
   max-width: 100vw !important;
   width: auto !important;
 }
+
+//stile per pop up editor context nella visione di admin
+::ng-deep .popup-metadati-dialog .mat-dialog-container {
+  border-radius: 16px;
+  padding: 0;
+  max-height: 90vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

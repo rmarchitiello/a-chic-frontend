@@ -28,9 +28,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 @Component({
   selector: 'app-upload-data-admin',
   imports: [
-    MatIcon, 
-    CommonModule, 
-    MatProgressSpinnerModule, 
+    MatIcon,
+    CommonModule,
+    MatProgressSpinnerModule,
     MatDialogModule,
     MatTooltipModule],
   templateUrl: './upload-data-admin.component.html',
@@ -233,6 +233,8 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         angolazione: 'frontale'
       };
 
+      console.log("[UploadDataAdminComponent] context totale recuperato: ", context);
+
       const metadata: CloudinaryDataUpload = {
         folder: folder,
         context
@@ -264,11 +266,11 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
             const motivo = uploadResult.reason;
 
             //Se l’utente modifica nome_file da popup, viene usato come riferimento per associare la risposta.
-const fileMatch = this.filesDaCaricare.find(f => {
-  const meta = this.metadatiPerFile.get(f);
-  const nomeAssociato = meta?.nome_file || f.name.split('.')[0];
-  return nomeAssociato === nomeFile;
-});
+            const fileMatch = this.filesDaCaricare.find(f => {
+              const meta = this.metadatiPerFile.get(f);
+              const nomeAssociato = meta && 'nome_file' in meta ? meta['nome_file'] : f.name.split('.')[0];
+              return nomeAssociato === nomeFile;
+            });
 
 
             if (fileMatch) {
@@ -325,24 +327,32 @@ const fileMatch = this.filesDaCaricare.find(f => {
   metadatiPerFile: Map<File, CloudinaryDataUpload['context']> = new Map();
 
   apriPopUpEditFile(file: File) {
-    const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
-      width: '90vw',
-      disableClose: false
-    });
+const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
+  width: '720px', // oppure '60vw'
+  maxHeight: '90vh',
+  panelClass: 'popup-metadati-dialog'
+});
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        this.metadatiPerFile.set(file, {
-          nome_file: result.nome_file,
-          descrizione: result.descrizione,
-          quantita: result.quantita,
-          angolazione: result.angolazione
-        });
+        this.metadatiPerFile.set(file, result);
+    console.log("Metadati ricevuti da [EditContextBeforeUploadComponent]", result );
+
       }
     });
+
   }
 
 
+
+//de normalizzo le chiavi normalizzate da edit context before upload solo per la visualizzazione
+// Utility nel component
+formatKeyLabel(key: string): string {
+  return key
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, char => char.toUpperCase());
+}
 
 
 }

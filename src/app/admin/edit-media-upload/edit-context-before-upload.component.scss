@@ -1,81 +1,137 @@
+/* Contenitore principale scrollabile del dialog */
 .dialog-scroll-content {
   position: relative;
+  padding: 2rem 3rem;
   padding-top: 3rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border-radius: 12px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
 }
 
+/* Layout principale del contenuto */
 .upload-main-content {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 32px;
-  border-radius: 20px;
-  background: linear-gradient(145deg, rgba(250, 250, 250, 0.95), rgba(230, 244, 255, 0.95));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(6px);
-}
-
-.titolo-form {
-  font-size: 1.8rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 24px;
-  color: #333;
-}
-
-.form-metadata {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
-.campo-form {
-  width: 100%;
+/* Form: 2 colonne */
+.form-metadata {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 
-  ::ng-deep .mat-form-field-outline {
-    border-radius: 8px;
+  mat-form-field:nth-child(2),
+  mat-form-field:nth-child(4) {
+    grid-column: 1 / -1;
   }
 
-  ::ng-deep .mat-form-field-infix {
-    padding: 0.8rem 0.75rem;
-  }
-
-  ::ng-deep textarea.mat-input-element {
-    resize: vertical;
+  mat-form-field {
+    width: 100%;
   }
 }
 
-.bottoni-form {
+/* Sezione metadati dinamici */
+.dynamic-metadata-section {
+  grid-column: 1 / -1;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+}
 
-  button {
-    min-width: 120px;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 10px 20px;
-    border-radius: 8px;
+/* Coppia chiave-valore + bottone rimozione */
+.metadata-pair {
+  display: grid;
+  grid-template-columns: 0.4fr 0.6fr auto;
+  gap: 1rem;
+  align-items: center;
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  .delete-metadata {
+    justify-self: end;
+    align-self: center;
+    font-size: 20px;
+    color: red;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+      color: darkred;
+    }
+  }
+
+  /* Se il campo chiave è duplicato */
+  &.duplicata mat-form-field:first-child {
+    .mat-form-field-outline {
+      color: red;
+      border-color: red !important;
+    }
+
+    .mat-input-element {
+      border-color: red !important;
+    }
+
+    .errore-duplicato {
+      color: red;
+      font-size: 12px;
+      margin-top: 4px;
+    }
   }
 }
 
+/* Pulsante "Aggiungi metadato" */
+.add-metadata-btn {
+  grid-column: 1 / -1;
+  align-self: flex-start;
+  font-weight: 600;
+  color: #1976d2;
+  background-color: #e3f2fd;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #bbdefb;
+  }
+}
+
+/* Pulsanti finali */
+.bottoni-form {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Pulsante di chiusura */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: none; // niente sfondo
-  border: none;     // nessun bordo
-  box-shadow: none; // nessuna ombra
-  padding: 0;       // rimuove padding
-  margin: 0;
+  background: transparent;
+  border: none;
   cursor: pointer;
-  z-index: 10000;
-  line-height: 1;
-  height: auto;
-  width: auto;
-
+  padding: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 10000;
 
   mat-icon {
     font-size: 24px;
@@ -88,18 +144,20 @@
   }
 }
 
+/* Blur disattivazione */
+.blur {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
 
-@media (max-width: 600px) {
-  .upload-main-content {
-    padding: 20px;
-    box-shadow: none;
-  }
-
-  .bottoni-form {
-    flex-direction: column;
-
-    button {
-      width: 100%;
-    }
-  }
+/* Dialog container ottimizzato */
+::ng-deep .mat-dialog-container {
+  overflow-x: hidden !important;
+  max-width: 90vw;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  padding: 0 !important;
+  border-radius: 16px;
+  box-sizing: border-box;
 }

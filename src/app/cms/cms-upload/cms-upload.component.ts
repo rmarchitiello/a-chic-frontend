@@ -45,7 +45,7 @@ export interface ContextDataCloudinary {
 
 export interface CloudinaryDataUpload {
   folder: string;
-  context: ContextDataCloudinary;
+  context: { [key: string]: string }; // metadati totalmente dinamici, prima prevedeva nome_file quantita angolazione descrizione, ora aggiungiamo prezzo iniziale prezzo altezza materiale e cosi via..
 }
 
 

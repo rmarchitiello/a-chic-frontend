@@ -79,12 +79,14 @@
 
 
           <!-- Metadati visibili -->
+          <!-- Metadati dinamici -->
           <div class="file-metadata" *ngIf="metadatiPerFile.has(file)">
-            <div><strong>Nome:</strong> {{ metadatiPerFile.get(file)?.nome_file }}</div>
-            <div><strong>Descrizione:</strong> {{ metadatiPerFile.get(file)?.descrizione || '—' }}</div>
-            <div><strong>Quantità:</strong> {{ metadatiPerFile.get(file)?.quantita }}</div>
-            <div><strong>Angolazione:</strong> {{ metadatiPerFile.get(file)?.angolazione }}</div>
+            <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">
+              <strong>{{ formatKeyLabel(chiave.key) }}:</strong> {{ chiave.value || '—' }}
+            </div>
           </div>
+
+
 
           <!-- Azioni -->
           <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">✖</button>
