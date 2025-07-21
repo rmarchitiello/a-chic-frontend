@@ -71,7 +71,7 @@
                statoUpload.get(file) === 'ko' ? 'red' : 'black'
       }" [matTooltip]="statoUpload.get(file) === 'ko' ? motiviErroreUpload.get(file) : null"
             matTooltipPosition="above">
-            {{ file.name }}
+            
             <ng-container *ngIf="statoUpload.get(file) === 'ok'">✅</ng-container>
             <ng-container *ngIf="statoUpload.get(file) === 'ko'">❌</ng-container>
           </span>
