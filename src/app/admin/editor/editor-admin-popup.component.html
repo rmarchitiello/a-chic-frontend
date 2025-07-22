@@ -1,29 +1,9 @@
-<div class="popup-wrapper">
-  <div class="carosello-container">
-    <!-- Pulsante di chiusura in alto a destra -->
-    <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
-      <mat-icon>close</mat-icon>
-    </button>
-
-
-    <h2 class="titolo">Gestisci i contenuti: carosello</h2>
-
-    <div class="bottoni-centrati">
-      <button mat-icon-button class="bottone add" matTooltip="Clicca qui per caricare un media"
-        (click)="apriPopUpCaricaMedia()">
-        <mat-icon>add</mat-icon>
-      </button>
-
-      <button mat-icon-button class="bottone download" matTooltip="Clicca qui per scaricare un media"
-        (click)="apriPopUpDownloadMedia()">
-        <mat-icon>download</mat-icon>
-      </button>
-
-      <button mat-icon-button class="bottone delete" matTooltip="Clicca qui per cancellare un media"
-        (click)="apriPopUpEliminaMedia()">
-        <mat-icon>delete</mat-icon>
-      </button>
-
+<div class="download-dialog-content">
+  <div class="preview-container">
+    <!-- Mostra solo immagini frontali, in card affiancate -->
+    <div class="preview-card" *ngFor="let url of getMediaUrlsFrontale(mediasInput)">
+      <img [src]="url" alt="Immagine frontale" class="preview-image" />
+      <p class="image-url">{{ url }}</p>
     </div>
   </div>
 </div>

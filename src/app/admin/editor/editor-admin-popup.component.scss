@@ -1,42 +1,71 @@
-:host {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
+// Contenitore principale dello scroll del popup editor
+.editor-dialog-content {
+  padding: 2rem;
+  position: relative;
+  overflow-y: auto;             // Scroll verticale se necessario
+  overflow-x: hidden;           // Blocca lo scroll orizzontale per evitare scrollbar sotto
+  max-height: 85vh;             // Altezza massima visibile del contenuto del popup
+
+  // Sezione griglia per visualizzare le immagini frontali
+  .frontali-grid {
+    display: flex;              // Disposizione flessibile degli elementi (immagini)
+    flex-wrap: wrap;            // Permette di andare a capo se non c'è spazio
+    gap: 1rem;                  // Spazio tra le immagini
+    justify-content: center;    // Centra orizzontalmente le immagini nella griglia
+    margin-bottom: 2rem;        // Spazio sotto la griglia
+
+    // Card singola per ogni immagine frontale
+    .image-wrapper {
+      background: #fff;                           // Sfondo bianco
+      border: 1px solid #ddd;                     // Bordo sottile grigio chiaro
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);   // Leggera ombra per profondità
+      padding: 0.75rem;                           // Spaziatura interna
+      border-radius: 12px;                        // Angoli arrotondati
+      width: 160px;                               // Larghezza fissa della card
+      text-align: center;                         // Centra contenuto (immagine + URL)
+      transition: transform 0.3s ease;            // Transizione fluida su hover
+
+      // Effetto visivo al passaggio del mouse
+      &:hover {
+        transform: scale(1.03);                   // Leggero zoom
+        cursor: pointer;                          // Mostra puntatore come cliccabile
+      }
+
+      // Immagine visualizzata nella card
+      img {
+        width: 100%;                              // Immagine larga quanto la card
+        height: 120px;                            // Altezza fissa
+        object-fit: cover;                        // Ritaglia l'immagine mantenendo proporzioni
+        border-radius: 8px;                       // Arrotondamento angoli immagine
+      }
+
+      // URL o descrizione visualizzata sotto l'immagine
+      p {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #333;
+        word-break: break-word;                   // Evita overflow del testo
+      }
+    }
+  }
+
+  // Messaggio visualizzato se non ci sono immagini frontali
+  .no-frontali-message {
+    text-align: center;
+    color: #777;
+    font-size: 1rem;
+    padding: 2rem 1rem;
+
+    mat-icon {
+      font-size: 36px;
+      color: #aaa;
+      margin-bottom: 0.5rem;
+    }
+  }
 }
 
-// Wrapper esterno che prende tutto lo spazio
-.popup-wrapper {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: transparent;
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-// Contenitore effettivo del popup
-.carosello-container {
-  width: 100%;
-  max-width: 520px;
-  height: auto;
-  padding: 3rem 2rem;
-  background-color: #ffffff;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative; // necessaria per il posizionamento assoluto del tasto chiusura
-  box-sizing: border-box;
-}
-
-// Pulsante di chiusura (in alto a destra)
+// Pulsante di chiusura (in alto a destra del popup)
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -60,85 +89,7 @@
   }
 }
 
-// Titolo
-.titolo {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 0.5rem;
+// Override del contenitore di Angular Material per evitare lo scroll orizzontale globale
+::ng-deep .mat-dialog-container {
+  overflow-x: hidden !important;   // Blocco scroll laterale anche nel contenitore dialog principale
 }
-
-// Sottotitolo
-.sottotitolo {
-  font-size: 1.05rem;
-  color: #555;
-  margin-bottom: 2rem;
-}
-
-// Contenitore dei bottoni
-.bottoni-centrati {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-// Stile base bottoni
-// Stile base bottoni
-.bottone {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  padding: 0;
-  cursor: pointer; //
-  mat-icon {
-    font-size: 30px;
-    line-height: 1;
-    vertical-align: middle;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
-
-
-// Colori bottoni
-.bottone.add {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-
-  &:hover {
-    background-color: #c8e6c9;
-  }
-}
-
-.bottone.download {
-  background-color: #e3f2fd;
-  color: #1565c0;
-
-  &:hover {
-    background-color: #bbdefb;
-  }
-}
-
-.bottone.delete {
-  background-color: #ffebee;
-  color: #c62828;
-
-  &:hover {
-    background-color: #ffcdd2;
-  }
-}
-
-

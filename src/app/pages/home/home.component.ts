@@ -42,11 +42,15 @@ export interface MediaContext {
   type?: 'image' | 'video' | 'audio';
   descrizione: string;
   quantita: string;
-
   // altri metadati dinamici: prezzo, materiale, colore, ecc.
   [key: string]: string | undefined;
 }
 
+
+export interface MediaItems {
+    context: MediaContext
+    media: MediaMeta[]
+}
 
 
 /**
@@ -368,18 +372,115 @@ if (creazioniKey) {
   }
 
   /* Uso questo metodo dove voglio per editare il contenuto dei media di quella*/
-  apriPopUpEditorAdmin(): void {
-    console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
-    this.dialog.open(EditorAdminPopUpComponent, {
-      width: '90vw',
-      disableClose: false,
-      data: this.carosello, //ovviamente ora sto passando il carosello ma questo deve essere dinamico in base a cosa voglio editare
-      panelClass: 'popup-edit-admin',
-      backdropClass: 'popup-edit-admin' // importante per lo sfondo trasparente
-    });
+  /* come funzionano i pop up
+  
+  Quanod apro un pop up nel mio home component html viene generato un <div class="cdk-overlay-pane popup-edit-admin"> con un   <div class="mat-dialog-container">
+
+  ovvero questo templattino qua 
+ <div class="cdk-overlay-pane popup-edit-admin">
+  <div class="mat-dialog-container">
+    <!-- il tuo template -->
+  </div>
+</div>
+Ora quando indico un panelClass quindi una classe personalizzata devo scrivere nel scss home component 
+  🔍 ::ng-deep .popup-edit-admin .mat-dialog-container { ... }
+il che vuol dire :
+
+::ng-deep
+→ Dice ad Angular:
+“Applica questi stili anche ai componenti figli, anche se sono incapsulati.”
+(Serve perché Angular normalmente isola gli stili di ogni componente.)
+
+.popup-edit-admin
+→ È la classe personalizzata che hai specificato in panelClass quando hai aperto il dialog. Cioe non la definisco nel mio scss ma:
+“Quando crei il popup, aggiungi la classe popup-edit-admin al contenitore principale del dialog.”
+Ottenendo quest html:
+
+<div class="cdk-overlay-pane popup-edit-admin">
+  <mat-dialog-container>
+    <!-- Qui dentro c'è il tuo template -->
+  </mat-dialog-container>
+</div>
 
 
-  }
+.mat-dialog-container
+→ È il contenitore interno usato da Angular Material per il contenuto del dialog.
+Tu non lo scrivi, ma Angular Material lo crea automaticamente.
+
+ORA LA PARTE IMPORTANTE E MAT-DIALOG-CONTAINER PERCHE LI ASSEGNAMO LA CLASSE 
+/* Stili per il contenitore esterno del dialog: cdk-overlay-pane */
+//      ::ng-deep .popup-edit-admin {
+//          display: flex !important;
+//          justify-content: center;
+//          align-items: center;
+//          background: rgba(0, 0, 0, 0.6); /* Sfondo scuro se vuoi */
+//}
+
+/* Stili per il contenitore interno del contenuto del dialog */
+//  ::ng-deep .popup-edit-admin .mat-dialog-container {
+//      width: 90vh !important;
+//      height: 90vh !important;
+//      max-width: 100vw !important;
+//      max-height: 100vh !important;
+//      border-radius: 20px;
+//      background-color: white;
+//      padding: 2rem;
+//      overflow: auto;
+//      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+//}
+
+  /*quindi con il primo stile sto dicendo ng deep definisco la classe popup-edit-admin questa classe per poi fare 
+  ::ng-deep .popup-edit-admin .mat-dialog-container { CIOE IL MATDIALOG CONTAINER DI POP UP EDIT ADMIN DEVE ESSERE COSI
+PER DEFINIRE POI IL MIO POP UP <div class="cdk-overlay-pane popup-edit-admin">
+  <mat-dialog-container class="mat-dialog-container">
+    <!-- Qui va il tuo componente -->
+  </mat-dialog-container>
+</div>
+MAGARI PER DARE UNA BORDATURA ECC
+
+se non metto panel class non posso dire il pop up lo voglio quadrato
+
+in definitiva popup-admin-color  quando viene passato serve per settare il contenitore del pop up se quello e piccolo tutto il pop up sara piccolo
+e quindi si fa questa cosa:
+
+::ng-deep .popup-admin-color {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.6); // Sfondo dietro la modale
+  padding: 1rem; // Importante per evitare che il contenitore tocchi i bordi
+  box-sizing: border-box;
+}
+
+
+
+*/
+apriPopUpEditorAdmin(): void {
+  // Log utile per debugging: mostra i dati del carosello che stai passando al popup
+  console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
+
+  // Apertura del dialog (popup) Angular Material
+  this.dialog.open(EditorAdminPopUpComponent, {
+    // Se impostato su true, l'utente NON può chiudere il popup cliccando fuori o premendo ESC
+    // In questo caso lo lasciamo su false per consentire la chiusura standard
+    disableClose: false,
+
+    // Dati da passare al componente del popup, in questo caso il carosello
+    data: this.carosello,
+
+    // Classe personalizzata per applicare stili personalizzati al dialog
+    // Questa classe viene usata nel file SCSS con ::ng-deep .popup-admin-editor
+    panelClass: 'popup-admin-editor',
+
+    // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
+     width: '100vw',
+     height: '100vh',
+     maxWidth: '100vw',
+    autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
+  });
+}
+
+
 
 
 
