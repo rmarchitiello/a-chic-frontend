@@ -37,34 +37,36 @@
       </mat-form-field>
 
       <!-- Metadati dinamici -->
-      <div class="dynamic-metadata-section" *ngFor="let metadato of altriMetadati; let i = index">
-        <div class="metadata-pair" [ngClass]="{ 'duplicata': isChiaveDuplicata(i) }">
+        <div class="dynamic-metadata-section" *ngFor="let metadato of altriMetadati; let i = index">
+          <div class="metadata-pair" [ngClass]="{ 'duplicata': isChiaveDuplicata(i) }">
 
-          <!-- Campo chiave -->
-          <mat-form-field appearance="outline" floatLabel="always">
-            <mat-label>Chiave</mat-label>
-            <input matInput [(ngModel)]="metadato.key" [name]="'chiave_' + i" placeholder="es. prezzo" />
-            <div *ngIf="isChiaveDuplicata(i)" class="errore-duplicato">
-              Chiave già presente
-            </div>
-          </mat-form-field>
+            <!-- Campo chiave -->
+            <mat-form-field appearance="outline" floatLabel="always">
+              <mat-label>Chiave</mat-label>
+              <input matInput [(ngModel)]="metadato.key" [name]="'chiave_' + i" placeholder="es. prezzo" />
+              <div *ngIf="isChiaveDuplicata(i)" class="errore-duplicato">
+                Chiave già presente
+              </div>
+            </mat-form-field>
 
-          <!-- Campo valore dinamico -->
-          <mat-form-field appearance="outline" floatLabel="always">
-            <mat-label>Valore</mat-label>
-            <input matInput [type]="isNumericKey(metadato.key) ? 'number' : 'text'" [(ngModel)]="metadato.value"
-              [name]="'valore_' + i" [placeholder]="isNumericKey(metadato.key) ? 'es. 29.90' : 'es. pelle'" />
-          </mat-form-field>
+            <!-- Campo valore dinamico -->
+            <mat-form-field appearance="outline" floatLabel="always">
+              <mat-label>Valore</mat-label>
+              <input matInput [type]="isNumericKey(metadato.key) ? 'number' : 'text'" [(ngModel)]="metadato.value"
+                [name]="'valore_' + i" [placeholder]="isNumericKey(metadato.key) ? 'es. 29.90' : 'es. pelle'" />
+            </mat-form-field>
 
-          <!-- Rimuovi -->
-          <button mat-icon-button color="warn" type="button" (click)="rimuoviMetadato(i)" matTooltip="Rimuovi metadato">
-            <mat-icon>delete</mat-icon>
-          </button>
+            <!-- Rimuovi -->
+            <button mat-icon-button color="warn" type="button" (click)="rimuoviMetadato(i)"
+              matTooltip="Rimuovi metadato">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </div>
-      </div>
+
 
       <!-- Aggiungi -->
-      <button mat-stroked-button color="primary" type="button" class="add-metadata-btn" (click)="aggiungiMetadato()">
+      <button mat-stroked-button *ngIf="context['angolazione'] != 'altra'" color="primary" type="button" class="add-metadata-btn" (click)="aggiungiMetadato()">
         + Aggiungi metadato
       </button>
 
