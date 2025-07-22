@@ -10,7 +10,6 @@ import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-dat
 import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
 import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
 import { MediaCollection } from '../../pages/home/home.component';
-import { EditDataAdminComponent } from '../common/edit-data-admin/edit-data-admin.component';
 @Component({
   selector: 'app-carosello-edit',
   templateUrl: './editor-admin-popup.component.html',
@@ -127,20 +126,7 @@ apriPopUpDownloadMedia(): void {
   });
   }
 
-  apriPopUpModificaMedia(): void {
-  // Recupero l'URL dell'immagine attualmente selezionata
-  const mediaDaModificare = this.mediaInput;
-  console.log("Media da modificare: ", mediaDaModificare)
-  // Apro il dialog di conferma eliminazione, passando l'URL al componente figlio
-  const dialogRef = this.dialog.open(EditDataAdminComponent, {
-    width: '90vw',
-    disableClose: false,
-    data: mediaDaModificare
-  });
 
-
-  
-}
 
 
 

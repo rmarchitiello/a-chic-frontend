@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { EditDataAdminComponent } from './edit-data-admin.component';
 
-describe('EditDataAdminComponent', () => {
+describe('EditMediaUploadComponent', () => {
   let component: EditDataAdminComponent;
   let fixture: ComponentFixture<EditDataAdminComponent>;
 
