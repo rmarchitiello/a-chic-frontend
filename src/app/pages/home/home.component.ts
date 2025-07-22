@@ -31,24 +31,23 @@ import { EditAdminPopUpComponent } from '../../admin/edit/edit-admin-popup.compo
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
  * Include l'URL e l'angolazione dell'asset.
  */
-export interface MediaAsset {
+export interface MediaMeta {
   url: string;              // URL diretto al file su Cloudinary
   angolazione: string;      // Es. 'frontale', 'laterale', 'retro'
-  format?: string;          // Facoltativo: estensione (es. jpg, mp4)
 }
 
 
-/**
- * Descrive un media (una borsa, un video, un audio, ecc.) con tutti i suoi metadati.
- * Ogni media può avere più angolazioni (MediaAsset[]).
- */
-export interface MediaItem {
-  display_name: string;                    // Nome logico del media (es. "carosello1")
-  type?: 'image' | 'video' | 'audio';      // Tipo del media (dedotto dal file)
-  descrizione: string;                     // Descrizione testuale dell’elemento
-  quantita: string;                        // Quantità disponibile (se applicabile)
-  meta: MediaAsset[];                      // Lista delle angolazioni (es. frontale, laterale...)
+/* Sono gli attributi ovvero i metadata su cloudinary*/
+export interface MediaContext {
+  display_name: string;
+  type?: 'image' | 'video' | 'audio';
+  descrizione: string;
+  quantita: string;
+
+  // altri metadati dinamici: prezzo, materiale, colore, ecc.
+  [key: string]: string | undefined;
 }
+
 
 
 /**
@@ -56,47 +55,55 @@ export interface MediaItem {
  * Oggetto principale per ogni sezione (es. Carosello, Recensioni, Video in evidenza).
  */
 export interface MediaCollection {
-  folder: string;            // Path Cloudinary della cartella (es. "Config/Home/Carosello")
-  media: MediaItem[];        // Elenco di media da mostrare nella UI
+  folder: string;
+  items: {
+    context: MediaContext;
+    media: MediaMeta[];
+  }[];
 }
+
 
 
 /*
  * ESEMPIO JSON corrispondente:
-
+Quindi per ogni folder (chiave) ho piu items ovvero piu metadata e media di quell immagine i media rappresentano le angolazioni mentre context i metadati
+Gli items contengono tutti i media con i metadati e poi in media ci sono le avrie angolazioni
 {
-  "folder": "Config/Home/Carosello",
-  "media": [
+  "folder": "Config/Home/Recensioni",
+  "items": [
     {
-      "display_name": "carosello1",
-      "type": "image",
-      "descrizione": "Borsa con dettagli dorati",
-      "quantita": "5",
-      "meta": [
+      "context": {
+        "display_name": "Recensione 1",
+        "descrizione": "Una recensione positiva",
+        "quantita": "0",
+        "autore": "Cliente A"
+      },
+      "media": [
         {
-          "url": "https://res.cloudinary.com/.../image1.jpg",
+          "url": "https://res.cloudinary.com/demo/image/upload/v1/recensione1.jpg",
           "angolazione": "frontale"
-        },
-        {
-          "url": "https://res.cloudinary.com/.../image2.jpg",
-          "angolazione": "laterale"
         }
       ]
     },
     {
-      "display_name": "carosello2",
-      "type": "image",
-      "descrizione": "Modello nuovo estate",
-      "quantita": "3",
-      "meta": [
+      "context": {
+        "display_name": "Recensione 2",
+        "descrizione": "Altra testimonianza",
+        "quantita": "0",
+        "autore": "Cliente B"
+      },
+      "media": [
         {
-          "url": "https://res.cloudinary.com/.../image3.jpg",
+          "url": "https://res.cloudinary.com/demo/image/upload/v1/recensione2.jpg",
           "angolazione": "frontale"
         }
       ]
     }
   ]
 }
+
+
+
 */
 
 
@@ -131,10 +138,28 @@ export interface MediaCollection {
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   isAdmin = false;
 
-  carosello: MediaCollection[] = [];
-  recensioni: MediaCollection[] = [];
-  modelliInEvidenza: MediaCollection[] = [];
-  creazioni: MediaCollection[] = [];
+carosello: MediaCollection = {
+  folder: '',
+  items: []
+};
+
+
+recensioni: MediaCollection = {
+  folder: '',
+  items: []
+};
+
+modelliInEvidenza: MediaCollection = {
+  folder: '',
+  items: []
+};
+
+creazioni: MediaCollection = {
+  folder: '',
+  items: []
+};
+
+
 
   currentIndex = 0;
   currentRecensioneIndex = 0;
@@ -212,91 +237,100 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // Trasformo i dati del carosello raggruppando tutte le angolazioni (meta[]) per ogni media
         // Ricostruisco this.carosello come un array di un solo oggetto MediaCollection
-        if(caroselloKey){
-        this.carosello = [
-          {
-            folder: 'Config/Home/Carosello',
-            media: (data[caroselloKey] || []).map((item: any) => ({
-              display_name: item.display_name,
-              descrizione: item.descrizione,
-              quantita: item.quantita,
-              type: this.detectType(item.meta?.[0]?.url || ''),
-              meta: (item.meta || []).map((meta: any) => ({
-                url: meta.url,
-                angolazione: meta.angolazione || 'default'
-              }))
-            }))
-          }
-        ];
+if (caroselloKey) {
+  this.carosello = {
+    folder: 'Config/Home/Carosello',
+    items: (data[caroselloKey] || []).map((item: any) => ({
+      context: {
+        display_name: item.display_name,
+        descrizione: item.descrizione,
+        quantita: item.quantita,
+        type: this.detectType(item.meta?.[0]?.url || ''),
+        ...item
+      },
+      media: (item.meta || []).map((meta: any) => ({
+        url: meta.url,
+        angolazione: meta.angolazione || 'default'
+      }))
+    }))
+  };
+}
+
+
+
+        console.log("[HomeComponent] -  Carosello Immagini ", JSON.stringify(this.carosello));
+        if (recensioniKey) {
+
+this.recensioni = {
+  folder: 'Config/Recensioni',
+  items: (data[recensioniKey] || []).map((item: any) => ({
+    context: {
+      display_name: item.display_name,
+      descrizione: item.descrizione,
+      quantita: item.quantita,
+      type: this.detectType(item.meta?.[0]?.url || ''),
+      ...item
+    },
+    media: (item.meta || []).map((meta: any) => ({
+      url: meta.url,
+      angolazione: meta.angolazione || 'default'
+    }))
+  }))
+};
+
+
         }
-
-
-        console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
-        if(recensioniKey){
-
-        this.recensioni = [
-          {
-            folder: 'Config/Recensioni',
-            media: (data[recensioniKey] || []).map((item: any) => ({
-              display_name: item.display_name,
-              descrizione: item.descrizione,
-              quantita: item.quantita,
-              type: this.detectType(item.meta?.[0]?.url || ''),
-              meta: (item.meta || []).map((meta: any) => ({
-                url: meta.url,
-                angolazione: meta.angolazione || 'default'
-              }))
-            }))
-          }
-        ];
-      }
 
 
         console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
 
-      if(modelliEvidenzaKey){
-        this.modelliInEvidenza = [
-          {
-            folder: 'Config/Home/Video',
-            media: (data[modelliEvidenzaKey] || []).map((item: any) => ({
-              display_name: item.display_name,
-              descrizione: item.descrizione,
-              quantita: item.quantita,
-              type: this.detectType(item.meta?.[0]?.url || ''),
-              meta: (item.meta || []).map((meta: any) => ({
-                url: meta.url,
-                angolazione: meta.angolazione || 'default'
-              }))
-            }))
-          }
-        ];
-      }
+if (modelliEvidenzaKey) {
+  this.modelliInEvidenza = {
+    folder: 'Config/Home/Video',
+    items: (data[modelliEvidenzaKey] || []).map((item: any) => ({
+      context: {
+        display_name: item.display_name,
+        descrizione: item.descrizione,
+        quantita: item.quantita,
+        type: this.detectType(item.meta?.[0]?.url || ''),
+        ...item
+      },
+      media: (item.meta || []).map((meta: any) => ({
+        url: meta.url,
+        angolazione: meta.angolazione || 'default'
+      }))
+    }))
+  };
+}
+
 
 
 
         console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
 
 
-        if(creazioniKey){
-        this.creazioni = [
-          {
-            folder: 'Config/Home/MieCreazioni',
-            media: (data[creazioniKey] || []).map((item: any) => ({
-              display_name: item.display_name,
-              descrizione: item.descrizione,
-              quantita: item.quantita,
-              type: this.detectType(item.meta?.[0]?.url || ''),
-              meta: (item.meta || []).map((meta: any) => ({
-                url: meta.url,
-                angolazione: meta.angolazione || 'default'
-              }))
-            }))
-          }
-        ];
-        }
+if (creazioniKey) {
+  this.creazioni = {
+    folder: 'Config/Home/MieCreazioni',
+    items: (data[creazioniKey] || []).map((item: any) => ({
+      context: {
+        display_name: item.display_name,
+        descrizione: item.descrizione,
+        quantita: item.quantita,
+        type: this.detectType(item.meta?.[0]?.url || ''),
+        ...item
+      },
+      media: (item.meta || []).map((meta: any) => ({
+        url: meta.url,
+        angolazione: meta.angolazione || 'default'
+      }))
+    }))
+  };
+}
+
         // Trasformo i dati della sezione "Mie Creazioni" in un unico oggetto MediaCollection
 
-        
+
         console.log("[HomeComponent] -  creazioni  ", this.creazioni);
 
 
@@ -370,17 +404,20 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.mostraContenutoDopoCarosello = window.scrollY > soglia;
   }
 
-  nextImage(): void {
-    if (this.carosello.length === 0 || this.carosello[0].media.length === 0) return;
-    const total = this.carosello[0].media.length;
-    this.currentIndex = (this.currentIndex + 1) % total;
-  }
+  //gli items sono i media ovvero contengono i metadati piu i media ovvero le url vere e proprie
+nextImage(): void {
+  if (!this.carosello || this.carosello.items.length === 0) return;
+  const total = this.carosello.items.length;
+  this.currentIndex = (this.currentIndex + 1) % total;
+}
 
-  nextRecensione(): void {
-    if (this.recensioni.length === 0 || this.recensioni[0].media.length === 0) return;
-    const total = this.recensioni[0].media.length;
-    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
-  }
+
+nextRecensione(): void {
+  if (!this.recensioni || this.recensioni.items.length === 0) return;
+  const total = this.recensioni.items.length;
+  this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
+}
+
 
 
   ngOnDestroy(): void {
@@ -390,21 +427,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
 
-  //di immagine cloduinary ottengo solo quelle con angolazione frontale
-  getMediaFrontale(mediaItems: MediaItem[]): MediaAsset | null {
-    const item = mediaItems.find(m =>
-      m.meta?.some(asset => asset.angolazione?.toLowerCase() === 'frontale')
-    );
-    return item?.meta.find(asset => asset.angolazione?.toLowerCase() === 'frontale') || null;
-  }
+  //Entra un array di Meta ed esce solo quello frontale ovvero la url
+getMediaFrontale(mediaItems: MediaMeta[]): string | null {
+  return mediaItems.find(asset => asset.angolazione?.toLowerCase() === 'frontale')?.url || null;
+}
 
-  //controllo se esitono media per non far andare ngFor in errore
-  hasMedia(collection: any[]): boolean {
-    return Array.isArray(collection)
-      && collection.length > 0
-      && Array.isArray(collection[0]?.media)
-      && collection[0].media.length > 0;
-  }
+
+// Controllo se esistono media per non far andare ngFor in errore
+hasMedia(media: MediaMeta[]): boolean {
+  return Array.isArray(media) && media.length > 0;
+}
+
 
 
 }

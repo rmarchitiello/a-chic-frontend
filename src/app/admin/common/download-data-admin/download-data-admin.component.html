@@ -2,10 +2,7 @@
 <div mat-dialog-content class="download-dialog-content">
 
   <!-- Pulsante chiudi -->
-  <button mat-icon-button class="chiudi-btn"
-          
-          *ngIf="!downloadInCorso && !checkDataIsEmpty"
-          (click)="chiudiPopUp()">
+  <button mat-icon-button class="chiudi-btn" *ngIf="!downloadInCorso && !checkDataIsEmpty" (click)="chiudiPopUp()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -19,59 +16,52 @@
   <ng-container *ngIf="!checkDataIsEmpty; else noData">
     <div class="preview-container" [class.blur]="downloadInCorso">
 
-      <ng-container *ngFor="let media of mediaInput">
+      <ng-container *ngFor="let m of mediaInput.items">
         <div class="preview-wrapper card-multiview">
 
           <div class="preview-multi">
 
             <!-- Tasto PREV -->
-            <button *ngIf="getMediaNoFrontale(media).length > 0"
-                    mat-icon-button
-                    class="prev-btn"
-                    
-                    (click)="prevImage(media.display_name)">
+            <button *ngIf="getMediaNoFrontale(m.media).length > 0" mat-icon-button class="prev-btn"
+              (click)="prevImage(m.context.display_name)">
               <mat-icon>chevron_left</mat-icon>
             </button>
 
             <!-- Immagine attiva -->
-            <ng-container *ngIf="getActiveAsset(media.display_name) as active">
+            <ng-container *ngIf="getActiveAsset(m.context.display_name) as active">
               <div class="media-item">
 
-                <img *ngIf="media.type === 'image'" [src]="active.url" alt="preview" class="preview-img" />
-                <video *ngIf="media.type === 'video'" [src]="active.url" autoplay muted loop playsinline class="preview-img"></video>
-                <audio *ngIf="media.type === 'audio'" [src]="active.url" autoplay class="preview-audio"></audio>
+                <img *ngIf="m.context.type === 'image'" [src]="active" alt="preview" class="preview-img" />
+                <video *ngIf="m.context.type === 'video'" [src]="active" autoplay muted loop playsinline
+                  class="preview-img"></video>
+                <audio *ngIf="m.context.type === 'audio'" [src]="active" autoplay class="preview-audio"></audio>
 
                 <!-- Bottone download -->
-                <button mat-icon-button
-                        class="download-btn"
-                        
-                        (click)="downloadSingoloAsset(active, media.display_name)">
+                <button mat-icon-button class="download-btn" (click)="downloadSingoloAsset(active, m.context.display_name)">
                   <mat-icon>download</mat-icon>
                 </button>
               </div>
             </ng-container>
 
             <!-- Altre angolazioni (sovrapposte) -->
-            <ng-container *ngFor="let extra of getMediaNoFrontale(media)">
+            <ng-container *ngFor="let extra of getMediaNoFrontale(m.media)">
               <div class="media-item extra-angle">
-                <img *ngIf="media.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
-                <video *ngIf="media.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>
-                <audio *ngIf="media.type === 'audio'" [src]="extra.url" autoplay class="preview-audio"></audio>
+                <img *ngIf="m.context.type" [src]="extra" alt="extra" class="preview-img" />
+                <video *ngIf="m.context.type === 'video'" [src]="extra" autoplay muted loop playsinline
+                  class="preview-img"></video>
+                <audio *ngIf="m.context.type === 'audio'" [src]="extra" autoplay class="preview-audio"></audio>
               </div>
             </ng-container>
 
             <!-- Tasto NEXT -->
-            <button *ngIf="getMediaNoFrontale(media).length > 0"
-                    mat-icon-button
-                    class="next-btn"
-                    
-                    (click)="nextImage(media.display_name)">
+            <button *ngIf="getMediaNoFrontale(m.media).length > 0" mat-icon-button class="next-btn"
+              (click)="nextImage(m.context.display_name)">
               <mat-icon>chevron_right</mat-icon>
             </button>
           </div>
 
           <!-- Nome file -->
-          <p>{{ media.display_name }}</p>
+          <p>{{ m.context.display_name }}</p>
         </div>
       </ng-container>
 
@@ -88,16 +78,9 @@
 </div>
 
 <!-- Azioni -->
-<div mat-dialog-actions
-     class="download-dialog-actions"
-     align="end"
-     [class.blur]="downloadInCorso"
-     *ngIf="!checkDataIsEmpty">
-  <button mat-flat-button
-          color="warn"
-          type="button"
-          
-          (click)="downloadTutti()">
+<div mat-dialog-actions class="download-dialog-actions" align="end" [class.blur]="downloadInCorso"
+  *ngIf="!checkDataIsEmpty">
+  <button mat-flat-button color="warn" type="button" (click)="downloadTutti()">
     Scarica tutto
   </button>
 </div>

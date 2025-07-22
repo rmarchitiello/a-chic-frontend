@@ -2,8 +2,7 @@
 <div mat-dialog-content class="delete-dialog-content">
 
   <!-- Pulsante chiudi -->
-  <button mat-icon-button class="chiudi-btn"  *ngIf="!eliminazioneInCorso && !checkDataIsEmpty"
-    (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" *ngIf="!eliminazioneInCorso && !checkDataIsEmpty" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -15,67 +14,81 @@
 
   <!-- Se ci sono media -->
   <ng-container *ngIf="!checkDataIsEmpty; else noData">
-    <div class="preview-container" [class.blur]="eliminazioneInCorso">
+  <div class="preview-container" [class.blur]="eliminazioneInCorso">
 
-      <ng-container *ngFor="let media of mediaInput; let i = index">
-        <div *ngIf="!media.inEliminazione"
-             class="preview-wrapper card-multiview"
-             [ngClass]="{ 'errore': media.erroreEliminazione }"
-             [matTooltip]="media.dettaglioErrore || ''"
+    <ng-container *ngFor="let item of mediaInput.items">
+  <div *ngIf="!getActiveAsset(item.context.display_name)?.inEliminazione" class="preview-wrapper card-multiview">
+
+    <div class="preview-multi">
+
+      <!-- Pulsante PREV -->
+      <button *ngIf="getAllAssets(item).length > 1"
+              mat-icon-button
+              class="prev-btn"
+              (click)="prevImage(item.context.display_name)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+
+      <!-- Asset attivo -->
+      <ng-container *ngIf="getActiveAsset(item.context.display_name) as activeAsset">
+        <div class="media-item"
+             [ngClass]="{
+               'errore': activeAsset.erroreEliminazione,
+               'in-eliminazione': activeAsset.inEliminazione
+             }"
+             [matTooltip]="activeAsset.dettaglioErrore || ''"
              matTooltipPosition="above">
 
-          <div class="preview-multi">
+          <img *ngIf="item.context.type === 'image'" [src]="activeAsset.url" alt="preview" class="preview-img" />
+          <video *ngIf="item.context.type === 'video'" [src]="activeAsset.url" autoplay muted loop playsinline class="preview-img"></video>
+          <audio *ngIf="item.context.type === 'audio'" [src]="activeAsset.url" autoplay class="preview-audio"></audio>
 
-            <!-- Tasto PREV -->
-            <button *ngIf="getAllAssets(media).length > 1"
-                    mat-icon-button class="prev-btn"
-                    (click)="prevImage(media.display_name)"
-                    >
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-
-            <!-- Immagine attiva -->
-            <ng-container *ngIf="getActiveAsset(media.display_name) as active">
-              <div class="media-item">
-                <img *ngIf="media.type === 'image'" [src]="active.url" alt="preview" class="preview-img" />
-                <video *ngIf="media.type === 'video'" [src]="active.url" autoplay muted loop playsinline class="preview-img"></video>
-                <audio *ngIf="media.type === 'audio'" [src]="active.url" autoplay class="preview-audio"></audio>
-
-                <!-- Pulsante Elimina -->
-                <button mat-icon-button class="delete-current-btn"
-                        (click)="eliminaAssetSingolo(media)"
-                        
-                        color="warn">
-                  <mat-icon>delete_forever</mat-icon>
-                </button>
-              </div>
-            </ng-container>
-
-            <!-- Altre angolazioni -->
-            <ng-container *ngFor="let extra of getMediaNoFrontale(media)">
-              <div class="media-item extra-angle">
-                <img *ngIf="media.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
-                <video *ngIf="media.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>
-                <audio *ngIf="media.type === 'audio'" [src]="extra.url" autoplay class="preview-audio"></audio>
-              </div>
-            </ng-container>
-
-            <!-- Tasto NEXT -->
-            <button *ngIf="getAllAssets(media).length > 1"
-                    mat-icon-button class="next-btn"
-                    (click)="nextImage(media.display_name)"
-                    >
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-
-          <!-- Nome del file -->
-          <p>{{ media.display_name }}</p>
+          <!-- Pulsante elimina -->
+          <button mat-icon-button
+                  class="delete-current-btn"
+                  (click)="eliminaAssetSingolo(item.context.display_name)"
+                  color="warn">
+            <mat-icon>delete_forever</mat-icon>
+          </button>
         </div>
       </ng-container>
 
+      <!-- Altri asset non frontali -->
+      <ng-container *ngFor="let extra of getMediaNoFrontale(item.media)">
+        <div class="media-item extra-angle"
+             [ngClass]="{
+               'errore': extra.erroreEliminazione,
+               'in-eliminazione': extra.inEliminazione
+             }"
+             [matTooltip]="extra.dettaglioErrore || ''"
+             matTooltipPosition="above">
+          <img *ngIf="item.context.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
+          <video *ngIf="item.context.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>
+          <audio *ngIf="item.context.type === 'audio'" [src]="extra.url" autoplay class="preview-audio"></audio>
+        </div>
+      </ng-container>
+
+      <!-- Pulsante NEXT -->
+      <button *ngIf="getAllAssets(item).length > 1"
+              mat-icon-button
+              class="next-btn"
+              (click)="nextImage(item.context.display_name)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
     </div>
-  </ng-container>
+
+    <!-- Display name -->
+    <p>{{ item.context.display_name }}</p>
+  </div>
+</ng-container>
+
+
+  </div>
+</ng-container>
+
+
+
 
   <!-- Template alternativo: nessun media -->
   <ng-template #noData>
@@ -90,7 +103,7 @@
 <div mat-dialog-actions class="delete-dialog-actions" align="end" [class.blur]="eliminazioneInCorso"
   *ngIf="!checkDataIsEmpty">
   <button mat-flat-button color="warn" type="button" (click)="eliminaTuttiIMedia()">
-  Elimina tutti i media
-</button>
+    Elimina tutti i media
+  </button>
 
 </div>

@@ -26,7 +26,10 @@ import { MediaCollection } from '../../pages/home/home.component';
 })
 export class EditAdminPopUpComponent implements OnInit {
 
-mediaInput: MediaCollection[] = [];
+mediaInput: MediaCollection = {
+  folder: '',
+  items: []
+}
 
 
   displayName: string = '';
@@ -38,7 +41,7 @@ mediaInput: MediaCollection[] = [];
 
   constructor(
     //ricevo il dato dalla home
-    @Inject(MAT_DIALOG_DATA) public data: MediaCollection[],
+    @Inject(MAT_DIALOG_DATA) public data: MediaCollection,
     private dialogRef: MatDialogRef<EditAdminPopUpComponent>,
     private dialog: MatDialog
 
@@ -60,7 +63,7 @@ mediaInput: MediaCollection[] = [];
   }
 
   nextImage(): void {
-    if (this.currentIndex < this.mediaInput.length - 1) {
+    if (this.currentIndex < this.mediaInput.items.length - 1) {
       this.currentIndex++;
     }
   }
@@ -88,11 +91,11 @@ apriPopUpEliminaMedia(): void {
     if (eliminatoConSuccesso) {
 
       // Rimuovo l'immagine dall'array
-      this.mediaInput.splice(this.currentIndex, 1);
+      this.mediaInput.items.splice(this.currentIndex, 1);
 
       // Correggo l'indice se siamo alla fine dell'array
-      if (this.currentIndex >= this.mediaInput.length) {
-        this.currentIndex = Math.max(0, this.mediaInput.length - 1);
+      if (this.currentIndex >= this.mediaInput.items.length) {
+        this.currentIndex = Math.max(0, this.mediaInput.items.length - 1);
       }
     } else {
       // Opzionale: puoi loggare o gestire un messaggio se l'eliminazione è stata annullata o fallita

@@ -16,13 +16,20 @@ import {
   transition
 } from '@angular/animations';
 import { MatListModule } from '@angular/material/list';
-import { MediaItem } from '../home/home.component';
+import { MediaMeta } from '../home/home.component';
 import { CloudinaryService } from '../../services/cloudinary.service';
 
 /** Modello per ogni traccia audio */
 export interface AssetAudio {
   nome_canzone: string;
   url: string;
+}
+
+export interface MediaItem {
+  display_name: string;
+  descrizione: string | null;
+  quantita: string;
+  meta: MediaMeta[];
 }
 
 @Component({
@@ -74,46 +81,48 @@ export class AudioPlayerComponent implements OnInit {
   ) {}
 
   /* ──────────────────────────────────────────
-     ⬇︎  Inizializzo: carico audio + responsive
+      Inizializzo: carico audio + responsive
   ───────────────────────────────────────────*/
   ngOnInit(): void {
+  this.cloudinaryService.getImmagini('', true).subscribe(
+    (response: Record<string, MediaItem[]>) => {
+      // 1. Trova la cartella audio del carillon
+      const audioKey = Object.keys(response)
+        .find(k => k.toLowerCase().includes('config/carillon/audio'));
 
-    this.cloudinaryService.getImmagini('', true).subscribe(
-      (response: Record<string, MediaItem[]>) => {
-        // 1. Trovo la cartella audio del carillon
-        const audioKey = Object.keys(response)
-          .find(k => k.toLowerCase().includes('config/carillon/audio'));
+      if (!audioKey) {
+        console.warn('Nessuna cartella trovata per il carillon');
+        return;
+      }
 
-        if (!audioKey) {
-          console.warn('Nessuna cartella trovata per il carillon');
-          return;
-        }
+      // 2. Estrai (nome_canzone, url) da tutti i media
+      const tracceAudio: AssetAudio[] = response[audioKey].flatMap(item =>
+        item.meta.map(meta => ({
+          nome_canzone: item.display_name,
+          url: meta.url
+        }))
+      );
 
-        // 2. Estraggo (nome_canzone, url) da tutti i meta[]
-        this.assetCarllonAudioUrl = response[audioKey]
-          .flatMap(item =>
-            item.meta.map(meta => ({
-              nome_canzone: item.display_name,
-              url:         meta.url
-            }))
-          );
+      this.assetCarllonAudioUrl = tracceAudio;
 
-        // 3. Imposto "mobile" se viewport < 768 px
-        this.breakpointObserver
-          .observe(['(max-width: 768px)'])
-          .subscribe(result => {
-            this.isMobile = result.matches;
-          });
+      // 3. Imposta "mobile" se viewport < 768 px
+      this.breakpointObserver
+        .observe(['(max-width: 768px)'])
+        .subscribe(result => {
+          this.isMobile = result.matches;
+        });
 
-        // 4. Attivo overlay e animazione dopo il rendering
-        setTimeout(() => {
-          this.attivo = true;
-          this.panelAnimationState = 'in';
-        }, 10);
-      },
-      error => console.error('Errore caricamento audio', error)
-    ); // ← chiudo subscribe
-  }     // ← chiudo ngOnInit
+      // 4. Attiva overlay e animazione dopo il rendering
+      setTimeout(() => {
+        this.attivo = true;
+        this.panelAnimationState = 'in';
+      }, 10);
+    },
+    error => console.error('Errore caricamento audio', error)
+  );
+}
+
+
 
   /* ──────────────────────────────────────────
      ⬇︎  Chiudo il pannello con animazione
