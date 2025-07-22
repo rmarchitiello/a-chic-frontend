@@ -1,13 +1,5 @@
-//qui avrò i metodi per modificare solo il carosello 
-/* Nella home impostiamo il tasto di modifica, quel tasto di modifica chiama questo pop up 
-e poi questo component chiama il pop up dinamicamente se in abse a una cancellazione ecc chiama i pop up common*/
-
-
-/* Per l'upload per farlo piu veloce e piu efficiente uso il drag and drop
-Anche come per gli altri component ci sara il pop up di caricamento
-
-Questo component genera sempre dei tasti di upload delete download di qualche media 
-*/
+/* L'EDITOR E UN COMPONENT DOVE ALL INTERNO POSSO CANCELLARE UPLOADARE CANCELLARE EDITARE METADATI POSSO FARE TUTTO
+MOSTRA LA LISTA DI CIO CHE C E DENTRO  */
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -21,11 +13,11 @@ import { MediaCollection } from '../../pages/home/home.component';
 import { EditDataAdminComponent } from '../common/edit-data-admin/edit-data-admin.component';
 @Component({
   selector: 'app-carosello-edit',
-  templateUrl: './edit-admin-popup.component.html',
-  styleUrls: ['./edit-admin-popup.component.scss','../../../styles.scss'],
+  templateUrl: './editor-admin-popup.component.html',
+  styleUrls: ['./editor-admin-popup.component.scss','../../../styles.scss'],
   imports: [CommonModule, MatIconModule]
 })
-export class EditAdminPopUpComponent implements OnInit {
+export class EditorAdminPopUpComponent implements OnInit {
 
 mediaInput: MediaCollection = {
   folder: '',
@@ -43,7 +35,7 @@ mediaInput: MediaCollection = {
   constructor(
     //ricevo il dato dalla home
     @Inject(MAT_DIALOG_DATA) public data: MediaCollection,
-    private dialogRef: MatDialogRef<EditAdminPopUpComponent>,
+    private dialogRef: MatDialogRef<EditorAdminPopUpComponent>,
     private dialog: MatDialog
 
   ) {}

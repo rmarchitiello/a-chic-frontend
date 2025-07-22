@@ -22,8 +22,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
-import { EditAdminPopUpComponent } from '../../admin/edit/edit-admin-popup.component';
-
+import { EditorAdminPopUpComponent } from '../../admin/editor/editor-admin-popup.component';
 
 
 /* DEFINISCO LE INTERFACCE */
@@ -371,7 +370,7 @@ if (creazioniKey) {
   /* Uso questo metodo dove voglio per editare il contenuto dei media di quella*/
   apriPopUpEditorAdmin(): void {
     console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
-    this.dialog.open(EditAdminPopUpComponent, {
+    this.dialog.open(EditorAdminPopUpComponent, {
       width: '90vw',
       disableClose: false,
       data: this.carosello, //ovviamente ora sto passando il carosello ma questo deve essere dinamico in base a cosa voglio editare

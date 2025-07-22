@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditAdminPopUpComponent } from './edit-admin-popup.component';
+import { EditorAdminPopUpComponent } from './editor-admin-popup.component';
 
 describe('CaroselloEditComponent', () => {
-  let component: EditAdminPopUpComponent;
-  let fixture: ComponentFixture<EditAdminPopUpComponent>;
+  let component: EditorAdminPopUpComponent;
+  let fixture: ComponentFixture<EditorAdminPopUpComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditAdminPopUpComponent]
+      imports: [EditorAdminPopUpComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EditAdminPopUpComponent);
+    fixture = TestBed.createComponent(EditorAdminPopUpComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
