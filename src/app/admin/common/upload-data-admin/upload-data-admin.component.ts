@@ -25,7 +25,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EditContextBeforeUploadComponent } from '../edit-data-admin/edit-media-upload/edit-context-before-upload.component';
+import { EditContextBeforeUploadComponent } from '../edit-data-admin/edit-context/edit-context-before-upload.component';
+
 @Component({
   selector: 'app-upload-data-admin',
   imports: [
