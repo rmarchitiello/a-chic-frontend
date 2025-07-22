@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditMediaUploadComponent } from './edit-context-before-upload.component';
+import { EditContextComponent } from './edit-context.component';
 
 describe('EditMediaUploadComponent', () => {
-  let component: EditMediaUploadComponent;
-  let fixture: ComponentFixture<EditMediaUploadComponent>;
+  let component: EditContextComponent;
+  let fixture: ComponentFixture<EditContextComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditMediaUploadComponent]
+      imports: [EditContextComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EditMediaUploadComponent);
+    fixture = TestBed.createComponent(EditContextComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

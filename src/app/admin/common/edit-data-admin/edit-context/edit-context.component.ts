@@ -1,5 +1,6 @@
 /*
-  QUESTO COMPONENTE VIENE UTILIZZATO DA UploadDataAdmin per modificare i metadata di cio che sto caricando
+  QUESTO COMPONENTE viene utilizzato per editare i context quindi i metadata viene usato sia dall'upload per editare i meta
+  in fase di upload ma viene usato anche da EditDataComponent per editare i metadata gia caricati prima
 */
 
 import { Component, Inject, OnInit } from '@angular/core';
@@ -26,10 +27,10 @@ import { MatIcon } from '@angular/material/icon';
     MatButtonModule,
     MatIcon
   ],
-  templateUrl: './edit-context-before-upload.component.html',
-  styleUrl: './edit-context-before-upload.component.scss'
+  templateUrl: './edit-context.component.html',
+  styleUrl: './edit-context.component.scss'
 })
-export class EditContextBeforeUploadComponent implements OnInit {
+export class EditContextComponent implements OnInit {
 
   // Oggetto contenente i metadati statici (nome_file, descrizione, quantità, angolazione)
   // È un oggetto indicizzato per supportare anche metadati aggiuntivi dinamici
@@ -45,7 +46,7 @@ export class EditContextBeforeUploadComponent implements OnInit {
 
   // Inietto nel costruttore i dati ricevuti dal padre: file e context associato (già salvato)
   constructor(
-    private dialogRef: MatDialogRef<EditContextBeforeUploadComponent>,
+    private dialogRef: MatDialogRef<EditContextComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } }
   ) {}
 

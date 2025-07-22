@@ -25,8 +25,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EditContextBeforeUploadComponent } from '../edit-data-admin/edit-context/edit-context-before-upload.component';
-
+import { EditContextComponent } from '../edit-data-admin/edit-context/edit-context.component';
 @Component({
   selector: 'app-upload-data-admin',
   imports: [
@@ -362,7 +361,7 @@ apriPopUpEditFile(file: File): void {
 
   // Apro il popup passando il file e i metadati correnti (già salvati o vuoti)
   // In questo modo se l’utente ha già compilato qualcosa, ritrova i valori precedenti
-  const dialogRef = this.dialog.open(EditContextBeforeUploadComponent, {
+  const dialogRef = this.dialog.open(EditContextComponent, {
     width: '720px',
     maxHeight: '90vh',
     panelClass: 'popup-metadati-dialog',
