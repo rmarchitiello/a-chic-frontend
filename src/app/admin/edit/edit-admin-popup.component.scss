@@ -140,3 +140,12 @@
     background-color: #ffcdd2;
   }
 }
+
+.bottone.modifica {
+  background-color: #ebf0ff;
+  color: #28a1c6;
+
+  &:hover {
+    background-color: #cddaff;
+  }
+}
