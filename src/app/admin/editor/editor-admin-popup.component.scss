@@ -49,38 +49,73 @@
       margin-bottom: 1rem;
     }
 
-    .context-entry {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  font-size: 0.85rem;
-  margin: 0.2rem 0;
-  line-height: 1.4;
-  word-break: break-word;
+    /* =======================
+       Blocco metadati context
+    ======================= */
+    .media-display-name {
+      width: 100%;
+      font-size: 0.9rem;
+      color: #444;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
 
-  .context-label {
-    font-weight: 600;
-    margin-right: 0.25rem;
-    color: #111;
-    white-space: nowrap;
-  }
+      .tooltip-wrapper {
+        display: inline-block;
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        cursor: pointer;
+      }
 
-  .context-value {
-    color: #444;
-    flex: 1;
-    min-width: 0;
-  }
+      .context-entry {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
 
-  .tooltip-wrapper {
-    display: inline-block;
-    max-width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: help;
-  }
-}
+        .context-label {
+          font-weight: 600;
+          margin-right: 0.25rem;
+          color: #111;
+          white-space: nowrap;
+        }
 
+        .context-value {
+          color: #444;
+          flex: 1;
+          min-width: 0;
+        }
+      }
+    }
+
+    /* =======================
+       Contenitore immagini non frontali
+       Mostrato solo al passaggio del mouse
+    ======================= */
+    .extra-images {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      animation: fadeIn 0.3s ease;
+
+      .non-frontale-img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+        background-color: #f9f9f9;
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
   }
 }
 
@@ -110,11 +145,23 @@
   }
 }
 
-
-
-
+/* =======================
+   Overlay Angular Material visibile
+======================= */
 ::ng-deep .cdk-overlay-pane {
   overflow: visible !important;
 }
 
-
+/* =======================
+   Animazione fade-in
+======================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
