@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 @Component({
   selector: 'app-cms-dashboard',
+  standalone: true,
   imports: [MatButtonModule,CommonModule,MatCardModule],
   templateUrl: './cms-dashboard.component.html',
   styleUrl: './cms-dashboard.component.scss'

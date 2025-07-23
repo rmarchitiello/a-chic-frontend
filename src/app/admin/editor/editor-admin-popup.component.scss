@@ -1,18 +1,15 @@
 /* =======================
    Contenitore principale del dialog
-   ======================= */
+======================= */
 .dialog-content {
-  // Imposta altezza piena per usare tutta l'area disponibile nel dialog
   height: 100%;
   padding: 2rem;
   position: relative;
-
-  // Rimuoviamo overflow qui: lo gestirà solo mat-dialog-container
-  overflow: unset;
+  overflow: unset; // Permette ai tooltip di uscire dal contenitore
 
   /* =======================
-     Contenitore delle card di anteprima
-     ======================= */
+     Contenitore delle card
+  ======================= */
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -22,8 +19,8 @@
   }
 
   /* =======================
-     Singola card di anteprima (una per immagine)
-     ======================= */
+     Singola card di anteprima
+  ======================= */
   .preview-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
@@ -36,6 +33,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
 
     &:hover {
       transform: scale(1.03);
@@ -68,6 +66,7 @@
         white-space: nowrap;
       }
 
+      // Se è il campo Descrizione, mettilo in colonna
       &:has(strong:contains("Descrizione")) {
         flex-direction: column;
 
@@ -75,13 +74,26 @@
           margin-bottom: 0.2rem;
         }
       }
+
+      /* =======================
+         Wrapper per testo con tooltip
+      ======================= */
+      span.tooltip-wrapper {
+        display: inline-block;
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        cursor: help;
+      }
     }
   }
 }
 
 /* =======================
    Pulsante di chiusura in alto a destra
-   ======================= */
+======================= */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -106,19 +118,22 @@
 }
 
 /* =======================
-   Permette al contenuto di uscire dal dialog se necessario (es. tooltip)
-   ======================= */
+   Dialog Angular Material
+======================= */
 ::ng-deep .mat-dialog-container {
-  overflow: visible !important;    // Rimuove il clipping del contenuto
-  position: relative !important;   // Per posizionamenti assoluti interni
-  max-height: 90vh !important;     // Imposta altezza massima generale
-  padding: 0 !important;           // Rimuove padding extra
+  overflow: visible !important;       // Permette ai tooltip di uscire
+  position: relative !important;
+  max-height: 90vh !important;
+  padding: 0 !important;
 }
 
 /* =======================
-   Tooltip Angular Material: sempre in primo piano
-   ======================= */
+   Tooltip Angular Material (globale)
+======================= */
 ::ng-deep .mat-tooltip {
-  z-index: 9999 !important;        // Sopra tutto
-  pointer-events: none;            // Non intercetta click
+  z-index: 9999 !important;
+  pointer-events: none;
+  white-space: pre-wrap;              // Permette a testi lunghi di andare a capo
+  max-width: 300px;
+  text-align: left;
 }

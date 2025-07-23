@@ -28,6 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
 @Component({
   selector: 'app-upload-data-admin',
+  standalone: true,
   imports: [
     MatIcon,
     CommonModule,

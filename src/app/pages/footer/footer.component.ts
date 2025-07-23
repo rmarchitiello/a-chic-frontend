@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { EmailService } from '../../services/email.service';
 @Component({
   selector: 'app-footer',
+  standalone: true,
   imports: [CommonModule,FormsModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'

@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-cookie-policy',
+  standalone: true,
   imports: [MatCardModule,MatListModule,CommonModule],
   templateUrl: './cookie-policy.component.html',
   styleUrl: './cookie-policy.component.scss'

@@ -81,6 +81,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-carosello-edit',
+  standalone: true, 
   templateUrl: './editor-admin-popup.component.html',
   styleUrls: ['./editor-admin-popup.component.scss','../../../styles.scss'],
   imports: [CommonModule, MatIconModule,CommonModule,MatTooltipModule]
@@ -202,9 +203,9 @@ getPreview(value: string, max = 40): string {
   return value.length > max ? value.slice(0, max) + ' …' : value;
 }
 //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
+//se lo supera torna true
 isLongText(value: any): boolean {
-  const lunghezza = value.length;
-  return typeof value === 'string' && lunghezza > 40;
+  return typeof value === 'string' && !!value && value.length > 40;
 }
 
 

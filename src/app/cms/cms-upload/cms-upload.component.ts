@@ -67,6 +67,7 @@ interface UploadResult {
 
 @Component({
   selector: 'app-cms-upload',
+  standalone: true,
   templateUrl: './cms-upload.component.html',
   styleUrl: './cms-upload.component.scss', // Corretto da "styleUrl" a "styleUrls"
   imports: [CommonModule,
