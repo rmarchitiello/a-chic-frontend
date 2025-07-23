@@ -150,7 +150,7 @@ getMediaUrlsFrontale(media: MediaMeta[]): string[] {
     .map(m => m.url);                          // estrai le URL e creo l'array di string[]
 }
 
- 
+
 
 
 

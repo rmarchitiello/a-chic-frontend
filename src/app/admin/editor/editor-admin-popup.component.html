@@ -1,8 +1,13 @@
-<div class="download-dialog-content">
+<div class="dialog-content">
+  <!-- Pulsante di chiusura -->
+  <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+
   <div class="preview-container">
     <!-- Mostra solo immagini frontali, in card affiancate -->
     <div class="preview-card" *ngFor="let url of getMediaUrlsFrontale(mediasInput)">
-      <img [src]="url" alt="Immagine frontale" class="preview-image" />
+      <img [src]="url" alt="Immagine frontale" />
       <p class="image-url">{{ url }}</p>
     </div>
   </div>

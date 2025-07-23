@@ -48,8 +48,8 @@ export interface MediaContext {
 
 
 export interface MediaItems {
-    context: MediaContext
-    media: MediaMeta[]
+  context: MediaContext
+  media: MediaMeta[]
 }
 
 
@@ -141,26 +141,26 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   isAdmin = false;
 
-carosello: MediaCollection = {
-  folder: '',
-  items: []
-};
+  carosello: MediaCollection = {
+    folder: '',
+    items: []
+  };
 
 
-recensioni: MediaCollection = {
-  folder: '',
-  items: []
-};
+  recensioni: MediaCollection = {
+    folder: '',
+    items: []
+  };
 
-modelliInEvidenza: MediaCollection = {
-  folder: '',
-  items: []
-};
+  modelliInEvidenza: MediaCollection = {
+    folder: '',
+    items: []
+  };
 
-creazioni: MediaCollection = {
-  folder: '',
-  items: []
-};
+  creazioni: MediaCollection = {
+    folder: '',
+    items: []
+  };
 
 
 
@@ -240,71 +240,77 @@ creazioni: MediaCollection = {
 
         // Trasformo i dati del carosello raggruppando tutte le angolazioni (meta[]) per ogni media
         // Ricostruisco this.carosello come un array di un solo oggetto MediaCollection
-if (caroselloKey) {
-  this.carosello = {
-    folder: 'Config/Home/Carosello',
-    items: (data[caroselloKey] || []).map((item: any) => ({
-      context: {
-        display_name: item.display_name,
-        descrizione: item.descrizione,
-        quantita: item.quantita,
-        type: this.detectType(item.meta?.[0]?.url || ''),
-        ...item
-      },
-      media: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  };
-}
+        if (caroselloKey) {
+          this.carosello = {
+            folder: 'Config/Home/Carosello',
+            items: (data[caroselloKey] || []).map((item: any) => {
+              const { meta, ...contextData } = item; //  escludo meta, tengo il resto
+              const type = this.detectType(meta?.[0]?.url || '');
+
+              return {
+                context: {
+                  ...contextData,
+                  type
+                },
+                media: (meta || []).map((m: any) => ({
+                  url: m.url,
+                  angolazione: m.angolazione || 'default'
+                }))
+              };
+            })
+          };
+        }
+
 
 
 
         console.log("[HomeComponent] -  Carosello Immagini ", JSON.stringify(this.carosello));
         if (recensioniKey) {
+          this.recensioni = {
+            folder: 'Config/Recensioni',
+            items: (data[recensioniKey] || []).map((item: any) => {
+              const { meta, ...contextData } = item;
+              const type = this.detectType(meta?.[0]?.url || '');
 
-this.recensioni = {
-  folder: 'Config/Recensioni',
-  items: (data[recensioniKey] || []).map((item: any) => ({
-    context: {
-      display_name: item.display_name,
-      descrizione: item.descrizione,
-      quantita: item.quantita,
-      type: this.detectType(item.meta?.[0]?.url || ''),
-      ...item
-    },
-    media: (item.meta || []).map((meta: any) => ({
-      url: meta.url,
-      angolazione: meta.angolazione || 'default'
-    }))
-  }))
-};
-
-
+              return {
+                context: {
+                  ...contextData,
+                  type
+                },
+                media: (meta || []).map((m: any) => ({
+                  url: m.url,
+                  angolazione: m.angolazione || 'default'
+                }))
+              };
+            })
+          };
         }
+
 
 
         console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
 
-if (modelliEvidenzaKey) {
-  this.modelliInEvidenza = {
-    folder: 'Config/Home/Video',
-    items: (data[modelliEvidenzaKey] || []).map((item: any) => ({
-      context: {
-        display_name: item.display_name,
-        descrizione: item.descrizione,
-        quantita: item.quantita,
-        type: this.detectType(item.meta?.[0]?.url || ''),
-        ...item
-      },
-      media: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  };
-}
+        if (modelliEvidenzaKey) {
+          this.modelliInEvidenza = {
+            folder: 'Config/Home/Video',
+            items: (data[modelliEvidenzaKey] || []).map((item: any) => {
+              const { meta, ...contextData } = item;
+              const type = this.detectType(meta?.[0]?.url || '');
+
+              return {
+                context: {
+                  ...contextData,
+                  type
+                },
+                media: (meta || []).map((m: any) => ({
+                  url: m.url,
+                  angolazione: m.angolazione || 'default'
+                }))
+              };
+            })
+          };
+        }
+
 
 
 
@@ -312,27 +318,26 @@ if (modelliEvidenzaKey) {
         console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
 
 
-if (creazioniKey) {
-  this.creazioni = {
-    folder: 'Config/Home/MieCreazioni',
-    items: (data[creazioniKey] || []).map((item: any) => ({
-      context: {
-        display_name: item.display_name,
-        descrizione: item.descrizione,
-        quantita: item.quantita,
-        type: this.detectType(item.meta?.[0]?.url || ''),
-        ...item
-      },
-      media: (item.meta || []).map((meta: any) => ({
-        url: meta.url,
-        angolazione: meta.angolazione || 'default'
-      }))
-    }))
-  };
-}
+        if (creazioniKey) {
+          this.creazioni = {
+            folder: 'Config/Home/MieCreazioni',
+            items: (data[creazioniKey] || []).map((item: any) => {
+              const { meta, ...contextData } = item;
+              const type = this.detectType(meta?.[0]?.url || '');
 
-        // Trasformo i dati della sezione "Mie Creazioni" in un unico oggetto MediaCollection
-
+              return {
+                context: {
+                  ...contextData,
+                  type
+                },
+                media: (meta || []).map((m: any) => ({
+                  url: m.url,
+                  angolazione: m.angolazione || 'default'
+                }))
+              };
+            })
+          };
+        }
 
         console.log("[HomeComponent] -  creazioni  ", this.creazioni);
 
@@ -409,25 +414,25 @@ Tu non lo scrivi, ma Angular Material lo crea automaticamente.
 
 ORA LA PARTE IMPORTANTE E MAT-DIALOG-CONTAINER PERCHE LI ASSEGNAMO LA CLASSE 
 /* Stili per il contenitore esterno del dialog: cdk-overlay-pane */
-//      ::ng-deep .popup-edit-admin {
-//          display: flex !important;
-//          justify-content: center;
-//          align-items: center;
-//          background: rgba(0, 0, 0, 0.6); /* Sfondo scuro se vuoi */
-//}
+  //      ::ng-deep .popup-edit-admin {
+  //          display: flex !important;
+  //          justify-content: center;
+  //          align-items: center;
+  //          background: rgba(0, 0, 0, 0.6); /* Sfondo scuro se vuoi */
+  //}
 
-/* Stili per il contenitore interno del contenuto del dialog */
-//  ::ng-deep .popup-edit-admin .mat-dialog-container {
-//      width: 90vh !important;
-//      height: 90vh !important;
-//      max-width: 100vw !important;
-//      max-height: 100vh !important;
-//      border-radius: 20px;
-//      background-color: white;
-//      padding: 2rem;
-//      overflow: auto;
-//      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-//}
+  /* Stili per il contenitore interno del contenuto del dialog */
+  //  ::ng-deep .popup-edit-admin .mat-dialog-container {
+  //      width: 90vh !important;
+  //      height: 90vh !important;
+  //      max-width: 100vw !important;
+  //      max-height: 100vh !important;
+  //      border-radius: 20px;
+  //      background-color: white;
+  //      padding: 2rem;
+  //      overflow: auto;
+  //      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  //}
 
   /*quindi con il primo stile sto dicendo ng deep definisco la classe popup-edit-admin questa classe per poi fare 
   ::ng-deep .popup-edit-admin .mat-dialog-container { CIOE IL MATDIALOG CONTAINER DI POP UP EDIT ADMIN DEVE ESSERE COSI
@@ -455,30 +460,30 @@ e quindi si fa questa cosa:
 
 
 */
-apriPopUpEditorAdmin(): void {
-  // Log utile per debugging: mostra i dati del carosello che stai passando al popup
-  console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
+  apriPopUpEditorAdmin(): void {
+    // Log utile per debugging: mostra i dati del carosello che stai passando al popup
+    console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
 
-  // Apertura del dialog (popup) Angular Material
-  this.dialog.open(EditorAdminPopUpComponent, {
-    // Se impostato su true, l'utente NON può chiudere il popup cliccando fuori o premendo ESC
-    // In questo caso lo lasciamo su false per consentire la chiusura standard
-    disableClose: false,
+    // Apertura del dialog (popup) Angular Material
+    this.dialog.open(EditorAdminPopUpComponent, {
+      // Se impostato su true, l'utente NON può chiudere il popup cliccando fuori o premendo ESC
+      // In questo caso lo lasciamo su false per consentire la chiusura standard
+      disableClose: false,
 
-    // Dati da passare al componente del popup, in questo caso il carosello
-    data: this.carosello,
+      // Dati da passare al componente del popup, in questo caso il carosello
+      data: this.carosello,
 
-    // Classe personalizzata per applicare stili personalizzati al dialog
-    // Questa classe viene usata nel file SCSS con ::ng-deep .popup-admin-editor
-    panelClass: 'popup-admin-editor',
+      // Classe personalizzata per applicare stili personalizzati al dialog
+      // Questa classe viene usata nel file SCSS con ::ng-deep .popup-admin-editor
+      panelClass: 'popup-admin-editor',
 
-    // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
-     width: '100vw',
-     height: '100vh',
-     maxWidth: '100vw',
-    autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
-  });
-}
+      // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
+    });
+  }
 
 
 
@@ -505,18 +510,18 @@ apriPopUpEditorAdmin(): void {
   }
 
   //gli items sono i media ovvero contengono i metadati piu i media ovvero le url vere e proprie
-nextImage(): void {
-  if (!this.carosello || this.carosello.items.length === 0) return;
-  const total = this.carosello.items.length;
-  this.currentIndex = (this.currentIndex + 1) % total;
-}
+  nextImage(): void {
+    if (!this.carosello || this.carosello.items.length === 0) return;
+    const total = this.carosello.items.length;
+    this.currentIndex = (this.currentIndex + 1) % total;
+  }
 
 
-nextRecensione(): void {
-  if (!this.recensioni || this.recensioni.items.length === 0) return;
-  const total = this.recensioni.items.length;
-  this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
-}
+  nextRecensione(): void {
+    if (!this.recensioni || this.recensioni.items.length === 0) return;
+    const total = this.recensioni.items.length;
+    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
+  }
 
 
 
@@ -528,15 +533,15 @@ nextRecensione(): void {
 
 
   //Entra un array di Meta ed esce solo quello frontale ovvero la url
-getMediaFrontale(mediaItems: MediaMeta[]): string | null {
-  return mediaItems.find(asset => asset.angolazione?.toLowerCase() === 'frontale')?.url || null;
-}
+  getMediaFrontale(mediaItems: MediaMeta[]): string | null {
+    return mediaItems.find(asset => asset.angolazione?.toLowerCase() === 'frontale')?.url || null;
+  }
 
 
-// Controllo se esistono media per non far andare ngFor in errore
-hasMedia(media: MediaMeta[]): boolean {
-  return Array.isArray(media) && media.length > 0;
-}
+  // Controllo se esistono media per non far andare ngFor in errore
+  hasMedia(media: MediaMeta[]): boolean {
+    return Array.isArray(media) && media.length > 0;
+  }
 
 
 

@@ -1,56 +1,55 @@
-// Contenitore principale dello scroll del popup editor
-.editor-dialog-content {
+// Contenitore principale del popup di download
+.dialog-content {
   padding: 2rem;
   position: relative;
-  overflow-y: auto;             // Scroll verticale se necessario
-  overflow-x: hidden;           // Blocca lo scroll orizzontale per evitare scrollbar sotto
-  max-height: 85vh;             // Altezza massima visibile del contenuto del popup
+  overflow-y: auto; // Scroll verticale se necessario
+  overflow-x: hidden; // Evita scroll orizzontale
+  max-height: 85vh; // Altezza massima visibile del contenuto del popup
 
-  // Sezione griglia per visualizzare le immagini frontali
-  .frontali-grid {
-    display: flex;              // Disposizione flessibile degli elementi (immagini)
-    flex-wrap: wrap;            // Permette di andare a capo se non c'è spazio
-    gap: 1rem;                  // Spazio tra le immagini
-    justify-content: center;    // Centra orizzontalmente le immagini nella griglia
-    margin-bottom: 2rem;        // Spazio sotto la griglia
+  // Contenitore delle immagini
+  .preview-container {
+    display: flex; // Disposizione flessibile
+    flex-wrap: wrap; // Va a capo se necessario
+    gap: 1rem; // Spazio tra le card
+    justify-content: center; // Centra le card nella griglia
+    margin-bottom: 2rem;
+  }
 
-    // Card singola per ogni immagine frontale
-    .image-wrapper {
-      background: #fff;                           // Sfondo bianco
-      border: 1px solid #ddd;                     // Bordo sottile grigio chiaro
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);   // Leggera ombra per profondità
-      padding: 0.75rem;                           // Spaziatura interna
-      border-radius: 12px;                        // Angoli arrotondati
-      width: 160px;                               // Larghezza fissa della card
-      text-align: center;                         // Centra contenuto (immagine + URL)
-      transition: transform 0.3s ease;            // Transizione fluida su hover
+  // Singola card per ogni immagine frontale
+  .preview-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    padding: 0.75rem;
+    border-radius: 12px;
+    width: 160px;
+    text-align: center;
+    transition: transform 0.3s ease;
 
-      // Effetto visivo al passaggio del mouse
-      &:hover {
-        transform: scale(1.03);                   // Leggero zoom
-        cursor: pointer;                          // Mostra puntatore come cliccabile
-      }
+    &:hover {
+      transform: scale(1.03);
+      cursor: pointer;
+    }
 
-      // Immagine visualizzata nella card
-      img {
-        width: 100%;                              // Immagine larga quanto la card
-        height: 120px;                            // Altezza fissa
-        object-fit: cover;                        // Ritaglia l'immagine mantenendo proporzioni
-        border-radius: 8px;                       // Arrotondamento angoli immagine
-      }
+    img {
+      width: 100%;
+      height: auto;
+      max-height: 160px;
+      object-fit: contain; // Mostra tutta l’immagine senza ritagli
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
 
-      // URL o descrizione visualizzata sotto l'immagine
-      p {
-        margin-top: 0.5rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #333;
-        word-break: break-word;                   // Evita overflow del testo
-      }
+    p.image-url {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #333;
+      word-break: break-word; // Evita overflow del testo
     }
   }
 
-  // Messaggio visualizzato se non ci sono immagini frontali
+  // Messaggio di fallback se non ci sono immagini
   .no-frontali-message {
     text-align: center;
     color: #777;
@@ -65,7 +64,7 @@
   }
 }
 
-// Pulsante di chiusura (in alto a destra del popup)
+// Pulsante di chiusura del popup (in alto a destra)
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -89,7 +88,7 @@
   }
 }
 
-// Override del contenitore di Angular Material per evitare lo scroll orizzontale globale
+// Override del contenitore MatDialog per eliminare scroll orizzontale indesiderato
 ::ng-deep .mat-dialog-container {
-  overflow-x: hidden !important;   // Blocco scroll laterale anche nel contenitore dialog principale
+  overflow-x: hidden !important;
 }
