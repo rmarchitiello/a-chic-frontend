@@ -10,6 +10,9 @@ html, body {
   touch-action: manipulation;
 }
 
+
+
+
 /* ========== STILE PER DESKTOP (larghezza ≥ 769px) ========== */
 @media (min-width: 769px) {
   html, body {
@@ -43,3 +46,99 @@ html, body {
 }
 
 
+
+
+/* ================================================
+   STILI GLOBALI PER TOOLTIP ANGULAR MATERIAL
+   Questo blocco garantisce che i tooltip funzionino
+   correttamente in tutta l'app, compresi i dialog.
+   Dev'essere definito solo nello styles.scss globale.
+================================================ */
+
+/* Contenitore principale dell'overlay dei tooltip.
+   Deve essere in posizione fixed per evitare problemi
+   con lo scroll e garantire visibilità costante. */
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+  overflow: visible !important;
+}
+
+/* Pane interno dell'overlay che ospita il tooltip.
+   L'overflow visibile consente al tooltip di "uscire"
+   dal contenitore se necessario (es. nei dialog). */
+.cdk-overlay-pane {
+  overflow: visible !important;
+  pointer-events: auto !important; // Consente hover e interazioni
+}
+
+/* Stile base per tutti i tooltip Angular Material.
+   Applichiamo visibilità forzata, stile leggibile e
+   z-index alto per essere sempre sopra gli altri elementi. */
+
+   /* questo è lo stile di base di tutti i tool tip 
+   cioe quando scrivo
+   <div
+    class="media-display-name"
+    matTooltip="✅ FUNZIONA DAL FORaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"
+    matTooltipClass="tooltip-rosso"
+
+    lui sta creanod un div cosi
+    <div class="mat-tool-tip tooltip-rosso"   . . . e cosi via quindi se sbaglio a settare i colori ecc uno sovrascrive l'altro e non si capisce
+   
+   */
+::ng-deep .mat-tooltip {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  z-index: 10000 !important;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  white-space: normal !important;
+  max-width: 250px !important;
+  word-break: break-word;
+}
+
+//poi nella classe personalizzata definisco i colori
+
+/* ==========================================================
+   CLASSE PERSONALIZZATA PER TOOLTIP ROSSO (ESEMPIO UTENTE)
+   Questa classe può essere usata con matTooltipClass="tooltip-rosso"
+   per evidenziare messaggi critici o alert importanti.
+========================================================== */
+::ng-deep .tooltip-admin {
+  background-color: rgba(255, 255, 255, 0.92) !important; // sfondo grigio scuro semi-trasparente
+  color: #25d366 !important;                          // verde stile WhatsApp
+  font-weight: 500;
+  font-size: 15px;                                     // leggibilità aumentata
+  line-height: 1.6;
+  border-radius: 8px;
+  padding: 12px 16px;
+  max-width: 320px;
+  white-space: normal !important;
+  word-break: break-word;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);            // ombra elegante, niente bordo rosso
+
+  // Forziamo anche il contenuto interno se serve (emoticon o tag inline)
+  * {
+    background-color: transparent !important;
+    color: #000000 !important;
+    font-size: 15px !important;
+    line-height: 1.6 !important;
+  }
+}
+
+
+
+/* ==========================================================
+   ESEMPIO USO TOOLTIP CON CLASSE PERSONALIZZATA:
+
+   <div
+     matTooltip="✅ FUNZIONA DAL FOR!"
+     matTooltipClass="tooltip-rosso"
+     matTooltipPosition="above"
+   >
+     <u style="cursor: help;">Testo con tooltip</u>
+   </div>
+========================================================== */

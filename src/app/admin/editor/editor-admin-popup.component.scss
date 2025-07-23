@@ -82,11 +82,13 @@
         display: inline-block;
         max-width: 100%;
         white-space: nowrap;
-        overflow: hidden;
+        overflow: visible;
         text-overflow: ellipsis;
         vertical-align: middle;
         cursor: help;
       }
+
+      
     }
   }
 }
@@ -127,13 +129,10 @@
   padding: 0 !important;
 }
 
-/* =======================
-   Tooltip Angular Material (globale)
-======================= */
-::ng-deep .mat-tooltip {
-  z-index: 9999 !important;
-  pointer-events: none;
-  white-space: pre-wrap;              // Permette a testi lunghi di andare a capo
-  max-width: 300px;
-  text-align: left;
+
+
+::ng-deep .cdk-overlay-pane {
+  overflow: visible !important;
 }
+
+

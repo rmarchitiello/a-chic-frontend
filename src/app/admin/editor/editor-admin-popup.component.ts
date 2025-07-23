@@ -84,7 +84,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
   standalone: true, 
   templateUrl: './editor-admin-popup.component.html',
   styleUrls: ['./editor-admin-popup.component.scss','../../../styles.scss'],
-  imports: [CommonModule, MatIconModule,CommonModule,MatTooltipModule]
+  imports: [CommonModule, MatIconModule,MatTooltipModule]
 })
 export class EditorAdminPopUpComponent implements OnInit {
 
@@ -115,9 +115,13 @@ inputFromFatherComponent: MediaCollection = {
     //ricevo il dato dalla home
     @Inject(MAT_DIALOG_DATA) public data: MediaCollection,
     private dialogRef: MatDialogRef<EditorAdminPopUpComponent>,
-    private dialog: MatDialog
-
+    private dialog: MatDialog,
   ) {}
+
+
+
+
+
 
 ngOnInit(): void {
   // Assegna i dati ricevuti dal componente padre alla variabile locale
