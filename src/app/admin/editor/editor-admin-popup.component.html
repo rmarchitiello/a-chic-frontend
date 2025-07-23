@@ -1,50 +1,39 @@
 <div class="dialog-content">
-  <!-- Pulsante di chiusura -->
+
   <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
   <div class="preview-container">
-    <!-- Mostra solo immagini frontali, in card affiancate -->
-    <div class="preview-card" *ngFor="let url of getMediaUrlsFrontale(mediasInput)">
 
-      <!-- Salvo il context relativo alla url in myContext all'inizio -->
-      <ng-container *ngIf="getContextFromMediaUrl(itemsInput, url) as myContext">
+    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale">
 
-        <!-- Mostra l'immagine -->
-        <img [src]="url" [alt]="myContext.display_name || 'media senza nome'" />
+      <!-- ottengo il context associato per quella url -->
+      <ng-container *ngIf="contextMap[url] as context"> <!-- carico la mappa e salvo per quell url il context-->
 
-        <!--
-  Itera sulle coppie chiave/valore del context (myContext), ordinandole con getOrderedEntries()
-  In ordine: mostra prima 'display_name', 'descrizione', 'type', 'quantita', poi gli altri
-  Ogni campo viene visualizzato su una riga con la chiave formattata e un valore abbreviato
-  Se il valore supera i 40 caratteri, viene mostrato un tooltip con il contenuto completo
-  La funzione formatKey() formatta le chiavi tecniche (es. 'display_name') in etichette leggibili (es. 'Nome File')
-  La funzione getPreview() tronca i testi lunghi con '…'
-  La funzione isLongText() abilita/disabilita il tooltip a seconda della lunghezza del contenuto
--->
-<ng-container *ngFor="let entry of getOrderedEntries(myContext)">
-  <div class="media-display-name">
-    <span
-      class="tooltip-wrapper"
-      [matTooltip]="entry.value"
-      matTooltipClass="tooltip-admin"
-      [matTooltipDisabled]="!isLongText(entry.value)"
-      matTooltipPosition="above"
-    >
-      <strong>{{ formatKey(entry.key) }}:</strong> {{ getPreview(entry.value) }}
-    </span>
-  </div>
-</ng-container>
+        <img [src]="url" [alt]="context.display_name" />
 
+          <!-- tool tippo solo la descrizione se maggiore di 0 e l'abilito e supera i 40 caratteri-->
 
-
-
-
-
+            <div class="media-display-name">
+              <span *ngIf="context.descrizione.length > 0"
+                class="tooltip-wrapper"
+                [matTooltip]="context.descrizione"
+                matTooltipClass="tooltip-admin"
+                [matTooltipDisabled]="!isLongText(context.descrizione)"
+                matTooltipPosition="above"
+              >
+              <!-- ciclo per tutte le chiavi del context mostrami i valori-->
+              <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+                  <strong>{{ contextFormatted.label }}: </strong>{{ getPreview(contextFormatted.value) }}
+              </ng-container>
+              </span>
+            </div>
       </ng-container>
 
-    </div>
-  </div>
 
-</div>
+    </div> <!-- fine .preview-card -->
+
+  </div> <!-- fine .preview-container -->
+
+</div> <!-- fine .dialog-content -->

@@ -66,7 +66,11 @@ In pratica l'editor mi consente di lavorare su un json del genere
 			]
 		}
 	]
-}*/
+}
+  
+ESSENDO CHE IL TOOL TIP NON PUO AVERE degli ngFor dove l'array viene restituito da un metodo devo caricare prima tutti gli array
+per questo carico gli array mediaurls frontale 
+*/
 import { Component, Inject, OnInit,OnDestroy } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -101,9 +105,13 @@ inputFromFatherComponent: MediaCollection = {
   mediasInput: MediaMeta[] = [];
 
 
+  //carico le url frontali dai media input da dare in pasto al template
+  mediasUrlsFrontale: string[] = []
 
-
-
+    //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
+  //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
+//equivalente contextMap: Record<string, MediaContext> = {}; ma nei template non e gestito bene 
+  contextMap: { [url: string]: MediaContext } = {};
 
   currentIndex: number = 0;
 
@@ -126,7 +134,7 @@ inputFromFatherComponent: MediaCollection = {
 ngOnInit(): void {
   // Assegna i dati ricevuti dal componente padre alla variabile locale
   this.inputFromFatherComponent = this.data;
-  console.log("Dati ricevuti dalla home: ", this.inputFromFatherComponent);
+  console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
   // Estrae il percorso della cartella
   this.folderInput = this.inputFromFatherComponent.folder;
@@ -143,6 +151,25 @@ ngOnInit(): void {
   // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
   this.mediasInput = this.itemsInput.flatMap(item => item.media);
   console.log("Media ricevuti in ingresso: ", this.mediasInput);
+
+
+//carico le url frontali da dare al template
+this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
+  console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
+  //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
+  //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
+  
+  //assegno la mappa
+  this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
+  /*
+    La mappa sara
+    urlFrontale1: {
+        display_name:
+        quantita:
+        prezzo:
+        altro ...
+    }
+  */
 }
 
 
@@ -157,46 +184,25 @@ getMediaUrlsFrontale(media: MediaMeta[]): string[] {
     .map(m => m.url);                          // estrai le URL e creo l'array di string[]
 }
 
-//metodo che in ingresso si prende i media itemsm, ed il mediaMeta e restituisce il context
-/* Sappiamo che le url sono univoche ogni volta che carico su cloudinary e quindi
-media items contiene un array di tutti i media e i context associati a quei media
-poi abbiamo media dove sono le url e le angolazioni la prima cosa da fare è normalizzare 
-quindi effettuo una find su mediaItems, la variabile item contiene il singolo iten e poi di quell item.media.some m sarebbe la prima url di item.media deve
-essere uguale al media.url passatomi in ingresso*/
-getContextFromMediaUrl(mediaItems: MediaItems[], url: string): MediaContext | undefined {
-  return mediaItems.find(item =>
-    item.media.some(m => m.url === url)
-  )?.context;
-}
+//questo metodo mi serve per caricare anzi assegnare la mappa   contextMap: { [url: string]: MediaContext } = {}; a partire da una serie di url frontali
+getContextFromMediaUrlsFrontali(urlsFrontali: string[]) {
+  const itemsInIngresso = this.itemsInput;
 
-// Converte la chiave da snake_case a Title Case (con spazi e maiuscole)
-// Traduce e formatta le chiavi speciali, altrimenti converte in Title Case
-formatKey(key: string): string {
-  const customLabels: { [key: string]: string } = {
-    display_name: 'Nome File',
-    descrizione: 'Descrizione',
-    type: 'Tipo',
-    quantita: 'Quantità'
-  };
+  // Resetto la mappa
+  this.contextMap = {};
 
-  return customLabels[key] || key
-    .replace(/_/g, ' ')
-    .replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1));
-}
+  // Ciclo tutte le URL frontali
+  for (const url of urlsFrontali) {
+    // Cerco l'item che contiene questa URL nei suoi media
+    const itemTrovato = itemsInIngresso.find(item =>
+      item.media.some(m => m.url === url)
+    );
 
-
-
-//ordino le chiavi faccio uscire prima Nome File Descrizione Tipo  Quantita e poi altri context 
-getOrderedEntries(context: MediaContext): { key: string, value: string }[] {
-  const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
-
-  const entries = Object.entries(context)
-    .map(([key, value]) => ({ key, value: value ?? '' }));
-
-  return [
-    ...entries.filter(e => ordine.includes(e.key)).sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
-    ...entries.filter(e => !ordine.includes(e.key))
-  ];
+    // Se trovato, associo questa URL al suo context
+    if (itemTrovato) {
+      this.contextMap[url] = itemTrovato.context;
+    }
+  }
 }
 
 //dato che alcuni dei campi del context sono molto lunghi con questo metodo calcolo i caratteri di ogni context cosi
@@ -214,6 +220,49 @@ isLongText(value: any): boolean {
 
 
 
+/* 
+  METODO CHE PRENDE UN CONTEXT IN INGRESSO, esempio
+  {
+    display_name
+    descrizione
+    quantita
+    ciao pippo
+  }
+
+  e restituisce
+  {
+    Nome File
+    Descrizione
+    Quantita
+    Ciao Pippo e cosi via...
+  }
+
+  
+*/
+
+getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
+  const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
+
+  const customLabels: { [key: string]: string } = {
+    display_name: 'Nome File',
+    descrizione: 'Descrizione',
+    type: 'Tipo',
+    quantita: 'Quantità'
+  };
+
+  // Trasforma le entry in array con chiave, etichetta formattata e valore
+  const entries = Object.entries(context).map(([key, value]) => ({
+    key,
+    label: customLabels[key] || key.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1)),
+    value: value ?? ''
+  }));
+
+  // Ordina prima le chiavi definite in ordine, poi le altre
+  return [
+    ...entries.filter(e => ordine.includes(e.key)).sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
+    ...entries.filter(e => !ordine.includes(e.key))
+  ];
+}
 
 
 
