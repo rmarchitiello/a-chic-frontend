@@ -77,11 +77,13 @@ import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-dat
 import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
 import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
 import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+
 @Component({
   selector: 'app-carosello-edit',
   templateUrl: './editor-admin-popup.component.html',
   styleUrls: ['./editor-admin-popup.component.scss','../../../styles.scss'],
-  imports: [CommonModule, MatIconModule,CommonModule]
+  imports: [CommonModule, MatIconModule,CommonModule,MatTooltipModule]
 })
 export class EditorAdminPopUpComponent implements OnInit {
 
@@ -191,6 +193,20 @@ getOrderedEntries(context: MediaContext): { key: string, value: string }[] {
     ...entries.filter(e => !ordine.includes(e.key))
   ];
 }
+
+//dato che alcuni dei campi del context sono molto lunghi con questo metodo calcolo i caratteri di ogni context cosi
+//mostro una preview sul sito
+// Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
+getPreview(value: string, max = 40): string {
+  if (typeof value !== 'string') return value as any;
+  return value.length > max ? value.slice(0, max) + ' …' : value;
+}
+//metodo che mi fa capire se un determinata stringa supera i 40 caratteri
+isLongText(value: any): boolean {
+  const lunghezza = value.length;
+  return typeof value === 'string' && lunghezza > 40;
+}
+
 
 
 

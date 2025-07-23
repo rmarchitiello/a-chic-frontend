@@ -1,12 +1,18 @@
-// Contenitore principale del popup di download
+/* =======================
+   Contenitore principale del dialog
+   ======================= */
 .dialog-content {
+  // Imposta altezza piena per usare tutta l'area disponibile nel dialog
+  height: 100%;
   padding: 2rem;
   position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 85vh;
 
-  // Contenitore delle card delle immagini
+  // Rimuoviamo overflow qui: lo gestirà solo mat-dialog-container
+  overflow: unset;
+
+  /* =======================
+     Contenitore delle card di anteprima
+     ======================= */
   .preview-container {
     display: flex;
     flex-wrap: wrap;
@@ -15,26 +21,30 @@
     margin-bottom: 2rem;
   }
 
-  // Card singola per ogni immagine
+  /* =======================
+     Singola card di anteprima (una per immagine)
+     ======================= */
   .preview-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     padding: 1rem;
-    width: 180px;
-    text-align: center;
-    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    width: 220px;
+    text-align: left;
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
     &:hover {
-      transform: scale(1.035);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      transform: scale(1.03);
       cursor: pointer;
     }
 
     img {
       width: 100%;
-      max-height: 150px;
+      max-height: 180px;
       object-fit: contain;
       border-radius: 8px;
       background-color: #f5f5f5;
@@ -42,24 +52,36 @@
     }
 
     p.media-display-name {
-      margin: 0.4rem 0;
-      font-size: 0.85rem;
+      width: 100%;
+      font-size: 0.9rem;
       color: #444;
-      line-height: 1.3;
+      margin: 0.2rem 0;
+      line-height: 1.4;
       word-break: break-word;
+      display: flex;
+      flex-wrap: wrap;
 
       strong {
-        display: block;
-        font-size: 0.78rem;
         font-weight: 600;
         color: #111;
-        margin-bottom: 0.1rem;
+        margin-right: 0.3rem;
+        white-space: nowrap;
+      }
+
+      &:has(strong:contains("Descrizione")) {
+        flex-direction: column;
+
+        strong {
+          margin-bottom: 0.2rem;
+        }
       }
     }
   }
 }
 
-// Pulsante di chiusura del popup (in alto a destra)
+/* =======================
+   Pulsante di chiusura in alto a destra
+   ======================= */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -83,7 +105,20 @@
   }
 }
 
-// Rimozione scroll orizzontale dalla MatDialog
+/* =======================
+   Permette al contenuto di uscire dal dialog se necessario (es. tooltip)
+   ======================= */
 ::ng-deep .mat-dialog-container {
-  overflow-x: hidden !important;
+  overflow: visible !important;    // Rimuove il clipping del contenuto
+  position: relative !important;   // Per posizionamenti assoluti interni
+  max-height: 90vh !important;     // Imposta altezza massima generale
+  padding: 0 !important;           // Rimuove padding extra
+}
+
+/* =======================
+   Tooltip Angular Material: sempre in primo piano
+   ======================= */
+::ng-deep .mat-tooltip {
+  z-index: 9999 !important;        // Sopra tutto
+  pointer-events: none;            // Non intercetta click
 }

@@ -14,10 +14,24 @@
         <!-- Mostra l'immagine -->
         <img [src]="url" [alt]="myContext.display_name || 'media senza nome'" />
 
-        <!-- Itera sul context ordinato per mostrare le chiavi principali prima -->
-        <p class="media-display-name" *ngFor="let entry of getOrderedEntries(myContext)"> <!-- ordino le chiavi per far uscire diplasy_name descrizione type e quantita e altri context-->
-          <strong>{{ formatKey(entry.key) }}:</strong> {{ entry.value }} <!-- normalizzo le chiavi display_name sarà Nome File poi Descrizione Tipo Quantita e altri context-->
+        <!--
+  Itera sulle coppie chiave/valore del context (myContext), ordinandole con getOrderedEntries()
+  In ordine: mostra prima 'display_name', 'descrizione', 'type', 'quantita', poi gli altri
+  Ogni campo viene visualizzato su una riga con la chiave formattata e un valore abbreviato
+  Se il valore supera i 40 caratteri, viene mostrato un tooltip con il contenuto completo
+  La funzione formatKey() formatta le chiavi tecniche (es. 'display_name') in etichette leggibili (es. 'Nome File')
+  La funzione getPreview() tronca i testi lunghi con '…'
+  La funzione isLongText() abilita/disabilita il tooltip a seconda della lunghezza del contenuto
+-->
+        <p class="media-display-name" *ngFor="let entry of getOrderedEntries(myContext)">
+          <strong>{{ formatKey(entry.key) }}:</strong>
+          <span [matTooltip]="entry.value" [matTooltipDisabled]="!isLongText(entry.value)" matTooltipPosition="above">
+            {{ getPreview(entry.value) }}
+          </span>
         </p>
+
+
+
 
       </ng-container>
 
