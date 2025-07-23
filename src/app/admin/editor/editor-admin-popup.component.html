@@ -13,23 +13,22 @@
 
         <img [src]="url" [alt]="context.display_name" />
 
-          <!-- tool tippo solo la descrizione se maggiore di 0 e l'abilito e supera i 40 caratteri-->
+        <!-- tool tippo solo la descrizione se maggiore di 0 e l'abilito e supera i 40 caratteri-->
 
-            <div class="media-display-name">
-              <span 
-                class="tooltip-wrapper"
-                [matTooltip]="context.descrizione"
-                matTooltipClass="tooltip-admin"
-                [matTooltipDisabled]="!isLongText(context.descrizione)"
-                matTooltipPosition="above"
-              >
-              <!-- ciclo per tutte le chiavi del context mostrami i valori-->
-              <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
-                  <strong>{{ contextFormatted.label }}: </strong>{{ getPreview(contextFormatted.value) }}
-              </ng-container>
-              </span>
+        <div class="media-display-name">
+          <span class="tooltip-wrapper" [matTooltip]="context.descrizione" matTooltipClass="tooltip-admin"
+            [matTooltipDisabled]="!isLongText(context.descrizione)" matTooltipPosition="above">
+            <!-- ciclo per tutte le chiavi del context mostrami i valori-->
+            <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+              <div class="context-entry">
+                <strong class="context-label">{{ contextFormatted.label }}:</strong>
+                <span class="context-value">{{ getPreview(contextFormatted.value) }}</span>
+              </div>
+            </ng-container>
 
-            </div>
+          </span>
+
+        </div>
 
       </ng-container>
 

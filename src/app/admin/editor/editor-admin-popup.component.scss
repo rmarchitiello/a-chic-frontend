@@ -49,47 +49,38 @@
       margin-bottom: 1rem;
     }
 
-    p.media-display-name {
-      width: 100%;
-      font-size: 0.9rem;
-      color: #444;
-      margin: 0.2rem 0;
-      line-height: 1.4;
-      word-break: break-word;
-      display: flex;
-      flex-wrap: wrap;
+    .context-entry {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+  margin: 0.2rem 0;
+  line-height: 1.4;
+  word-break: break-word;
 
-      strong {
-        font-weight: 600;
-        color: #111;
-        margin-right: 0.3rem;
-        white-space: nowrap;
-      }
+  .context-label {
+    font-weight: 600;
+    margin-right: 0.25rem;
+    color: #111;
+    white-space: nowrap;
+  }
 
-      // Se è il campo Descrizione, mettilo in colonna
-      &:has(strong:contains("Descrizione")) {
-        flex-direction: column;
+  .context-value {
+    color: #444;
+    flex: 1;
+    min-width: 0;
+  }
 
-        strong {
-          margin-bottom: 0.2rem;
-        }
-      }
+  .tooltip-wrapper {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: help;
+  }
+}
 
-      /* =======================
-         Wrapper per testo con tooltip
-      ======================= */
-      span.tooltip-wrapper {
-        display: inline-block;
-        max-width: 100%;
-        white-space: nowrap;
-        overflow: visible;
-        text-overflow: ellipsis;
-        vertical-align: middle;
-        cursor: help;
-      }
-
-      
-    }
   }
 }
 
