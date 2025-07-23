@@ -5,35 +5,30 @@
     <mat-icon>close</mat-icon>
   </button>
 
-  <!-- Contenitore di tutte le card di anteprima -->
+  <!-- Contenitore di tutte le card -->
   <div class="preview-container">
 
-    <!-- Ciclo su tutte le immagini frontali da mostrare -->
-     <!-- Al passaggio del mouse salvo la card attiva -->
-      <!-- Quando esce il mouse resetto -->
+    <!-- Ciclo su ogni immagine frontale -->
     <div 
-      class="preview-card" 
+      class="preview-card"
       *ngFor="let url of mediasUrlsFrontale"
-      (mouseenter)="hoveredCard = url"   
-      (mouseleave)="hoveredCard = null"  
+      (mouseenter)="hoveredCard = url"
+      (mouseleave)="hoveredCard = null"
     >
 
-      <!-- Recupero il context associato a questa immagine -->
+      <!-- Recupero context relativo -->
       <ng-container *ngIf="contextMap[url] as context">
-
-        <!-- Immagine principale (frontale) -->
         <img [src]="url" [alt]="context.display_name" />
 
-        <!-- Sezione dei metadati con tooltip sulla descrizione -->
+        <!-- Metadati contestuali -->
         <div class="media-display-name">
           <span 
-            class="tooltip-wrapper" 
+            class="tooltip-wrapper"
             [matTooltip]="context.descrizione"
             matTooltipClass="tooltip-admin"
             [matTooltipDisabled]="!isLongText(context.descrizione)"
             matTooltipPosition="above"
           >
-            <!-- Visualizzo ogni voce di context formattata -->
             <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
               <div class="context-entry">
                 <strong class="context-label">{{ contextFormatted.label }}:</strong>
@@ -43,25 +38,25 @@
           </span>
         </div>
 
-        <!-- Recupero eventuali immagini non frontali collegate a questa immagine -->
+        <!-- Box fluttuante con immagini non frontali -->
         <ng-container *ngIf="mapUrlsNoFrontali[url] as urlsNoFrontali">
-
-          <!-- Sezione che mostra le immagini non frontali (solo al mouse hover) -->
-          <div class="extra-images" *ngIf="urlsNoFrontali.length > 0 && hoveredCard === url">
-            <img 
-              *ngFor="let urlLaterale of urlsNoFrontali" 
-              [src]="urlLaterale" 
+          <div 
+            class="non-frontali-overlay"
+            *ngIf="urlsNoFrontali.length > 0 && hoveredCard === url"
+          >
+            <img
+              *ngFor="let urlLaterale of urlsNoFrontali"
+              [src]="urlLaterale"
               class="non-frontale-img"
-              [alt]="context.display_name + ' - angolazione laterale'" 
+              [alt]="context.display_name + ' - angolazione laterale'"
             />
           </div>
-
         </ng-container>
 
       </ng-container>
 
-    </div> <!-- fine .preview-card -->
+    </div>
 
-  </div> <!-- fine .preview-container -->
+  </div>
 
-</div> <!-- fine .dialog-content -->
+</div>

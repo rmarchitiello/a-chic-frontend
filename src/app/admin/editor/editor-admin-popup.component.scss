@@ -5,7 +5,7 @@
   height: 100%;
   padding: 2rem;
   position: relative;
-  overflow: unset; // Permette ai tooltip di uscire dal contenitore
+  overflow: unset; // Permette ai tooltip e agli overlay di uscire dal contenitore
 
   /* =======================
      Contenitore delle card
@@ -91,31 +91,28 @@
     }
 
     /* =======================
-       Contenitore immagini non frontali
-       Mostrato solo al passaggio del mouse
+       Overlay immagini non frontali
+       Appare lateralmente (hover)
     ======================= */
-    .extra-images {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-      animation: fadeIn 0.3s ease;
-
-      .non-frontale-img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        background-color: #f9f9f9;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.05);
-        }
-      }
-    }
+.non-frontali-overlay {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 0.5rem;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: max-content;
+  max-width: 280px;
+  padding: 0.75rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.25s ease;
+}
   }
 }
 
@@ -153,7 +150,7 @@
 }
 
 /* =======================
-   Animazione fade-in
+   Animazione fade-in per overlay
 ======================= */
 @keyframes fadeIn {
   from {
