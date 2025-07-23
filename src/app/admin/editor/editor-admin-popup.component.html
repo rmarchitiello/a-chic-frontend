@@ -16,7 +16,7 @@
           <!-- tool tippo solo la descrizione se maggiore di 0 e l'abilito e supera i 40 caratteri-->
 
             <div class="media-display-name">
-              <span *ngIf="context.descrizione.length > 0"
+              <span 
                 class="tooltip-wrapper"
                 [matTooltip]="context.descrizione"
                 matTooltipClass="tooltip-admin"
@@ -28,7 +28,9 @@
                   <strong>{{ contextFormatted.label }}: </strong>{{ getPreview(contextFormatted.value) }}
               </ng-container>
               </span>
+
             </div>
+
       </ng-container>
 
 
