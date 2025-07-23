@@ -23,15 +23,19 @@
   La funzione getPreview() tronca i testi lunghi con '…'
   La funzione isLongText() abilita/disabilita il tooltip a seconda della lunghezza del contenuto
 -->
-<p class="media-display-name" *ngFor="let entry of getOrderedEntries(myContext)">
-  <strong>{{ formatKey(entry.key) }}:</strong>
-  <span class="tooltip-wrapper"
-         matTooltip="TES"
-        matTooltipDisabled="false"
-        matTooltipPosition="above">
-    {{ getPreview(entry.value) }}
-  </span>
-</p>
+<ng-container *ngFor="let entry of getOrderedEntries(myContext)">
+  <div class="media-display-name">
+    <span
+      class="tooltip-wrapper"
+      [matTooltip]="entry.value"
+      matTooltipClass="tooltip-admin"
+      [matTooltipDisabled]="!isLongText(entry.value)"
+      matTooltipPosition="above"
+    >
+      <strong>{{ formatKey(entry.key) }}:</strong> {{ getPreview(entry.value) }}
+    </span>
+  </div>
+</ng-container>
 
 
 
