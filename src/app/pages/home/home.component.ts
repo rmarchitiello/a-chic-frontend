@@ -264,7 +264,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
 
-        console.log("[HomeComponent] -  Carosello Immagini ", JSON.stringify(this.carosello));
+        console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
         if (recensioniKey) {
           this.recensioni = {
             folder: 'Config/Recensioni',
