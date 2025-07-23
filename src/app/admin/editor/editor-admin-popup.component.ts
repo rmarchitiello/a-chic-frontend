@@ -150,6 +150,49 @@ getMediaUrlsFrontale(media: MediaMeta[]): string[] {
     .map(m => m.url);                          // estrai le URL e creo l'array di string[]
 }
 
+//metodo che in ingresso si prende i media itemsm, ed il mediaMeta e restituisce il context
+/* Sappiamo che le url sono univoche ogni volta che carico su cloudinary e quindi
+media items contiene un array di tutti i media e i context associati a quei media
+poi abbiamo media dove sono le url e le angolazioni la prima cosa da fare è normalizzare 
+quindi effettuo una find su mediaItems, la variabile item contiene il singolo iten e poi di quell item.media.some m sarebbe la prima url di item.media deve
+essere uguale al media.url passatomi in ingresso*/
+getContextFromMediaUrl(mediaItems: MediaItems[], url: string): MediaContext | undefined {
+  return mediaItems.find(item =>
+    item.media.some(m => m.url === url)
+  )?.context;
+}
+
+// Converte la chiave da snake_case a Title Case (con spazi e maiuscole)
+// Traduce e formatta le chiavi speciali, altrimenti converte in Title Case
+formatKey(key: string): string {
+  const customLabels: { [key: string]: string } = {
+    display_name: 'Nome File',
+    descrizione: 'Descrizione',
+    type: 'Tipo',
+    quantita: 'Quantità'
+  };
+
+  return customLabels[key] || key
+    .replace(/_/g, ' ')
+    .replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1));
+}
+
+
+
+//ordino le chiavi faccio uscire prima Nome File Descrizione Tipo  Quantita e poi altri context 
+getOrderedEntries(context: MediaContext): { key: string, value: string }[] {
+  const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
+
+  const entries = Object.entries(context)
+    .map(([key, value]) => ({ key, value: value ?? '' }));
+
+  return [
+    ...entries.filter(e => ordine.includes(e.key)).sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
+    ...entries.filter(e => !ordine.includes(e.key))
+  ];
+}
+
+
 
 
 

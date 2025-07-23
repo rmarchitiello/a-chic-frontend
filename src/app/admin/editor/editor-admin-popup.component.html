@@ -7,8 +7,21 @@
   <div class="preview-container">
     <!-- Mostra solo immagini frontali, in card affiancate -->
     <div class="preview-card" *ngFor="let url of getMediaUrlsFrontale(mediasInput)">
-      <img [src]="url" alt="Immagine frontale" />
-      <p class="image-url">{{ url }}</p>
+
+      <!-- Salvo il context relativo alla url in myContext all'inizio -->
+      <ng-container *ngIf="getContextFromMediaUrl(itemsInput, url) as myContext">
+
+        <!-- Mostra l'immagine -->
+        <img [src]="url" [alt]="myContext.display_name || 'media senza nome'" />
+
+        <!-- Itera sul context ordinato per mostrare le chiavi principali prima -->
+        <p class="media-display-name" *ngFor="let entry of getOrderedEntries(myContext)"> <!-- ordino le chiavi per far uscire diplasy_name descrizione type e quantita e altri context-->
+          <strong>{{ formatKey(entry.key) }}:</strong> {{ entry.value }} <!-- normalizzo le chiavi display_name sarà Nome File poi Descrizione Tipo Quantita e altri context-->
+        </p>
+
+      </ng-container>
+
     </div>
   </div>
+
 </div>
