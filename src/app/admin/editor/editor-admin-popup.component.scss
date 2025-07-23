@@ -119,15 +119,6 @@
   }
 }
 
-/* =======================
-   Dialog Angular Material
-======================= */
-::ng-deep .mat-dialog-container {
-  overflow: visible !important;       // Permette ai tooltip di uscire
-  position: relative !important;
-  max-height: 90vh !important;
-  padding: 0 !important;
-}
 
 
 
