@@ -1,0 +1,131 @@
+/* ===========================
+   Contenitore principale popup
+=========================== */
+.popup-container {
+  position: relative;
+  padding: 2rem 1.5rem 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+
+  h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.5rem;
+    color: #222;
+  }
+
+  /* ===========================
+     Testo descrizione (solo lettura)
+  =========================== */
+  .descrizione-testo {
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+    white-space: pre-line;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem 1rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fafafa;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  /* ===========================
+     Textarea per la modifica
+  =========================== */
+  .descrizione-textarea {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+    min-height: 150px;
+    line-height: 1.6;
+    color: #222;
+
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+  }
+
+  /* ===========================
+     Area pulsanti azioni
+  =========================== */
+  .azioni-popup {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+
+    button[mat-icon-button] {
+      color: #555;
+
+      mat-icon {
+        font-size: 24px;
+      }
+
+      &:hover mat-icon {
+        color: #222;
+      }
+    }
+
+    .azioni-editing {
+      display: flex;
+      gap: 0.5rem;
+
+      button {
+        min-width: 80px;
+      }
+    }
+
+    button[mat-raised-button],
+    button[mat-stroked-button] {
+      font-weight: 500;
+    }
+
+    button[mat-stroked-button] {
+      border: 1px solid currentColor;
+      padding: 0.4rem 1.2rem;
+    }
+  }
+}
+
+/* ===========================
+   Pulsante chiusura popup
+=========================== */
+.chiudi-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 24px;
+    color: #888;
+    transition: color 0.3s ease;
+  }
+
+  &:hover mat-icon {
+    color: #000;
+  }
+}

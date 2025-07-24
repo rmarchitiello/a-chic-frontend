@@ -1,0 +1,45 @@
+<div class="popup-container">
+  <!-- Pulsante chiusura -->
+  <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <!-- Titolo -->
+  <h2>Descrizione</h2>
+
+  <!-- Modalità visualizzazione -->
+  <p class="descrizione-testo" *ngIf="!isEditing">
+    {{ descrizioneModificata }}
+  </p>
+
+  <!-- Modalità modifica -->
+  <textarea
+    *ngIf="isEditing"
+    class="descrizione-textarea"
+    [(ngModel)]="descrizioneModificata"
+  ></textarea>
+
+  <!-- Azioni -->
+  <div class="azioni-popup">
+    <!-- Pulsante modifica (visibile solo se non in modifica) -->
+    <button mat-icon-button *ngIf="!isEditing" (click)="attivaModifica()" aria-label="Modifica">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <!-- Pulsanti per modalità modifica -->
+    <div *ngIf="isEditing" class="azioni-editing">
+      <button mat-raised-button color="primary" (click)="salvaModifica()">Salva</button>
+      <button mat-button color="warn" (click)="annullaModifica()">Annulla</button>
+    </div>
+
+    <!-- Pulsante conferma visibile solo se descrizione modificata -->
+    <button
+      mat-stroked-button
+      color="accent"
+      *ngIf="descrizioneModificata !== data.descrizione"
+      (click)="confermaDescrizioneAggiornata()"
+    >
+      Conferma
+    </button>
+  </div>
+</div>

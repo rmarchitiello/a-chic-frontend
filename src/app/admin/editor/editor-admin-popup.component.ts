@@ -82,7 +82,7 @@ import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-dat
 import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedDataService } from '../../services/shared-data.service';
-import { EditDescrizioneComponent } from './edit-descrizione/edit-descrizione.component';
+import { ViewOrEditDescrizioneComponent } from './view-or-edit-descrizione/view-or-edit-descrizione.component';
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -309,12 +309,25 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
 
     //apro solo il pop up della descrizione
 apriPopUpViewDescrizioneComponent(url: string, descrizione: string): void {
-  this.dialog.open(EditDescrizioneComponent, {
+  const dialogRef = this.dialog.open(ViewOrEditDescrizioneComponent, {
     data: { urlFrontale: url, descrizione: descrizione },
-    width: '500px', // opzionale
-    panelClass: 'popup-descrizione-dialog' // opzionale per styling
+    width: '500px',
+    panelClass: 'popup-descrizione-dialog'
+  });
+
+  // Ascolto la chiusura del dialog e prendo i dati se ci sono
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result && result.descrizione && result.urlFrontale) {
+      // Qui hai i dati modificati: result.descrizione e result.urlFrontale
+      console.log('Descrizione aggiornata:', result.descrizione);
+      console.log('URL frontale associato:', result.urlFrontale);
+
+      // Puoi ora aggiornare lo stato, salvare o fare altre azioni
+      // Esempio:
+    }
   });
 }
+
 
 
   getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
