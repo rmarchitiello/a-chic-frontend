@@ -460,30 +460,7 @@ e quindi si fa questa cosa:
 
 
 */
-  apriPopUpEditorAdmin(): void {
-    // Log utile per debugging: mostra i dati del carosello che stai passando al popup
-    console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
 
-    // Apertura del dialog (popup) Angular Material
-    this.dialog.open(EditorAdminPopUpComponent, {
-      // Se impostato su true, l'utente NON può chiudere il popup cliccando fuori o premendo ESC
-      // In questo caso lo lasciamo su false per consentire la chiusura standard
-      disableClose: false,
-
-      // Dati da passare al componente del popup, in questo caso il carosello
-      data: this.carosello,
-
-      // Classe personalizzata per applicare stili personalizzati al dialog
-      // Questa classe viene usata nel file SCSS con ::ng-deep .popup-admin-editor
-      panelClass: 'popup-admin-editor',
-
-      // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
-    });
-  }
 
 
 
@@ -543,6 +520,57 @@ e quindi si fa questa cosa:
     return Array.isArray(media) && media.length > 0;
   }
 
+
+  /* QUESTO E IL VECCHIO METODO DOVE IN DATA PASSAVO L'ARRAY STATICO E SUCCEDEVA CHE SE NEL FIGLIO 
+  INSERIVO UN MEDIA NON LO VEDEVO SUBITO AGGIORNATO, INVECE ORA CHE FACCIO UTILIZZO SUBJECT UN OSBSERVABLE
+  CHE OSSERVA I CAMBIAMENTI OVVERO QUI FACCIO LA NEXT AL FIGLIO SENZA FARE data: this.carosello E QUINDI
+  NON FACCIO PIU L'INJECT DI LA MA FARO LA SUBSCRIBE INFATTI MI SOTTOSCRIVO AL SUBJCT ANDANDO A RECUPERARE I DATI DAL PADRE 
+  PASSANDOLI AL FIGLIO
+
+  apriPopUpEditorAdmin(): void {
+    // Log utile per debugging: mostra i dati del carosello che stai passando al popup
+    console.log("[HomeComponent] sto passando il carosello da editare: ", this.carosello);
+
+    // Apertura del dialog (popup) Angular Material
+    this.dialog.open(EditorAdminPopUpComponent, {
+      // Se impostato su true, l'utente NON può chiudere il popup cliccando fuori o premendo ESC
+      // In questo caso lo lasciamo su false per consentire la chiusura standard
+      disableClose: false,
+
+      // Dati da passare al componente del popup, in questo caso il carosello
+      data: this.carosello,
+
+      // Classe personalizzata per applicare stili personalizzati al dialog
+      // Questa classe viene usata nel file SCSS con ::ng-deep .popup-admin-editor
+      panelClass: 'popup-admin-editor',
+
+      // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
+    });
+  }
+*/
+
+apriPopUpEditorAdmin(): void {
+
+    //chiamo l'observable per passare la media collection al figlio
+    //ovviamente ora è fatta x il carosello ma sarà dinamico
+    this.sharedDataService.setMediaCollection(this.carosello);
+    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.sharedDataService.setMediaCollection(this.carosello));
+    // Apertura del dialog (popup) Angular Material
+    this.dialog.open(EditorAdminPopUpComponent, {
+      disableClose: false,
+      panelClass: 'popup-admin-editor',
+
+      // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
+      width: '100vw',
+      height: '100vh',
+      maxWidth: '100vw',
+      autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
+    });
+  }
 
 
 }

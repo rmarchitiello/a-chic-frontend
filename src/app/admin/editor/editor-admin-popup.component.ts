@@ -82,7 +82,7 @@ import { DownloadDataAdminComponent } from '../common/download-data-admin/downlo
 import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
 import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-
+import { SharedDataService } from '../../services/shared-data.service';
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -127,8 +127,9 @@ export class EditorAdminPopUpComponent implements OnInit {
 
   constructor(
     //ricevo il dato dalla home
-    @Inject(MAT_DIALOG_DATA) public data: MediaCollection,
+    //@Inject(MAT_DIALOG_DATA) public data: MediaCollection lo commento non serve perche ricevo l'input dal observable mediante subscribe,
     private dialogRef: MatDialogRef<EditorAdminPopUpComponent>,
+    private sharedService: SharedDataService,
     private dialog: MatDialog,
   ) { }
 
@@ -138,8 +139,12 @@ export class EditorAdminPopUpComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // Assegna i dati ricevuti dal componente padre alla variabile locale
-    this.inputFromFatherComponent = this.data;
+    
+  this.sharedService.mediaCollection$.subscribe(data => {
+    if (data) {
+      console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
+// Assegna i dati ricevuti dal componente padre alla variabile locale
+    this.inputFromFatherComponent = data;
     console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
     // Estrae il percorso della cartella
@@ -186,6 +191,14 @@ export class EditorAdminPopUpComponent implements OnInit {
           altro ...
       }
     */
+    } else {
+      console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
+    }
+  });
+    
+
+
+    
   }
 
 
