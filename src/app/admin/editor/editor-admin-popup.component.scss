@@ -1,26 +1,29 @@
-/* =======================
+/* =======================================
    Contenitore principale del dialog
-======================= */
+   Imposta padding e consente overflow per tooltip e immagini
+======================================= */
 .dialog-content {
   height: 100%;
   padding: 2rem;
   position: relative;
-  overflow: unset; // Serve per far uscire tooltip e overlay dalle card
+  overflow: unset; // Consente ai tooltip e alle immagini laterali di uscire dal contenitore
 
-  /* =======================
-     Contenitore delle card
-  ======================= */
+  /* =======================================
+     Contenitore delle card anteprima
+     Mostra le card in griglia fluida
+  ======================================= */
   .preview-container {
     display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-    margin-bottom: 2rem;
+    flex-wrap: wrap;              // Permette il ritorno a capo delle card
+    gap: 1.5rem;                  // Spaziatura uniforme tra le card
+    justify-content: center;     // Centra le card orizzontalmente
+    margin-bottom: 2rem;         // Spazio sotto le card
   }
 
-  /* =======================
-     Card singola di anteprima
-  ======================= */
+  /* =======================================
+     Card singola per ogni immagine/media
+     Contiene immagine principale e metadati
+  ======================================= */
   .preview-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
@@ -28,24 +31,26 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     width: 220px;
     text-align: left;
-    transition: transform 0.25s ease;
     position: relative;
-    overflow: hidden;
+    overflow: hidden; // Nasconde overflow interno (immagini non frontali gestite separatamente)
 
-    /* Contenitore interno della card per isolare lo scale */
     .card-inner {
       padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      transition: transform 0.25s ease;
+
+      // Transizione dello zoom interno
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
     }
 
-    /* Effetto hover solo sul contenuto, non sulla struttura della griglia */
+    // Effetto zoom al passaggio del mouse
     &:hover .card-inner {
-      transform: scale(1.03);
+      transform: scale(1.015);
     }
 
+    // Immagine frontale principale
     img {
       width: 100%;
       max-height: 180px;
@@ -55,9 +60,9 @@
       margin-bottom: 1rem;
     }
 
-    /* =======================
-       Metadati della media (nome, descrizione, ecc.)
-    ======================= */
+    /* =======================================
+       Metadati (descrizione, quantità, ecc.)
+    ======================================= */
     .media-display-name {
       width: 100%;
       font-size: 0.9rem;
@@ -67,32 +72,16 @@
       flex-direction: column;
       gap: 0.2rem;
 
-.tooltip-wrapper {
-  // Imposta il blocco come elemento di riga-blocco, utile per tooltip
-  display: inline-block;
-
-  // Impedisce la rottura del testo su più righe
-  white-space: nowrap;
-
-  // Limita la larghezza al contenitore padre
-  max-width: 100%;
-
-  // Nasconde il testo che eccede i limiti del contenitore
-  overflow: hidden;
-
-  // Visualizza i "..." se il testo è troppo lungo
-  text-overflow: ellipsis;
-
-  // Cambia il cursore per far capire che è interattivo
-  cursor: pointer;
-
-  // Aggiunta consigliata: padding verticale per facilitare l'hover
-  padding: 0.25rem 0;
-
-  // Fix per evitare comportamenti anomali con tooltip e hover
-  line-height: 1.4;
-}
-
+      .tooltip-wrapper {
+        display: inline-block;
+        white-space: nowrap;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        padding: 0.25rem 0;
+        line-height: 1.4;
+      }
 
       .context-entry {
         display: flex;
@@ -114,19 +103,32 @@
       }
     }
 
-    /* =======================
-       Overlay con immagini non frontali
-       Appare solo al hover, integrato nella card
-    ======================= */
+    /* =======================================
+       Immagini non frontali (laterali/retro)
+       - visibilità controllata con la classe .visible
+       - animazione fluida in altezza e opacità
+    ======================================= */
     .non-frontali-overlay {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      margin-top: 0.5rem;
       width: 100%;
       padding-top: 0.5rem;
       border-top: 1px solid #eee;
-      animation: fadeIn 0.2s ease-in-out;
+
+      // Altezza iniziale a 0, nessuna visibilità
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+
+      // Transizione fluida altezza + opacità
+      transition: max-height 0.4s ease, opacity 0.4s ease;
+
+      // Attiva la visibilità solo se ha classe .visible
+      &.visible {
+        max-height: 200px;       // Puoi aumentare se ci sono più immagini
+        opacity: 1;
+      }
 
       img {
         width: 60px;
@@ -144,9 +146,9 @@
   }
 }
 
-/* =======================
-   Pulsante di chiusura (in alto a destra)
-======================= */
+/* =======================================
+   Pulsante chiudi in alto a destra
+======================================= */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -170,24 +172,9 @@
   }
 }
 
-/* =======================
-   Overlay Angular Material
-   Permette al contenuto di uscire dai confini
-======================= */
+/* =======================================
+   Abilita overflow tooltip Angular Material
+======================================= */
 ::ng-deep .cdk-overlay-pane {
   overflow: visible !important;
-}
-
-/* =======================
-   Animazione fade-in per immagini laterali
-======================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
