@@ -1,62 +1,74 @@
 <div class="dialog-content">
 
-  <!-- Pulsante per chiudere il dialog -->
+  <!-- 🔘 Pulsante in alto a destra per chiudere il dialog -->
   <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
-  <!-- Contenitore di tutte le card -->
+  <!-- 📦 Contenitore flessibile di tutte le card di anteprima -->
   <div class="preview-container">
 
-    <!-- Ciclo su ogni immagine frontale -->
+    <!-- 🔁 Itero su tutte le immagini frontali (una per asset) -->
     <div 
       class="preview-card"
       *ngFor="let url of mediasUrlsFrontale"
       (mouseenter)="hoveredCard = url"
       (mouseleave)="hoveredCard = null"
     >
+      <div class="card-inner">
+        <!-- 📄 Estraggo i metadati context associati all'URL -->
+        <ng-container *ngIf="contextMap[url] as context">
 
-      <!-- Recupero context relativo -->
-      <ng-container *ngIf="contextMap[url] as context">
-        <img [src]="url" [alt]="context.display_name" />
+          <!-- 🖼️ Immagine principale frontale -->
+          <img 
+            [src]="url" 
+            [alt]="'Immagine frontale di ' + context.display_name"
+          />
 
-        <!-- Metadati contestuali -->
-        <div class="media-display-name">
-          <span 
-            class="tooltip-wrapper"
-            [matTooltip]="context.descrizione"
-            matTooltipClass="tooltip-admin"
-            [matTooltipDisabled]="!isLongText(context.descrizione)"
-            matTooltipPosition="above"
-          >
-            <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
-              <div class="context-entry">
-                <strong class="context-label">{{ contextFormatted.label }}:</strong>
-                <span class="context-value">{{ getPreview(contextFormatted.value) }}</span>
-              </div>
-            </ng-container>
-          </span>
-        </div>
-
-        <!-- Box fluttuante con immagini non frontali -->
-        <ng-container *ngIf="mapUrlsNoFrontali[url] as urlsNoFrontali">
-          <div 
-            class="non-frontali-overlay"
-            *ngIf="urlsNoFrontali.length > 0 && hoveredCard === url"
-          >
-            <img
-              *ngFor="let urlLaterale of urlsNoFrontali"
-              [src]="urlLaterale"
-              class="non-frontale-img"
-              [alt]="context.display_name + ' - angolazione laterale'"
-            />
+          <!-- 🧾 Blocco metadati (nome file, descrizione, quantità, ecc.) -->
+          <div class="media-display-name">
+            <!-- Tooltip solo se descrizione è lunga -->
+            <span 
+              class="tooltip-wrapper"
+              [matTooltip]="context.descrizione"
+              matTooltipClass="tooltip-admin"
+              [matTooltipDisabled]="!isLongText(context.descrizione)"
+              matTooltipPosition="above"
+              matTooltipTrigger="hover"
+              matTooltipShowDelay="0"
+              matTooltipHideDelay="0"
+            >
+              <!-- Mostro metadati ordinati -->
+              <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+                <div class="context-entry">
+                  <strong class="context-label">
+                    {{ contextFormatted.label }}:
+                  </strong>
+                  <span class="context-value">
+                    {{ getPreview(contextFormatted.value) }}
+                  </span>
+                </div>
+              </ng-container>
+            </span>
           </div>
+
+          <!-- 🖼️ Immagini non frontali mostrate solo al passaggio del mouse -->
+          <ng-container *ngIf="mapUrlsNoFrontali[url] as urlsNoFrontali">
+            <div
+              class="non-frontali-overlay"
+              *ngIf="urlsNoFrontali.length > 0 && hoveredCard === url"
+            >
+              <img
+                *ngFor="let urlLaterale of urlsNoFrontali"
+                [src]="urlLaterale"
+                [alt]="'Altra angolazione di ' + context.display_name"
+              />
+            </div>
+          </ng-container>
+
         </ng-container>
-
-      </ng-container>
-
+      </div>
     </div>
 
   </div>
-
 </div>

@@ -10,9 +10,6 @@ html, body {
   touch-action: manipulation;
 }
 
-
-
-
 /* ========== STILE PER DESKTOP (larghezza ≥ 769px) ========== */
 @media (min-width: 769px) {
   html, body {
@@ -45,9 +42,6 @@ html, body {
   }
 }
 
-
-
-
 /* ================================================
    STILI GLOBALI PER TOOLTIP ANGULAR MATERIAL
    Questo blocco garantisce che i tooltip funzionino
@@ -76,7 +70,7 @@ html, body {
    Applichiamo visibilità forzata, stile leggibile e
    z-index alto per essere sempre sopra gli altri elementi. */
 
-   /* questo è lo stile di base di tutti i tool tip 
+/* questo è lo stile di base di tutti i tool tip 
    cioe quando scrivo
    <div
     class="media-display-name"
@@ -85,8 +79,7 @@ html, body {
 
     lui sta creanod un div cosi
     <div class="mat-tool-tip tooltip-rosso"   . . . e cosi via quindi se sbaglio a settare i colori ecc uno sovrascrive l'altro e non si capisce
-   
-   */
+*/
 ::ng-deep .mat-tooltip {
   opacity: 1 !important;
   visibility: visible !important;
@@ -100,7 +93,14 @@ html, body {
   word-break: break-word;
 }
 
-//poi nella classe personalizzata definisco i colori
+// pannello vero e proprio del tooltip per non rendere le descrizioni tagliate
+::ng-deep .mat-tooltip-panel {
+  max-height: none !important;     // Nessun limite fisso di altezza
+  overflow: visible !important;    // Permette al contenuto di espandersi
+  pointer-events: auto !important; // Assicura che lo scroll sia possibile
+}
+
+// poi nella classe personalizzata definisco i colori
 
 /* ==========================================================
    CLASSE PERSONALIZZATA PER TOOLTIP ROSSO (ESEMPIO UTENTE)
@@ -108,34 +108,37 @@ html, body {
    per evidenziare messaggi critici o alert importanti.
 ========================================================== */
 ::ng-deep .tooltip-admin {
-  background-color: rgba(255, 255, 255, 0.92) !important; // sfondo grigio scuro semi-trasparente
-  color: #25d366 !important;                          // verde stile WhatsApp
+  background-color: rgba(255, 255, 255, 0.95) !important; // sfondo più leggibile
+  color: #25d366 !important;
   font-weight: 500;
-  font-size: 15px;                                     // leggibilità aumentata
+  font-size: 15px;
   line-height: 1.6;
   border-radius: 8px;
-  padding: 12px 16px;
-  max-width: 320px;
+  padding: 16px 20px;               // padding più ampio per respirare meglio
+  max-width: 90vw;                  // si adatta allo schermo
+  max-height: 60vh;                 // limita altezza per evitare overflow
   white-space: normal !important;
   word-break: break-word;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);            // ombra elegante, niente bordo rosso
+  overflow-y: auto;                 // scrollbar visibile per contenuti lunghi
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 
-  // Forziamo anche il contenuto interno se serve (emoticon o tag inline)
   * {
     background-color: transparent !important;
     color: #000000 !important;
     font-size: 15px !important;
     line-height: 1.6 !important;
   }
+
+  // Aggiungiamo margine interno alla scrollbar per non attaccarla al testo
+  scrollbar-width: thin;
+  scrollbar-color: #999 transparent;
 }
-
-
 
 /* ==========================================================
    ESEMPIO USO TOOLTIP CON CLASSE PERSONALIZZATA:
 
    <div
-     matTooltip="✅ FUNZIONA DAL FOR!"
+     matTooltip=" FUNZIONA DAL FOR!"
      matTooltipClass="tooltip-rosso"
      matTooltipPosition="above"
    >
