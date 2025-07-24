@@ -1,0 +1,63 @@
+/* ===========================
+   Contenitore principale popup
+=========================== */
+.popup-container {
+  position: relative;
+  padding: 2rem 1.5rem 1.5rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+
+  h2 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #222;
+  }
+
+.descrizione-testo {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+  white-space: pre-line;
+  word-break: break-word;        // ✅ forza l'andata a capo su parole troppo lunghe
+  overflow-wrap: break-word;     // ✅ ulteriore fallback
+  max-height: 300px;
+  overflow-y: auto;              // ✅ solo scroll verticale
+  overflow-x: hidden;            // ✅ disabilita scroll orizzontale
+  padding: 0.5rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+}
+
+/* ===========================
+   Pulsante di chiusura popup
+=========================== */
+.chiudi-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 24px;
+    color: #888;
+    transition: color 0.3s ease;
+  }
+
+  &:hover mat-icon {
+    color: #000;
+  }
+}

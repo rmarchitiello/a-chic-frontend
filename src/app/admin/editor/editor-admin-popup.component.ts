@@ -71,8 +71,7 @@ In pratica l'editor mi consente di lavorare su un json del genere
 ESSENDO CHE IL TOOL TIP NON PUO AVERE degli ngFor dove l'array viene restituito da un metodo devo caricare prima tutti gli array
 per questo carico gli array mediaurls frontale 
 */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -83,6 +82,7 @@ import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-dat
 import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedDataService } from '../../services/shared-data.service';
+import { EditDescrizioneComponent } from './edit-descrizione/edit-descrizione.component';
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -211,9 +211,7 @@ private inizializzaIndiciSecondari(): void {
   }
 }
 
-  ngOnDestroy(): void {
-    this.chiudiDialog();
-  }
+
 
   //restituisco l'array di url frontali
   getMediaUrlsFrontale(media: MediaMeta[]): string[] {
@@ -279,7 +277,7 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
   getPreview(value: string, max = 40): string {
     if (typeof value !== 'string') return value as any;
-    return value.length > max ? value.slice(0, max) + ' …' : value;
+    return value.length > max ? value.slice(0, max)  : value;
   }
   //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
   //se lo supera torna true
@@ -308,6 +306,16 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
   
     
   */
+
+    //apro solo il pop up della descrizione
+apriPopUpViewDescrizioneComponent(url: string, descrizione: string): void {
+  this.dialog.open(EditDescrizioneComponent, {
+    data: { urlFrontale: url, descrizione: descrizione },
+    width: '500px', // opzionale
+    panelClass: 'popup-descrizione-dialog' // opzionale per styling
+  });
+}
+
 
   getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
     const ordine = ['display_name', 'descrizione', 'type', 'quantita'];

@@ -145,3 +145,39 @@ html, body {
      <u style="cursor: help;">Testo con tooltip</u>
    </div>
 ========================================================== */
+
+
+/* 
+ESEMPIO DI TOOLTIP IN HTML
+RICORDA DA INSERIRE AL DI FUORI QUESTO TOOLTIP
+<!-- TOOL TIP DI ANGULAR
+SI FA COSI
+       <div class="media-display-name">
+            <span
+              class="tooltip-wrapper"
+              [matTooltip]="context.descrizione"
+              matTooltipClass="tooltip-admin"
+              [matTooltipDisabled]="!isLongText(context.descrizione)"
+              matTooltipPosition="above"
+            >
+              <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+                <div class="context-entry">
+                  <strong class="context-label">
+                    {{ contextFormatted.label }}:
+                  </strong>
+                  <span class="context-value">
+                    {{ getPreview(contextFormatted.value) }}
+                  </span>
+                </div>
+              </ng-container>
+            </span>
+          </div> 
+
+
+
+
+
+
+-->
+
+*/
