@@ -1,29 +1,20 @@
 /* =======================================
    Contenitore principale del dialog
-   Imposta padding e consente overflow per tooltip e immagini
 ======================================= */
 .dialog-content {
   height: 100%;
   padding: 2rem;
   position: relative;
-  overflow: unset; // Consente ai tooltip e alle immagini laterali di uscire dal contenitore
+  overflow: unset;
 
-  /* =======================================
-     Contenitore delle card anteprima
-     Mostra le card in griglia fluida
-  ======================================= */
   .preview-container {
     display: flex;
-    flex-wrap: wrap;              // Permette il ritorno a capo delle card
-    gap: 1.5rem;                  // Spaziatura uniforme tra le card
-    justify-content: center;     // Centra le card orizzontalmente
-    margin-bottom: 2rem;         // Spazio sotto le card
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 2rem;
   }
 
-  /* =======================================
-     Card singola per ogni immagine/media
-     Contiene immagine principale e metadati
-  ======================================= */
   .preview-card {
     background-color: #fff;
     border: 1px solid #e0e0e0;
@@ -32,25 +23,21 @@
     width: 220px;
     text-align: left;
     position: relative;
-    overflow: hidden; // Nasconde overflow interno (immagini non frontali gestite separatamente)
+    overflow: hidden;
 
     .card-inner {
       padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-
-      // Transizione dello zoom interno
       transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
       will-change: transform;
     }
 
-    // Effetto zoom al passaggio del mouse
     &:hover .card-inner {
       transform: scale(1.015);
     }
 
-    // Immagine frontale principale
     img {
       width: 100%;
       max-height: 180px;
@@ -60,9 +47,6 @@
       margin-bottom: 1rem;
     }
 
-    /* =======================================
-       Metadati (descrizione, quantità, ecc.)
-    ======================================= */
     .media-display-name {
       width: 100%;
       font-size: 0.9rem;
@@ -80,7 +64,6 @@
         text-overflow: ellipsis;
         cursor: pointer;
         padding: 0.25rem 0;
-        line-height: 1.4;
       }
 
       .context-entry {
@@ -103,52 +86,92 @@
       }
     }
 
-    /* =======================================
-       Immagini non frontali (laterali/retro)
-       - visibilità controllata con la classe .visible
-       - animazione fluida in altezza e opacità
-    ======================================= */
+    /* ============================
+       Overlay immagini secondarie
+       ============================ */
     .non-frontali-overlay {
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
       gap: 0.5rem;
       width: 100%;
-      padding-top: 0.5rem;
-      border-top: 1px solid #eee;
-
-      // Altezza iniziale a 0, nessuna visibilità
       max-height: 0;
       opacity: 0;
       overflow: hidden;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      position: relative;
 
-      // Transizione fluida altezza + opacità
-      transition: max-height 0.4s ease, opacity 0.4s ease;
-
-      // Attiva la visibilità solo se ha classe .visible
       &.visible {
-        max-height: 200px;       // Puoi aumentare se ci sono più immagini
+        padding-top: 0.5rem;
+        border-top: 1px solid #eee;
+        max-height: 220px;
         opacity: 1;
+        pointer-events: auto;
       }
 
-      img {
-        width: 60px;
-        height: 60px;
+      .img-secondaria {
+        width: 100px;
+        height: 100px;
         object-fit: cover;
-        border-radius: 4px;
+        border-radius: 6px;
         border: 1px solid #ddd;
         transition: transform 0.2s ease;
+        background-color: #fdfdfd;
 
         &:hover {
           transform: scale(1.05);
         }
       }
+
+      .nav-btn {
+        background-color: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: calc(50% - 12px);
+        z-index: 2;
+
+        mat-icon {
+          font-size: 22px;
+          color: #555;
+          transition: color 0.3s ease;
+        }
+
+        &:hover mat-icon {
+          color: #000;
+        }
+      }
+
+      .prev-btn {
+        left: -4px;
+      }
+
+      .next-btn {
+        right: -4px;
+      }
+
+      .messaggio-nessuna-immagine {
+        width: 100%;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #666;
+        padding: 0.5rem 0.25rem;
+        background-color: #fafafa;
+        border-radius: 4px;
+        border: 1px dashed #ccc;
+      }
     }
   }
 }
 
-/* =======================================
-   Pulsante chiudi in alto a destra
-======================================= */
+/* ============================
+   Pulsante di chiusura dialog
+============================ */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -172,9 +195,9 @@
   }
 }
 
-/* =======================================
-   Abilita overflow tooltip Angular Material
-======================================= */
+/* ============================
+   Tooltip Angular Material
+============================ */
 ::ng-deep .cdk-overlay-pane {
   overflow: visible !important;
 }

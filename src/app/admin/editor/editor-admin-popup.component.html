@@ -1,15 +1,15 @@
 <div class="dialog-content">
 
-  <!-- Pulsante di chiusura del dialog, posizionato in alto a destra -->
+  <!-- Pulsante di chiusura del dialog -->
   <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
-  <!-- Contenitore principale che ospita tutte le card in layout flessibile -->
+  <!-- Contenitore flessibile di tutte le card -->
   <div class="preview-container">
 
-    <!-- Iterazione su tutte le immagini frontali principali -->
-    <div 
+    <!-- Iterazione su ogni immagine frontale -->
+    <div
       class="preview-card"
       *ngFor="let url of mediasUrlsFrontale"
       (mouseenter)="hoveredCard = url"
@@ -17,31 +17,24 @@
     >
       <div class="card-inner">
 
-        <!-- Recupero i metadati per la card corrente dalla mappa contextMap -->
+        <!-- Recupero metadati dalla mappa per la card corrente -->
         <ng-container *ngIf="contextMap[url] as context">
 
-          <!-- Immagine principale (frontale) dell’elemento -->
-          <img 
-            [src]="url" 
+          <!-- Immagine frontale principale -->
+          <img
+            [src]="url"
             [alt]="'Immagine frontale di ' + context.display_name"
           />
 
-          <!-- Sezione che visualizza i metadati (nome, descrizione, quantità, ecc.) -->
+          <!-- Metadati contestuali (nome file, descrizione, ecc.) -->
           <div class="media-display-name">
-
-            <!-- Tooltip visibile solo se il testo è lungo -->
-            <span 
+            <span
               class="tooltip-wrapper"
               [matTooltip]="context.descrizione"
               matTooltipClass="tooltip-admin"
               [matTooltipDisabled]="!isLongText(context.descrizione)"
               matTooltipPosition="above"
-              matTooltipTrigger="hover"
-              matTooltipShowDelay="0"
-              matTooltipHideDelay="0"
             >
-
-              <!-- Iterazione sui metadati ordinati: etichetta e valore -->
               <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
                 <div class="context-entry">
                   <strong class="context-label">
@@ -52,23 +45,52 @@
                   </span>
                 </div>
               </ng-container>
-
             </span>
           </div>
 
-          <!-- Contenitore per le immagini secondarie (laterali, retro) -->
-          <!-- Lasciato sempre nel DOM, visibilità controllata da classe CSS -->
-          <ng-container *ngIf="mapUrlsNoFrontali[url] as urlsNoFrontali">
-            <div
-              class="non-frontali-overlay"
-              [class.visible]="urlsNoFrontali.length > 0 && hoveredCard === url"
-            >
-              <!-- Mostra le immagini secondarie come anteprima in miniatura -->
-              <img
-                *ngFor="let urlLaterale of urlsNoFrontali"
-                [src]="urlLaterale"
-                [alt]="'Altra angolazione di ' + context.display_name"
-              />
+          <!-- Contenitore delle immagini secondarie -->
+          <ng-container *ngIf="mapUrlsNoFrontali[url] as immaginiSecondarie">
+            <div class="non-frontali-overlay" [class.visible]="hoveredCard === url">
+
+              <!-- Se ci sono immagini secondarie -->
+              <ng-container *ngIf="immaginiSecondarie.length > 0; else noViews">
+
+                <!-- Pulsante prev -->
+                <button
+                  class="nav-btn prev-btn"
+                  mat-icon-button
+                  (click)="prevSecondaryImage(url)"
+                  *ngIf="immaginiSecondarie.length > 1"
+                >
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+
+                <!-- Immagine secondaria corrente -->
+                <img
+                  class="img-secondaria"
+                  [src]="immaginiSecondarie[currentSecondaryIndex[url]]"
+                  [alt]="'Altra angolazione di ' + context.display_name"
+                />
+
+                <!-- Pulsante next -->
+                <button
+                  class="nav-btn next-btn"
+                  mat-icon-button
+                  (click)="nextSecondaryImage(url)"
+                  *ngIf="immaginiSecondarie.length > 1"
+                >
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+
+              </ng-container>
+
+              <!-- Se non ci sono immagini secondarie -->
+              <ng-template #noViews>
+                <div class="messaggio-nessuna-immagine">
+                  Non sono disponibili altre angolazioni per questo articolo.
+                </div>
+              </ng-template>
+
             </div>
           </ng-container>
 

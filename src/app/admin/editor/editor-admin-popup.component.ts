@@ -121,7 +121,8 @@ export class EditorAdminPopUpComponent implements OnInit {
 
   currentIndex: number = 0;
 
-
+// Mappa per tracciare l'indice dell'immagine non frontale attualmente visibile per ciascuna card
+currentSecondaryIndex: { [urlFrontale: string]: number } = {};
 
 
 
@@ -170,7 +171,8 @@ export class EditorAdminPopUpComponent implements OnInit {
       //carico le url non fronali
       this.mapUrlsNoFrontali = this.getMediaUrlsNoFrontale(this.itemsInput);
 
-
+      //inizializzo la mappa degli indici delle foto non frontali
+      this.inizializzaIndiciSecondari();
 
 
 
@@ -201,6 +203,13 @@ export class EditorAdminPopUpComponent implements OnInit {
     
   }
 
+private inizializzaIndiciSecondari(): void {
+  for (const url of this.mediasUrlsFrontale) {
+    if (this.mapUrlsNoFrontali[url]?.length > 0) {
+      this.currentSecondaryIndex[url] = 0;
+    }
+  }
+}
 
   ngOnDestroy(): void {
     this.chiudiDialog();
@@ -403,6 +412,23 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
   }
 
 
+// Mostra l'immagine secondaria precedente
+prevSecondaryImage(url: string): void {
+  if (this.mapUrlsNoFrontali[url]) {
+    const total = this.mapUrlsNoFrontali[url].length;
+    this.currentSecondaryIndex[url] =
+      (this.currentSecondaryIndex[url] - 1 + total) % total;
+  }
+}
+
+// Mostra l'immagine secondaria successiva
+nextSecondaryImage(url: string): void {
+  if (this.mapUrlsNoFrontali[url]) {
+    const total = this.mapUrlsNoFrontali[url].length;
+    this.currentSecondaryIndex[url] =
+      (this.currentSecondaryIndex[url] + 1) % total;
+  }
+}
 
 
 
