@@ -262,38 +262,61 @@
    Card "+" per aggiungere un file
    Stessa dimensione delle preview
 ================================ */
+/* =======================================
+   Card di aggiunta prodotto (stile '+')
+   Eredita layout da .preview-card
+======================================= */
 .preview-card.upload-add-card {
-  border: 2px dashed #4caf50; // bordo tratteggiato verde
+  /* Bordo tratteggiato verde */
+  border: 2px dashed #4caf50;
+
+  /* Sfondo trasparente, altezza automatica */
   background-color: transparent;
-  width: 220px;               // uguale alla .preview-card
   height: auto;
-  display: flex;  
-  cursor: pointer;            // layout flex per centratura
+  width: 220px; // stessa larghezza delle card classiche
+
+  /* Layout flessibile per centratura del contenuto */
+  display: flex;
   justify-content: center;
   align-items: center;
+
+  /* Arrotondamento e ombra identici a .preview-card */
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); // come la preview
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 
+  /* Cursore a mano per indicare azione cliccabile */
+  cursor: pointer;
+
+  /* Nasconde eventuali contenuti della .card-inner ereditata */
   .card-inner {
-    display: none; // nascondiamo i contenuti delle altre card
+    display: none;
   }
 
+  /* Testo/etichetta cliccabile del pulsante */
   .add-icon {
-    font-size: 48px;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 1rem;
+    border-radius: 8px;
     color: #4caf50;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s ease, color 0.25s ease;
+    text-align: center;
+    user-select: none;
+    line-height: 1.2;
   }
 
+  /* Effetto hover: sfondo chiaro e ingrandimento leggero */
   &:hover {
     background-color: rgba(76, 175, 80, 0.06);
     border-color: #388e3c;
 
     .add-icon {
-      transform: scale(1.15);
-      
+      transform: scale(1.05);
+      color: #388e3c;
     }
   }
 }
+
 
 
 

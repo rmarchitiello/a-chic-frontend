@@ -518,14 +518,13 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   //input statico al momento 
   //input che serve per caricare il file
-  folderToUpload: string = 'Config/Home/Carosello'; //anche qui rendere dinamico
 
   apriPopUpCaricaMedia() {
 
     this.dialog.open(UploadDataAdminComponent, {
       width: '90vw',
       disableClose: false,
-      data: this.folderToUpload
+      data: this.folderInput
     });
   }
 
