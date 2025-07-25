@@ -20,6 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class ViewOrEditDescrizioneComponent {
   isEditing = false;                   // Modalità modifica attiva/inattiva
   descrizioneModificata: string;       // Copia modificabile della descrizione iniziale
+  modificaInAttesaDiConferma = false;
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -30,40 +31,54 @@ export class ViewOrEditDescrizioneComponent {
     this.descrizioneModificata = data.descrizione;
   }
 
-  // Entra in modalità modifica
-  attivaModifica(): void {
-    this.isEditing = true;
+  // Attiva la modalità di modifica del testo.
+// Resetta eventuali modifiche non confermate precedentemente.
+attivaModifica(): void {
+  this.isEditing = true;                    // Mostra la textarea e i pulsanti "Salva" e "Annulla"
+  this.modificaInAttesaDiConferma = false; // Nasconde il pulsante "Conferma", se presente
+}
+
+// Salva temporaneamente il testo modificato e torna alla visualizzazione.
+// Se il nuovo testo è diverso dall'originale, abilita il pulsante "Conferma".
+salvaModifica(): void {
+  this.isEditing = false; // Esce dalla modalità di modifica
+
+  // Se il testo è stato effettivamente modificato rispetto all'originale
+  if (this.descrizioneModificata !== this.data.descrizione) {
+    this.modificaInAttesaDiConferma = true; // Abilita il pulsante "Conferma"
   }
+}
 
-  // Esce dalla modalità modifica mantenendo il nuovo testo
-  salvaModifica(): void {
-    this.isEditing = false;
-  }
+// Annulla la modifica in corso.
+// Ripristina il valore originale e torna alla modalità di visualizzazione.
+annullaModifica(): void {
+  this.descrizioneModificata = this.data.descrizione; // Ripristina il testo originale
+  this.isEditing = false;                             // Esce dalla modalità di modifica
+  this.modificaInAttesaDiConferma = false;            // Nasconde il pulsante "Conferma"
+}
 
-  // Ripristina la descrizione iniziale e torna in visualizzazione
-  annullaModifica(): void {
-    this.descrizioneModificata = this.data.descrizione;
-    this.isEditing = false;
-  }
+// Conferma definitivamente la descrizione modificata e chiude il popup.
+// Se il testo è stato modificato e non è vuoto, restituisce i dati al chiamante.
+// In caso contrario, chiude il dialog senza inviare nulla.
+confermaDescrizioneAggiornata(): void {
+  const nuovaDescrizione = this.descrizioneModificata?.trim();
 
-  // Chiude il popup e invia dati SOLO se la descrizione è cambiata e non vuota
-  confermaDescrizioneAggiornata(): void {
-    const nuovaDescrizione = this.descrizioneModificata?.trim();
-
-    // Se la descrizione è cambiata e non è vuota, invio i dati
-    if (nuovaDescrizione && nuovaDescrizione !== this.data.descrizione) {
-      this.dialogRef.close({
-        descrizione: nuovaDescrizione,
-        urlFrontale: this.data.urlFrontale
-      });
-    } else {
-      // Altrimenti chiudo normalmente senza restituire nulla
-      this.dialogRef.close();
-    }
-  }
-
-  // Metodo generico per chiudere il dialog senza inviare dati
-  chiudiDialog(): void {
+  // Verifica che la descrizione sia diversa da quella originale e non vuota
+  if (nuovaDescrizione && nuovaDescrizione !== this.data.descrizione) {
+    // Chiude il dialog e restituisce i dati modificati
+    this.dialogRef.close({
+      descrizione: nuovaDescrizione,
+      urlFrontale: this.data.urlFrontale
+    });
+  } else {
+    // Se non ci sono modifiche valide, chiude semplicemente il dialog
     this.dialogRef.close();
   }
+}
+
+// Chiude il dialog senza salvare né restituire alcun dato.
+chiudiDialog(): void {
+  this.dialogRef.close();
+}
+
 }

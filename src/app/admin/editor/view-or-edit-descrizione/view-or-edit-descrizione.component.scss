@@ -4,9 +4,11 @@
 .popup-container {
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  min-width: 350px;      // ✅ AGGIUNTO
+  min-height: 300px;     // ✅ AGGIUNTO
   max-width: 500px;
   margin: 0 auto;
   text-align: center;
