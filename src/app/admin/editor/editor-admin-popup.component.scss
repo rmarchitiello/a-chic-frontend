@@ -255,125 +255,46 @@
 }
 
 
-
-/* =======================================
-   Card speciale: area di upload file
-======================================= */
-.preview-card.upload-drop-area {
-  // Sfondo trasparente di default
-  background-color: transparent !important;
-
-  // Bordi tratteggiati rossi
-  border: 2px dashed #d41010;
-  cursor: pointer;
-
-  // Angoli arrotondati e padding interno
+/* ================================
+   Card + per aggiungere un file e eredito le cose di preview card
+================================ */
+/* ================================
+   Card "+" per aggiungere un file
+   Stessa dimensione delle preview
+================================ */
+.preview-card.upload-add-card {
+  border: 2px dashed #4caf50; // bordo tratteggiato verde
+  background-color: transparent;
+  width: 220px;               // uguale alla .preview-card
+  height: auto;
+  display: flex;  
+  cursor: pointer;            // layout flex per centratura
+  justify-content: center;
+  align-items: center;
   border-radius: 12px;
-  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); // come la preview
 
-  // Transizione fluida per bordo e sfondo
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-
-  // Stato attivo quando il file è sopra l’area
-  &.hover-active {
-    // Cambia bordo in blu
-    border-color: #3f51b5;
-
-    // Sfondo azzurrino visibile
-    background-color: rgba(63, 81, 181, 0.1);
+  .card-inner {
+    display: none; // nascondiamo i contenuti delle altre card
   }
 
-  // Contenuto interno centrato
-  .upload-card-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 180px;
-    text-align: center;
-  }
-
-  // Icona di upload
-  .upload-icon {
+  .add-icon {
     font-size: 48px;
-    margin-bottom: 12px;
-    color: #3f51b5;
+    color: #4caf50;
+    transition: transform 0.2s ease;
   }
 
-  // Istruzioni testuali
-  .upload-instructions {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
+  &:hover {
+    background-color: rgba(76, 175, 80, 0.06);
+    border-color: #388e3c;
 
-  // Pulsante di selezione
-  button {
-    font-weight: 500;
-    text-transform: none;
-  }
-
-  // ================================
-  // Anteprima dei file caricati
-  // ================================
-  .upload-preview-list {
-    display: flex;
-    gap: 16px;
-    margin-top: 16px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-
-    .upload-preview-item {
-      position: relative;
-      flex: 0 0 auto;
-      width: 140px;
-      max-width: 140px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 8px;
-      background-color: #fafafa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-
-      img,
-      video {
-        width: 100%;
-        height: auto;
-        max-height: 100px;
-        object-fit: contain;
-        border-radius: 4px;
-        margin-bottom: 6px;
-      }
-
-      audio {
-        width: 100%;
-        margin-bottom: 6px;
-      }
-
-      .unsupported-file {
-        font-size: 32px;
-        color: #888;
-        margin-bottom: 6px;
-      }
-
-      .preview-file-name {
-        font-size: 12px;
-        color: #333;
-        word-break: break-all;
-        margin-bottom: 4px;
-      }
-
-      button {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        background-color: white;
-        z-index: 2;
-      }
+    .add-icon {
+      transform: scale(1.15);
+      
     }
   }
 }
+
+
+
 

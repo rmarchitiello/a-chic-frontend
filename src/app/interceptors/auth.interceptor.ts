@@ -31,8 +31,8 @@ export class AuthInterceptor implements HttpInterceptor {
 
         //  Se il backend risponde 401 -> token scaduto / assente
         if (error.status === 403) {
-          localStorage.removeItem('admin-cms');   // pulisco il token
-          this.router.navigate(['/cms-login']);   // redirect alla login
+          localStorage.removeItem('admin');   // pulisco il token
+          this.router.navigate(['/admin']);   // redirect alla login
         }
 
         // Rilancio comunque l'errore al chiamante

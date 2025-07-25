@@ -84,60 +84,17 @@
     </div>
 
 
-<!-- ============================
-     Card di Upload dei File
-============================= -->
-<div class="preview-card upload-drop-area"
-     [class.hover-active]="isHovering"
-     (dragover)="onDragOver($event)"
-     (dragleave)="onDragLeave($event)"
-     (drop)="onDrop($event)">
 
-  <!-- Contenuto centrale della card di upload -->
-  <div class="card-inner upload-card-inner">
-    <mat-icon class="upload-icon" color="primary">cloud_upload</mat-icon>
-    <p class="upload-instructions">
-      Trascina qui uno o più file da caricare<br />oppure
-    </p>
-    <button mat-stroked-button color="primary" (click)="fileInput.click()">
-      Seleziona dal dispositivo
-    </button>
-    <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
-  </div>
 
-  <!-- ============================
-       Lista delle anteprime file
-  ============================== -->
-  <div class="upload-preview-list" *ngIf="filesDaCaricare.length > 0">
-    <div class="upload-preview-item" *ngFor="let file of filesDaCaricare">
+    <!-- ===========================
+     Pulsante singolo "Aggiungi"
+=========================== -->
+    <div class="preview-card upload-add-card">
 
-      <!-- Switch per tipo di file: immagine, video o audio -->
-      <ng-container [ngSwitch]="file.type.split('/')[0]">
+        <span (click)="apriPopUpCaricaMedia()" matTooltip="Aggiungi Prodotto" class="add-icon">+</span>
 
-        <!-- Immagini -->
-        <img *ngSwitchCase="'image'" [src]="anteprimeFile.get(file)" [alt]="file.name" />
-
-        <!-- Video -->
-        <video *ngSwitchCase="'video'" [src]="anteprimeFile.get(file)" controls></video>
-
-        <!-- Audio -->
-        <audio *ngSwitchCase="'audio'" [src]="anteprimeFile.get(file)" controls></audio>
-
-        <!-- Fallback (opzionale): icona per file non supportati -->
-        <div *ngSwitchDefault class="unsupported-file">
-          <mat-icon>insert_drive_file</mat-icon>
-        </div>
-      </ng-container>
-
-      <!-- Nome file e pulsante rimozione -->
-      <div class="preview-file-name">{{ file.name }}</div>
-      <button mat-icon-button color="warn" (click)="rimuoviFile(file)">
-        <mat-icon>delete</mat-icon>
-      </button>
     </div>
-  </div>
 
-</div>
 
 
 
