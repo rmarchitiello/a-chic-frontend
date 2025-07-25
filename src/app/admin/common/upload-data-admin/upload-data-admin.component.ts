@@ -52,7 +52,8 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   statoUpload: Map<File, 'ok' | 'ko'> = new Map(); // Stato di ogni file caricato
   motiviErroreUpload = new Map<File, string>(); // Motivi errore
   uploadInCorso: boolean = false; // Flag di caricamento
-
+  
+  inputFolder: string = '';
 
 
 fileSelezionatoComeFrontale: File | null = null;
@@ -197,6 +198,9 @@ apriPopUpEditFile(file: File): void {
 
 
   ngOnInit(): void {
+    this.inputFolder = this.folder;
+    console.log("Folder dove caricare: ", this.inputFolder);
+
     //non fa uploadre cose all esterno del drop
     window.addEventListener('dragover', this.preventBrowserDefault, false);
     window.addEventListener('drop', this.preventBrowserDefault, false);
@@ -285,11 +289,21 @@ rimuoviFile(file: File): void {
 }
 
 
-  rimuoviTuttiIFiles(): void {
-    this.filesDaCaricare = [];
-    this.anteprimeFile.clear();
-    this.metadatiPerFile.clear();
-  }
+rimuoviTuttiIFiles(): void {
+  //  Svuoto completamente i file da caricare
+  this.filesDaCaricare = [];
+
+  //  Svuoto anche le anteprime
+  this.anteprimeFile.clear();
+
+  //  Svuoto tutti i metadati associati
+  this.metadatiPerFile.clear();
+
+  //  Azzero anche lo stato del file frontale selezionato
+  this.fileSelezionatoComeFrontale = null;
+  this.ultimoFileFrontaleSelezionato = null;
+}
+
 
   chiudiDialog(reload: boolean): void {
     this.dialogRef.close();
@@ -302,80 +316,97 @@ rimuoviFile(file: File): void {
  * Avvia l'upload dei file (singolo o multiplo)
  */
   uploadFiles(fileInput?: File): void {
-    if (this.filesDaCaricare.length === 0) {
-      alert("Errore: seleziona almeno un file da caricare.");
-      return;
-    }
-
-    const filesDaCaricare = fileInput
-      ? this.filesDaCaricare.filter(f => f === fileInput)
-      : this.filesDaCaricare;
-
-    const folder = this.folder?.trim();
-    if (!folder) {
-      alert("Errore: specifica una cartella di destinazione.");
-      return;
-    }
-
-    const livelli = folder.split('/').filter(p => p.trim() !== '');
-    if (livelli.length > 3) {
-      alert('Errore: massimo 3 livelli di cartella consentiti.');
-      return;
-    }
-
-    this.uploadInCorso = true;
-    this.statoUpload.clear();
-    this.motiviErroreUpload.clear();
-
-    const formData = new FormData();
-    const metadataList: MediaContext[] = [];
-
-    filesDaCaricare.forEach(file => {
-      formData.append('file', file);
-      const context = this.metadatiPerFile.get(file);
-      if (context) metadataList.push(context);
-    });
-
-    metadataList.forEach(metadata => {
-      formData.append('cloudinary', JSON.stringify(metadata));
-    });
-
-    const isConfig = folder.toLowerCase().includes('config');
-
-    this.adminService.uploadMedia(formData, isConfig).subscribe({
-      next: (res) => {
-        if (Array.isArray(res.data)) {
-          res.data.forEach((uploadResult: { nome_file: string; status: 'ok' | 'ko'; reason?: string }) => {
-            const fileMatch = filesDaCaricare.find(f => f.name.split('.')[0] === uploadResult.nome_file);
-            if (fileMatch) {
-              this.statoUpload.set(fileMatch, uploadResult.status);
-
-              if (uploadResult.status === 'ko') {
-                this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
-              } else {
-                setTimeout(() => {
-                  this.statoUpload.delete(fileMatch);
-                  this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
-                  if (this.filesDaCaricare.length === 0) {
-                    setTimeout(() => window.location.reload(), 800);
-                  }
-                }, 2000);
-              }
-            }
-          });
-        }
-        this.uploadInCorso = false;
-      },
-      error: (err) => {
-        console.error("Errore durante upload:", err);
-        this.filesDaCaricare.forEach(file => {
-          this.statoUpload.set(file, 'ko');
-          this.motiviErroreUpload.set(file, 'Errore generico durante l' + "'upload");
-        });
-        this.uploadInCorso = false;
-      }
-    });
+  // Verifica che ci siano file da caricare
+  if (this.filesDaCaricare.length === 0) {
+    alert("Errore: seleziona almeno un file da caricare.");
+    return;
   }
+
+  // Se è stato passato un file specifico, filtriamo solo quello, altrimenti usiamo tutti i file
+  const filesDaCaricare = fileInput
+    ? this.filesDaCaricare.filter(f => f === fileInput)
+    : this.filesDaCaricare;
+
+  // Verifica che la cartella sia stata inserita
+  const folder = this.inputFolder?.trim();
+  if (!folder) {
+    alert("Errore: specifica una cartella di destinazione.");
+    return;
+  }
+
+  // Controllo sul numero massimo di livelli nella cartella
+  const livelli = folder.split('/').filter(p => p.trim() !== '');
+  if (livelli.length > 3) {
+    alert('Errore: massimo 3 livelli di cartella consentiti.');
+    return;
+  }
+
+  // Stato iniziale
+  this.uploadInCorso = true;
+  this.statoUpload.clear();
+  this.motiviErroreUpload.clear();
+
+  const formData = new FormData();
+
+  // Costruisco i metadati includendo anche la cartella
+  const metadataList: { folder: string; context: MediaContext }[] = [];
+
+  filesDaCaricare.forEach(file => {
+    const context = this.metadatiPerFile.get(file);
+    if (context) {
+      formData.append('file', file); // Aggiungo il file
+      metadataList.push({
+        folder,
+        context
+      });
+    }
+  });
+
+  // Aggiungo i metadati in formato stringa (JSON) al FormData
+  metadataList.forEach(metadata => {
+    formData.append('cloudinary', JSON.stringify(metadata));
+  });
+
+  // Verifico se è una cartella "config"
+  const isConfig = folder.toLowerCase().includes('config');
+
+  // Invio al backend
+  this.adminService.uploadMedia(formData, isConfig).subscribe({
+    next: (res) => {
+      if (Array.isArray(res.data)) {
+        res.data.forEach((uploadResult: { nome_file: string; status: 'ok' | 'ko'; reason?: string }) => {
+          const fileMatch = filesDaCaricare.find(f => f.name.split('.')[0] === uploadResult.nome_file);
+          if (fileMatch) {
+            this.statoUpload.set(fileMatch, uploadResult.status);
+
+            if (uploadResult.status === 'ko') {
+              this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
+            } else {
+              // Upload riuscito → rimuovo dopo timeout
+              setTimeout(() => {
+                this.statoUpload.delete(fileMatch);
+                this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+                if (this.filesDaCaricare.length === 0) {
+                  setTimeout(() => window.location.reload(), 800);
+                }
+              }, 2000);
+            }
+          }
+        });
+      }
+      this.uploadInCorso = false;
+    },
+    error: (err) => {
+      console.error("Errore durante upload:", err);
+      this.filesDaCaricare.forEach(file => {
+        this.statoUpload.set(file, 'ko');
+        this.motiviErroreUpload.set(file, "Errore generico durante l'upload");
+      });
+      this.uploadInCorso = false;
+    }
+  });
+}
+
 
 
   formatKeyLabel(key: string): string {
