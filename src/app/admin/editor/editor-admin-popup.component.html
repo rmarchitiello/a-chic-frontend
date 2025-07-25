@@ -21,32 +21,27 @@
 
           <!-- Metadati contestuali (nome file, descrizione, ecc.) -->
           <div class="media-display-name">
-  <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
-  <div class="context-entry">
-    <strong class="context-label">
-      {{ contextFormatted.label }}:
-    </strong>
-    <div class="context-value">
-      <span class="preview-text">
-        {{ getPreview(contextFormatted.value) }}
-      </span>
-<!-- Bottone visibile solo se il campo è "descrizione" -->
-<button
-  *ngIf="contextFormatted.key === 'descrizione'"
-  class="show-more-btn"
-  type="button"
-  aria-label="Espandi descrizione"
-  (click)="apriPopUpViewDescrizioneComponent(url, context)"
->
-  <mat-icon class="dots">more_horiz</mat-icon>
-</button>
+            <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+              <div class="context-entry">
+                <strong class="context-label">
+                  {{ contextFormatted.label }}:
+                </strong>
+                <div class="context-value">
+                  <span class="preview-text">
+                    {{ getPreview(contextFormatted.value) }}
+                  </span>
+                  <!-- Bottone visibile solo se il campo è "descrizione" -->
+                  <button *ngIf="contextFormatted.key === 'descrizione'" class="show-more-btn" type="button"
+                    aria-label="Espandi descrizione" (click)="apriPopUpViewDescrizioneComponent(url, context)">
+                    <mat-icon class="dots">more_horiz</mat-icon>
+                  </button>
 
-      
-    </div>
-  </div>
-</ng-container>
 
-</div>
+                </div>
+              </div>
+            </ng-container>
+
+          </div>
 
 
           <!-- Contenitore delle immagini secondarie -->
@@ -87,6 +82,64 @@
         </ng-container>
       </div>
     </div>
+
+
+<!-- ============================
+     Card di Upload dei File
+============================= -->
+<div class="preview-card upload-drop-area"
+     [class.hover-active]="isHovering"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
+
+  <!-- Contenuto centrale della card di upload -->
+  <div class="card-inner upload-card-inner">
+    <mat-icon class="upload-icon" color="primary">cloud_upload</mat-icon>
+    <p class="upload-instructions">
+      Trascina qui uno o più file da caricare<br />oppure
+    </p>
+    <button mat-stroked-button color="primary" (click)="fileInput.click()">
+      Seleziona dal dispositivo
+    </button>
+    <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
+  </div>
+
+  <!-- ============================
+       Lista delle anteprime file
+  ============================== -->
+  <div class="upload-preview-list" *ngIf="filesDaCaricare.length > 0">
+    <div class="upload-preview-item" *ngFor="let file of filesDaCaricare">
+
+      <!-- Switch per tipo di file: immagine, video o audio -->
+      <ng-container [ngSwitch]="file.type.split('/')[0]">
+
+        <!-- Immagini -->
+        <img *ngSwitchCase="'image'" [src]="anteprimeFile.get(file)" [alt]="file.name" />
+
+        <!-- Video -->
+        <video *ngSwitchCase="'video'" [src]="anteprimeFile.get(file)" controls></video>
+
+        <!-- Audio -->
+        <audio *ngSwitchCase="'audio'" [src]="anteprimeFile.get(file)" controls></audio>
+
+        <!-- Fallback (opzionale): icona per file non supportati -->
+        <div *ngSwitchDefault class="unsupported-file">
+          <mat-icon>insert_drive_file</mat-icon>
+        </div>
+      </ng-container>
+
+      <!-- Nome file e pulsante rimozione -->
+      <div class="preview-file-name">{{ file.name }}</div>
+      <button mat-icon-button color="warn" (click)="rimuoviFile(file)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+
 
   </div>
 </div>

@@ -14,208 +14,204 @@
     justify-content: center;
     margin-bottom: 2rem;
   }
+}
 
-  .preview-card {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    width: 220px;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
+/* =======================================
+   Card generica per anteprima media
+======================================= */
+.preview-card {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  width: 220px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
 
-    .card-inner {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      will-change: transform;
-    }
+  .card-inner {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
 
-    &:hover .card-inner {
-      transform: scale(1.015);
-    }
+  &:hover .card-inner {
+    transform: scale(1.015);
+  }
 
-    img {
-      width: 100%;
-      max-height: 180px;
-      object-fit: contain;
-      border-radius: 8px;
-      background-color: #f5f5f5;
-      margin-bottom: 1rem;
-    }
+  img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+    margin-bottom: 1rem;
+  }
 
-    .media-display-name {
-      width: 100%;
-      font-size: 0.9rem;
-      color: #444;
-      line-height: 1.4;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
-
-      .tooltip-wrapper {
-        display: inline-block;
-        white-space: nowrap;
-        max-width: 100%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        cursor: pointer;
-        padding: 0.25rem 0;
-      }
-
-      .context-entry {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: baseline;
-
-        .context-label {
-          font-weight: 600;
-          margin-right: 0.25rem;
-          color: #111;
-          white-space: nowrap;
-        }
-
-.context-value {
-  // Flex per affiancare testo troncato e bottone
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  width: 100%;
-
-  // Testo troncato con ellissi su una riga
-  .preview-text {
-    overflow: hidden;
-    white-space: nowrap;
-    flex: 1;            // occupa tutto lo spazio disponibile
-    min-width: 0;       // obbligatorio per far funzionare text-overflow in Flexbox
+  .media-display-name {
+    width: 100%;
     font-size: 0.9rem;
     color: #444;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    .tooltip-wrapper {
+      display: inline-block;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      padding: 0.25rem 0;
+    }
+
+    .context-entry {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+
+      .context-label {
+        font-weight: 600;
+        margin-right: 0.25rem;
+        color: #111;
+        white-space: nowrap;
+      }
+
+      .context-value {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        width: 100%;
+
+        .preview-text {
+          overflow: hidden;
+          white-space: nowrap;
+          flex: 1;
+          min-width: 0;
+          font-size: 0.9rem;
+          color: #444;
+        }
+
+        .show-more-btn {
+          border: none;
+          background: none;
+          padding: 4px;
+          margin-left: 2px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #888;
+          transition: color 0.2s ease;
+          border-radius: 4px;
+          min-width: 32px;
+          min-height: 32px;
+
+          &:hover {
+            color: #000;
+            background-color: rgba(0, 0, 0, 0.04);
+          }
+
+          .dots {
+            font-size: 20px;
+            font-weight: 500;
+            line-height: 1;
+            pointer-events: none;
+          }
+        }
+      }
+    }
   }
 
-  // Pulsante dei tre puntini "…"
-.show-more-btn {
-  border: none;
-  background: none;
-  padding: 4px;
-  margin-left: 2px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  transition: color 0.2s ease;
-  border-radius: 4px;
-  min-width: 32px; // Garantisce un'area cliccabile decente
-  min-height: 32px;
+  .non-frontali-overlay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    position: relative;
 
-  &:hover {
-    color: #000;
-    background-color: rgba(0, 0, 0, 0.04); // effetto leggero hover
-  }
+    &.visible {
+      padding-top: 0.5rem;
+      border-top: 1px solid #eee;
+      max-height: 220px;
+      opacity: 1;
+      pointer-events: auto;
+    }
 
-  .dots {
-    font-size: 20px;
-    font-weight: 500;
-    line-height: 1;
-    pointer-events: none; // 👈 Previene problemi di propagazione: clicca sul bottone, non sull'icona
-  }
-}
+    .img-secondaria {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      transition: transform 0.2s ease;
+      background-color: #fdfdfd;
 
-}
-
-
+      &:hover {
+        transform: scale(1.05);
       }
     }
 
-    /* ============================
-       Overlay immagini secondarie
-       ============================ */
-    .non-frontali-overlay {
+    .nav-btn {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0.2rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      position: absolute;
+      top: calc(50% - 12px);
+      z-index: 2;
+
+      mat-icon {
+        font-size: 22px;
+        color: #555;
+        transition: color 0.3s ease;
+      }
+
+      &:hover mat-icon {
+        color: #000;
+      }
+    }
+
+    .prev-btn {
+      left: -4px;
+    }
+
+    .next-btn {
+      right: -4px;
+    }
+
+    .messaggio-nessuna-immagine {
       width: 100%;
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      pointer-events: none;
-      transition: all 0.3s ease;
-      position: relative;
-
-      &.visible {
-        padding-top: 0.5rem;
-        border-top: 1px solid #eee;
-        max-height: 220px;
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .img-secondaria {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border-radius: 6px;
-        border: 1px solid #ddd;
-        transition: transform 0.2s ease;
-        background-color: #fdfdfd;
-
-        &:hover {
-          transform: scale(1.05);
-        }
-      }
-
-      .nav-btn {
-        background-color: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: calc(50% - 12px);
-        z-index: 2;
-
-        mat-icon {
-          font-size: 22px;
-          color: #555;
-          transition: color 0.3s ease;
-        }
-
-        &:hover mat-icon {
-          color: #000;
-        }
-      }
-
-      .prev-btn {
-        left: -4px;
-      }
-
-      .next-btn {
-        right: -4px;
-      }
-
-      .messaggio-nessuna-immagine {
-        width: 100%;
-        text-align: center;
-        font-size: 0.85rem;
-        color: #666;
-        padding: 0.5rem 0.25rem;
-        background-color: #fafafa;
-        border-radius: 4px;
-        border: 1px dashed #ccc;
-      }
+      text-align: center;
+      font-size: 0.85rem;
+      color: #666;
+      padding: 0.5rem 0.25rem;
+      background-color: #fafafa;
+      border-radius: 4px;
+      border: 1px dashed #ccc;
     }
   }
 }
 
-/* ============================
-   Pulsante di chiusura dialog
-============================ */
+
+
+/* =======================================
+   Pulsante di chiusura del dialog
+======================================= */
 .chiudi-btn {
   position: absolute;
   top: 1rem;
@@ -239,22 +235,145 @@
   }
 }
 
-/* ============================
+/* =======================================
    Tooltip Angular Material
-============================ */
+======================================= */
 ::ng-deep .cdk-overlay-pane {
+  overflow: visible !important;
+}
+
+/* =======================================
+   Popup descrizione (fullscreen leggibile)
+======================================= */
+::ng-deep .popup-descrizione-dialog .mat-dialog-container {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  max-height: none !important;
   overflow: visible !important;
 }
 
 
 
-//per il pop up per mostarre l intera descrizione
-::ng-deep .popup-descrizione-dialog .mat-dialog-container {
-  background-color: transparent !important; // Rimuove il bianco di sfondo
-  box-shadow: none !important;              // Elimina l'ombra
-  border-radius: 0 !important;              // Nessun arrotondamento
-  padding: 0 !important;                    // Rimuove spazio attorno
-  max-height: none !important;              // (facoltativo) lascia espandere
-  overflow: visible !important;             // (facoltativo) se vuoi che sbordi
+/* =======================================
+   Card speciale: area di upload file
+======================================= */
+.preview-card.upload-drop-area {
+  // Sfondo trasparente di default
+  background-color: transparent !important;
+
+  // Bordi tratteggiati rossi
+  border: 2px dashed #d41010;
+  cursor: pointer;
+
+  // Angoli arrotondati e padding interno
+  border-radius: 12px;
+  padding: 16px;
+
+  // Transizione fluida per bordo e sfondo
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+
+  // Stato attivo quando il file è sopra l’area
+  &.hover-active {
+    // Cambia bordo in blu
+    border-color: #3f51b5;
+
+    // Sfondo azzurrino visibile
+    background-color: rgba(63, 81, 181, 0.1);
+  }
+
+  // Contenuto interno centrato
+  .upload-card-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    text-align: center;
+  }
+
+  // Icona di upload
+  .upload-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    color: #3f51b5;
+  }
+
+  // Istruzioni testuali
+  .upload-instructions {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+
+  // Pulsante di selezione
+  button {
+    font-weight: 500;
+    text-transform: none;
+  }
+
+  // ================================
+  // Anteprima dei file caricati
+  // ================================
+  .upload-preview-list {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+
+    .upload-preview-item {
+      position: relative;
+      flex: 0 0 auto;
+      width: 140px;
+      max-width: 140px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 8px;
+      background-color: #fafafa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      img,
+      video {
+        width: 100%;
+        height: auto;
+        max-height: 100px;
+        object-fit: contain;
+        border-radius: 4px;
+        margin-bottom: 6px;
+      }
+
+      audio {
+        width: 100%;
+        margin-bottom: 6px;
+      }
+
+      .unsupported-file {
+        font-size: 32px;
+        color: #888;
+        margin-bottom: 6px;
+      }
+
+      .preview-file-name {
+        font-size: 12px;
+        color: #333;
+        word-break: break-all;
+        margin-bottom: 4px;
+      }
+
+      button {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        background-color: white;
+        z-index: 2;
+      }
+    }
+  }
 }
 

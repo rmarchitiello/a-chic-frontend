@@ -70,8 +70,15 @@ In pratica l'editor mi consente di lavorare su un json del genere
   
 ESSENDO CHE IL TOOL TIP NON PUO AVERE degli ngFor dove l'array viene restituito da un metodo devo caricare prima tutti gli array
 per questo carico gli array mediaurls frontale 
+
+
+caricamento qui dentro direttamente:
+dragover	Quando un file viene trascinato sopra l'area	Serve per permettere il drop e attivare un effetto visivo
+dragleave	Quando il file esce dall’area (senza lasciarlo)	Serve per ripristinare lo stile (es. togli hover attivo)
+drop	Quando il file viene effettivamente lasciato	Serve per recuperare i file e avviare il caricamento
+
 */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -90,15 +97,15 @@ import { ViewOrEditDescrizioneComponent } from './view-or-edit-descrizione/view-
   styleUrls: ['./editor-admin-popup.component.scss', '../../../styles.scss'],
   imports: [CommonModule, MatIconModule, MatTooltipModule]
 })
-export class EditorAdminPopUpComponent implements OnInit {
+export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   inputFromFatherComponent: MediaCollection = {
     folder: '',
     items: []
   }
 
-        //salvo l'url corrente quando il mouse è sopra
-        hoveredCard: string | null = null; // URL della card su cui si trova il mouse
+  //salvo l'url corrente quando il mouse è sopra
+  hoveredCard: string | null = null; // URL della card su cui si trova il mouse
 
   //mi salvo le varie variabili
   folderInput: string = '';
@@ -121,8 +128,8 @@ export class EditorAdminPopUpComponent implements OnInit {
 
   currentIndex: number = 0;
 
-// Mappa per tracciare l'indice dell'immagine non frontale attualmente visibile per ciascuna card
-currentSecondaryIndex: { [urlFrontale: string]: number } = {};
+  // Mappa per tracciare l'indice dell'immagine non frontale attualmente visibile per ciascuna card
+  currentSecondaryIndex: { [urlFrontale: string]: number } = {};
 
 
 
@@ -134,82 +141,181 @@ currentSecondaryIndex: { [urlFrontale: string]: number } = {};
     private dialog: MatDialog,
   ) { }
 
+  /**  ------------  UPLOAD DEI FILE DRAG E DROP ------------ */
+  // Variabile per lo stato visivo dell'hover drag&drop
+  isHovering: boolean = false;
 
+  filesDaCaricare: File[] = []; // Lista dei file selezionati
 
+  anteprimeFile: Map<File, string> = new Map(); // Anteprima dei file che sto per caricare
+
+  metadatiPerFile: Map<File, MediaContext> = new Map(); // Metadati per file che sto per caricare
+
+  // Metodo chiamato quando si trascina un file sopra l'area
+  onDragOver(event: DragEvent): void {
+    event.preventDefault(); // Necessario per permettere il drop
+    this.isHovering = true; // Attiva lo stile visivo dell'area
+  }
+
+  // Metodo chiamato quando il file esce dall’area di drop
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault(); // Previene comportamenti indesiderati
+    this.isHovering = false; // Rimuove lo stile visivo
+  }
+
+  // Metodo chiamato quando l’utente rilascia un file sull’area di drop
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isHovering = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.aggiungiFiles(Array.from(files));
+      console.log("Files droppati da aggiungere: ", files)
+    }
+  }
+
+  // Metodo chiamato quando l’utente seleziona file dal file picker
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
+    if (files && files.length > 0) {
+      this.aggiungiFiles(Array.from(files));
+      console.log("Files selezionati da aggiungere: ", files)
+
+    }
+    input.value = '';
+  }
+
+  // Metodo centrale per elaborare i file caricati (drag o picker)
+  aggiungiFiles(files: File[]): void {
+    files.forEach(file => {
+      const giaPresente = this.filesDaCaricare.some(
+        f => f.name === file.name && f.size === file.size
+      );
+      if (!giaPresente) {
+        this.filesDaCaricare.push(file);
+
+        const tipoGenerico = file.type.split('/')[0];
+        if (["image", "video", "audio"].includes(tipoGenerico)) {
+          const previewUrl = URL.createObjectURL(file);
+          this.anteprimeFile.set(file, previewUrl);
+        }
+
+        // Inizializza i metadati base
+        const meta: MediaContext = {
+          display_name: file.name.split('.')[0],
+          nome_file: file.name.split('.')[0],
+          angolazione: 'frontale',
+          quantita: '0',
+          descrizione: 'Descrizione da inserire'
+        };
+
+        this.metadatiPerFile.set(file, meta);
+        console.log("Lista di tutti i file da caricare: ", this.filesDaCaricare);
+      }
+    });
+  }
+  
+    rimuoviFile(file: File): void {
+    this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
+    this.anteprimeFile.delete(file);
+    this.metadatiPerFile.delete(file);
+  }
+
+  rimuoviTuttiIFiles(): void {
+    this.filesDaCaricare = [];
+    this.anteprimeFile.clear();
+    this.metadatiPerFile.clear();
+  }
+
+    //per non far droppare roba fuori con le foto e non mi apre il browser
+  preventDefaultGlobal = (event: DragEvent) => {
+    event.preventDefault();
+  };
+
+  ngOnDestroy(): void {
+    window.removeEventListener('dragover', this.preventDefaultGlobal, false);
+    window.removeEventListener('drop', this.preventDefaultGlobal, false);
+  }
+  /*--------------FINE UPLOAD-----------------*/
 
 
 
   ngOnInit(): void {
-    
-  this.sharedService.mediaCollection$.subscribe(data => {
-    if (data) {
-      console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
-// Assegna i dati ricevuti dal componente padre alla variabile locale
-    this.inputFromFatherComponent = data;
-    console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
-    // Estrae il percorso della cartella
-    this.folderInput = this.inputFromFatherComponent.folder;
-    console.log("Folder ricevuta in ingresso: ", this.folderInput);
+    // Previene comportamento di default del browser per file trascinati fuori area
+    window.addEventListener('dragover', this.preventDefaultGlobal, false);
+    window.addEventListener('drop', this.preventDefaultGlobal, false);
 
-    // Estrae l'array di elementi (ciascuno contenente context e media)
-    this.itemsInput = this.inputFromFatherComponent.items;
-    console.log("Items ricevuti in ingresso: ", this.itemsInput);
+    this.sharedService.mediaCollection$.subscribe(data => {
+      if (data) {
+        console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
+        // Assegna i dati ricevuti dal componente padre alla variabile locale
+        this.inputFromFatherComponent = data;
+        console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
-    // Estrae tutti i context da ciascun item per uso diretto (es. visualizzazione, modifica)
-    this.contextsInput = this.inputFromFatherComponent.items.map(item => item.context);
-    console.log("Contexts ricevuti in ingresso: ", this.contextsInput);
+        // Estrae il percorso della cartella
+        this.folderInput = this.inputFromFatherComponent.folder;
+        console.log("Folder ricevuta in ingresso: ", this.folderInput);
 
-    // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
-    this.mediasInput = this.itemsInput.flatMap(item => item.media);
-    console.log("Media ricevuti in ingresso: ", this.mediasInput);
+        // Estrae l'array di elementi (ciascuno contenente context e media)
+        this.itemsInput = this.inputFromFatherComponent.items;
+        console.log("Items ricevuti in ingresso: ", this.itemsInput);
 
+        // Estrae tutti i context da ciascun item per uso diretto (es. visualizzazione, modifica)
+        this.contextsInput = this.inputFromFatherComponent.items.map(item => item.context);
+        console.log("Contexts ricevuti in ingresso: ", this.contextsInput);
 
-    //carico le url frontali da dare al template
-      this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
-
-      //carico le url non fronali
-      this.mapUrlsNoFrontali = this.getMediaUrlsNoFrontale(this.itemsInput);
-
-      //inizializzo la mappa degli indici delle foto non frontali
-      this.inizializzaIndiciSecondari();
+        // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
+        this.mediasInput = this.itemsInput.flatMap(item => item.media);
+        console.log("Media ricevuti in ingresso: ", this.mediasInput);
 
 
+        //carico le url frontali da dare al template
+        this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
 
-    console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
-    console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali) );
+        //carico le url non fronali
+        this.mapUrlsNoFrontali = this.getMediaUrlsNoFrontale(this.itemsInput);
 
-    //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
-    //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
+        //inizializzo la mappa degli indici delle foto non frontali
+        this.inizializzaIndiciSecondari();
 
-    //assegno la mappa
-    this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
-    /*
-      La mappa sara
-      urlFrontale1: {
-          display_name:
-          quantita:
-          prezzo:
-          altro ...
+
+
+        console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
+        console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali));
+
+        //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
+        //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
+
+        //assegno la mappa
+        this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
+        /*
+          La mappa sara
+          urlFrontale1: {
+              display_name:
+              quantita:
+              prezzo:
+              altro ...
+          }
+        */
+      } else {
+        console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
       }
-    */
-    } else {
-      console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
-    }
-  });
-    
+    });
 
 
-    
+
+
   }
 
-private inizializzaIndiciSecondari(): void {
-  for (const url of this.mediasUrlsFrontale) {
-    if (this.mapUrlsNoFrontali[url]?.length > 0) {
-      this.currentSecondaryIndex[url] = 0;
+  private inizializzaIndiciSecondari(): void {
+    for (const url of this.mediasUrlsFrontale) {
+      if (this.mapUrlsNoFrontali[url]?.length > 0) {
+        this.currentSecondaryIndex[url] = 0;
+      }
     }
   }
-}
 
 
 
@@ -221,35 +327,35 @@ private inizializzaIndiciSecondari(): void {
   }
 
   //restituisco array di urls no fronale entrano gli items ed esce una mappa urlFrontale - urlNoFrontali
-getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] } {
-  const mappa: { [urlFrontale: string]: string[] } = {};
+  getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] } {
+    const mappa: { [urlFrontale: string]: string[] } = {};
 
-  // Itero ogni oggetto MediaItem
-  items.forEach(item => {
+    // Itero ogni oggetto MediaItem
+    items.forEach(item => {
 
-    // Estrai le URL frontali da questo MediaItem
-    const urlsFrontali = item.media
-      .filter(m => m.angolazione === 'frontale')
-      .map(m => m.url);
+      // Estrai le URL frontali da questo MediaItem
+      const urlsFrontali = item.media
+        .filter(m => m.angolazione === 'frontale')
+        .map(m => m.url);
 
-    // Estrai le URL non frontali da questo MediaItem
-    const urlsNonFrontali = item.media
-      .filter(m => m.angolazione !== 'frontale')
-      .map(m => m.url);
+      // Estrai le URL non frontali da questo MediaItem
+      const urlsNonFrontali = item.media
+        .filter(m => m.angolazione !== 'frontale')
+        .map(m => m.url);
 
-    // Per ogni URL frontale, associala alle non frontali (se presenti)
-    urlsFrontali.forEach(urlFrontale => {
-      if (urlsNonFrontali.length > 0) {
-        mappa[urlFrontale] = urlsNonFrontali;
-      }
+      // Per ogni URL frontale, associala alle non frontali (se presenti)
+      urlsFrontali.forEach(urlFrontale => {
+        if (urlsNonFrontali.length > 0) {
+          mappa[urlFrontale] = urlsNonFrontali;
+        }
+      });
+
+      console.log("Mappa ritornata: ", JSON.stringify(mappa));
+
     });
 
-    console.log("Mappa ritornata: ", JSON.stringify(mappa));
-
-  });
-
-  return mappa;
-}
+    return mappa;
+  }
 
   //questo metodo mi serve per caricare anzi assegnare la mappa   contextMap: { [url: string]: MediaContext } = {}; a partire da una serie di url frontali
   getContextFromMediaUrlsFrontali(urlsFrontali: string[]) {
@@ -277,7 +383,7 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
   getPreview(value: string, max = 40): string {
     if (typeof value !== 'string') return value as any;
-    return value.length > max ? value.slice(0, max)  : value;
+    return value.length > max ? value.slice(0, max) : value;
   }
   //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
   //se lo supera torna true
@@ -308,16 +414,16 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
 
   */
 
-    //apro solo il pop up della descrizione
-apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
-   this.dialog.open(ViewOrEditDescrizioneComponent, {
-    data: { urlFrontale: url, context: context },
-    width: '500px',
-    panelClass: 'popup-descrizione-dialog'
-  });
+  //apro solo il pop up della descrizione
+  apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
+    this.dialog.open(ViewOrEditDescrizioneComponent, {
+      data: { urlFrontale: url, context: context },
+      width: '500px',
+      panelClass: 'popup-descrizione-dialog'
+    });
 
 
-}
+  }
 
 
 
@@ -424,23 +530,23 @@ apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
   }
 
 
-// Mostra l'immagine secondaria precedente
-prevSecondaryImage(url: string): void {
-  if (this.mapUrlsNoFrontali[url]) {
-    const total = this.mapUrlsNoFrontali[url].length;
-    this.currentSecondaryIndex[url] =
-      (this.currentSecondaryIndex[url] - 1 + total) % total;
+  // Mostra l'immagine secondaria precedente
+  prevSecondaryImage(url: string): void {
+    if (this.mapUrlsNoFrontali[url]) {
+      const total = this.mapUrlsNoFrontali[url].length;
+      this.currentSecondaryIndex[url] =
+        (this.currentSecondaryIndex[url] - 1 + total) % total;
+    }
   }
-}
 
-// Mostra l'immagine secondaria successiva
-nextSecondaryImage(url: string): void {
-  if (this.mapUrlsNoFrontali[url]) {
-    const total = this.mapUrlsNoFrontali[url].length;
-    this.currentSecondaryIndex[url] =
-      (this.currentSecondaryIndex[url] + 1) % total;
+  // Mostra l'immagine secondaria successiva
+  nextSecondaryImage(url: string): void {
+    if (this.mapUrlsNoFrontali[url]) {
+      const total = this.mapUrlsNoFrontali[url].length;
+      this.currentSecondaryIndex[url] =
+        (this.currentSecondaryIndex[url] + 1) % total;
+    }
   }
-}
 
 
 
