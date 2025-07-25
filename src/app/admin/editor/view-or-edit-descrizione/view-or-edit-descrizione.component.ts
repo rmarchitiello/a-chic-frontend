@@ -1,3 +1,5 @@
+//da modificare perche devo poter modificare tutto il context essendo che chiama il metodo di edit context solo per descrizione e lo devo estendere anche per altri metadata
+
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
