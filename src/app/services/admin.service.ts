@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { RenameFolder } from '../cms/cms-media/cms-media.component';
+import { MediaContext } from '../pages/home/home.component';
+
 @Injectable({
   providedIn: 'root'
 })
-export class CmsService {
+export class AdminService {
 
-  private baseUrl = environment.apiBaseUrl + 'cms';
+  private baseUrl = environment.apiBaseUrl + 'admin';
   private loginUrl = '/login'
   private media = '/media-folder';
   private mediaImages = '/media-images'
@@ -16,7 +17,7 @@ export class CmsService {
   constructor(private http: HttpClient) {}
 
 
-  /* login CMS */
+  /* login admin */
     //rename folder
    login(email: string, password: string): Observable<any> {
     const url = `${this.baseUrl}${this.loginUrl}`;
@@ -32,7 +33,7 @@ export class CmsService {
 
   //metodo per passare il token a ogni metodo sotto lo prendo dal localstorage
   private getAuthHeaders() {
-  const token = sessionStorage.getItem('admin-cms');
+  const token = sessionStorage.getItem('admin');
   return {
     Authorization: `Bearer ${token}`
   };
@@ -41,7 +42,7 @@ export class CmsService {
 
 
   /**
-   * Recupera tutte le folder dal CMS.
+   * Recupera tutte le folder dal admin.
    * Se `refresh` è true, forza l’aggiornamento bypassando la cache.
    */
   getFolders(config?: boolean): Observable<any> {
@@ -57,7 +58,7 @@ export class CmsService {
 
 
   //rename folder
-   renameFolder(request: RenameFolder, config?: boolean): Observable<any> {
+   renameFolder(request: any, config?: boolean): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
 
         let params = new HttpParams();
@@ -94,7 +95,7 @@ createFolder(fullPath: string, config?: boolean): Observable<any> {
 }
 
 deleteImages(urlsDaEliminare: string[], config?: boolean ): Observable<any> {
-  const url = `${this.baseUrl}${this.mediaImages}`; // Assicurati che `this.media` sia tipo '/cms/media-images'
+  const url = `${this.baseUrl}${this.mediaImages}`; // Assicurati che `this.media` sia tipo '/admin/media-images'
     let params = new HttpParams();
   if(config){
          params = new HttpParams().set('config', config);
@@ -121,8 +122,8 @@ getAllImages(config?: boolean): Observable<any> {
   return this.http.get<any>(url, {params,headers: this.getAuthHeaders()});
 }
 
-
-updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quantita?: string, nome_file?: string }, config?: boolean): Observable<any> {
+//da cambiare in obbligatorio config per capire se e cartella config o no
+updateImageMetadata(urlImmagine: string, context: MediaContext, config: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaImages}`;
   let params = new HttpParams();
   if(config){
@@ -131,11 +132,7 @@ updateImageMetadata(urlImmagine: string, context: { descrizione?: string; quanti
   }
 const body = {
   urlImmagine,
-  context: {
-    nome_file: context.nome_file,
-    descrizione: context.descrizione,
-    quantita: context.quantita != null ? String(context.quantita) : undefined
-  }
+  context
 };
 
   console.log("Request inviata:", JSON.stringify(body));

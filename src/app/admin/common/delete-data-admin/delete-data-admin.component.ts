@@ -1,6 +1,6 @@
 // Componente Angular per la gestione dell’eliminazione media da Cloudinary
 import { Component, OnInit, Inject } from '@angular/core';
-import { CmsService } from '../../../services/cms.service';
+import { AdminService } from '../../../services/admin.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -102,7 +102,7 @@ mediaInput: MediaCollectionConErrore = {
  
 
   constructor(
-    private cmsService: CmsService,
+    private adminService: AdminService,
     private dialogRef: MatDialogRef<DeleteDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MediaCollection
   ) {}
@@ -141,7 +141,7 @@ eliminaAssetSingolo(displayName: string): void {
   if (!asset) return;
 
   // Chiamata al servizio per eliminare l'asset corrente
-  this.cmsService.deleteImages([asset.url], true).subscribe({
+  this.adminService.deleteImages([asset.url], true).subscribe({
     next: res => {
       if (res?.success) {
         // Rimuove l'oggetto media con la URL corrispondente
@@ -191,7 +191,7 @@ eliminaTuttiIMedia(): void {
   this.eliminazioneInCorso = true;
 
   // Richiama servizio per eliminare tutte le immagini
-  this.cmsService.deleteImages(tutteLeUrl, true).subscribe({
+  this.adminService.deleteImages(tutteLeUrl, true).subscribe({
     next: res => {
       this.eliminazioneInCorso = false;
 

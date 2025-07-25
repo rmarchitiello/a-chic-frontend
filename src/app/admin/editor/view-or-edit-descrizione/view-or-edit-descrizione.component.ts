@@ -1,84 +1,158 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MediaCollection } from '../../../pages/home/home.component';
+import { SharedDataService } from '../../../services/shared-data.service';
+import { AdminService } from '../../../services/admin.service';
+import { MediaContext } from '../../../pages/home/home.component';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-view-or-edit-descrizione',
   standalone: true,
   imports: [
-    CommonModule,       // Per *ngIf, *ngFor, ecc.
-    FormsModule,        // Per [(ngModel)] sulla textarea
-    MatIconModule,      // Per <mat-icon>
-    MatButtonModule     // Per <button mat-button> ecc.
+    CommonModule,
+    FormsModule,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './view-or-edit-descrizione.component.html',
   styleUrls: ['./view-or-edit-descrizione.component.scss']
 })
-export class ViewOrEditDescrizioneComponent {
-  isEditing = false;                   // Modalità modifica attiva/inattiva
-  descrizioneModificata: string;       // Copia modificabile della descrizione iniziale
-  modificaInAttesaDiConferma = false;
+export class ViewOrEditDescrizioneComponent implements OnInit {
+  isEditing = false;                    // Modalità di modifica attiva
+  descrizioneModificata: string;        // Valore locale della descrizione
+  modificaInAttesaDiConferma = false;   // True se c'è una modifica non ancora confermata
+
+  mediaCollectionInput: MediaCollection = {
+    folder: '',
+    items: []
+  };
+
+  mediaContextInput: MediaContext = {
+    display_name: '',
+    descrizione: '',
+    quantita: ''
+  };
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { descrizione: string; urlFrontale: string }, // Dati in ingresso: testo + url
-    private dialogRef: MatDialogRef<ViewOrEditDescrizioneComponent>
+    public data: { urlFrontale: string; context: MediaContext }, // Dati iniziali passati dal padre
+    private dialogRef: MatDialogRef<ViewOrEditDescrizioneComponent>,
+    private sharedDataService: SharedDataService,
+    private adminService: AdminService
   ) {
-    // Inizializzo la descrizione locale col valore ricevuto
-    this.descrizioneModificata = data.descrizione;
+    // Inizializzo la descrizione modificabile con il valore ricevuto
+    this.descrizioneModificata = data.context.descrizione;
   }
 
-  // Attiva la modalità di modifica del testo.
-// Resetta eventuali modifiche non confermate precedentemente.
-attivaModifica(): void {
-  this.isEditing = true;                    // Mostra la textarea e i pulsanti "Salva" e "Annulla"
-  this.modificaInAttesaDiConferma = false; // Nasconde il pulsante "Conferma", se presente
-}
+  ngOnInit(): void {
+    // Mi iscrivo una sola volta allo stato condiviso per leggere i dati aggiornati
+    this.sharedDataService.mediaCollection$.pipe(take(1)).subscribe(media => {
+      if (media) {
+        this.mediaCollectionInput = media;
 
-// Salva temporaneamente il testo modificato e torna alla visualizzazione.
-// Se il nuovo testo è diverso dall'originale, abilita il pulsante "Conferma".
-salvaModifica(): void {
-  this.isEditing = false; // Esce dalla modalità di modifica
+        console.log("[ViewOrEditDescrizione] Ricevuta mediaCollection dal padre:", media);
 
-  // Se il testo è stato effettivamente modificato rispetto all'originale
-  if (this.descrizioneModificata !== this.data.descrizione) {
-    this.modificaInAttesaDiConferma = true; // Abilita il pulsante "Conferma"
-  }
-}
+        // Trova l’item che contiene l’URL selezionato
+        const itemTrovato = media.items.find(item =>
+          item.media.some(m => m.url === this.data.urlFrontale)
+        );
 
-// Annulla la modifica in corso.
-// Ripristina il valore originale e torna alla modalità di visualizzazione.
-annullaModifica(): void {
-  this.descrizioneModificata = this.data.descrizione; // Ripristina il testo originale
-  this.isEditing = false;                             // Esce dalla modalità di modifica
-  this.modificaInAttesaDiConferma = false;            // Nasconde il pulsante "Conferma"
-}
+        if (itemTrovato && itemTrovato.context) {
+          // Copia tutti i metadati presenti, inclusi quelli dinamici
+          this.mediaContextInput = { ...itemTrovato.context };
 
-// Conferma definitivamente la descrizione modificata e chiude il popup.
-// Se il testo è stato modificato e non è vuoto, restituisce i dati al chiamante.
-// In caso contrario, chiude il dialog senza inviare nulla.
-confermaDescrizioneAggiornata(): void {
-  const nuovaDescrizione = this.descrizioneModificata?.trim();
+          // Fallback: assicura che descrizione non sia undefined
+          this.mediaContextInput.descrizione = this.mediaContextInput.descrizione || '';
+        }
 
-  // Verifica che la descrizione sia diversa da quella originale e non vuota
-  if (nuovaDescrizione && nuovaDescrizione !== this.data.descrizione) {
-    // Chiude il dialog e restituisce i dati modificati
-    this.dialogRef.close({
-      descrizione: nuovaDescrizione,
-      urlFrontale: this.data.urlFrontale
+        console.log('[ViewOrEditDescrizione] Context originale:', this.mediaContextInput);
+      }
     });
-  } else {
-    // Se non ci sono modifiche valide, chiude semplicemente il dialog
+  }
+
+  attivaModifica(): void {
+    this.isEditing = true;
+    this.modificaInAttesaDiConferma = false;
+  }
+
+  salvaModifica(): void {
+    this.isEditing = false;
+
+    if (this.descrizioneModificata !== this.data.context.descrizione) {
+      this.modificaInAttesaDiConferma = true;
+    }
+  }
+
+  annullaModifica(): void {
+    this.descrizioneModificata = this.data.context.descrizione;
+    this.isEditing = false;
+    this.modificaInAttesaDiConferma = false;
+  }
+
+  /**
+   * Conferma la modifica e aggiorna i metadati:
+   * 1. Chiama il backend (`adminService`)
+   * 2. Solo se ha successo, aggiorna `mediaCollection$` nel `SharedDataService`
+   * 3. Chiude il popup restituendo i nuovi dati
+   */
+  confermaDescrizioneAggiornata(): void {
+    const nuovaDescrizione = this.descrizioneModificata?.trim();
+    const urlFrontale = this.data.urlFrontale;
+
+    if (nuovaDescrizione && nuovaDescrizione !== this.mediaContextInput.descrizione) {
+      const nuovoContext: MediaContext = {
+        ...this.mediaContextInput,
+        descrizione: nuovaDescrizione
+      };
+
+      console.log("Nuovo context da aggiornare:", nuovoContext);
+
+      this.adminService.updateImageMetadata(urlFrontale, nuovoContext, true).subscribe({
+        next: () => {
+          console.log('Descrizione aggiornata con successo');
+
+          // Aggiorna la mediaCollection condivisa
+          this.sharedDataService.mediaCollection$.pipe(take(1)).subscribe(collezioneCorrente => {
+            if (!collezioneCorrente) return;
+
+            const itemsAggiornati = collezioneCorrente.items.map(item => {
+              const contieneUrl = item.media.some(m => m.url === urlFrontale);
+              return contieneUrl
+                ? { ...item, context: nuovoContext }
+                : item;
+            });
+
+            // Notifica il padre con la nuova collezione aggiornata
+            this.sharedDataService.setMediaCollection({
+              folder: collezioneCorrente.folder,
+              items: itemsAggiornati
+            });
+          });
+
+          // Chiude il dialog restituendo i nuovi dati opzionali
+          this.dialogRef.close({
+            descrizione: nuovaDescrizione,
+            urlFrontale: urlFrontale
+          });
+        },
+        error: err => {
+          console.error('Errore durante l\'aggiornamento della descrizione:', err);
+          // Qui potresti mostrare un messaggio visivo all’utente se serve
+        }
+      });
+    } else {
+      // Se la descrizione è vuota o non è cambiata, chiude senza salvare
+      this.dialogRef.close();
+    }
+  }
+
+  // Chiude il dialog senza effettuare alcuna modifica
+  chiudiDialog(): void {
     this.dialogRef.close();
   }
-}
-
-// Chiude il dialog senza salvare né restituire alcun dato.
-chiudiDialog(): void {
-  this.dialogRef.close();
-}
-
 }

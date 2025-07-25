@@ -305,28 +305,18 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
     }
   
     
-    
+
   */
 
     //apro solo il pop up della descrizione
-apriPopUpViewDescrizioneComponent(url: string, descrizione: string): void {
-  const dialogRef = this.dialog.open(ViewOrEditDescrizioneComponent, {
-    data: { urlFrontale: url, descrizione: descrizione },
+apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
+   this.dialog.open(ViewOrEditDescrizioneComponent, {
+    data: { urlFrontale: url, context: context },
     width: '500px',
     panelClass: 'popup-descrizione-dialog'
   });
 
-  // Ascolto la chiusura del dialog e prendo i dati se ci sono
-  dialogRef.afterClosed().subscribe((result) => {
-    if (result && result.descrizione && result.urlFrontale) {
-      // Qui hai i dati modificati: result.descrizione e result.urlFrontale
-      console.log('Descrizione aggiornata:', result.descrizione);
-      console.log('URL frontale associato:', result.urlFrontale);
 
-      // Puoi ora aggiornare lo stato, salvare o fare altre azioni
-      // Esempio:
-    }
-  });
 }
 
 

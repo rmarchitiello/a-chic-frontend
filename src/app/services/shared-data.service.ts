@@ -43,16 +43,16 @@ export class SharedDataService {
 
   // Metodo privato che legge il token dallo storage
   private getAdminToken(): string | null {
-    return sessionStorage.getItem('admin-cms');
+    return sessionStorage.getItem('admin');
   }
 
   // Metodo pubblico per aggiornare il token (oppure rimuoverlo)
   setAdminToken(token: string | null): void {
     if (token) {
-      sessionStorage.setItem('admin-cms', token);
+      sessionStorage.setItem('admin', token);
       this.isAdminSubject.next(token); // Notifica con il token aggiornato
     } else {
-      sessionStorage.removeItem('admin-cms');
+      sessionStorage.removeItem('admin');
       this.isAdminSubject.next(null); // Notifica logout
     }
   }

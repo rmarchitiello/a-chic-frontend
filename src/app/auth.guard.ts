@@ -22,33 +22,33 @@ export class AuthGuard implements CanActivate {
     // Recupero il percorso della rotta richiesta
     const url = state.url;
 
-    // Verifico se si tratta di una rotta CMS
-    if (url.startsWith('/cms')) {
-      const cmsToken = sessionStorage.getItem('admin-cms');
+    // Verifico se si tratta di una rotta admin
+    if (url.startsWith('/admin')) {
+      const adminToken = sessionStorage.getItem('admin');
 
-      // Se il token CMS non è presente, reindirizzo alla pagina di login CMS
-      if (!cmsToken) {
-        return this.router.parseUrl('/cms-login');
+      // Se il token admin non è presente, reindirizzo alla pagina di login admin
+      if (!adminToken) {
+        return this.router.parseUrl('/admin');
       }
 
-      // Token CMS valido → accesso consentito
+      // Token admin valido → accesso consentito
       return true;
     }
 
     // Verifico se si tratta della sezione admin (modifica contenuti del sito)
     if (url.startsWith('/admin')) {
-      const adminToken = sessionStorage.getItem('admin-cms');
+      const adminToken = sessionStorage.getItem('admin');
 
       // Se il token Admin non è presente, reindirizzo alla pagina di login Admin
       if (!adminToken) {
-        return this.router.parseUrl('/admin-login');
+        return this.router.parseUrl('/admin');
       }
 
       // Token Admin valido → accesso consentito
       return true;
     }
 
-    // Se la rotta non è né CMS né Admin, blocco l’accesso
+    // Se la rotta non e Admin, blocco l’accesso
     return false;
   }
 }

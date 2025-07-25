@@ -6,8 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { Router } from '@angular/router';
-import { CmsService } from '../../services/cms.service';
-
+import { AdminService } from '../../services/admin.service';
 @Component({
   selector: 'app-login-admin',
   standalone: true,
@@ -30,7 +29,7 @@ export class LoginAdminComponent implements OnInit {
     private fb: FormBuilder,
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private cmsService: CmsService
+    private adminService: AdminService
   ) {}
 
   ngOnInit(): void {
@@ -51,10 +50,10 @@ export class LoginAdminComponent implements OnInit {
 
     if (this.loginForm.valid) {
       if (email && password) {
-        this.cmsService.login(email, password).subscribe({
+        this.adminService.login(email, password).subscribe({
           next: (data) => {
             console.log("Login Admin effettuata con successo");
-            sessionStorage.setItem('admin-cms', data.accessToken);  // Salva il token come nel CMS
+            sessionStorage.setItem('admin', data.accessToken);  // Salva il token come nel admin
             this.router.navigate(['/home']);                        // Redirect dopo login Admin
           },
           error: () => {

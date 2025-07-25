@@ -80,9 +80,6 @@
           <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
             <mat-icon>delete</mat-icon>
           </button>
-          <button  class="btn-edit" (click)="apriPopUpEditFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
-            <mat-icon>edit</mat-icon>
-          </button>
           <button class="btn-upload" (click)="uploadFiles(file)" *ngIf="statoUpload.get(file) !== 'ok'">
             <mat-icon>upload</mat-icon>
           </button>
