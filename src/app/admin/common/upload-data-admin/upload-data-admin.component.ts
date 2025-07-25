@@ -66,62 +66,92 @@ fileSelezionatoComeFrontale: File | null = null;
 private ultimoFileFrontaleSelezionato: File | null = null;
 
 selezionaFrontale(file: File, isChecked: boolean): void {
-  if (!isChecked) {
-    const metadati = this.metadatiPerFile.get(file);
-    if (metadati?.['angolazione'] === 'frontale') {
-      delete metadati['angolazione'];
-    }
+const nuovoFile = file;
 
+  if (!isChecked) {
+    // ❌ Deseleziono il frontale, ma conservo i metadati
+    const metadati = this.metadatiPerFile.get(file);
+    if (metadati) {
+      this.metadatiPerFile.set(file, {
+        ...metadati,
+        angolazione: 'altra' // ✅ Cambio solo l'angolazione
+      });
+    }
     this.fileSelezionatoComeFrontale = null;
-    this.ultimoFileFrontaleSelezionato = null;
-    console.log('Deselezionato frontale:', file.name);
-    console.log("Metadati correnti: ", metadati);
+    // Non azzero ultimoFileFrontaleSelezionato perché potrei riselezionare lo stesso file
+    console.log('❌ Frontale deselezionato (ma metadati conservati):', file.name);
     return;
   }
 
-  const nuovoFile = file;
   const vecchioFile = this.ultimoFileFrontaleSelezionato;
 
-  // 🔧 Recupera i metadati già presenti sul nuovo file
+  console.log('File selezionato:', nuovoFile);
+  console.log('Ultimo frontale selezionato:', vecchioFile);
+
+  let metadatiDaTrasferire: MediaContext | undefined;
+
+  // Se esiste un precedente frontale diverso dal nuovo, salvo e rimuovo i suoi metadati
+  if (vecchioFile) {
+    console.log("Vecchio file")
+    const metadatiVecchio = this.metadatiPerFile.get(vecchioFile);
+    console.log("Vecchi metadati", metadatiVecchio);
+    if (metadatiVecchio) {
+      metadatiDaTrasferire = { ...metadatiVecchio };
+    }
+    this.metadatiPerFile.delete(vecchioFile);
+  }
+
+  // Recupero eventuali metadati già associati al nuovo file (potrebbero essere incompleti)
   const metadatiEsistenti = this.metadatiPerFile.get(nuovoFile);
 
-  let metadatiNuovi: MediaContext;
+  let metadatiFinali: MediaContext;
 
-  if (metadatiEsistenti) {
-    // 🔄 Aggiunge solo l'angolazione senza sovrascrivere
-    metadatiNuovi = {
+  if (metadatiDaTrasferire) {
+    // Uso i metadati del precedente frontale
+    metadatiFinali = {
+      ...metadatiDaTrasferire,
+      angolazione: 'frontale'
+    };
+    console.log('Metadati trasferiti dal vecchio frontale:', metadatiFinali);
+  } else if (metadatiEsistenti) {
+    // Uso quelli già presenti sul nuovo file
+    metadatiFinali = {
       ...metadatiEsistenti,
       angolazione: 'frontale'
     };
-  } else if (vecchioFile && this.metadatiPerFile.has(vecchioFile)) {
-    // 🔁 Se non esistono, clona quelli dal vecchio frontale
-    const metadatiVecchi = this.metadatiPerFile.get(vecchioFile)!;
-    metadatiNuovi = {
-      ...metadatiVecchi,
-      display_name: nuovoFile.name.split('.')[0],
-      angolazione: 'frontale'
-    };
+    console.log('Metadati esistenti aggiornati:', metadatiFinali);
   } else {
-    // 🆕 Altrimenti crea base
-    metadatiNuovi = {
+    // Nessun metadato disponibile, uso valori base
+    metadatiFinali = {
       display_name: nuovoFile.name.split('.')[0],
       angolazione: 'frontale',
       descrizione: 'Da inserire',
       quantita: '0'
     };
+    console.log('Metadati creati da zero:', metadatiFinali);
   }
 
-  // ✅ Applica metadati aggiornati
-  this.metadatiPerFile.set(nuovoFile, metadatiNuovi);
+  // Applico i metadati al nuovo frontale selezionato
+  this.metadatiPerFile.set(nuovoFile, metadatiFinali);
 
-  // ❌ Non rimuovere i metadati del vecchio file
-  // Aggiorna solo i flag frontale
+  // Imposto angolazione 'altra' a tutti gli altri file
+  this.metadatiPerFile.forEach((metadati, f) => {
+    if (f !== nuovoFile) {
+      this.metadatiPerFile.set(f, {
+        ...metadati,
+        angolazione: 'altra'
+      });
+    }
+  });
+
+  // Aggiorno gli stati interni
   this.fileSelezionatoComeFrontale = nuovoFile;
   this.ultimoFileFrontaleSelezionato = nuovoFile;
 
-  console.log('Nuovo frontale selezionato:', nuovoFile.name);
-  console.log('Metadati aggiornati:', this.metadatiPerFile);
+  console.log('Nuovo frontale impostato:', nuovoFile.name);
+  console.log('Stato metadati finale:', this.metadatiPerFile);
 }
+
 
 
 
@@ -158,7 +188,6 @@ apriPopUpEditFile(file: File): void {
 
       // Aggiorna la mappa dei metadati
       this.metadatiPerFile.set(file, result);
-
       console.log("Metadati aggiornati per", file.name, ":", result);
     }
   });
