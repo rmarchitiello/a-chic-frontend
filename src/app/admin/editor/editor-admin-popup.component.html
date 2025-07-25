@@ -30,17 +30,17 @@
       <span class="preview-text">
         {{ getPreview(contextFormatted.value) }}
       </span>
-      <button
-        *ngIf="contextFormatted.key === 'descrizione'"
-        class="show-more-btn"
-        type="button"
-        mat-icon-button
-        (click)="apriPopUpViewDescrizioneComponent(url,contextFormatted.value)"
-        aria-label="Espandi descrizione"
-      >
-      <!-- sopra passo sia la url che la descrizione cosi creo una mappa url descrizione-->
-      <mat-icon class="dots">...</mat-icon>
-      </button>
+<!-- Bottone visibile solo se il campo è "descrizione" -->
+<button
+  *ngIf="contextFormatted.key === 'descrizione'"
+  class="show-more-btn"
+  type="button"
+  aria-label="Espandi descrizione"
+  (click)="apriPopUpViewDescrizioneComponent(url, contextFormatted.value)"
+>
+  <mat-icon class="dots">more_horiz</mat-icon>
+</button>
+
       
     </div>
   </div>

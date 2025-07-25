@@ -96,30 +96,31 @@
   }
 
   // Pulsante dei tre puntini "…"
-  .show-more-btn {
+.show-more-btn {
   border: none;
   background: none;
-  padding: 0;
+  padding: 4px;
+  margin-left: 2px;
   cursor: pointer;
-  color: #888;
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-  outline: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #888;
   transition: color 0.2s ease;
+  border-radius: 4px;
+  min-width: 32px; // Garantisce un'area cliccabile decente
+  min-height: 32px;
 
   &:hover {
     color: #000;
+    background-color: rgba(0, 0, 0, 0.04); // effetto leggero hover
   }
 
   .dots {
-    font-weight: bold;
-    font-size: 16px;
-    letter-spacing: 1px;
+    font-size: 20px;
+    font-weight: 500;
     line-height: 1;
+    pointer-events: none; // 👈 Previene problemi di propagazione: clicca sul bottone, non sull'icona
   }
 }
 
