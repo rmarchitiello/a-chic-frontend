@@ -69,7 +69,7 @@ const assetsValidi: string[] = [
   ...this.getMediaNoFrontale(item.media)
 ].filter((url): url is string => url !== null);
 
-    assetsValidi.forEach(url => this.scaricaAsset(url, item.context.display_name));
+    assetsValidi.forEach(url => this.scaricaAsset(url, item.context.display_name || 'senza-nome'));
   });
 
   setTimeout(() => {
@@ -81,9 +81,14 @@ const assetsValidi: string[] = [
   /**
    * Scarica un singolo media
    */
-downloadSingoloAsset(url: string, displayName: string): void {
+downloadSingoloAsset(url: string, displayName?: string): void {
   this.downloadInCorso = true;
-  this.scaricaAsset(url, displayName);
+
+  if (displayName) {
+    this.scaricaAsset(url, displayName);
+  } else {
+    console.warn('displayName assente: asset non scaricato');
+  }
 
   setTimeout(() => {
     this.downloadInCorso = false;
@@ -159,33 +164,49 @@ getAllAssets(item: { context: MediaContext; media: MediaMeta[] }): string[] {
 }
 
 // Ottiene la URL attiva corrente per un dato display_name
-getActiveAsset(displayName: string): string | null {
+getActiveAsset(displayName: string | undefined): string | null {
+  // Se displayName è undefined, ritorna subito null
+  if (!displayName) return null;
+
+  // Trova il media item corrispondente
   const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
   if (!item) return null;
 
+  // Estrai tutti gli asset del media item
   const assets = this.getAllAssets(item);
+
+  // Prende l’indice corrente o 0
   const index = this.currentIndexes[displayName] ?? 0;
+
+  // Restituisce l’URL dell’asset attivo (o null se non esiste)
   return assets[index] || null;
 }
 
 // Passa all'immagine precedente (aggiorna l'indice)
-prevImage(displayName: string): void {
-  const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
+prevImage(displayName?: string): void {
+  if(displayName){
+        const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
   if (!item) return;
 
   const total = this.getAllAssets(item).length;
   const current = this.currentIndexes[displayName] ?? 0;
   this.currentIndexes[displayName] = (current - 1 + total) % total;
+  }
+
 }
 
 // Passa all'immagine successiva (aggiorna l'indice)
-nextImage(displayName: string): void {
-  const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
+nextImage(displayName?: string): void {
+
+  if(displayName){
+        const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
   if (!item) return;
 
   const total = this.getAllAssets(item).length;
   const current = this.currentIndexes[displayName] ?? 0;
   this.currentIndexes[displayName] = (current + 1) % total;
+  }
+
 }
 
 

@@ -128,7 +128,9 @@ if (this.checkDataIsEmpty) {
   /**
    * Elimina l’asset attualmente visibile nella card (immagine frontale o laterale selezionata)
    */
-eliminaAssetSingolo(displayName: string): void {
+eliminaAssetSingolo(displayName?: string): void {
+    if (!displayName) return;
+
   // Trova l'item corrispondente al display_name
   const item = this.mediaInput.items.find(i => i.context.display_name === displayName);
   if (!item) return;
@@ -254,7 +256,9 @@ getAllAssets(item: { context: MediaContext; media: MediaMetaConErrore[] }): Medi
 
 
 // Ottiene la URL attiva corrente per un dato display_name
-getActiveAsset(displayName: string): MediaMetaConErrore | null {
+getActiveAsset(displayName?: string): MediaMetaConErrore | null {
+    if (!displayName) return null;
+
   const item = this.mediaInput.items.find(m => m.context.display_name === displayName);
   if (!item) return null;
 
@@ -264,7 +268,9 @@ getActiveAsset(displayName: string): MediaMetaConErrore | null {
 }
 
 // Passa all'immagine precedente per un dato display_name
-prevImage(displayName: string): void {
+prevImage(displayName?: string): void {
+  if (!displayName) return;
+
   const item = this.mediaInput.items.find(i => i.context.display_name === displayName);
   if (!item) return;
 
@@ -274,7 +280,9 @@ prevImage(displayName: string): void {
 }
 
 // Passa all'immagine successiva per un dato display_name
-nextImage(displayName: string): void {
+nextImage(displayName?: string): void {
+  if (!displayName) return; // Evita errori se undefined
+
   const item = this.mediaInput.items.find(i => i.context.display_name === displayName);
   if (!item) return;
 
@@ -282,6 +290,7 @@ nextImage(displayName: string): void {
   const current = this.currentIndexes[displayName] ?? 0;
   this.currentIndexes[displayName] = (current + 1) % total;
 }
+
 
 // Ritorna l'oggetto MediaMetaConErrore corrispondente all'angolazione frontale (se presente) non possono ritornare string come nella download perche qui abbiamo esteso l interfaccia dobbiamo capire se la delete ha causato errore per quel media 
 getMediaFrontale(media: MediaMetaConErrore[]): MediaMetaConErrore | null {

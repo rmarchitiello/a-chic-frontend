@@ -46,7 +46,7 @@ export class ViewOrEditDescrizioneComponent implements OnInit {
     private adminService: AdminService
   ) {
     // Inizializzo la descrizione modificabile con il valore ricevuto
-    this.descrizioneModificata = data.context.descrizione;
+this.descrizioneModificata = data.context.descrizione ?? '';
   }
 
   ngOnInit(): void {
@@ -89,7 +89,7 @@ export class ViewOrEditDescrizioneComponent implements OnInit {
   }
 
   annullaModifica(): void {
-    this.descrizioneModificata = this.data.context.descrizione;
+this.descrizioneModificata = this.data.context.descrizione ?? '';
     this.isEditing = false;
     this.modificaInAttesaDiConferma = false;
   }

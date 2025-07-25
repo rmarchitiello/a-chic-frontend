@@ -68,6 +68,14 @@
             </mat-icon>
           </div>
 
+<mat-checkbox
+  *ngIf="!fileSelezionatoComeFrontale || fileSelezionatoComeFrontale === file"
+  matTooltip="Seleziona il file da far comparire in anteprima"
+  [checked]="fileSelezionatoComeFrontale === file"
+  (change)="selezionaFrontale(file, $event.checked)"
+>
+</mat-checkbox>
+
           <!-- Metadati -->
           <div class="file-metadata" *ngIf="metadatiPerFile.has(file)">
             <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">

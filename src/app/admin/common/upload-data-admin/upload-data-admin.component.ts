@@ -15,6 +15,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MediaContext } from '../../../pages/home/home.component';
 import { MatDialog } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
@@ -23,7 +25,9 @@ import { MatDialog } from '@angular/material/dialog';
     CommonModule,
     MatProgressSpinnerModule,
     MatDialogModule,
-    MatTooltipModule
+    MatTooltipModule,
+    FormsModule,
+    MatCheckboxModule
   ],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
@@ -39,10 +43,50 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   isHovering = false; // Evidenzia drop-zone
   filesDaCaricare: File[] = []; // Lista dei file selezionati
   anteprimeFile: Map<File, string> = new Map(); // Anteprima dei file
+
+  //creo una mappa per settare i metadati per quel file
   metadatiPerFile: Map<File, MediaContext> = new Map(); // Metadati per file
+
   statoUpload: Map<File, 'ok' | 'ko'> = new Map(); // Stato di ogni file caricato
   motiviErroreUpload = new Map<File, string>(); // Motivi errore
   uploadInCorso: boolean = false; // Flag di caricamento
+
+
+
+fileSelezionatoComeFrontale: File | null = null;
+  
+selezionaFrontale(file: File, isChecked: boolean): void {
+  // Imposta il file selezionato come frontale (oppure null)
+  this.fileSelezionatoComeFrontale = isChecked ? file : null;
+
+  // Imposta il valore dell'angolazione
+  const angolazione = isChecked ? 'frontale' : 'altra';
+
+  // Verifica se esiste già un context per questo file
+  const contextEsistente = this.metadatiPerFile.get(file);
+
+  if (contextEsistente) {
+    // Aggiorna solo la chiave 'angolazione' mantenendo gli altri metadati
+    contextEsistente['angolazione'] = angolazione;
+    this.metadatiPerFile.set(file, { ...contextEsistente });
+  } else {
+    // Se non esiste un context, ne creo uno base
+    const nuovoContext: MediaContext = {
+      display_name: file.name.split('.')[0],
+      descrizione: '',
+      quantita: '1',
+      ['angolazione']: angolazione
+    };
+    this.metadatiPerFile.set(file, nuovoContext);
+  }
+
+  // Log di controllo
+  console.log("File selezionato come frontale:", this.fileSelezionatoComeFrontale);
+  console.log("Contesto aggiornato:", this.metadatiPerFile.get(file));
+}
+
+
+
 
   ngOnInit(): void {
     //non fa uploadre cose all esterno del drop
@@ -90,6 +134,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     input.value = '';
   }
 
+  
   aggiungiFiles(files: File[]): void {
     files.forEach(file => {
       const giaPresente = this.filesDaCaricare.some(
@@ -104,16 +149,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
           this.anteprimeFile.set(file, previewUrl);
         }
 
-        // Inizializza i metadati base
-        const meta: MediaContext = {
-          display_name: file.name.split('.')[0],
-          nome_file: file.name.split('.')[0],
-          angolazione: 'frontale',
-          quantita: '0',
-          descrizione: 'Descrizione da inserire'
-        };
 
-        this.metadatiPerFile.set(file, meta);
         console.log("Tutti i files da aggiungere: ", this.filesDaCaricare);
       }
     });
