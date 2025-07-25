@@ -31,7 +31,7 @@
         {{ getPreview(contextFormatted.value) }}
       </span>
       <button
-        *ngIf="isLongText(contextFormatted.value) && contextFormatted.key === 'descrizione'"
+        *ngIf="contextFormatted.key === 'descrizione'"
         class="show-more-btn"
         type="button"
         mat-icon-button

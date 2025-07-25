@@ -305,6 +305,7 @@ getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] }
     }
   
     
+    
   */
 
     //apro solo il pop up della descrizione
