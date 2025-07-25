@@ -17,6 +17,7 @@ import { MediaContext } from '../../../pages/home/home.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
@@ -36,6 +37,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
   constructor(
     private adminService: AdminService,
+    private dialog: MatDialog,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public folder: string // La cartella viene fornita dal padre
   ) { }
@@ -55,34 +57,111 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
 fileSelezionatoComeFrontale: File | null = null;
   
+/**
+ * Metodo per selezionare un file come "frontale"
+ * - Se viene deselezionato, rimuove il flag e cancella "angolazione" dai metadati
+ * - Se viene selezionato un nuovo file, trasferisce i metadati dal vecchio
+ * - Mantiene un solo file frontale alla volta
+ */
+private ultimoFileFrontaleSelezionato: File | null = null;
+
 selezionaFrontale(file: File, isChecked: boolean): void {
-  // Imposta il file selezionato come frontale (oppure null)
-  this.fileSelezionatoComeFrontale = isChecked ? file : null;
+  if (!isChecked) {
+    const metadati = this.metadatiPerFile.get(file);
+    if (metadati?.['angolazione'] === 'frontale') {
+      delete metadati['angolazione'];
+    }
 
-  // Imposta il valore dell'angolazione
-  const angolazione = isChecked ? 'frontale' : 'altra';
-
-  // Verifica se esiste già un context per questo file
-  const contextEsistente = this.metadatiPerFile.get(file);
-
-  if (contextEsistente) {
-    // Aggiorna solo la chiave 'angolazione' mantenendo gli altri metadati
-    contextEsistente['angolazione'] = angolazione;
-    this.metadatiPerFile.set(file, { ...contextEsistente });
-  } else {
-    // Se non esiste un context, ne creo uno base
-    const nuovoContext: MediaContext = {
-      display_name: file.name.split('.')[0],
-      descrizione: '',
-      quantita: '1',
-      ['angolazione']: angolazione
-    };
-    this.metadatiPerFile.set(file, nuovoContext);
+    this.fileSelezionatoComeFrontale = null;
+    this.ultimoFileFrontaleSelezionato = null;
+    console.log('Deselezionato frontale:', file.name);
+    console.log("Metadati correnti: ", metadati);
+    return;
   }
 
-  // Log di controllo
-  console.log("File selezionato come frontale:", this.fileSelezionatoComeFrontale);
-  console.log("Contesto aggiornato:", this.metadatiPerFile.get(file));
+  const nuovoFile = file;
+  const vecchioFile = this.ultimoFileFrontaleSelezionato;
+
+  // 🔧 Recupera i metadati già presenti sul nuovo file
+  const metadatiEsistenti = this.metadatiPerFile.get(nuovoFile);
+
+  let metadatiNuovi: MediaContext;
+
+  if (metadatiEsistenti) {
+    // 🔄 Aggiunge solo l'angolazione senza sovrascrivere
+    metadatiNuovi = {
+      ...metadatiEsistenti,
+      angolazione: 'frontale'
+    };
+  } else if (vecchioFile && this.metadatiPerFile.has(vecchioFile)) {
+    // 🔁 Se non esistono, clona quelli dal vecchio frontale
+    const metadatiVecchi = this.metadatiPerFile.get(vecchioFile)!;
+    metadatiNuovi = {
+      ...metadatiVecchi,
+      display_name: nuovoFile.name.split('.')[0],
+      angolazione: 'frontale'
+    };
+  } else {
+    // 🆕 Altrimenti crea base
+    metadatiNuovi = {
+      display_name: nuovoFile.name.split('.')[0],
+      angolazione: 'frontale',
+      descrizione: 'Da inserire',
+      quantita: '0'
+    };
+  }
+
+  // ✅ Applica metadati aggiornati
+  this.metadatiPerFile.set(nuovoFile, metadatiNuovi);
+
+  // ❌ Non rimuovere i metadati del vecchio file
+  // Aggiorna solo i flag frontale
+  this.fileSelezionatoComeFrontale = nuovoFile;
+  this.ultimoFileFrontaleSelezionato = nuovoFile;
+
+  console.log('Nuovo frontale selezionato:', nuovoFile.name);
+  console.log('Metadati aggiornati:', this.metadatiPerFile);
+}
+
+
+
+/**
+ * Metodo per aprire un popup e modificare i metadati di un file selezionato.
+ * In input passa il file, così da leggere o creare i metadati associati.
+ */
+apriPopUpEditFile(file: File): void {
+  // Recupera i metadati già salvati per il file, oppure usa un oggetto vuoto
+  const metadataEsistenti = this.metadatiPerFile.get(file) || {};
+  console.log("Metadati esistenti per il file selezionato:", metadataEsistenti);
+
+  // Clona i metadati per evitare modifiche dirette se l'utente annulla
+  const metadataClonati: MediaContext = { ...metadataEsistenti };
+
+  // Apre il popup passando il file e i metadati correnti
+  const dialogRef = this.dialog.open(EditDataAdminComponent, {
+    width: '720px',
+    maxHeight: '90vh',
+    panelClass: 'popup-metadati-dialog',
+    data: {
+      file,
+      context: metadataClonati
+    }
+  });
+
+  // Quando il popup viene chiuso
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result) {
+      // Se è il file frontale, imposta sempre angolazione = frontale
+      if (this.fileSelezionatoComeFrontale === file) {
+        result.angolazione = 'frontale';
+      }
+
+      // Aggiorna la mappa dei metadati
+      this.metadatiPerFile.set(file, result);
+
+      console.log("Metadati aggiornati per", file.name, ":", result);
+    }
+  });
 }
 
 
@@ -155,11 +234,27 @@ selezionaFrontale(file: File, isChecked: boolean): void {
     });
   }
 
-  rimuoviFile(file: File): void {
-    this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
-    this.anteprimeFile.delete(file);
-    this.metadatiPerFile.delete(file);
+
+
+
+
+
+
+
+rimuoviFile(file: File): void {
+  // Rimuovo dalla lista dei file
+  this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
+
+  // Rimuovo anteprima e metadati
+  this.anteprimeFile.delete(file);
+  this.metadatiPerFile.delete(file);
+
+  // Se il file rimosso era quello selezionato come frontale, lo azzero
+  if (this.fileSelezionatoComeFrontale === file) {
+    this.fileSelezionatoComeFrontale = null;
   }
+}
+
 
   rimuoviTuttiIFiles(): void {
     this.filesDaCaricare = [];

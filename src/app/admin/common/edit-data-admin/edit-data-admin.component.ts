@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MediaContext } from '../../../pages/home/home.component';
 
 @Component({
   selector: 'app-edit-context-before-upload',
@@ -34,7 +35,7 @@ export class EditDataAdminComponent implements OnInit {
 
   // Oggetto contenente i metadati statici (nome_file, descrizione, quantità, angolazione)
   // È un oggetto indicizzato per supportare anche metadati aggiuntivi dinamici
-  context: { [key: string]: string } = {
+  context: MediaContext  = {
     nome_file: '',
     descrizione: '',
     quantita: '0',
@@ -51,23 +52,26 @@ export class EditDataAdminComponent implements OnInit {
   ) {}
 
   // All’inizializzazione del componente, popolo i campi del form con i metadati già presenti
-  ngOnInit(): void {
-    const ctx = this.data.context || {};
+ngOnInit(): void {
+  const ctx = this.data.context || {};
 
-    // Popolo i campi statici con i valori già salvati (oppure predefiniti)
-    this.context['nome_file'] = ctx['nome_file'] || this.data.file.name.split('.')[0] || '';
-    this.context['descrizione'] = ctx['descrizione'] || '';
-    this.context['quantita'] = ctx['quantita'] || '0';
-    this.context['angolazione'] = ctx['angolazione'] || 'frontale';
+  // Popolo i campi statici
+  this.context = {
+    display_name: ctx['display_name'] || '',
+    descrizione: ctx['descrizione'] || '',
+    quantita: ctx['quantita'] || '0',
+    angolazione: ctx['angolazione'] || ''
+  };
 
-    // Aggiungo tutti gli altri metadati dinamici (escludendo quelli statici noti)
-    const staticKeys = ['nome_file', 'descrizione', 'quantita', 'angolazione'];
-    for (const key in ctx) {
-      if (!staticKeys.includes(key)) {
-        this.altriMetadati.push({ key, value: ctx[key] });
-      }
-    }
-  }
+  // Tutti gli altri metadati vanno nei dinamici
+  this.altriMetadati = Object.entries(ctx)
+    .filter(([key]) => !['display_name', 'descrizione', 'quantita', 'angolazione'].includes(key))
+    .map(([key, value]) => ({ key, value }));
+    
+  console.log("Context statico:", this.context);
+  console.log("Metadati dinamici:", this.altriMetadati);
+}
+
 
   // Aggiunge un nuovo metadato dinamico (se non ci sono chiavi duplicate o vuote)
   aggiungiMetadato(): void {

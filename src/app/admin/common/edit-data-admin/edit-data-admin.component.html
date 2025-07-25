@@ -14,27 +14,21 @@
 
       <!-- Campi statici -->
       <mat-form-field appearance="outline" floatLabel="always">
-        <mat-label>Nome file</mat-label>
-        <input matInput [(ngModel)]="context['nome_file']" name="nome_file" required />
+        <mat-label>Nome Media</mat-label>
+        <input matInput [(ngModel)]="context['display_name']" name="display_name" required />
       </mat-form-field>
 
-      <mat-form-field *ngIf="context['angolazione'] != 'altra'" appearance="outline" floatLabel="always">
+      <mat-form-field  appearance="outline" floatLabel="always">
         <mat-label>Descrizione</mat-label>
         <textarea matInput [(ngModel)]="context['descrizione']" name="descrizione" rows="3"></textarea>
       </mat-form-field>
 
-      <mat-form-field *ngIf="context['angolazione'] != 'altra'" appearance="outline" floatLabel="always">
+      <mat-form-field  appearance="outline" floatLabel="always">
         <mat-label>Quantità</mat-label>
         <input matInput type="number" min="0" [(ngModel)]="context['quantita']" name="quantita" required />
       </mat-form-field>
 
-      <mat-form-field appearance="outline" floatLabel="always">
-        <mat-label>Angolazione</mat-label>
-        <mat-select [(ngModel)]="context['angolazione']" name="angolazione" required>
-          <mat-option value="frontale">Frontale</mat-option>
-          <mat-option value="altra">Altra</mat-option>
-        </mat-select>
-      </mat-form-field>
+
 
       <!-- Metadati dinamici -->
         <div class="dynamic-metadata-section" *ngFor="let metadato of altriMetadati; let i = index">

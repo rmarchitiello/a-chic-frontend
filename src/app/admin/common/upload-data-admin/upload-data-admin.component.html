@@ -16,10 +16,8 @@
   <div class="upload-main-content" [class.blur]="uploadInCorso">
 
     <!-- Area drag-and-drop -->
-    <div class="upload-drop-area" [class.hover-active]="isHovering"
-         (dragover)="onDragOver($event)"
-         (dragleave)="onDragLeave($event)"
-         (drop)="onDrop($event)">
+    <div class="upload-drop-area" [class.hover-active]="isHovering" (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
 
       <p class="upload-instructions">Trascina qui uno o più file da caricare<br />oppure</p>
       <button mat-stroked-button color="primary" (click)="fileInput.click()">Seleziona dal dispositivo</button>
@@ -53,7 +51,8 @@
               <ng-container [ngSwitch]="file.type.split('/')[0]">
                 <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)" [alt]="file.name" />
                 <video *ngSwitchCase="'video'" class="file-thumb" [src]="anteprimeFile.get(file)" muted></video>
-                <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls [src]="anteprimeFile.get(file)"></audio>
+                <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls
+                  [src]="anteprimeFile.get(file)"></audio>
                 <div *ngSwitchDefault class="file-icon">📁</div>
               </ng-container>
             </ng-container>
@@ -63,33 +62,36 @@
               check_circle
             </mat-icon>
             <mat-icon *ngIf="statoUpload.get(file) === 'ko'" class="stato-icon stato-ko"
-                      [matTooltip]="motiviErroreUpload.get(file)" matTooltipPosition="above">
+              [matTooltip]="motiviErroreUpload.get(file)" matTooltipPosition="above">
               error
             </mat-icon>
           </div>
 
-<mat-checkbox
-  *ngIf="!fileSelezionatoComeFrontale || fileSelezionatoComeFrontale === file"
-  matTooltip="Seleziona il file da far comparire in anteprima"
-  [checked]="fileSelezionatoComeFrontale === file"
-  (change)="selezionaFrontale(file, $event.checked)"
->
-</mat-checkbox>
+          <!-- CHECK BOX PER DIRE SE UN FILE E FRONTALE O MENO-->
+          <mat-checkbox *ngIf="!fileSelezionatoComeFrontale || fileSelezionatoComeFrontale === file"
+            matTooltip="Seleziona il file da far comparire in anteprima"
+            [checked]="fileSelezionatoComeFrontale === file" (change)="selezionaFrontale(file, $event.checked)">
+          </mat-checkbox>
 
-          <!-- Metadati -->
-          <div class="file-metadata" *ngIf="metadatiPerFile.has(file)">
+          <!-- LETTURA DEI METADATI Mostra metadati solo se il file è il frontale selezionato -->
+          <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">
             <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">
               <strong>{{ formatKeyLabel(chiave.key) }}:</strong> {{ chiave.value || '—' }}
             </div>
           </div>
 
           <!-- Pulsanti azione -->
+           <!-- MODIFICA DEI METADATI SU QUELL IMMAGINE FRONTALE-->
+          <button *ngIf="fileSelezionatoComeFrontale === file && statoUpload.get(file) !== 'ok'" class="btn-edit"
+            (click)="apriPopUpEditFile(file)">
+            <mat-icon>edit</mat-icon>
+          </button>
+
           <button class="btn-remove" (click)="rimuoviFile(file)" *ngIf="statoUpload.get(file) !== 'ok'">
             <mat-icon>delete</mat-icon>
           </button>
-          <button class="btn-upload" (click)="uploadFiles(file)" *ngIf="statoUpload.get(file) !== 'ok'">
-            <mat-icon>upload</mat-icon>
-          </button>
+
+
 
         </div>
       </div>
