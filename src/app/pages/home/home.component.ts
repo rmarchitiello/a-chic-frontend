@@ -185,6 +185,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private dialog: MatDialog
   ) { }
 
+  //ci sono le folders di tutto il MediaCollection in modo da creare le chiavi caroselloKey ecc
+  foldersKey: string[] = [];
+
   ngOnInit(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -227,119 +230,72 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
     this.cloudinaryService.getImmagini('', true).subscribe({
-      next: (data: Record<string, MediaCollection[]>) => {
-        const caroselloKey = Object.keys(data).find(k => k.toLowerCase().includes('home/carosello'));
-        console.log("Carosellokey: ", caroselloKey);
-        const recensioniKey = Object.keys(data).find(k => k.toLowerCase().includes('home/recensioni'));
-        console.log("RecensioniKey: ", recensioniKey);
-        const modelliEvidenzaKey = Object.keys(data).find(k => k.toLowerCase().includes('home/modelli evidenza'));
-        console.log("VideoEvidenzaKey: ", modelliEvidenzaKey);
-        const creazioniKey = Object.keys(data).find(k => k.toLowerCase().includes('/home/mie creazioni'));
-        console.log("MieCreazioniKey: ", creazioniKey);
+      next: (data: MediaCollection[]) => {
+        this.foldersKey = data.map(d => d.folder.toLocaleLowerCase());
+        console.log("FoldersKey ", JSON.stringify(this.foldersKey));
 
 
-        // Trasformo i dati del carosello raggruppando tutte le angolazioni (meta[]) per ogni media
-        // Ricostruisco this.carosello come un array di un solo oggetto MediaCollection
-        if (caroselloKey) {
-          this.carosello = {
-            folder: 'Config/Home/Carosello',
-            items: (data[caroselloKey] || []).map((item: any) => {
-              const { meta, ...contextData } = item; //  escludo meta, tengo il resto
-              const type = this.detectType(meta?.[0]?.url || '');
+        const caroselloKey = this.foldersKey.find(k => k.toLowerCase().includes('home/carosello'));
+        console.log('CaroselloKey:', caroselloKey);
 
-              return {
-                context: {
-                  ...contextData,
-                  type
-                },
-                media: (meta || []).map((m: any) => ({
-                  url: m.url,
-                  angolazione: m.angolazione || 'default'
-                }))
-              };
-            })
-          };
-        }
+        const recensioniKey = this.foldersKey.find(k => k.toLowerCase().includes('home/recensioni'));
+        console.log('RecensioniKey:', recensioniKey);
+
+        const modelliEvidenzaKey = this.foldersKey.find(k => k.toLowerCase().includes('home/modelliinevidenza'));
+        console.log('ModelliEvidenzaKey:', modelliEvidenzaKey);
+
+        const creazioniKey = this.foldersKey.find(k => k.toLowerCase().includes('home/miecreazioni'));
+        console.log('MieCreazioniKey:', creazioniKey);
 
 
 
 
-        console.log("[HomeComponent] -  Carosello Immagini ", this.carosello);
-        if (recensioniKey) {
-          this.recensioni = {
-            folder: 'Config/Recensioni',
-            items: (data[recensioniKey] || []).map((item: any) => {
-              const { meta, ...contextData } = item;
-              const type = this.detectType(meta?.[0]?.url || '');
+  // Funzione per normalizzare stringhe (rimuove spazi, lowercase)
+      const normalizza = (val: string | undefined): string =>
+        (val || '').trim().toLowerCase().replace(/\s+/g, '');
 
-              return {
-                context: {
-                  ...contextData,
-                  type
-                },
-                media: (meta || []).map((m: any) => ({
-                  url: m.url,
-                  angolazione: m.angolazione || 'default'
-                }))
-              };
-            })
-          };
-        }
+      // Funzione per trovare una collezione in base alla folder normalizzata
+      const trovaCollezione = (key: string | undefined): MediaCollection | undefined => {
+        const keyNormalizzato = normalizza(key);
+        return data.find(d => normalizza(d.folder) === keyNormalizzato);
+      };
 
+      // Trovo e assegno la collezione "carosello"
+      const carosello = trovaCollezione(
+        this.foldersKey.find(k => normalizza(k).includes('home/carosello'))
+      );
+      if (carosello) {
+        this.carosello = carosello;
+      }
+      console.log('[HomeComponent] - carosello', this.carosello);
 
+      // Trovo e assegno la collezione "recensioni"
+      const recensioni = trovaCollezione(
+        this.foldersKey.find(k => normalizza(k).includes('home/recensioni'))
+      );
+      if (recensioni) {
+        this.recensioni = recensioni;
+      }
+      console.log('[HomeComponent] - recensioni', this.recensioni);
 
-        console.log("[HomeComponent] -  Recensioni  ", this.recensioni);
+      // Trovo e assegno la collezione "modelli in evidenza"
+      const modelliEvidenza = trovaCollezione(
+        this.foldersKey.find(k => normalizza(k).includes('home/modellievidenza'))
+      );
+      if (modelliEvidenza) {
+        this.modelliInEvidenza = modelliEvidenza;
+      }
+      console.log('[HomeComponent] - modelli in evidenza', this.modelliInEvidenza);
 
-        if (modelliEvidenzaKey) {
-          this.modelliInEvidenza = {
-            folder: 'Config/Home/Video',
-            items: (data[modelliEvidenzaKey] || []).map((item: any) => {
-              const { meta, ...contextData } = item;
-              const type = this.detectType(meta?.[0]?.url || '');
+      // Trovo e assegno la collezione "mie creazioni"
+      const creazioni = trovaCollezione(
+        this.foldersKey.find(k => normalizza(k).includes('home/miecreazioni'))
+      );
+      if (creazioni) {
+        this.creazioni = creazioni;
+      }
+      console.log('[HomeComponent] - creazioni', this.creazioni);
 
-              return {
-                context: {
-                  ...contextData,
-                  type
-                },
-                media: (meta || []).map((m: any) => ({
-                  url: m.url,
-                  angolazione: m.angolazione || 'default'
-                }))
-              };
-            })
-          };
-        }
-
-
-
-
-
-        console.log("[HomeComponent] -  Modelli in Evidenza  ", this.modelliInEvidenza);
-
-
-        if (creazioniKey) {
-          this.creazioni = {
-            folder: 'Config/Home/MieCreazioni',
-            items: (data[creazioniKey] || []).map((item: any) => {
-              const { meta, ...contextData } = item;
-              const type = this.detectType(meta?.[0]?.url || '');
-
-              return {
-                context: {
-                  ...contextData,
-                  type
-                },
-                media: (meta || []).map((m: any) => ({
-                  url: m.url,
-                  angolazione: m.angolazione || 'default'
-                }))
-              };
-            })
-          };
-        }
-
-        console.log("[HomeComponent] -  creazioni  ", this.creazioni);
 
 
 
@@ -553,7 +509,7 @@ e quindi si fa questa cosa:
   }
 */
 
-apriPopUpEditorAdmin(): void {
+  apriPopUpEditorAdmin(): void {
 
     //chiamo l'observable per passare la media collection al figlio
     //ovviamente ora è fatta x il carosello ma sarà dinamico
