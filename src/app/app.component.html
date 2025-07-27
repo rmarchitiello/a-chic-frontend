@@ -1,8 +1,4 @@
-<!-- CMS attivo: mostra solo la login o il pannello CMS -->
-<!-- Mostra solo il CMS -->
-<ng-container *ngIf="!isMobile && isCmsAttivo">
-  <router-outlet></router-outlet>
-</ng-container>
+
 
 
 <div *ngIf="isMobile && isAdmin" class="mobile-blocked">
@@ -12,8 +8,8 @@
 
   <!-- Pulsante logout admin visibile solo se loggati come admin -->
 
-<!-- DESKTOP: solo se non mobile e non CMS -->
-<ng-container *ngIf="!isMobile && !isCmsAttivo">
+<!-- DESKTOP: solo se non mobile -->
+<ng-container *ngIf="!isMobile">
 <div *ngIf="isAdmin" class="admin-logout">
   <button mat-stroked-button color="warn" (click)="logoutAdmin()">
     Esci da modalità admin

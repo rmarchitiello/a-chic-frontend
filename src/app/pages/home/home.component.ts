@@ -229,80 +229,67 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.intervalId = setInterval(() => this.nextImage(), 2000);
     this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
-    this.cloudinaryService.getImmagini('', true).subscribe({
-      next: (data: MediaCollection[]) => {
-        this.foldersKey = data.map(d => d.folder.toLocaleLowerCase());
-        console.log("FoldersKey ", JSON.stringify(this.foldersKey));
+    // Non carico più la config manualmente, uso la subscription al servizio (devo farlo anche per i no config)
+this.sharedDataService.mediasCollectionsConfig$.subscribe({
+  next: (data: MediaCollection[]) => {
+    // Estraggo le chiavi delle cartelle in lowercase
+    this.foldersKey = data.map(d => d.folder.toLocaleLowerCase());
+    console.log('FoldersKey:', JSON.stringify(this.foldersKey));
 
+    // Trovo i nomi delle cartelle principali per la home
+    const caroselloKey = this.foldersKey.find(k => k.includes('home/carosello'));
+    console.log('CaroselloKey:', caroselloKey);
 
-        const caroselloKey = this.foldersKey.find(k => k.toLowerCase().includes('home/carosello'));
-        console.log('CaroselloKey:', caroselloKey);
+    const recensioniKey = this.foldersKey.find(k => k.includes('home/recensioni'));
+    console.log('RecensioniKey:', recensioniKey);
 
-        const recensioniKey = this.foldersKey.find(k => k.toLowerCase().includes('home/recensioni'));
-        console.log('RecensioniKey:', recensioniKey);
+    const modelliEvidenzaKey = this.foldersKey.find(k => k.includes('home/modelliinevidenza'));
+    console.log('ModelliEvidenzaKey:', modelliEvidenzaKey);
 
-        const modelliEvidenzaKey = this.foldersKey.find(k => k.toLowerCase().includes('home/modelliinevidenza'));
-        console.log('ModelliEvidenzaKey:', modelliEvidenzaKey);
+    const creazioniKey = this.foldersKey.find(k => k.includes('home/miecreazioni'));
+    console.log('MieCreazioniKey:', creazioniKey);
 
-        const creazioniKey = this.foldersKey.find(k => k.toLowerCase().includes('home/miecreazioni'));
-        console.log('MieCreazioniKey:', creazioniKey);
+    // Funzione per normalizzare le stringhe (spazi rimossi, lowercase)
+    const normalizza = (val: string | undefined): string =>
+      (val || '').trim().toLowerCase().replace(/\s+/g, '');
 
+    // Funzione per trovare una collezione corrispondente a una chiave normalizzata
+    const trovaCollezione = (key: string | undefined): MediaCollection | undefined => {
+      const keyNormalizzato = normalizza(key);
+      return data.find(d => normalizza(d.folder) === keyNormalizzato);
+    };
 
+    // Trovo e assegno la collezione "carosello"
+    const carosello = trovaCollezione(caroselloKey);
+    if (carosello) {
+      this.carosello = carosello;
+    }
+    console.log('[HomeComponent] - carosello:', this.carosello);
 
+    // Trovo e assegno la collezione "recensioni"
+    const recensioni = trovaCollezione(recensioniKey);
+    if (recensioni) {
+      this.recensioni = recensioni;
+    }
+    console.log('[HomeComponent] - recensioni:', this.recensioni);
 
-  // Funzione per normalizzare stringhe (rimuove spazi, lowercase)
-      const normalizza = (val: string | undefined): string =>
-        (val || '').trim().toLowerCase().replace(/\s+/g, '');
+    // Trovo e assegno la collezione "modelli in evidenza"
+    const modelliEvidenza = trovaCollezione(modelliEvidenzaKey);
+    if (modelliEvidenza) {
+      this.modelliInEvidenza = modelliEvidenza;
+    }
+    console.log('[HomeComponent] - modelli in evidenza:', this.modelliInEvidenza);
 
-      // Funzione per trovare una collezione in base alla folder normalizzata
-      const trovaCollezione = (key: string | undefined): MediaCollection | undefined => {
-        const keyNormalizzato = normalizza(key);
-        return data.find(d => normalizza(d.folder) === keyNormalizzato);
-      };
+    // Trovo e assegno la collezione "mie creazioni"
+    const creazioni = trovaCollezione(creazioniKey);
+    if (creazioni) {
+      this.creazioni = creazioni;
+    }
+    console.log('[HomeComponent] - creazioni:', this.creazioni);
+  },
+  error: err => console.error('Errore caricamento media config', err)
+});
 
-      // Trovo e assegno la collezione "carosello"
-      const carosello = trovaCollezione(
-        this.foldersKey.find(k => normalizza(k).includes('home/carosello'))
-      );
-      if (carosello) {
-        this.carosello = carosello;
-      }
-      console.log('[HomeComponent] - carosello', this.carosello);
-
-      // Trovo e assegno la collezione "recensioni"
-      const recensioni = trovaCollezione(
-        this.foldersKey.find(k => normalizza(k).includes('home/recensioni'))
-      );
-      if (recensioni) {
-        this.recensioni = recensioni;
-      }
-      console.log('[HomeComponent] - recensioni', this.recensioni);
-
-      // Trovo e assegno la collezione "modelli in evidenza"
-      const modelliEvidenza = trovaCollezione(
-        this.foldersKey.find(k => normalizza(k).includes('home/modellievidenza'))
-      );
-      if (modelliEvidenza) {
-        this.modelliInEvidenza = modelliEvidenza;
-      }
-      console.log('[HomeComponent] - modelli in evidenza', this.modelliInEvidenza);
-
-      // Trovo e assegno la collezione "mie creazioni"
-      const creazioni = trovaCollezione(
-        this.foldersKey.find(k => normalizza(k).includes('home/miecreazioni'))
-      );
-      if (creazioni) {
-        this.creazioni = creazioni;
-      }
-      console.log('[HomeComponent] - creazioni', this.creazioni);
-
-
-
-
-
-      },
-      error: err => console.error('Errore caricamento media', err)
-    });
 
     this.checkScroll();
   }
@@ -513,8 +500,8 @@ e quindi si fa questa cosa:
 
     //chiamo l'observable per passare la media collection al figlio
     //ovviamente ora è fatta x il carosello ma sarà dinamico
-    this.sharedDataService.setMediaCollection(this.carosello);
-    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.sharedDataService.setMediaCollection(this.carosello));
+    this.sharedDataService.setMediaCollectionConfig(this.carosello);
+    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.sharedDataService.setMediaCollectionConfig(this.carosello));
     // Apertura del dialog (popup) Angular Material
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,

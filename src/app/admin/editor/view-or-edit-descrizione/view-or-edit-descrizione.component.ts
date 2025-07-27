@@ -53,7 +53,7 @@ this.descrizioneModificata = data.context.descrizione ?? '';
 
   ngOnInit(): void {
     // Mi iscrivo una sola volta allo stato condiviso per leggere i dati aggiornati
-    this.sharedDataService.mediaCollection$.pipe(take(1)).subscribe(media => {
+    this.sharedDataService.mediaCollectionConfig$.pipe(take(1)).subscribe(media => {
       if (media) {
         this.mediaCollectionInput = media;
 
@@ -119,7 +119,7 @@ this.descrizioneModificata = this.data.context.descrizione ?? '';
           console.log('Descrizione aggiornata con successo');
 
           // Aggiorna la mediaCollection condivisa
-          this.sharedDataService.mediaCollection$.pipe(take(1)).subscribe(collezioneCorrente => {
+          this.sharedDataService.mediaCollectionConfig$.pipe(take(1)).subscribe(collezioneCorrente => {
             if (!collezioneCorrente) return;
 
             const itemsAggiornati = collezioneCorrente.items.map(item => {
@@ -130,7 +130,7 @@ this.descrizioneModificata = this.data.context.descrizione ?? '';
             });
 
             // Notifica il padre con la nuova collezione aggiornata
-            this.sharedDataService.setMediaCollection({
+            this.sharedDataService.setMediaCollectionConfig({
               folder: collezioneCorrente.folder,
               items: itemsAggiornati
             });

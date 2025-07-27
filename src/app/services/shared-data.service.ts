@@ -67,21 +67,40 @@ export class SharedDataService {
     aggiorna dinamicamente. Faccio cosi in modo da non aggiornare con reload tutto e quindi fare un f5 e ricaricare il pop
     cosi facendo miglioro l'UI dell'utente che utilizza il sito e poi il padre fara la sunbscribe per ricevere
     i dati modificati dal figlio e cosi via */
-private mediaCollectionSubject = new BehaviorSubject<MediaCollection | null>(null);
-mediaCollection$ = this.mediaCollectionSubject.asObservable();
+private mediaCollectionConfig = new BehaviorSubject<MediaCollection | null>(null);
+  mediaCollectionConfig$ = this.mediaCollectionConfig.asObservable();
 
-//qua faccio la next 
-setMediaCollection(mediaCollection: MediaCollection) {
-  console.log("Shared service ricevuto: ", mediaCollection);
-  this.mediaCollectionSubject.next(mediaCollection);
-}
+  // Metodo per aggiornare il contenuto corrente della MediaCollection
+  setMediaCollectionConfig(mediaCollection: MediaCollection): void {
+    console.log("Shared service ricevuto:", mediaCollection);
+    this.mediaCollectionConfig.next(mediaCollection);
+  }
 
-//questo dovrei usarlo una tantum per leggerne il valore ma se voglio condividere faccio la subscribe
-//cioe serve per leggere il valore una tantum senza sottoscrivermi al subject
-//leggo l'ultimo valore che è stato next da qualche parte 
-getMediaCollection(): MediaCollection | null {
-  return this.mediaCollectionSubject.getValue();
-}
+  // Metodo per ottenere l'ultimo valore settato senza sottoscrizione
+  getMediaCollectionConfig(): MediaCollection | null {
+    return this.mediaCollectionConfig.getValue();
+  }
+
+  // =====================================================================================
+  // 6. Tutte le MediaCollections disponibili nella configurazione completa
+  // Questa lista viene aggiornata dopo l'upload o modifica massiva da parte dell’admin.
+  // =====================================================================================
+
+  private mediasCollectionsConfigSubject = new BehaviorSubject<MediaCollection[]>([]);
+  mediasCollectionsConfig$ = this.mediasCollectionsConfigSubject.asObservable();
+
+  // Metodo per aggiornare tutte le MediaCollections della configurazione
+  setAllMediasCollectionsConfig(mediaCollection: MediaCollection[]): void {
+    console.log("Shared service ricevuto:", mediaCollection);
+    this.mediasCollectionsConfigSubject.next(mediaCollection);
+  }
+
+  // Metodo per ottenere tutte le MediaCollections senza sottoscrizione
+  getMediasCollectionsConfig(): MediaCollection[] {
+    return this.mediasCollectionsConfigSubject.getValue();
+  }
+
+
 
 
 }

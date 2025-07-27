@@ -247,7 +247,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     window.addEventListener('dragover', this.preventDefaultGlobal, false);
     window.addEventListener('drop', this.preventDefaultGlobal, false);
 
-    this.sharedService.mediaCollection$.subscribe(data => {
+    this.sharedService.mediaCollectionConfig$.subscribe(data => {
       if (data) {
         console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
         // Assegna i dati ricevuti dal componente padre alla variabile locale
@@ -524,7 +524,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     this.dialog.open(UploadDataAdminComponent, {
       width: '90vw',
       disableClose: false,
-      data: this.folderInput
+      data: 'Config/Home/Carosello' //this.folderInput
     });
   }
 

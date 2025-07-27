@@ -28,7 +28,7 @@ import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 import { SharedDataService } from './services/shared-data.service';
-
+import { MediaCollection } from './pages/home/home.component';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -113,8 +113,6 @@ strutturaCategorie: { [key: string]: string[] | undefined } = {};
   //i filtri delle sottocategorie
   sottoCategoriaEspansa: string | null = null;
 
-//gestione del cms, setto prima a false cosi quando carico il sito normale vedo tutto il sito
-isCmsAttivo = false;
 
 toggleCategoria(cat: string): void {
   this.categoriaEspansa = this.categoriaEspansa === cat ? null : cat;
@@ -210,7 +208,7 @@ Array = Array;
 
 logoutAdmin(): void {
   // Rimuove il flag di login admin dal localStorage
-  sessionStorage.removeItem('admin-cms');
+  sessionStorage.removeItem('admin');
 
   // Forza il ricaricamento della pagina per uscire dalla modalità admin
   window.location.reload();
@@ -246,18 +244,13 @@ this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
     });
   });
 
-  // Verifica se l'URL iniziale appartiene alla sezione CMS
-  this.isCmsAttivo = this.router.url.startsWith('/cms');
-  console.log("Iniziale isCmsAttivo?", this.isCmsAttivo);
 
-  // Ascolta i cambi di rotta per aggiornare dinamicamente `isCmsAttivo` e `isPaginaCloudinaryAttiva`
+  // Ascolta i cambi di rotta per aggiornare dinamicamente  e `isPaginaCloudinaryAttiva`
   this.router.events
     .pipe(filter(event => event instanceof NavigationEnd))
     .subscribe((event: NavigationEnd) => {
       const url = event.urlAfterRedirects.toLowerCase();
 
-      // Attiva/disattiva flag CMS
-      this.isCmsAttivo = url.startsWith('/cms');
 
       // Verifica se siamo su una pagina Cloudinary (cioè una route che contiene una categoria)
       const matchCategoria = this.categorie.some(cat =>
@@ -270,7 +263,6 @@ this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
 
       console.log("URL attuale:", url);
       console.log("isPaginaCloudinaryAttiva:", this.isPaginaCloudinaryAttiva);
-      console.log("isCmsAttivo:", this.isCmsAttivo);
     });
 
   // Richiama il servizio per ottenere le immagini e costruire la struttura dinamica
@@ -364,6 +356,20 @@ this.sharedDataService.setFiltriSottoCategorie(this.filtriSottoCategorie);
       console.error('Errore nel caricamento delle immagini', err);
     }
   });
+
+  //carico la config cache infatti cache e true e la passo via subject alla home ed a altri component
+this.cloudinaryService.getImmagini('', true).subscribe({
+      next: (data: MediaCollection[]) => {
+
+        console.log("Carico collection config: ");
+        this.sharedDataService.setAllMediasCollectionsConfig(data);
+
+
+
+      },
+      error: err => console.error('Errore caricamento media', err)
+    });
+
 
 
 

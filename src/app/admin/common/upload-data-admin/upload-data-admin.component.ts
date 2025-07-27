@@ -13,11 +13,13 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaContext } from '../../../pages/home/home.component';
+import { MediaCollection, MediaContext } from '../../../pages/home/home.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
+import { SharedDataService } from '../../../services/shared-data.service';
+import { MediaItems } from '../../../pages/home/home.component';
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
@@ -38,6 +40,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   constructor(
     private adminService: AdminService,
     private dialog: MatDialog,
+    private sharedService: SharedDataService,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public folder: string // La cartella viene fornita dal padre
   ) { }
@@ -58,101 +61,51 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
 fileSelezionatoComeFrontale: File | null = null;
   
-/**
- * Metodo per selezionare un file come "frontale"
- * - Se viene deselezionato, rimuove il flag e cancella "angolazione" dai metadati
- * - Se viene selezionato un nuovo file, trasferisce i metadati dal vecchio
- * - Mantiene un solo file frontale alla volta
- */
-private ultimoFileFrontaleSelezionato: File | null = null;
 
-selezionaFrontale(file: File, isChecked: boolean): void {
-const nuovoFile = file;
 
-  if (!isChecked) {
-    // ❌ Deseleziono il frontale, ma conservo i metadati
-    const metadati = this.metadatiPerFile.get(file);
-    if (metadati) {
-      this.metadatiPerFile.set(file, {
-        ...metadati,
-        angolazione: 'altra' // ✅ Cambio solo l'angolazione
+// Funzione per unire gli elementi MediaItems con lo stesso display_name
+//DA SISTEMARE QUA DEVO CAPIRE PERCHE NON VENGONO MERGIATI GLI ITEM FATTO CIO DEVO VEDERE LA HOME COM E 
+//SE MI PORTA I DATI NUOVI E POI DEVO CAPIRE SE EDITOR SUBSCRIBES I DATI NUOVI
+ mergeItemsByDisplayName(items: MediaItems[]): MediaItems[] {
+  console.log("Inizio metodo", items)
+  // Creo una mappa per raggruppare gli item per display_name
+  const mappa = new Map<string, MediaItems>();
+
+  // Scorro ogni elemento della lista in ingresso
+  items.forEach(item => {
+    // Prendo la chiave di raggruppamento, che è il display_name
+    const key = item.context.display_name;
+
+    // Se il display_name non è definito, salto l'item
+    if (!key) return;
+
+    // Se non ho ancora inserito un item con questo display_name
+    if (!mappa.has(key)) {
+      // Aggiungo una nuova voce nella mappa clonando context e media
+      mappa.set(key, {
+        context: { ...item.context },
+        media: [...item.media]
       });
-    }
-    this.fileSelezionatoComeFrontale = null;
-    // Non azzero ultimoFileFrontaleSelezionato perché potrei riselezionare lo stesso file
-    console.log('❌ Frontale deselezionato (ma metadati conservati):', file.name);
-    return;
-  }
+    } else {
+      // Recupero l'item già presente nella mappa
+      const esistente = mappa.get(key)!;
 
-  const vecchioFile = this.ultimoFileFrontaleSelezionato;
+      // Scorro i media dell'item corrente
+      item.media.forEach(media => {
+        // Verifico se il media è già presente (confronto basato su url)
+        const giaPresente = esistente.media.some(m => m.url === media.url);
 
-  console.log('File selezionato:', nuovoFile);
-  console.log('Ultimo frontale selezionato:', vecchioFile);
-
-  let metadatiDaTrasferire: MediaContext | undefined;
-
-  // Se esiste un precedente frontale diverso dal nuovo, salvo e rimuovo i suoi metadati
-  if (vecchioFile) {
-    console.log("Vecchio file")
-    const metadatiVecchio = this.metadatiPerFile.get(vecchioFile);
-    console.log("Vecchi metadati", metadatiVecchio);
-    if (metadatiVecchio) {
-      metadatiDaTrasferire = { ...metadatiVecchio };
-    }
-    this.metadatiPerFile.delete(vecchioFile);
-  }
-
-  // Recupero eventuali metadati già associati al nuovo file (potrebbero essere incompleti)
-  const metadatiEsistenti = this.metadatiPerFile.get(nuovoFile);
-
-  let metadatiFinali: MediaContext;
-
-  if (metadatiDaTrasferire) {
-    // Uso i metadati del precedente frontale
-    metadatiFinali = {
-      ...metadatiDaTrasferire,
-      angolazione: 'frontale'
-    };
-    console.log('Metadati trasferiti dal vecchio frontale:', metadatiFinali);
-  } else if (metadatiEsistenti) {
-    // Uso quelli già presenti sul nuovo file
-    metadatiFinali = {
-      ...metadatiEsistenti,
-      angolazione: 'frontale'
-    };
-    console.log('Metadati esistenti aggiornati:', metadatiFinali);
-  } else {
-    // Nessun metadato disponibile, uso valori base
-    metadatiFinali = {
-      display_name: nuovoFile.name.split('.')[0],
-      angolazione: 'frontale',
-      descrizione: 'Da inserire',
-      quantita: '0'
-    };
-    console.log('Metadati creati da zero:', metadatiFinali);
-  }
-
-  // Applico i metadati al nuovo frontale selezionato
-  this.metadatiPerFile.set(nuovoFile, metadatiFinali);
-
-  // Imposto angolazione 'altra' a tutti gli altri file
-  this.metadatiPerFile.forEach((metadati, f) => {
-    if (f !== nuovoFile) {
-      this.metadatiPerFile.set(f, {
-        ...metadati,
-        angolazione: 'altra'
+        // Se il media non è già presente, lo aggiungo
+        if (!giaPresente) {
+          esistente.media.push(media);
+        }
       });
     }
   });
 
-  // Aggiorno gli stati interni
-  this.fileSelezionatoComeFrontale = nuovoFile;
-  this.ultimoFileFrontaleSelezionato = nuovoFile;
-
-  console.log('Nuovo frontale impostato:', nuovoFile.name);
-  console.log('Stato metadati finale:', this.metadatiPerFile);
+  // Converto la mappa in un array e lo ritorno
+  return Array.from(mappa.values());
 }
-
 
 
 
@@ -161,14 +114,13 @@ const nuovoFile = file;
  * In input passa il file, così da leggere o creare i metadati associati.
  */
 apriPopUpEditFile(file: File): void {
-  // Recupera i metadati già salvati per il file, oppure usa un oggetto vuoto
+  // Recupero i metadati già presenti oppure inizializzo a oggetto vuoto
   const metadataEsistenti = this.metadatiPerFile.get(file) || {};
-  console.log("Metadati esistenti per il file selezionato:", metadataEsistenti);
 
-  // Clona i metadati per evitare modifiche dirette se l'utente annulla
+  // Clono i metadati per evitare modifiche dirette prima della conferma
   const metadataClonati: MediaContext = { ...metadataEsistenti };
 
-  // Apre il popup passando il file e i metadati correnti
+  // Apro il popup passando file e metadati
   const dialogRef = this.dialog.open(EditDataAdminComponent, {
     width: '720px',
     maxHeight: '90vh',
@@ -179,20 +131,39 @@ apriPopUpEditFile(file: File): void {
     }
   });
 
-  // Quando il popup viene chiuso
-  dialogRef.afterClosed().subscribe((result) => {
+  dialogRef.afterClosed().subscribe((result: MediaContext | undefined) => {
     if (result) {
-      // Se è il file frontale, imposta sempre angolazione = frontale
+      // Se il file è quello selezionato come frontale, imposto angolazione frontale
       if (this.fileSelezionatoComeFrontale === file) {
-        result.angolazione = 'frontale';
+        result['angolazione'] = 'frontale';
+      } else {
+        result['angolazione'] = 'altra';
       }
 
-      // Aggiorna la mappa dei metadati
+      // Aggiorno il file corrente con i nuovi metadati
       this.metadatiPerFile.set(file, result);
       console.log("Metadati aggiornati per", file.name, ":", result);
+
+      // Propago i metadati modificati (tranne l'angolazione) anche agli altri file
+      this.metadatiPerFile.forEach((metadati, f) => {
+        if (f !== file) {
+          const angolazioneCorrente = this.fileSelezionatoComeFrontale === f ? 'frontale' : 'altra';
+
+          // Creo una copia dei metadati aggiornati
+          this.metadatiPerFile.set(f, {
+            ...result,
+            ['angolazione']: angolazioneCorrente
+          });
+
+          console.log("Metadati propagati a", f.name);
+        }
+      });
+
+      console.log("Tutti i metadati aggiornati:", this.metadatiPerFile);
     }
   });
 }
+
 
 
 
@@ -208,6 +179,7 @@ apriPopUpEditFile(file: File): void {
 
   //non fa uploadre cose all esterno del drop
   ngOnDestroy(): void {
+    console.log("Distrutto");
     window.removeEventListener('dragover', this.preventBrowserDefault, false);
     window.removeEventListener('drop', this.preventBrowserDefault, false);
   }
@@ -246,26 +218,67 @@ apriPopUpEditFile(file: File): void {
     input.value = '';
   }
 
-  
-  aggiungiFiles(files: File[]): void {
-    files.forEach(file => {
-      const giaPresente = this.filesDaCaricare.some(
-        f => f.name === file.name && f.size === file.size
-      );
-      if (!giaPresente) {
-        this.filesDaCaricare.push(file);
+private fileUsatoComeModelloMetadati: File | null = null;
 
-        const tipoGenerico = file.type.split('/')[0];
-        if (["image", "video", "audio"].includes(tipoGenerico)) {
-          const previewUrl = URL.createObjectURL(file);
-          this.anteprimeFile.set(file, previewUrl);
-        }
+aggiungiFiles(files: File[]): void {
+  if (!files || files.length === 0) return;
 
+  // Se è il primo file che si aggiunge, sarà usato come base per i metadati
+  const primoFileNuovo = files.find(f => {
+    return !this.filesDaCaricare.some(existing =>
+      existing.name === f.name && existing.size === f.size
+    );
+  });
 
-        console.log("Tutti i files da aggiungere: ", this.filesDaCaricare);
-      }
-    });
+  // Se è il primo file caricato in assoluto, salvo come modello
+  if (!this.fileUsatoComeModelloMetadati && primoFileNuovo) {
+    this.fileUsatoComeModelloMetadati = primoFileNuovo;
   }
+
+  files.forEach(file => {
+    const giaPresente = this.filesDaCaricare.some(
+      f => f.name === file.name && f.size === file.size
+    );
+
+    if (!giaPresente) {
+      this.filesDaCaricare.push(file);
+
+      const tipoGenerico = file.type.split('/')[0];
+      if (["image", "video", "audio"].includes(tipoGenerico)) {
+        const previewUrl = URL.createObjectURL(file);
+        this.anteprimeFile.set(file, previewUrl);
+      }
+
+      // Recupero i metadati dal file modello, se presente
+      let metadatiComuni = null;
+      if (this.fileUsatoComeModelloMetadati) {
+        const meta = this.metadatiPerFile.get(this.fileUsatoComeModelloMetadati);
+        if (meta) {
+          metadatiComuni = {
+            ...meta,
+            angolazione: 'altra' // Tutti "altra" tranne il frontale
+          };
+        }
+      }
+
+      // Se non ci sono ancora metadati, inizializza con valori fissi
+      if (!metadatiComuni) {
+        metadatiComuni = {
+          display_name: file.name.split('.')[0],
+          descrizione: 'Da inserire',
+          quantita: '0',
+          angolazione: 'altra'
+        };
+      }
+
+      this.metadatiPerFile.set(file, metadatiComuni);
+
+      console.log(`File aggiunto: ${file.name}`, metadatiComuni);
+    }
+  });
+
+  console.log("Lista completa dei file da caricare:", this.filesDaCaricare);
+}
 
 
 
@@ -307,9 +320,6 @@ rimuoviTuttiIFiles(): void {
 
   chiudiDialog(reload: boolean): void {
     this.dialogRef.close();
-    setTimeout(() => {
-      if (reload) window.location.reload();
-    }, 400);
   }
 
   /**
@@ -326,6 +336,27 @@ rimuoviTuttiIFiles(): void {
   const filesDaCaricare = fileInput
     ? this.filesDaCaricare.filter(f => f === fileInput)
     : this.filesDaCaricare;
+
+//  Ordino i file mettendo davanti il file con angolazione 'frontale'
+filesDaCaricare.sort((a, b) => {
+  const metaA = this.metadatiPerFile.get(a);
+  const metaB = this.metadatiPerFile.get(b);
+
+  const angA = metaA?.['angolazione'];
+  const angB = metaB?.['angolazione'];
+
+  if (angA === 'frontale') return -1;
+  if (angB === 'frontale') return 1;
+  return 0;
+});
+
+//  Verifica ordine dopo ordinamento
+console.log("Ordine finale dei file da caricare:");
+filesDaCaricare.forEach(f => {
+  const meta = this.metadatiPerFile.get(f);
+  console.log(`- ${f.name} → angolazione: ${meta?.['angolazione']}`);
+});
+
 
   // Verifica che la cartella sia stata inserita
   const folder = this.inputFolder?.trim();
@@ -369,30 +400,110 @@ rimuoviTuttiIFiles(): void {
 
   // Verifico se è una cartella "config"
   const isConfig = folder.toLowerCase().includes('config');
-
+  console.log("Dati da caricare ", JSON.stringify(formData));
   // Invio al backend
   this.adminService.uploadMedia(formData, isConfig).subscribe({
     next: (res) => {
-      if (Array.isArray(res.data)) {
-        res.data.forEach((uploadResult: { nome_file: string; status: 'ok' | 'ko'; reason?: string }) => {
-          const fileMatch = filesDaCaricare.find(f => f.name.split('.')[0] === uploadResult.nome_file);
-          if (fileMatch) {
-            this.statoUpload.set(fileMatch, uploadResult.status);
 
-            if (uploadResult.status === 'ko') {
-              this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
-            } else {
-              // Upload riuscito → rimuovo dopo timeout
-              setTimeout(() => {
-                this.statoUpload.delete(fileMatch);
-                this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
-                if (this.filesDaCaricare.length === 0) {
-                  setTimeout(() => window.location.reload(), 800);
-                }
-              }, 2000);
-            }
+        //quando l upload va bene recuper il vecchio subject config setto il nuovo e nexto verso gli altri
+        //INIZIO
+          // === INIZIO: aggiornamento e notifica nuova MediaCollection al Subject ===
+
+// Recupero la lista attuale delle MediaCollection (può essere vuota)
+const mediaCollEsistenti = this.sharedService.getMediasCollectionsConfig() || [];
+
+// Recupero la nuova lista di MediaCollection ricevuta dal backend dopo l'upload
+const mediaCollCaricati: MediaCollection[] = res.mediaCollection;
+
+console.log("Media collection esistenti:", JSON.stringify(mediaCollEsistenti));
+console.log("Nuovi media collection caricati:", JSON.stringify(mediaCollCaricati));
+
+// Per ogni nuova MediaCollection ricevuta
+mediaCollCaricati.forEach((nuovaCollezione) => {
+  // Cerco se esiste già una collezione con lo stesso folder
+  const indexEsistente = mediaCollEsistenti.findIndex(
+    collezione => collezione.folder === nuovaCollezione.folder
+  );
+
+  if (indexEsistente !== -1) {
+    // Se esiste già, aggiorno i suoi item
+    const collezioneEsistente = mediaCollEsistenti[indexEsistente];
+
+    nuovaCollezione.items.forEach(nuovoItem => {
+      const displayNameNuovo = nuovoItem.context.display_name;
+
+      // Cerco se nella collezione esistente c'è già un item con stesso display_name
+      const itemEsistente = collezioneEsistente.items.find(item =>
+        item.context.display_name === displayNameNuovo
+      );
+
+      if (itemEsistente) {
+        // Se esiste, aggiungo solo i media non duplicati
+        nuovoItem.media.forEach(nuovoMedia => {
+          const giàPresente = itemEsistente.media.some(m => m.url === nuovoMedia.url);
+          if (!giàPresente) {
+            itemEsistente.media.push(nuovoMedia);
           }
         });
+      } else {
+        // Se l'item è nuovo (diverso display_name), lo aggiungo
+        collezioneEsistente.items.push(nuovoItem);
+      }
+    });
+
+    // Alla fine dell'unione degli item nella collezione, applico il merge per evitare duplicati
+    collezioneEsistente.items = this.mergeItemsByDisplayName(collezioneEsistente.items);
+    console.log("New collection: ", collezioneEsistente)
+  } else {
+    // Se la cartella non esisteva, aggiungo l'intera nuova MediaCollection
+    mediaCollEsistenti.push(nuovaCollezione);
+  }
+});
+
+// Notifico il nuovo array aggiornato tramite il BehaviorSubject
+this.sharedService.setAllMediasCollectionsConfig([...mediaCollEsistenti]);
+
+console.log("Subject notificato con la nuova mediaCollection aggiornata.");
+
+// === FINE: aggiornamento e notifica nuova MediaCollection al Subject ===
+
+        //FINE
+
+            if (Array.isArray(res.data)) {
+                    console.log("Risposta dal backend dettagli ok e ko: ", JSON.stringify(res.data));
+
+       res.data.forEach((uploadResult: { key_file: string; status: 'ok' | 'ko'; reason?: string }) => {
+  // Log di debug per visualizzare i file correnti e i risultati ricevuti dal backend
+  console.log("File attualmente nella lista da caricare:", this.filesDaCaricare.map(f => f.name));
+  console.log("Risultato ricevuto dal backend:", uploadResult);
+
+  // Cerca il file corrispondente tra quelli ancora da caricare, confrontando il nome completo
+  const fileMatch = this.filesDaCaricare.find(f => f.name === uploadResult.key_file);
+
+  if (fileMatch) {
+    // Salva lo stato dell'upload per il file attuale
+    this.statoUpload.set(fileMatch, uploadResult.status);
+
+    if (uploadResult.status === 'ko') {
+      // Se l'upload non è riuscito, memorizza il motivo
+      this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
+    } else {
+      // Se l'upload è riuscito, rimuove il file dalla lista dopo un breve timeout
+      setTimeout(() => {
+        // Rimuove lo stato di upload del file
+        this.statoUpload.delete(fileMatch);
+
+        // Rimuove il file dalla lista di file da caricare
+        this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+
+      }, 2000);
+    }
+  } else {
+    // Se non viene trovato il file corrispondente, stampa un messaggio di avviso
+    console.warn(`File non trovato per chiave: ${uploadResult.key_file}`);
+  }
+});
+
       }
       this.uploadInCorso = false;
     },
@@ -407,6 +518,113 @@ rimuoviTuttiIFiles(): void {
   });
 }
 
+
+//metodo che aggrega gli item dentro se stessi per diplay name uguale
+
+
+
+/**
+ * Metodo per selezionare un file come "frontale"
+ * - Se viene deselezionato, rimuove il flag e cancella "angolazione" dai metadati
+ * - Se viene selezionato un nuovo file, trasferisce i metadati dal vecchio
+ * - Mantiene un solo file frontale alla volta
+ */
+private ultimoFileFrontaleSelezionato: File | null = null;
+
+selezionaFrontale(file: File, isChecked: boolean): void {
+const nuovoFile = file;
+
+  if (!isChecked) {
+    // ❌ Deseleziono il frontale, ma conservo i metadati
+    const metadati = this.metadatiPerFile.get(file);
+    if (metadati) {
+      this.metadatiPerFile.set(file, {
+        ...metadati,
+        angolazione: 'altra' // ✅ Cambio solo l'angolazione
+      });
+    }
+    this.fileSelezionatoComeFrontale = null;
+    // Non azzero ultimoFileFrontaleSelezionato perché potrei riselezionare lo stesso file
+    console.log('❌ Frontale deselezionato (ma metadati conservati):', file.name);
+    return;
+  }
+
+  const vecchioFile = this.ultimoFileFrontaleSelezionato;
+
+  console.log('File selezionato:', nuovoFile);
+  console.log('Ultimo frontale selezionato:', vecchioFile);
+
+  let metadatiDaTrasferire: MediaContext | undefined;
+
+  // Se esiste un precedente frontale diverso dal nuovo, salvo e rimuovo i suoi metadati
+if (vecchioFile && vecchioFile !== nuovoFile) {
+  console.log("Vecchio file");
+  const metadatiVecchio = this.metadatiPerFile.get(vecchioFile);
+  console.log("Vecchi metadati", metadatiVecchio);
+  if (metadatiVecchio) {
+    // Trasferisco i metadati, ma aggiorno anche il vecchio con angolazione 'altra'
+    metadatiDaTrasferire = { ...metadatiVecchio };
+    this.metadatiPerFile.set(vecchioFile, {
+      ...metadatiVecchio,
+      angolazione: 'altra'
+    });
+  }
+}
+
+
+  // Recupero eventuali metadati già associati al nuovo file (potrebbero essere incompleti)
+  const metadatiEsistenti = this.metadatiPerFile.get(nuovoFile);
+
+  let metadatiFinali: MediaContext;
+
+  if (metadatiDaTrasferire) {
+    // Uso i metadati del precedente frontale
+    metadatiFinali = {
+      ...metadatiDaTrasferire,
+      angolazione: 'frontale'
+    };
+    console.log('Metadati trasferiti dal vecchio frontale:', metadatiFinali);
+  } else if (metadatiEsistenti) {
+    // Uso quelli già presenti sul nuovo file
+    metadatiFinali = {
+      ...metadatiEsistenti,
+      angolazione: 'frontale'
+    };
+    console.log('Metadati esistenti aggiornati:', metadatiFinali);
+  } else {
+    // Nessun metadato disponibile, uso valori base
+    metadatiFinali = {
+      display_name: nuovoFile.name.split('.')[0],
+      angolazione: 'frontale',
+      descrizione: 'Da inserire',
+      quantita: '0'
+    };
+    console.log('Metadati creati da zero:', metadatiFinali);
+  }
+
+  // Applico i metadati al nuovo frontale selezionato
+  this.metadatiPerFile.set(nuovoFile, metadatiFinali);
+
+  // Imposto angolazione 'altra' a tutti gli altri file
+// ✅ Propaga i metadati comuni a tutti i file del gruppo (escluso angolazione)
+this.metadatiPerFile.forEach((metadati, f) => {
+  if (f === nuovoFile) return; // Salto il frontale, già aggiornato
+
+  const metadatiAggiornati: MediaContext = {
+    ...metadatiFinali,
+    angolazione: 'altra' // Tutti gli altri diventano 'altra'
+  };
+
+  this.metadatiPerFile.set(f, metadatiAggiornati);
+});
+
+  // Aggiorno gli stati interni
+  this.fileSelezionatoComeFrontale = nuovoFile;
+  this.ultimoFileFrontaleSelezionato = nuovoFile;
+
+  console.log('Nuovo frontale impostato:', nuovoFile.name);
+  console.log('Stato metadati finale:', this.metadatiPerFile);
+}
 
 
   formatKeyLabel(key: string): string {
