@@ -19,7 +19,6 @@ import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
 import { SharedDataService } from '../../../services/shared-data.service';
-import { MediaItems } from '../../../pages/home/home.component';
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,

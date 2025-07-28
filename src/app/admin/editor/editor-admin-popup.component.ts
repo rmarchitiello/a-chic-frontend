@@ -567,7 +567,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //input che serve per caricare il file
 
   apriPopUpUploadMedia() {
-      console.log("Pop up di uploadssss")
     this.dialog.open(UploadDataAdminComponent, {
       width: '90vw',
       disableClose: false,
