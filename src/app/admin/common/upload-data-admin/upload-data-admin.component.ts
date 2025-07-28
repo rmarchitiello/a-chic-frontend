@@ -123,6 +123,8 @@ apriPopUpEditFile(file: File): void {
 
 
   ngOnInit(): void {
+      console.log("UploadDataAdminComponent inizializzato", this.dialogRef);
+
     this.inputFolder = this.folder;
     console.log("Folder dove caricare: ", this.inputFolder);
 
@@ -272,151 +274,144 @@ rimuoviTuttiIFiles(): void {
 }
 
 
-  chiudiDialog(): void {
-    //notifico l'app component o altri che qualcosa è cambiato
-    this.sharedService.notifyConfigCacheIsChanged();
+chiudiDialog(): void {
+  console.log("Chiusura richiesta, dialogRef è:", this.dialogRef);
+
+  if (this.dialogRef) {
     this.dialogRef.close();
+  } else {
+    console.warn("❌ dialogRef non disponibile: popup non può essere chiuso");
   }
+
+  this.sharedService.notifyConfigCacheIsChanged(); // anche se la notifichi, il dialog non si chiude
+}
+
+
 
   /**
  * Avvia l'upload dei file (singolo o multiplo)
  */
   uploadFiles(fileInput?: File): void {
-  // Verifica che ci siano file da caricare
+  // Controlla che ci siano file da caricare
   if (this.filesDaCaricare.length === 0) {
     alert("Errore: seleziona almeno un file da caricare.");
     return;
   }
 
-  // Se è stato passato un file specifico, filtriamo solo quello, altrimenti usiamo tutti i file
+  // Se è stato passato un singolo file, carichiamo solo quello. Altrimenti carichiamo tutti.
   const filesDaCaricare = fileInput
     ? this.filesDaCaricare.filter(f => f === fileInput)
     : this.filesDaCaricare;
 
-//  Ordino i file mettendo davanti il file con angolazione 'frontale'
-filesDaCaricare.sort((a, b) => {
-  const metaA = this.metadatiPerFile.get(a);
-  const metaB = this.metadatiPerFile.get(b);
+  // Ordiniamo i file mettendo davanti il file con angolazione 'frontale'
+  filesDaCaricare.sort((a, b) => {
+    const metaA = this.metadatiPerFile.get(a);
+    const metaB = this.metadatiPerFile.get(b);
+    const angA = metaA?.['angolazione'];
+    const angB = metaB?.['angolazione'];
+    if (angA === 'frontale') return -1;
+    if (angB === 'frontale') return 1;
+    return 0;
+  });
 
-  const angA = metaA?.['angolazione'];
-  const angB = metaB?.['angolazione'];
+  // Log dell'ordine finale dei file da caricare
+  console.log("Ordine finale dei file da caricare:");
+  filesDaCaricare.forEach(f => {
+    const meta = this.metadatiPerFile.get(f);
+    console.log(`- ${f.name} → angolazione: ${meta?.['angolazione']}`);
+  });
 
-  if (angA === 'frontale') return -1;
-  if (angB === 'frontale') return 1;
-  return 0;
-});
-
-//  Verifica ordine dopo ordinamento
-console.log("Ordine finale dei file da caricare:");
-filesDaCaricare.forEach(f => {
-  const meta = this.metadatiPerFile.get(f);
-  console.log(`- ${f.name} → angolazione: ${meta?.['angolazione']}`);
-});
-
-
-  // Verifica che la cartella sia stata inserita
+  // Verifica che l'utente abbia specificato una cartella
   const folder = this.inputFolder?.trim();
   if (!folder) {
     alert("Errore: specifica una cartella di destinazione.");
     return;
   }
 
-
-
-  // Stato iniziale
+  // Inizializza lo stato
   this.uploadInCorso = true;
   this.statoUpload.clear();
   this.motiviErroreUpload.clear();
 
   const formData = new FormData();
-
-  // Costruisco i metadati includendo anche la cartella
   const metadataList: { folder: string; context: MediaContext }[] = [];
 
+  // Aggiungiamo i file al FormData e raccogliamo i relativi metadati
   filesDaCaricare.forEach(file => {
     const context = this.metadatiPerFile.get(file);
     if (context) {
-      formData.append('file', file); // Aggiungo il file
-      metadataList.push({
-        folder,
-        context
-      });
+      formData.append('file', file);
+      metadataList.push({ folder, context });
     }
   });
-  
-  const numeroDeiFileDaCaricare = this.filesDaCaricare.length;
 
+  // Salviamo il numero di file da caricare
+  const numeroDeiFileDaCaricare = filesDaCaricare.length;
 
-  // Aggiungo i metadati in formato stringa (JSON) al FormData
+  // Aggiungiamo i metadati in formato JSON al FormData
   metadataList.forEach(metadata => {
     formData.append('cloudinary', JSON.stringify(metadata));
   });
 
-  // Verifico se è una cartella "config"
+  // Verifica se si tratta di una cartella di configurazione
   const isConfig = folder.toLowerCase().includes('config');
-  console.log("Dati da caricare ", JSON.stringify(formData));
-  // Invio al backend
+
+  // Invia la richiesta al backend
   this.adminService.uploadMedia(formData, isConfig).subscribe({
     next: (res) => {
+      // Verifica che la risposta contenga un array valido
+      if (Array.isArray(res.data)) {
+        console.log("Risposta dal backend dettagli ok e ko:", JSON.stringify(res.data));
 
-          //ho il conto di quanti file sono andati a buon fine
-          let numeroFileCaricatiInOK: string[] = [];
+        // Contatori per tenere traccia dello stato degli upload
+        let numeroOk = 0;
+        let contatoreRisposte = 0;
 
-            if (Array.isArray(res.data)) {
-                    console.log("Risposta dal backend dettagli ok e ko: ", JSON.stringify(res.data));
-                    
-       res.data.forEach((uploadResult: { key_file: string; status: 'ok' | 'ko'; reason?: string }) => {
-  // Log di debug per visualizzare i file correnti e i risultati ricevuti dal backend
-  console.log("File attualmente nella lista da caricare:", this.filesDaCaricare.map(f => f.name));
-  console.log("Risultato ricevuto dal backend:", uploadResult);
-          //salvo  tutti quelli andati in ok
-           if(uploadResult.status === 'ok'){
-                numeroFileCaricatiInOK.push('ok');
-           }
-  // Cerca il file corrispondente tra quelli ancora da caricare, confrontando il nome completo
-  const fileMatch = this.filesDaCaricare.find(f => f.name === uploadResult.key_file);
+        // Elaborazione di ciascun risultato ricevuto
+        res.data.forEach((uploadResult: { key_file: string; status: 'ok' | 'ko'; reason?: string }) => {
+          console.log("File attuali:", this.filesDaCaricare.map(f => f.name));
+          console.log("Risultato ricevuto:", uploadResult);
 
-  if (fileMatch) {
-    // Salva lo stato dell'upload per il file attuale
-    this.statoUpload.set(fileMatch, uploadResult.status);
+          // Cerca il file originale tramite nome
+          const fileMatch = this.filesDaCaricare.find(f => f.name === uploadResult.key_file);
 
-    if (uploadResult.status === 'ko') { 
-      // Se l'upload non è riuscito, memorizza il motivo
-      this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
-    } else {
-      // Se l'upload è riuscito, rimuove il file dalla lista dopo un breve timeout
-      setTimeout(() => {
-        // Rimuove lo stato di upload del file
-        this.statoUpload.delete(fileMatch);
+          if (fileMatch) {
+            // Aggiorna lo stato dell'upload
+            this.statoUpload.set(fileMatch, uploadResult.status);
 
-        // Rimuove il file dalla lista di file da caricare
-        this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+            if (uploadResult.status === 'ko') {
+              this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
+            } else {
+              numeroOk++;
+              this.statoUpload.delete(fileMatch);
+              this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
+            }
+          } else {
+            console.warn(`File non trovato per chiave: ${uploadResult.key_file}`);
+          }
 
-      }, 1000);
-    }
-  } else {
-    // Se non viene trovato il file corrispondente, stampa un messaggio di avviso
-    console.warn(`File non trovato per chiave: ${uploadResult.key_file}`);
+          // Incrementa il numero di risposte elaborate
+          contatoreRisposte++;
 
+          // Quando tutte le risposte sono state elaborate, verifica se chiudere il dialog
+          if (contatoreRisposte === numeroDeiFileDaCaricare) {
+            this.uploadInCorso = false;
 
-  }
-
-  
-
-});
-
-      }
-          console.log("Numero dei file da caricareeee: ", numeroDeiFileDaCaricare);
-    console.log("Numero dei file caricati andati a buon fine", numeroFileCaricatiInOK.length);
-      
-      this.uploadInCorso = false;
-
-      //se il numero dei file da caricare è ugule a quelli in ok allora chiudi il pop up
-      if(numeroDeiFileDaCaricare === numeroFileCaricatiInOK.length){
-        this.chiudiDialog();
+            if (numeroOk === numeroDeiFileDaCaricare) {
+              console.log("Tutti i file OK, chiudo il dialog");
+              this.chiudiDialog();
+            } else {
+              console.warn("Alcuni file non sono stati caricati correttamente.");
+            }
+          }
+        });
+      } else {
+        console.error("Risposta backend non valida o mancante");
+        this.uploadInCorso = false;
       }
     },
     error: (err) => {
+      // Gestione degli errori generici durante l'upload
       console.error("Errore durante upload:", err);
       this.filesDaCaricare.forEach(file => {
         this.statoUpload.set(file, 'ko');

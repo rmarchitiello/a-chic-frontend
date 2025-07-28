@@ -91,6 +91,7 @@ private mediaCollectionConfig = new BehaviorSubject<MediaCollection | null>(null
 
   // Metodo per aggiornare tutte le MediaCollections della configurazione
   setAllMediasCollectionsConfig(mediaCollection: MediaCollection[]): void {
+    console.trace();
     console.log("Shared service ricevuto:", mediaCollection);
     this.mediasCollectionsConfigSubject.next(mediaCollection);
   }

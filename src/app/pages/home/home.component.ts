@@ -15,7 +15,6 @@ import {
   style,
   animate
 } from '@angular/animations';
-import { CloudinaryService } from '../../services/cloudinary.service';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
 import { Meta, Title } from '@angular/platform-browser';
@@ -176,7 +175,6 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   onlyUrlBorse: string[] = [];
 
   constructor(
-    private cloudinaryService: CloudinaryService,
     private breakpointObserver: BreakpointObserver,
     private titleService: Title,
     private metaService: Meta,
@@ -230,69 +228,182 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
 
     // Non carico più la config manualmente, uso la subscription al servizio (devo farlo anche per i no config)
-this.sharedDataService.mediasCollectionsConfig$.subscribe({
-  next: (data: MediaCollection[]) => {
-    // Estraggo le chiavi delle cartelle in lowercase
-    this.foldersKey = data.map(d => d.folder.toLocaleLowerCase());
-    console.log('FoldersKey:', JSON.stringify(this.foldersKey));
+    this.sharedDataService.mediasCollectionsConfig$.subscribe({
+      next: (data: MediaCollection[]) => {
 
-    // Trovo i nomi delle cartelle principali per la home
-    const caroselloKey = this.foldersKey.find(k => k.includes('home/carosello'));
-    console.log('CaroselloKey:', caroselloKey);
 
-    const recensioniKey = this.foldersKey.find(k => k.includes('home/recensioni'));
-    console.log('RecensioniKey:', recensioniKey);
+        
+        // Funzione per normalizzare le stringhe (spazi rimossi, lowercase)
+        const normalizza = (val: string | undefined): string =>
+          (val || '').trim().toLowerCase().replace(/\s+/g, '');
 
-    const modelliEvidenzaKey = this.foldersKey.find(k => k.includes('home/modelliinevidenza'));
-    console.log('ModelliEvidenzaKey:', modelliEvidenzaKey);
+        // Funzione per trovare una collezione corrispondente a una chiave normalizzata
+        const trovaCollezione = (key: string | undefined): MediaCollection | undefined => {
+          const keyNormalizzato = normalizza(key);
+          return data.find(d => normalizza(d.folder) === keyNormalizzato);
+        };
 
-    const creazioniKey = this.foldersKey.find(k => k.includes('home/miecreazioni'));
-    console.log('MieCreazioniKey:', creazioniKey);
+        // Estraggo le chiavi folder del json Media Collection e le salvo in un array 
+        this.foldersKey = data.map(d => d.folder);
+        console.log('[HomeComponent] FoldersKey estract:', this.foldersKey);
 
-    // Funzione per normalizzare le stringhe (spazi rimossi, lowercase)
-    const normalizza = (val: string | undefined): string =>
-      (val || '').trim().toLowerCase().replace(/\s+/g, '');
+        // Quando app component mi da la lista delle chiavi, vado a vedere quali folder hanno carosello e la recupero e la utilizzo
+        //come chiave per input file per tutta l'app al massimo proprio se durante la get app component non mi da valori la cablo a mano
+        // Trovo la chiave corrispondente alla cartella "carosello" oppure uso un fallback statico
+        const caroselloKey = this.matchFolderName('carosello', this.foldersKey) || 'Config/Home/Carosello';
 
-    // Funzione per trovare una collezione corrispondente a una chiave normalizzata
-    const trovaCollezione = (key: string | undefined): MediaCollection | undefined => {
-      const keyNormalizzato = normalizza(key);
-      return data.find(d => normalizza(d.folder) === keyNormalizzato);
-    };
+        if (caroselloKey) {
+          console.log("Carosello Key: ", caroselloKey);
 
-    // Trovo e assegno la collezione "carosello"
-    const carosello = trovaCollezione(caroselloKey);
-    if (carosello) {
-      this.carosello = carosello;
-    }
-    console.log('[HomeComponent] - carosello:', this.carosello);
+          // Cerco la collezione corrispondente alla chiave trovata
+          const caroselloCollection = trovaCollezione(caroselloKey);
 
-    // Trovo e assegno la collezione "recensioni"
-    const recensioni = trovaCollezione(recensioniKey);
-    if (recensioni) {
-      this.recensioni = recensioni;
-    }
-    console.log('[HomeComponent] - recensioni:', this.recensioni);
+          // Se la collezione esiste, la assegno
+          if (caroselloCollection) {
+            this.carosello = {
+              folder: caroselloKey,
+              items: caroselloCollection.items
+            };
+          } else {
+            // Se la collezione non esiste, assegno comunque la chiave con un array vuoto
+            this.carosello = {
+              folder: caroselloKey,
+              items: []
+            };
+          }
 
-    // Trovo e assegno la collezione "modelli in evidenza"
-    const modelliEvidenza = trovaCollezione(modelliEvidenzaKey);
-    if (modelliEvidenza) {
-      this.modelliInEvidenza = modelliEvidenza;
-    }
-    console.log('[HomeComponent] - modelli in evidenza:', this.modelliInEvidenza);
+          console.log('[HomeComponent] - carosello:', this.carosello);
+        }
 
-    // Trovo e assegno la collezione "mie creazioni"
-    const creazioni = trovaCollezione(creazioniKey);
-    if (creazioni) {
-      this.creazioni = creazioni;
-    }
-    console.log('[HomeComponent] - creazioni:', this.creazioni);
-  },
-  error: err => console.error('Errore caricamento media config', err)
-});
+        // Trovo la chiave corrispondente alla cartella "recensioni" oppure uso un fallback statico
+        const recensioniKey = this.matchFolderName('recensioni', this.foldersKey) || 'Config/Home/Recensioni';
+
+        if (recensioniKey) {
+          console.log("Recensioni Key: ", recensioniKey);
+
+          // Cerco la collezione corrispondente alla chiave trovata
+          const recensioniCollection = trovaCollezione(recensioniKey);
+
+          // Se la collezione esiste, la assegno
+          if (recensioniCollection) {
+            this.recensioni = {
+              folder: recensioniKey,
+              items: recensioniCollection.items
+            };
+          } else {
+            // Se la collezione non esiste, assegno comunque la chiave con un array vuoto
+            this.recensioni = {
+              folder: recensioniKey,
+              items: []
+            };
+          }
+
+          console.log('[HomeComponent] - recensioni:', this.recensioni);
+        }
+
+        // Trovo la chiave corrispondente alla cartella "modelli in evidenza" oppure uso un fallback statico
+        const modelliEvidenzaKey = this.matchFolderName('modelli in evidenza', this.foldersKey) || 'Config/Home/Modelli In Evidenza';
+
+        if (modelliEvidenzaKey) {
+          console.log("Modelli in evidenza Key: ", modelliEvidenzaKey);
+
+          // Cerco la collezione corrispondente alla chiave trovata
+          const modelliEvidenzaCollection = trovaCollezione(modelliEvidenzaKey);
+
+          // Se la collezione esiste, la assegno
+          if (modelliEvidenzaCollection) {
+            this.modelliInEvidenza = {
+              folder: modelliEvidenzaKey,
+              items: modelliEvidenzaCollection.items
+            };
+          } else {
+            // Se la collezione non esiste, assegno comunque la chiave con un array vuoto
+            this.modelliInEvidenza = {
+              folder: modelliEvidenzaKey,
+              items: []
+            };
+          }
+
+          console.log('[HomeComponent] - modelli in evidenza:', this.modelliInEvidenza);
+        }
+
+        // Trovo la chiave corrispondente alla cartella "mie creazioni" oppure uso un fallback statico
+        const creazioniKey = this.matchFolderName('mie creazioni', this.foldersKey) || 'Config/Home/Mie Creazioni';
+
+        if (creazioniKey) {
+          console.log("Creazioni Key: ", creazioniKey);
+
+          // Cerco la collezione corrispondente alla chiave trovata
+          const creazioniCollection = trovaCollezione(creazioniKey);
+
+          // Se la collezione esiste, la assegno
+          if (creazioniCollection) {
+            this.creazioni = {
+              folder: creazioniKey,
+              items: creazioniCollection.items
+            };
+          } else {
+            // Se la collezione non esiste, assegno comunque la chiave con un array vuoto
+            this.creazioni = {
+              folder: creazioniKey,
+              items: []
+            };
+          }
+
+          console.log('[HomeComponent] - creazioni:', this.creazioni);
+        }
+      
+
+
+
+
+
+
+
+
+
+
+
+      },
+      error: err => console.error('Errore caricamento media config', err)
+    });
 
 
     this.checkScroll();
   }
+
+
+  fuzzyIncludes(source: string, target: string): boolean {
+    const cleanedSource = source.replace(/\s+/g, '').toLowerCase();
+    const cleanedTarget = target.replace(/\s+/g, '').toLowerCase();
+
+    let sourceIndex = 0;
+    for (let i = 0; i < cleanedTarget.length; i++) {
+      const targetChar = cleanedTarget[i];
+      sourceIndex = cleanedSource.indexOf(targetChar, sourceIndex);
+      if (sourceIndex === -1) return false;
+      sourceIndex++;
+    }
+
+    return true;
+  }
+
+  matchFolderName(input: string, folders: string[]): string | null {
+    const cleanedInput = input.replace(/\s+/g, '').toLowerCase();
+
+    for (const folder of folders) {
+      const cleanedFolder = folder.replace(/\s+/g, '').toLowerCase();
+
+      // Se corrispondono in modalità fuzzy, ritorno l'originale
+      if (this.fuzzyIncludes(cleanedFolder, cleanedInput)) {
+        return folder; // <-- Ritorna l'originale esattamente come in folders[]
+      }
+    }
+
+    return null;
+  }
+
+
 
   detectType(url: string): 'image' | 'video' | 'audio' {
     if (url.match(/\.(mp4|webm)$/i)) return 'video';

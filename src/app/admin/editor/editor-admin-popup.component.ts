@@ -322,12 +322,15 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
     });
 
-    //SECONDO CARICAMENTO
+    //SECONDO CARICAMENTO quando l'editor e ancora aperto e quindi è app component a inviare tutta la collezione
     //sono in ascolto di tutta la mediasCollections filtrando per folderSelezionata
     //questo metodo viene invocato successivamente quando l'upload invia la notifica
     //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
     //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
     this.sharedService.mediasCollectionsConfig$.subscribe(data => {
+      if(data.length > 0){
+
+
       this.folderSelezionata = this.folderInput;
       if (this.folderSelezionata) {
         console.log("Folder selezionata: ", this.folderSelezionata);
@@ -343,6 +346,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       else {
         console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
       }
+            }
 
 
 
@@ -562,12 +566,12 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //input statico al momento 
   //input che serve per caricare il file
 
-  apriPopUpCaricaMedia() {
-
+  apriPopUpUploadMedia() {
+      console.log("Pop up di uploadssss")
     this.dialog.open(UploadDataAdminComponent, {
       width: '90vw',
       disableClose: false,
-      data: 'Config/Home/Carosello' //this.folderInput
+      data: this.folderInput
     });
 
   }

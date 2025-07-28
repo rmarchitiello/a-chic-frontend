@@ -259,17 +259,21 @@ export class AppComponent implements OnInit {
       });
 
     //carico la config cache infatti cache e true e la passo via subject alla home ed a altri component
-    this.cloudinaryService.getImmagini('', true).subscribe({
-      next: (data: MediaCollection[]) => {
+    console.log("Sto chiamando la cache config")
+this.cloudinaryService.getImmagini('', true).subscribe({
+  next: (data: MediaCollection[]) => {
+    if ( data.length > 0) {
+      console.log("[AppComponent] Carico le configurazioni e invio al subscribe perché ci sono i dati: ", data);
 
-        console.log("[AppComponent] Carico le configurazioni e invio al subscribe: ", data);
-        this.sharedDataService.setAllMediasCollectionsConfig(data);
+      // Inoltro i dati al servizio condiviso
+      this.sharedDataService.setAllMediasCollectionsConfig(data);
+    } else {
+      console.warn("[AppComponent] Nessun dato disponibile dalla cache");
+    }
+  },
+  error: err => console.error('Errore durante il caricamento media:', err)
+});
 
-
-
-      },
-      error: err => console.error('Errore caricamento media', err)
-    });
 
     //riceve la notifica da altri component e re invia la cache config
 this.sharedDataService.configCacheChanged$.subscribe(() => {
