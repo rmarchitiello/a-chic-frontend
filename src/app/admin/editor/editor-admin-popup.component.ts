@@ -250,62 +250,62 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
   /*--------------FINE UPLOAD-----------------*/
 
-caricaMediaCollection(data: MediaCollection){
-  if(data){
-    console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
-        // Assegna i dati ricevuti dal componente padre alla variabile locale
-        this.inputFromFatherComponent = data;
-        console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
+  caricaMediaCollection(data: MediaCollection) {
+    if (data) {
+      console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
+      // Assegna i dati ricevuti dal componente padre alla variabile locale
+      this.inputFromFatherComponent = data;
+      console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
-        // Estrae il percorso della cartella
-        this.folderInput = this.inputFromFatherComponent.folder;
-        console.log("Folder ricevuta in ingresso: ", this.folderInput);
+      // Estrae il percorso della cartella
+      this.folderInput = this.inputFromFatherComponent.folder;
+      console.log("Folder ricevuta in ingresso: ", this.folderInput);
 
-        // Estrae l'array di elementi (ciascuno contenente context e media)
-        this.itemsInput = this.inputFromFatherComponent.items;
-        console.log("Items ricevuti in ingresso: ", this.itemsInput);
+      // Estrae l'array di elementi (ciascuno contenente context e media)
+      this.itemsInput = this.inputFromFatherComponent.items;
+      console.log("Items ricevuti in ingresso: ", this.itemsInput);
 
-        // Estrae tutti i context da ciascun item per uso diretto (es. visualizzazione, modifica)
-        this.contextsInput = this.inputFromFatherComponent.items.map(item => item.context);
-        console.log("Contexts ricevuti in ingresso: ", this.contextsInput);
+      // Estrae tutti i context da ciascun item per uso diretto (es. visualizzazione, modifica)
+      this.contextsInput = this.inputFromFatherComponent.items.map(item => item.context);
+      console.log("Contexts ricevuti in ingresso: ", this.contextsInput);
 
-        // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
-        this.mediasInput = this.itemsInput.flatMap(item => item.media);
-        console.log("Media ricevuti in ingresso: ", this.mediasInput);
+      // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
+      this.mediasInput = this.itemsInput.flatMap(item => item.media);
+      console.log("Media ricevuti in ingresso: ", this.mediasInput);
 
-        //carico le url frontali da dare al template
-        this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
+      //carico le url frontali da dare al template
+      this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
 
-        //carico le url non fronali
-        this.mapUrlsNoFrontali = this.getMediaUrlsNoFrontale(this.itemsInput);
+      //carico le url non fronali
+      this.mapUrlsNoFrontali = this.getMediaUrlsNoFrontale(this.itemsInput);
 
-        //inizializzo la mappa degli indici delle foto non frontali
-        this.inizializzaIndiciSecondari();
+      //inizializzo la mappa degli indici delle foto non frontali
+      this.inizializzaIndiciSecondari();
 
 
 
-        console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
-        console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali));
+      console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
+      console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali));
 
-        //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
-        //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
+      //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
+      //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
 
-        //assegno la mappa
-        this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
-        /*
-          La mappa sara
-          urlFrontale1: {
-              display_name:
-              quantita:
-              prezzo:
-              altro ...
-          }
-        */
-  }       
-  else {
-        console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
-      }
-}
+      //assegno la mappa
+      this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
+      /*
+        La mappa sara
+        urlFrontale1: {
+            display_name:
+            quantita:
+            prezzo:
+            altro ...
+        }
+      */
+    }
+    else {
+      console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
+    }
+  }
 
   ngOnInit(): void {
 
@@ -313,44 +313,40 @@ caricaMediaCollection(data: MediaCollection){
     window.addEventListener('dragover', this.preventDefaultGlobal, false);
     window.addEventListener('drop', this.preventDefaultGlobal, false);
 
+    //primo caricamento quando home apre il pop up
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-        
-          if (data) {
-    this.caricaMediaCollection(data);
-  }
 
-
-        //sono in ascolto di tutta la mediasCollections filtrando per folderSelezionata
-        //questo metodo viene invocato successivamente quando l'upload invia la notifica
-        //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
-        //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
-        this.sharedService.mediasCollectionsConfig$.subscribe(data => {
-          this.folderSelezionata = this.folderInput;
-          if (this.folderSelezionata) {
-            console.log("Folder selezionata: ", this.folderSelezionata);
-            const mediasCollection: MediaCollection[] = data;
-            this.inputFromFatherComponent = mediasCollection.find(
-              mediaColl => mediaColl.folder === this.folderSelezionata
-            ) || { folder: '', items: [] };
-            console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
-            console.log("Re invio i nuovi media collection: ")
-            //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
-            this.caricaMediaCollection(this.inputFromFatherComponent);
-          }
-          else {
-            console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
-          }
-
-
-
-        });
-
-
-        
+      if (data) {
+        this.caricaMediaCollection(data);
+      }
 
     });
 
+    //SECONDO CARICAMENTO
+    //sono in ascolto di tutta la mediasCollections filtrando per folderSelezionata
+    //questo metodo viene invocato successivamente quando l'upload invia la notifica
+    //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
+    //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
+    this.sharedService.mediasCollectionsConfig$.subscribe(data => {
+      this.folderSelezionata = this.folderInput;
+      if (this.folderSelezionata) {
+        console.log("Folder selezionata: ", this.folderSelezionata);
+        const mediasCollection: MediaCollection[] = data;
+        this.inputFromFatherComponent = mediasCollection.find(
+          mediaColl => mediaColl.folder === this.folderSelezionata
+        ) || { folder: '', items: [] };
+        console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
+        console.log("Re invio i nuovi media collection: ")
+        //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
+        this.caricaMediaCollection(this.inputFromFatherComponent);
+      }
+      else {
+        console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
+      }
 
+
+
+    });
 
 
   }
