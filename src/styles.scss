@@ -122,6 +122,9 @@ html, body {
   overflow-y: auto;                 // scrollbar visibile per contenuti lunghi
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 
+    // Aggiungiamo margine interno alla scrollbar per non attaccarla al testo
+  scrollbar-width: thin;
+  scrollbar-color: #999 transparent;
   * {
     background-color: transparent !important;
     color: #000000 !important;
@@ -129,9 +132,7 @@ html, body {
     line-height: 1.6 !important;
   }
 
-  // Aggiungiamo margine interno alla scrollbar per non attaccarla al testo
-  scrollbar-width: thin;
-  scrollbar-color: #999 transparent;
+
 }
 
 /* ==========================================================

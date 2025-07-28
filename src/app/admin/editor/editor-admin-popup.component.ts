@@ -114,6 +114,17 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   mediasInput: MediaMeta[] = [];
 
 
+  //questa folder la salvo perche
+  /* Ciclo di vita, alla prima apertura del pop up da parte della home, inviamo un media collection 
+   Quando pero facciamo l'upload e viene chiuso il pop up di upload, notifichiamo ad app component guarda
+   devi leggere la cache, perche e stata aggiornata ok ? App component rilegge la cache perche e in ascolto
+   del subject di notify manda i messaggi alla home ma, non manda i messaggi all editor del pop up, questo perche?
+   perche il pop up di editor e ancora aperto e quindi non viene chiamato il metodo 
+       this.sharedDataService.setMediaCollectionConfig(this.carosello);
+ che serve a passare i dati nuovi a questo component. Allora che faccio ? ascolto tutte le mediasCollectionsConfig e in base a questa folder
+ folderSelezionata che salvo nell on init in fase di apertura del pop up filtro questa folder con mediasCollectionsConfig in modo da reperire 
+ il mediaCollection e lavorarci e risettare inputFromFather */
+  folderSelezionata: string = '';
   //carico le url frontali dai media input da dare in pasto al template
   mediasUrlsFrontale: string[] = []
 
@@ -215,8 +226,8 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
-    rimuoviFile(file: File): void {
+
+  rimuoviFile(file: File): void {
     this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
     this.anteprimeFile.delete(file);
     this.metadatiPerFile.delete(file);
@@ -228,7 +239,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     this.metadatiPerFile.clear();
   }
 
-    //per non far droppare roba fuori con le foto e non mi apre il browser
+  //per non far droppare roba fuori con le foto e non mi apre il browser
   preventDefaultGlobal = (event: DragEvent) => {
     event.preventDefault();
   };
@@ -239,17 +250,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
   /*--------------FINE UPLOAD-----------------*/
 
-
-
-  ngOnInit(): void {
-
-    // Previene comportamento di default del browser per file trascinati fuori area
-    window.addEventListener('dragover', this.preventDefaultGlobal, false);
-    window.addEventListener('drop', this.preventDefaultGlobal, false);
-
-    this.sharedService.mediaCollectionConfig$.subscribe(data => {
-      if (data) {
-        console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
+caricaMediaCollection(data: MediaCollection){
+  if(data){
+    console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
         // Assegna i dati ricevuti dal componente padre alla variabile locale
         this.inputFromFatherComponent = data;
         console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
@@ -269,7 +272,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
         // Estrae tutti i media (immagini, video, ecc.) da tutti gli items in un unico array piatto
         this.mediasInput = this.itemsInput.flatMap(item => item.media);
         console.log("Media ricevuti in ingresso: ", this.mediasInput);
-
 
         //carico le url frontali da dare al template
         this.mediasUrlsFrontale = this.getMediaUrlsFrontale(this.mediasInput);
@@ -299,15 +301,60 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
               altro ...
           }
         */
-      } else {
+  }       
+  else {
         console.warn('[EditorAdminPopUpComponent] Nessun media disponibile (è null)');
       }
+}
+
+  ngOnInit(): void {
+
+    // Previene comportamento di default del browser per file trascinati fuori area
+    window.addEventListener('dragover', this.preventDefaultGlobal, false);
+    window.addEventListener('drop', this.preventDefaultGlobal, false);
+
+    this.sharedService.mediaCollectionConfig$.subscribe(data => {
+        
+          if (data) {
+    this.caricaMediaCollection(data);
+  }
+
+
+        //sono in ascolto di tutta la mediasCollections filtrando per folderSelezionata
+        //questo metodo viene invocato successivamente quando l'upload invia la notifica
+        //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
+        //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
+        this.sharedService.mediasCollectionsConfig$.subscribe(data => {
+          this.folderSelezionata = this.folderInput;
+          if (this.folderSelezionata) {
+            console.log("Folder selezionata: ", this.folderSelezionata);
+            const mediasCollection: MediaCollection[] = data;
+            this.inputFromFatherComponent = mediasCollection.find(
+              mediaColl => mediaColl.folder === this.folderSelezionata
+            ) || { folder: '', items: [] };
+            console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
+            console.log("Re invio i nuovi media collection: ")
+            //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
+            this.caricaMediaCollection(this.inputFromFatherComponent);
+          }
+          else {
+            console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
+          }
+
+
+
+        });
+
+
+        
+
     });
 
 
 
 
   }
+
 
   private inizializzaIndiciSecondari(): void {
     for (const url of this.mediasUrlsFrontale) {
@@ -526,6 +573,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       disableClose: false,
       data: 'Config/Home/Carosello' //this.folderInput
     });
+
   }
 
 
@@ -551,9 +599,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   chiudiDialog(): void {
     this.dialogRef.close();
-    setTimeout(() => {
-      window.location.reload();
-    }, 400);
   }
 
 }

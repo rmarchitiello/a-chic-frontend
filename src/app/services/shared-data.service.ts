@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { MediaCollection } from '../pages/home/home.component';
 @Injectable({
   providedIn: 'root'
@@ -86,7 +86,7 @@ private mediaCollectionConfig = new BehaviorSubject<MediaCollection | null>(null
   // Questa lista viene aggiornata dopo l'upload o modifica massiva da parte dell’admin.
   // =====================================================================================
 
-  private mediasCollectionsConfigSubject = new BehaviorSubject<MediaCollection[]>([]);
+  private mediasCollectionsConfigSubject = new BehaviorSubject<MediaCollection[] >([]);
   mediasCollectionsConfig$ = this.mediasCollectionsConfigSubject.asObservable();
 
   // Metodo per aggiornare tutte le MediaCollections della configurazione
@@ -100,7 +100,16 @@ private mediaCollectionConfig = new BehaviorSubject<MediaCollection | null>(null
     return this.mediasCollectionsConfigSubject.getValue();
   }
 
+  //Metodo generico usato per scaturire la lettura dalla cache direttamente a chi sottoscrive in questo caso
+  //viene usato da app component per fare la sottoscrizione dell evento e quindi rileggere dalla cache e passare i dati a tutti
+//uso subject cosi non si aspetta niente in ingresso
+private configCacheChangedSubject = new Subject<void>();
+configCacheChanged$ = this.configCacheChangedSubject.asObservable();
 
+notifyConfigCacheIsChanged(): void {
+  console.log("Sto notificando  . . .")
+  this.configCacheChangedSubject.next();
+}
 
 
 }

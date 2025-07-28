@@ -501,7 +501,7 @@ e quindi si fa questa cosa:
     //chiamo l'observable per passare la media collection al figlio
     //ovviamente ora è fatta x il carosello ma sarà dinamico
     this.sharedDataService.setMediaCollectionConfig(this.carosello);
-    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.sharedDataService.setMediaCollectionConfig(this.carosello));
+    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.carosello);
     // Apertura del dialog (popup) Angular Material
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,

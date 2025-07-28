@@ -63,52 +63,6 @@ fileSelezionatoComeFrontale: File | null = null;
   
 
 
-// Funzione per unire gli elementi MediaItems con lo stesso display_name
-//DA SISTEMARE QUA DEVO CAPIRE PERCHE NON VENGONO MERGIATI GLI ITEM FATTO CIO DEVO VEDERE LA HOME COM E 
-//SE MI PORTA I DATI NUOVI E POI DEVO CAPIRE SE EDITOR SUBSCRIBES I DATI NUOVI
- mergeItemsByDisplayName(items: MediaItems[]): MediaItems[] {
-  console.log("Inizio metodo", items)
-  // Creo una mappa per raggruppare gli item per display_name
-  const mappa = new Map<string, MediaItems>();
-
-  // Scorro ogni elemento della lista in ingresso
-  items.forEach(item => {
-    // Prendo la chiave di raggruppamento, che è il display_name
-    const key = item.context.display_name;
-
-    // Se il display_name non è definito, salto l'item
-    if (!key) return;
-
-    // Se non ho ancora inserito un item con questo display_name
-    if (!mappa.has(key)) {
-      // Aggiungo una nuova voce nella mappa clonando context e media
-      mappa.set(key, {
-        context: { ...item.context },
-        media: [...item.media]
-      });
-    } else {
-      // Recupero l'item già presente nella mappa
-      const esistente = mappa.get(key)!;
-
-      // Scorro i media dell'item corrente
-      item.media.forEach(media => {
-        // Verifico se il media è già presente (confronto basato su url)
-        const giaPresente = esistente.media.some(m => m.url === media.url);
-
-        // Se il media non è già presente, lo aggiungo
-        if (!giaPresente) {
-          esistente.media.push(media);
-        }
-      });
-    }
-  });
-
-  // Converto la mappa in un array e lo ritorno
-  return Array.from(mappa.values());
-}
-
-
-
 /**
  * Metodo per aprire un popup e modificare i metadati di un file selezionato.
  * In input passa il file, così da leggere o creare i metadati associati.
@@ -318,7 +272,9 @@ rimuoviTuttiIFiles(): void {
 }
 
 
-  chiudiDialog(reload: boolean): void {
+  chiudiDialog(): void {
+    //notifico l'app component o altri che qualcosa è cambiato
+    this.sharedService.notifyConfigCacheIsChanged();
     this.dialogRef.close();
   }
 
@@ -405,69 +361,7 @@ filesDaCaricare.forEach(f => {
   this.adminService.uploadMedia(formData, isConfig).subscribe({
     next: (res) => {
 
-        //quando l upload va bene recuper il vecchio subject config setto il nuovo e nexto verso gli altri
-        //INIZIO
-          // === INIZIO: aggiornamento e notifica nuova MediaCollection al Subject ===
-
-// Recupero la lista attuale delle MediaCollection (può essere vuota)
-const mediaCollEsistenti = this.sharedService.getMediasCollectionsConfig() || [];
-
-// Recupero la nuova lista di MediaCollection ricevuta dal backend dopo l'upload
-const mediaCollCaricati: MediaCollection[] = res.mediaCollection;
-
-console.log("Media collection esistenti:", JSON.stringify(mediaCollEsistenti));
-console.log("Nuovi media collection caricati:", JSON.stringify(mediaCollCaricati));
-
-// Per ogni nuova MediaCollection ricevuta
-mediaCollCaricati.forEach((nuovaCollezione) => {
-  // Cerco se esiste già una collezione con lo stesso folder
-  const indexEsistente = mediaCollEsistenti.findIndex(
-    collezione => collezione.folder === nuovaCollezione.folder
-  );
-
-  if (indexEsistente !== -1) {
-    // Se esiste già, aggiorno i suoi item
-    const collezioneEsistente = mediaCollEsistenti[indexEsistente];
-
-    nuovaCollezione.items.forEach(nuovoItem => {
-      const displayNameNuovo = nuovoItem.context.display_name;
-
-      // Cerco se nella collezione esistente c'è già un item con stesso display_name
-      const itemEsistente = collezioneEsistente.items.find(item =>
-        item.context.display_name === displayNameNuovo
-      );
-
-      if (itemEsistente) {
-        // Se esiste, aggiungo solo i media non duplicati
-        nuovoItem.media.forEach(nuovoMedia => {
-          const giàPresente = itemEsistente.media.some(m => m.url === nuovoMedia.url);
-          if (!giàPresente) {
-            itemEsistente.media.push(nuovoMedia);
-          }
-        });
-      } else {
-        // Se l'item è nuovo (diverso display_name), lo aggiungo
-        collezioneEsistente.items.push(nuovoItem);
-      }
-    });
-
-    // Alla fine dell'unione degli item nella collezione, applico il merge per evitare duplicati
-    collezioneEsistente.items = this.mergeItemsByDisplayName(collezioneEsistente.items);
-    console.log("New collection: ", collezioneEsistente)
-  } else {
-    // Se la cartella non esisteva, aggiungo l'intera nuova MediaCollection
-    mediaCollEsistenti.push(nuovaCollezione);
-  }
-});
-
-// Notifico il nuovo array aggiornato tramite il BehaviorSubject
-this.sharedService.setAllMediasCollectionsConfig([...mediaCollEsistenti]);
-
-console.log("Subject notificato con la nuova mediaCollection aggiornata.");
-
-// === FINE: aggiornamento e notifica nuova MediaCollection al Subject ===
-
-        //FINE
+        
 
             if (Array.isArray(res.data)) {
                     console.log("Risposta dal backend dettagli ok e ko: ", JSON.stringify(res.data));
@@ -484,7 +378,7 @@ console.log("Subject notificato con la nuova mediaCollection aggiornata.");
     // Salva lo stato dell'upload per il file attuale
     this.statoUpload.set(fileMatch, uploadResult.status);
 
-    if (uploadResult.status === 'ko') {
+    if (uploadResult.status === 'ko') { 
       // Se l'upload non è riuscito, memorizza il motivo
       this.motiviErroreUpload.set(fileMatch, uploadResult.reason || 'Errore sconosciuto');
     } else {
@@ -518,8 +412,6 @@ console.log("Subject notificato con la nuova mediaCollection aggiornata.");
   });
 }
 
-
-//metodo che aggrega gli item dentro se stessi per diplay name uguale
 
 
 
