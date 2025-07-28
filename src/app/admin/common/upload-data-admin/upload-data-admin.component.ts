@@ -321,12 +321,7 @@ filesDaCaricare.forEach(f => {
     return;
   }
 
-  // Controllo sul numero massimo di livelli nella cartella
-  const livelli = folder.split('/').filter(p => p.trim() !== '');
-  if (livelli.length > 3) {
-    alert('Errore: massimo 3 livelli di cartella consentiti.');
-    return;
-  }
+
 
   // Stato iniziale
   this.uploadInCorso = true;
@@ -348,6 +343,9 @@ filesDaCaricare.forEach(f => {
       });
     }
   });
+  
+  const numeroDeiFileDaCaricare = this.filesDaCaricare.length;
+
 
   // Aggiungo i metadati in formato stringa (JSON) al FormData
   metadataList.forEach(metadata => {
@@ -361,16 +359,20 @@ filesDaCaricare.forEach(f => {
   this.adminService.uploadMedia(formData, isConfig).subscribe({
     next: (res) => {
 
-        
+          //ho il conto di quanti file sono andati a buon fine
+          let numeroFileCaricatiInOK: string[] = [];
 
             if (Array.isArray(res.data)) {
                     console.log("Risposta dal backend dettagli ok e ko: ", JSON.stringify(res.data));
-
+                    
        res.data.forEach((uploadResult: { key_file: string; status: 'ok' | 'ko'; reason?: string }) => {
   // Log di debug per visualizzare i file correnti e i risultati ricevuti dal backend
   console.log("File attualmente nella lista da caricare:", this.filesDaCaricare.map(f => f.name));
   console.log("Risultato ricevuto dal backend:", uploadResult);
-
+          //salvo  tutti quelli andati in ok
+           if(uploadResult.status === 'ok'){
+                numeroFileCaricatiInOK.push('ok');
+           }
   // Cerca il file corrispondente tra quelli ancora da caricare, confrontando il nome completo
   const fileMatch = this.filesDaCaricare.find(f => f.name === uploadResult.key_file);
 
@@ -390,16 +392,29 @@ filesDaCaricare.forEach(f => {
         // Rimuove il file dalla lista di file da caricare
         this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== fileMatch);
 
-      }, 2000);
+      }, 1000);
     }
   } else {
     // Se non viene trovato il file corrispondente, stampa un messaggio di avviso
     console.warn(`File non trovato per chiave: ${uploadResult.key_file}`);
+
+
   }
+
+  
+
 });
 
       }
+          console.log("Numero dei file da caricareeee: ", numeroDeiFileDaCaricare);
+    console.log("Numero dei file caricati andati a buon fine", numeroFileCaricatiInOK.length);
+      
       this.uploadInCorso = false;
+
+      //se il numero dei file da caricare è ugule a quelli in ok allora chiudi il pop up
+      if(numeroDeiFileDaCaricare === numeroFileCaricatiInOK.length){
+        this.chiudiDialog();
+      }
     },
     error: (err) => {
       console.error("Errore durante upload:", err);
