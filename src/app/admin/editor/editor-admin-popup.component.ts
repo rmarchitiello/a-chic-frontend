@@ -462,7 +462,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   */
 
   //apro solo il pop up della descrizione
-  apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
+  apriPopUpViewOrEditMetadataComponent(url: string, context: MediaContext): void {
     this.dialog.open(ViewOrEditMetadataComponent, {
       data: { urlFrontale: url, context: context },
       width: '500px',

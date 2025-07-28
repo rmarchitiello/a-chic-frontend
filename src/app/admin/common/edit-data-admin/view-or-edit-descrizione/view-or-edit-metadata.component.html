@@ -1,46 +1,66 @@
 <div class="popup-container">
-  <!-- Pulsante chiusura -->
-<button class="chiudi-btn" (click)="chiudiDialog()">
-  <mat-icon>close</mat-icon>
-</button>
 
+  <!-- Pulsante di chiusura in alto a destra -->
+  <button class="chiudi-btn" (click)="chiudiDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
 
-  <!-- Titolo -->
-  <h2>Descrizione</h2>
+  <!-- Titolo del popup -->
+  <h2>Modifica dei metadati</h2>
 
-  <!-- Modalità visualizzazione -->
-  <p class="descrizione-testo" *ngIf="!isEditing">
-    {{ descrizioneModificata }}
-  </p>
+  <!-- Ciclo dinamico sui metadati -->
+  <div
+    *ngFor="let context of mediaContextMap | keyvalue : keyvalueCompare; trackBy: trackByKey"
+  >
+    <!-- Etichetta chiave del metadato -->
+    <p class="campo-key">{{ context.key }}</p>
 
-  <!-- Modalità modifica -->
-  <textarea
-    *ngIf="isEditing"
-    class="descrizione-textarea"
-    [(ngModel)]="descrizioneModificata"
-  ></textarea>
+    <!-- Visualizzazione normale (testo statico) -->
+    <p class="descrizione-testo" *ngIf="!isEditing">
+      {{ context.value }}
+    </p>
 
-  <!-- Azioni -->
+    <!-- Input modificabile -->
+    <input
+      *ngIf="isEditing"
+      class="campo-input"
+      [(ngModel)]="mediaContextMap[context.key]"
+      [placeholder]="context.key"
+      [type]="isCampoNumerico(context.key) ? 'number' : 'text'"
+    />
+  </div>
+
+  <!-- Pulsante Conferma modifiche (visibile solo se serve confermare) -->
+  <div *ngIf="modificaInAttesaDiConferma" class="azioni-finali">
+    <button
+      mat-stroked-button
+      color="accent"
+      class="btn-conferma"
+      (click)="confermaModificaContext()"
+    >
+      Conferma
+    </button>
+  </div>
+
+  <!-- Sezione pulsanti azione -->
   <div class="azioni-popup">
-    <!-- Pulsante modifica (visibile solo se non in modifica) -->
-    <button mat-icon-button *ngIf="!isEditing" (click)="attivaModifica()" aria-label="Modifica">
+
+    <!-- Pulsante Modifica (visibile solo se non si sta già modificando) -->
+    <button
+      mat-icon-button
+      class="btn-edit-icon"
+      *ngIf="!isEditing"
+      (click)="attivaModifica()"
+      aria-label="Modifica"
+    >
       <mat-icon>edit</mat-icon>
     </button>
 
-    <!-- Pulsanti per modalità modifica -->
+    <!-- Pulsanti Salva e Annulla (solo in modalità modifica) -->
     <div *ngIf="isEditing" class="azioni-editing">
       <button mat-raised-button color="primary" (click)="salvaModifica()">Salva</button>
       <button mat-button color="warn" (click)="annullaModifica()">Annulla</button>
     </div>
 
-    <!-- Pulsante conferma visibile solo se descrizione modificata -->
-    <button
-      mat-stroked-button
-      color="accent"
-      *ngIf="descrizioneModificata !== data.context.descrizione"
-      (click)="confermaDescrizioneAggiornata()"
-    >
-      Conferma
-    </button>
   </div>
 </div>

@@ -1,27 +1,38 @@
-/* ===========================
-   Contenitore principale popup
-=========================== */
+/* ===============================
+   Contenitore principale del popup
+=============================== */
 .popup-container {
   position: relative;
   padding: 2rem 1.5rem 1.5rem;
   background-color: transparent;
   border-radius: 0;
   box-shadow: none;
-  min-width: 350px;      // ✅ AGGIUNTO
-  min-height: 300px;     // ✅ AGGIUNTO
+  min-width: 350px;
+  min-height: 300px;
   max-width: 500px;
   margin: 0 auto;
   text-align: center;
 
   h2 {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.5rem;
     font-size: 1.5rem;
     color: #222;
   }
 
-  /* ===========================
-     Testo descrizione (solo lettura)
-  =========================== */
+  /* ===============================
+     Etichetta per ogni campo dinamico
+  ================================ */
+  .campo-key {
+    font-weight: 600;
+    margin: 1rem 0 0.25rem;
+    color: #333;
+    text-align: left;
+    font-size: 0.95rem;
+  }
+
+  /* ===============================
+     Testo in modalità visualizzazione
+  ================================ */
   .descrizione-testo {
     font-size: 1rem;
     color: #444;
@@ -31,7 +42,6 @@
     overflow-wrap: break-word;
     max-height: 300px;
     overflow-y: auto;
-    overflow-x: hidden;
     padding: 0.75rem 1rem;
     border: 1px solid #eee;
     border-radius: 8px;
@@ -40,9 +50,31 @@
     text-align: left;
   }
 
-  /* ===========================
-     Textarea per la modifica
-  =========================== */
+  /* ===============================
+     Input per la modifica dei metadati
+  ================================ */
+  .campo-input {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    color: #222;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #3f51b5;
+      box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+    }
+  }
+
+  /* ===============================
+     Textarea opzionale per descrizione lunga
+  ================================ */
   .descrizione-textarea {
     width: 100%;
     font-size: 1rem;
@@ -64,14 +96,15 @@
     }
   }
 
-  /* ===========================
-     Area pulsanti azioni
-  =========================== */
+  /* ===============================
+     Pulsanti modifica / salva / annulla
+  ================================ */
   .azioni-popup {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.75rem;
+    margin-top: 1.5rem;
 
     button[mat-icon-button] {
       color: #555;
@@ -104,11 +137,47 @@
       padding: 0.4rem 1.2rem;
     }
   }
+
+  /* ===============================
+     Pulsanti di conferma finali
+  ================================ */
+  .azioni-finali {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+
+    .btn-conferma {
+      min-width: 120px;
+      font-weight: 500;
+      padding: 0.5rem 1.2rem;
+    }
+
+    .btn-edit-icon {
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 50%;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 22px;
+        color: #555;
+      }
+
+      &:hover mat-icon {
+        color: #000;
+      }
+    }
+  }
 }
 
-/* ===========================
-   Pulsante chiusura popup
-=========================== */
+/* ===============================
+   Pulsante di chiusura (in alto a destra)
+=============================== */
 .chiudi-btn {
   position: absolute;
   top: 1rem;

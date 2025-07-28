@@ -32,7 +32,7 @@
                   </span>
                   <!-- Bottone visibile solo se il campo è "descrizione" -->
                   <button *ngIf="contextFormatted.key === 'descrizione'" class="show-more-btn" type="button"
-                    aria-label="Espandi descrizione" (click)="apriPopUpViewDescrizioneComponent(url, context)">
+                    aria-label="Espandi descrizione" (click)="apriPopUpViewOrEditMetadataComponent(url, context)">
                     <mat-icon class="dots">more_horiz</mat-icon>
                   </button>
 
