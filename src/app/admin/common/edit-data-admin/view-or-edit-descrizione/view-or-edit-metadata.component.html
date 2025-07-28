@@ -10,7 +10,7 @@
 
   <!-- Ciclo dinamico sui metadati -->
   <div
-    *ngFor="let context of mediaContextMap | keyvalue : keyvalueCompare; trackBy: trackByKey"
+    *ngFor="let context of contextModificabile(); trackBy: trackByKey"
   >
     <!-- Etichetta chiave del metadato -->
     <p class="campo-key">{{ context.key }}</p>

@@ -125,11 +125,21 @@ export class ViewOrEditMetadataComponent implements OnInit {
   }
 
   /**
-   * Permette il tracking degli elementi in ngFor per evitare rigenerazione
+   * Permette il tracking degli elementi in ngFor per evitare rigenerazione perche altrimenti quando andavo a modificare un valore nella form 
+   * ricaricava sempre il dom tipo come fa per il tooltip
    */
   trackByKey(index: number, item: KeyValue<string, string>): string {
     return item.key;
   }
+
+  //non devo poter modifica type e angolazione
+contextModificabile() {
+  // Ritorna un array [{ key, value }, ...], escludendo type e angolazione
+  return Object.entries(this.mediaContextMap)
+    .filter(([key, _]) => key !== 'type' && key !== 'angolazione')
+    .map(([key, value]) => ({ key, value }));
+}
+
 
   /**
    * Disabilita ordinamento alfabetico delle chiavi in ngFor
