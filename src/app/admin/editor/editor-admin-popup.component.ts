@@ -89,7 +89,7 @@ import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-dat
 import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedDataService } from '../../services/shared-data.service';
-import { ViewOrEditDescrizioneComponent } from './view-or-edit-descrizione/view-or-edit-descrizione.component';
+import { ViewOrEditMetadataComponent } from '../common/edit-data-admin/view-or-edit-descrizione/view-or-edit-metadata.component';
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -463,7 +463,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   //apro solo il pop up della descrizione
   apriPopUpViewDescrizioneComponent(url: string, context: MediaContext): void {
-    this.dialog.open(ViewOrEditDescrizioneComponent, {
+    this.dialog.open(ViewOrEditMetadataComponent, {
       data: { urlFrontale: url, context: context },
       width: '500px',
       panelClass: 'popup-descrizione-dialog'

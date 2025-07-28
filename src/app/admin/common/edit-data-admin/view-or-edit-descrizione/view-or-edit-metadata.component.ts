@@ -6,10 +6,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MediaCollection } from '../../../pages/home/home.component';
-import { SharedDataService } from '../../../services/shared-data.service';
-import { AdminService } from '../../../services/admin.service';
-import { MediaContext } from '../../../pages/home/home.component';
+import { MediaCollection } from '../../../../pages/home/home.component';
+import { SharedDataService } from '../../../../services/shared-data.service';
+import { AdminService } from '../../../../services/admin.service';
+import { MediaContext } from '../../../../pages/home/home.component';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -21,10 +21,10 @@ import { take } from 'rxjs/operators';
     MatIconModule,
     MatButtonModule
   ],
-  templateUrl: './view-or-edit-descrizione.component.html',
-  styleUrls: ['./view-or-edit-descrizione.component.scss']
+  templateUrl: './view-or-edit-metadata.component.html',
+  styleUrls: ['./view-or-edit-metadata.component.scss']
 })
-export class ViewOrEditDescrizioneComponent implements OnInit {
+export class ViewOrEditMetadataComponent implements OnInit {
   isEditing = false;                    // Modalità di modifica attiva
   descrizioneModificata: string;        // Valore locale della descrizione
   modificaInAttesaDiConferma = false;   // True se c'è una modifica non ancora confermata
@@ -43,7 +43,7 @@ export class ViewOrEditDescrizioneComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: { urlFrontale: string; context: MediaContext }, // Dati iniziali passati dal padre
-    private dialogRef: MatDialogRef<ViewOrEditDescrizioneComponent>,
+    private dialogRef: MatDialogRef<ViewOrEditMetadataComponent>,
     private sharedDataService: SharedDataService,
     private adminService: AdminService
   ) {
