@@ -1,7 +1,7 @@
 <div class="dialog-content">
 
   <!-- Pulsante di chiusura del dialog -->
-  <button class="chiudi-btn" mat-icon-button (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi"  (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -30,13 +30,21 @@
                   <span class="preview-text">
                     {{ getPreview(contextFormatted.value) }}
                   </span>
+                  <!-- Bottone per visualizzare la descrizione completa, mostrato solo se la descrizione è lunga -->
+                  <button *ngIf="descrizioneLunga" class="visualizza-descrizione-btn" 
+                     aria-label="Visualizza descrizione"
+                    (click)="apriPopUpViewOrEditMetadataComponent(url,true,context)">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+
+
 
                   <!-- Bottoni azione visibili solo una volta nella riga 'display_name' -->
                   <ng-container *ngIf="contextFormatted.key === 'display_name'">
                     <div class="vertical-action-buttons">
                       <!-- Bottone modifica -->
                       <button class="show-more-btn" type="button" aria-label="Modifica metadati"
-                        (click)="apriPopUpViewOrEditMetadataComponent(url, context)">
+                        (click)="apriPopUpViewOrEditMetadataComponent(url,false,context)">
                         <mat-icon class="button-edit">edit</mat-icon>
                       </button>
 

@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MediaContext } from '../../../../pages/home/home.component';
 import { SharedDataService } from '../../../../services/shared-data.service';
 import { AdminService } from '../../../../services/admin.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-view-or-edit-descrizione',
@@ -15,8 +16,10 @@ import { AdminService } from '../../../../services/admin.service';
     CommonModule,
     FormsModule,
     MatIconModule,
-    MatButtonModule
-  ],
+    MatButtonModule,
+    MatTooltipModule
+    
+],
   templateUrl: './view-or-edit-metadata.component.html',
   styleUrls: ['./view-or-edit-metadata.component.scss']
 })
@@ -37,9 +40,11 @@ export class ViewOrEditMetadataComponent implements OnInit {
   // Mappa stringa/stringa da usare con [(ngModel)] e *ngFor
   mediaContextMap: Record<string, string> = {};
 
+  onlyViewInput: boolean = false;
+
   constructor(
     @Inject(MAT_DIALOG_DATA)
-    public data: { urlFrontale: string; context: MediaContext },
+    public data: { urlFrontale: string, onlyView: boolean, context: MediaContext },
     private dialogRef: MatDialogRef<ViewOrEditMetadataComponent>,
     private sharedDataService: SharedDataService,
     private adminService: AdminService
@@ -49,6 +54,9 @@ export class ViewOrEditMetadataComponent implements OnInit {
     // Inizializzo dati passati dal componente padre
     this.urlFrontaleInput = this.data.urlFrontale;
     this.originalContext = { ...this.data.context };
+    this.onlyViewInput = this.data.onlyView;
+
+    console.log("Il pop up e aperto in modalita no-editing: ", this.onlyViewInput);
 
     // Converto ogni valore in stringa per sicurezza
     this.mediaContextMap = Object.fromEntries(
@@ -141,6 +149,66 @@ contextModificabile() {
     .filter(([key, _]) => key !== 'type' && key !== 'angolazione')
     .map(([key, value]) => ({ key, value }));
 }
+
+contextVisualizzabile() {
+  console.log(JSON.stringify(this.mediaContextMap));
+  // Ritorna solo [{ key: 'descrizione', value: ... }] se presente
+  return Object.entries(this.mediaContextMap)
+    .filter(([key, _]) => key === 'descrizione')
+    .map(([key, value]) => ({ key, value }));
+}
+
+/**
+ * Converte una chiave tecnica (es. 'display_name' o 'pippo_franco')
+ * in una stringa leggibile formattata (es. 'Display Name' o 'Pippo Franco').
+ */
+normalizzaChiave(key: string): string {
+  // Se la chiave è nulla o vuota, restituisco una stringa vuota
+  if (!key) return '';
+
+  return key
+    // Sostituisco tutti gli underscore con spazi (es. 'pippo_franco' → 'pippo franco')
+    .replace(/_/g, ' ')
+    // Converto tutta la stringa in minuscolo per uniformare il formato
+    .toLowerCase()
+    // Converto la prima lettera di ogni parola in maiuscola (es. 'pippo franco' → 'Pippo Franco')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+
+/**
+ * Ordina le chiavi del metadato secondo una priorità stabilita (Nome, Descrizione, Quantità, Prezzo).
+ * Le chiavi non prioritarie vengono mantenute in coda nell'ordine originale.
+ */
+/**
+ * Ordina le chiavi del metadato secondo una priorità stabilita (Nome, Descrizione, Quantità, Prezzo).
+ * Le chiavi non prioritarie vengono mantenute in coda nell'ordine originale.
+ */
+ordinaChiaviMetadati(context: MediaContext): { key: string; value: string }[] {
+  // Ordine prioritario da rispettare (se le chiavi esistono)
+  const ordinePrioritario = ['display_name', 'descrizione', 'quantita', 'prezzo'];
+
+  // Creo un array delle chiavi effettivamente presenti nel contesto
+  const tutteLeChiavi = Object.keys(context);
+
+  // Prima aggiungo le chiavi presenti che sono nella lista prioritaria, mantenendo l'ordine definito
+  const chiaviPrioritarie = ordinePrioritario.filter(k => tutteLeChiavi.includes(k));
+
+  // Poi aggiungo le chiavi che non sono nella lista prioritaria
+  const chiaviRestanti = tutteLeChiavi.filter(k => !ordinePrioritario.includes(k));
+
+  // Unisco le due liste: prima quelle prioritarie, poi le restanti
+  const chiaviFinali = [...chiaviPrioritarie, ...chiaviRestanti];
+
+  // Ritorno un array di oggetti { key, value } per ogni chiave normalizzata
+  return chiaviFinali.map(k => ({
+    key: k,
+    value: context[k] ?? ''  // <-- Risolve il problema di tipo
+  }));
+}
+
+
+
 
 
   /**

@@ -4,8 +4,10 @@
 .dialog-content {
   height: 100%;
   padding: 2.5rem;
+    z-index: 1100; /* più alto di 1000 della chiudi-btn per contesto stacking */
+
   position: relative;
-  overflow: unset;
+  overflow: visible !important; /* assicurati che bottone non venga tagliato */
 
   .preview-container {
     display: flex;
@@ -15,6 +17,46 @@
     margin-bottom: 2.5rem;
   }
 }
+
+/* ================================
+   Bottone "Visualizza descrizione"
+   Posizionato accanto al testo
+================================= */
+/* ================================
+   Bottone "Visualizza descrizione"
+   Posizionato accanto al testo
+================================= */
+.visualizza-descrizione-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 0.10rem; // distanza dal testo descrizione
+  padding: 4px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #555;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  position: relative; // << aggiunto
+  z-index: 2;         // << aggiunto
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: #000;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+  }
+}
+
+
 
 /* =======================================
    Card generica per anteprima media
@@ -87,6 +129,7 @@
         align-items: center;
         gap: 0.3rem;
         width: 100%;
+
 
         .preview-text {
           overflow: hidden;
@@ -238,41 +281,12 @@
   }
 }
 
-.chiudi-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-  mat-icon {
-    font-size: 26px;
-    color: #888;
-    transition: color 0.3s ease;
-  }
-
-  &:hover mat-icon {
-    color: #000;
-  }
-}
 
 ::ng-deep .cdk-overlay-pane {
   overflow: visible !important;
 }
 
-::ng-deep .popup-descrizione-dialog .mat-dialog-container {
-  background-color: transparent !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 0 !important;
-  max-height: none !important;
-  overflow: visible !important;
-}
 
 .preview-card.upload-add-card {
   border: 2px dashed #4caf50;

@@ -266,28 +266,7 @@
   }
 }
 
-/* ========================================
-   BOTTONE CHIUSURA IN ALTO A DESTRA
-   ======================================== */
-.chiudi-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  z-index: 2000;
-  cursor: pointer;
 
-  mat-icon {
-    font-size: 24px;
-    color: #888;
-    transition: color 0.3s ease;
-  }
-
-  &:hover mat-icon {
-    color: #000;
-  }
-}
 
 /* ========================================
    NG-DEEP PER CONTAINER DIALOG

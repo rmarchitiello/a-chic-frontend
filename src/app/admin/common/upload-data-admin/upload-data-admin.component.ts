@@ -8,7 +8,7 @@
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AdminService } from '../../../services/admin.service';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -33,7 +33,7 @@ export interface UploadResult {
   selector: 'app-upload-data-admin',
   standalone: true,
   imports: [
-    MatIcon,
+    MatIconModule,
     CommonModule,
     MatProgressSpinnerModule,
     MatDialogModule,

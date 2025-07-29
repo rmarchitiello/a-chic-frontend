@@ -119,30 +119,7 @@
   margin-top: 2rem;
 }
 
-/* Pulsante di chiusura */
-.chiudi-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
 
-  mat-icon {
-    font-size: 24px;
-    color: #888;
-    transition: color 0.3s ease;
-  }
-
-  &:hover mat-icon {
-    color: #000;
-  }
-}
 
 /* Blur disattivazione */
 .blur {

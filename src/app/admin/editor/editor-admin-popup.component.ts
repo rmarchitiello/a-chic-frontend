@@ -328,25 +328,25 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
     //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
     this.sharedService.mediasCollectionsConfig$.subscribe(data => {
-      if(data.length > 0){
+      if (data.length > 0) {
 
 
-      this.folderSelezionata = this.folderInput;
-      if (this.folderSelezionata) {
-        console.log("Folder selezionata: ", this.folderSelezionata);
-        const mediasCollection: MediaCollection[] = data;
-        this.inputFromFatherComponent = mediasCollection.find(
-          mediaColl => mediaColl.folder === this.folderSelezionata
-        ) || { folder: '', items: [] };
-        console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
-        console.log("Re invio i nuovi media collection: ")
-        //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
-        this.caricaMediaCollection(this.inputFromFatherComponent);
+        this.folderSelezionata = this.folderInput;
+        if (this.folderSelezionata) {
+          console.log("Folder selezionata: ", this.folderSelezionata);
+          const mediasCollection: MediaCollection[] = data;
+          this.inputFromFatherComponent = mediasCollection.find(
+            mediaColl => mediaColl.folder === this.folderSelezionata
+          ) || { folder: '', items: [] };
+          console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
+          console.log("Re invio i nuovi media collection: ")
+          //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
+          this.caricaMediaCollection(this.inputFromFatherComponent);
+        }
+        else {
+          console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
+        }
       }
-      else {
-        console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
-      }
-            }
 
 
 
@@ -428,15 +428,18 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //dato che alcuni dei campi del context sono molto lunghi con questo metodo calcolo i caratteri di ogni context cosi
   //mostro una preview sul sito
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
-  getPreview(value: string, max = 25): string {
+  descrizioneLunga: boolean = false;
+  getPreview(value: string, max = 18): string {
+    this.descrizioneLunga = value.length > max //se la descrizione è grande ritorna true;
     if (typeof value !== 'string') return value as any;
-    return value.length > max ? value.slice(0, max) +' ...' : value;
+    return value.length > max ? value.slice(0, max) + '...' : value;
   }
   //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
   //se lo supera torna true
   isLongText(value: any): boolean {
     return typeof value === 'string' && !!value && value.length > 40;
   }
+
 
 
 
@@ -461,19 +464,38 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   */
 
-  //apro solo il pop up della descrizione
-  apriPopUpViewOrEditMetadataComponent(url: string, context: MediaContext): void {
-      const contextSenzaAngolazione = Object.fromEntries(Object.entries(context).filter(([key, _]) => key !== 'angolazione'));    //tolgo l'angolazione dal context non devo poter editarla
-      
-      console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
-    this.dialog.open(ViewOrEditMetadataComponent, {
-      data: { urlFrontale: url, context: contextSenzaAngolazione },
-      width: '500px',
-      panelClass: 'popup-descrizione-dialog'
-    });
+  //apro solo il pop up della descrizione se passo onlyView vedo solo il pop up in fase di visualizzazione e non di editing
+apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: MediaContext): void {
+  // Log iniziale per confermare la modalità del popup (visualizzazione o modifica)
+  console.log("Pop up di edit in sola fase di visualizzazione: ", onlyView);
 
+  // Inizializzo la variabile che conterrà il context privo della chiave "angolazione"
+  let contextSenzaAngolazione: MediaContext | undefined = undefined;
 
+  // Se il context è valido, rimuovo la chiave "angolazione" per evitare di modificarla
+  if (context) {
+    contextSenzaAngolazione = Object.fromEntries(
+      Object.entries(context).filter(([key, _]) => key !== 'angolazione')
+    );
+    console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
   }
+
+  // Apertura del dialog Angular Material per il componente ViewOrEditMetadataComponent
+  this.dialog.open(ViewOrEditMetadataComponent, {
+    data: {
+      urlFrontale: url,                         // URL dell'immagine selezionata
+      onlyView: onlyView,                       // Flag che determina se mostrare solo in lettura
+      context: contextSenzaAngolazione          // Metadati senza angolazione
+    },
+    // Specifico la larghezza solo se non siamo in modalità view-only
+  ...(onlyView ? {} : { width: '500px' }),
+    // Applico una classe CSS diversa in base alla modalità
+    panelClass: onlyView
+      ? 'popup-descrizione-viewonly'            // Stile visivo per modalità sola lettura
+      : 'popup-descrizione-dialog'              // Stile per modalità modifica completa
+  });
+}
+
 
 
 
@@ -481,42 +503,42 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
  * Restituisce un array ordinato di metadati da visualizzare,
  * escludendo la chiave 'angolazione' e applicando etichette leggibili.
  */
-getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
-  // Ordine prioritario dei metadati da mostrare
-  const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
+  getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
+    // Ordine prioritario dei metadati da mostrare
+    const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
 
-  // Etichette personalizzate per i campi noti
-  const customLabels: { [key: string]: string } = {
-    display_name: 'Nome File',
-    descrizione: 'Descrizione',
-    type: 'Tipo',
-    quantita: 'Quantità'
-  };
+    // Etichette personalizzate per i campi noti
+    const customLabels: { [key: string]: string } = {
+      display_name: 'Nome File',
+      descrizione: 'Descrizione',
+      type: 'Tipo',
+      quantita: 'Quantità'
+    };
 
-  // Chiavi da escludere dalla visualizzazione (es. 'angolazione' è tecnica)
-  const chiaviDaEscludere = ['angolazione'];
+    // Chiavi da escludere dalla visualizzazione (es. 'angolazione' è tecnica)
+    const chiaviDaEscludere = ['angolazione'];
 
-  // Costruisco un array con chiave, etichetta leggibile e valore (convertito in stringa)
-  const entries = Object.entries(context)
-    // Rimuovo eventuali chiavi che non devono essere mostrate
-    .filter(([key]) => !chiaviDaEscludere.includes(key))
-    // Formatto ogni entry con etichetta e valore
-    .map(([key, value]) => ({
-      key,
-      // Se presente una label personalizzata, la uso; altrimenti capitalizzo la chiave
-      label: customLabels[key] || key.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1)),
-      value: value ?? ''
-    }));
+    // Costruisco un array con chiave, etichetta leggibile e valore (convertito in stringa)
+    const entries = Object.entries(context)
+      // Rimuovo eventuali chiavi che non devono essere mostrate
+      .filter(([key]) => !chiaviDaEscludere.includes(key))
+      // Formatto ogni entry con etichetta e valore
+      .map(([key, value]) => ({
+        key,
+        // Se presente una label personalizzata, la uso; altrimenti capitalizzo la chiave
+        label: customLabels[key] || key.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1)),
+        value: value ?? ''
+      }));
 
-  // Restituisco le entry ordinate: prima quelle nell'elenco 'ordine', poi le restanti
-  return [
-    ...entries
-      .filter(e => ordine.includes(e.key))
-      .sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
-    ...entries
-      .filter(e => !ordine.includes(e.key))
-  ];
-}
+    // Restituisco le entry ordinate: prima quelle nell'elenco 'ordine', poi le restanti
+    return [
+      ...entries
+        .filter(e => ordine.includes(e.key))
+        .sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
+      ...entries
+        .filter(e => !ordine.includes(e.key))
+    ];
+  }
 
 
 

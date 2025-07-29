@@ -1,4 +1,4 @@
-/* ========== STILE GLOBALE BASE (opzionale) ========== */
+/* ========== STILE GLOBALE BASE ========== */
 html, body {
   margin: 0;
   padding: 0;
@@ -42,44 +42,26 @@ html, body {
   }
 }
 
-/* ================================================
-   STILI GLOBALI PER TOOLTIP ANGULAR MATERIAL
-   Questo blocco garantisce che i tooltip funzionino
-   correttamente in tutta l'app, compresi i dialog.
-   Dev'essere definito solo nello styles.scss globale.
-================================================ */
+/* =============================================================
+   STILI GLOBALI PER TOOLTIP ANGULAR MATERIAL (matTooltip)
+   Garantisce compatibilità anche dentro i Dialog Material.
+   Va incluso in `styles.scss` per effetto globale.
+============================================================= */
 
-/* Contenitore principale dell'overlay dei tooltip.
-   Deve essere in posizione fixed per evitare problemi
-   con lo scroll e garantire visibilità costante. */
+/* Overlay principale Angular Material */
 .cdk-overlay-container {
   position: fixed !important;
   z-index: 9999 !important;
   overflow: visible !important;
 }
 
-/* Pane interno dell'overlay che ospita il tooltip.
-   L'overflow visibile consente al tooltip di "uscire"
-   dal contenitore se necessario (es. nei dialog). */
+/* Pane interno dell'overlay, che ospita i tooltip */
 .cdk-overlay-pane {
   overflow: visible !important;
-  pointer-events: auto !important; // Consente hover e interazioni
+  pointer-events: auto !important; // Permette hover e interazioni
 }
 
-/* Stile base per tutti i tooltip Angular Material.
-   Applichiamo visibilità forzata, stile leggibile e
-   z-index alto per essere sempre sopra gli altri elementi. */
-
-/* questo è lo stile di base di tutti i tool tip 
-   cioe quando scrivo
-   <div
-    class="media-display-name"
-    matTooltip="✅ FUNZIONA DAL FORaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!"
-    matTooltipClass="tooltip-rosso"
-
-    lui sta creanod un div cosi
-    <div class="mat-tool-tip tooltip-rosso"   . . . e cosi via quindi se sbaglio a settare i colori ecc uno sovrascrive l'altro e non si capisce
-*/
+/* Tooltip di base Angular Material */
 ::ng-deep .mat-tooltip {
   opacity: 1 !important;
   visibility: visible !important;
@@ -93,96 +75,139 @@ html, body {
   word-break: break-word;
 }
 
-// pannello vero e proprio del tooltip per non rendere le descrizioni tagliate
+/* Tooltip panel container */
 ::ng-deep .mat-tooltip-panel {
-  max-height: none !important;     // Nessun limite fisso di altezza
-  overflow: visible !important;    // Permette al contenuto di espandersi
-  pointer-events: auto !important; // Assicura che lo scroll sia possibile
+  max-height: none !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
 }
 
-// poi nella classe personalizzata definisco i colori
-
-/* ==========================================================
-   CLASSE PERSONALIZZATA PER TOOLTIP ROSSO (ESEMPIO UTENTE)
-   Questa classe può essere usata con matTooltipClass="tooltip-rosso"
-   per evidenziare messaggi critici o alert importanti.
-========================================================== */
+/* ============================================================
+   CLASSE PERSONALIZZATA PER TOOLTIP AMMINISTRATIVO
+   Da usare con: matTooltipClass="tooltip-admin"
+============================================================ */
 ::ng-deep .tooltip-admin {
-  background-color: rgba(255, 255, 255, 0.95) !important; // sfondo più leggibile
+  background-color: rgba(255, 255, 255, 0.95) !important;
   color: #25d366 !important;
   font-weight: 500;
   font-size: 15px;
   line-height: 1.6;
   border-radius: 8px;
-  padding: 16px 20px;               // padding più ampio per respirare meglio
-  max-width: 90vw;                  // si adatta allo schermo
-  max-height: 60vh;                 // limita altezza per evitare overflow
+  padding: 16px 20px;
+  max-width: 90vw;
+  max-height: 60vh;
   white-space: normal !important;
   word-break: break-word;
-  overflow-y: auto;                 // scrollbar visibile per contenuti lunghi
+  overflow-y: auto;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-
-    // Aggiungiamo margine interno alla scrollbar per non attaccarla al testo
   scrollbar-width: thin;
   scrollbar-color: #999 transparent;
+
   * {
     background-color: transparent !important;
     color: #000000 !important;
     font-size: 15px !important;
     line-height: 1.6 !important;
   }
-
-
 }
 
-/* ==========================================================
+/* ============================================================
+   DIALOG: STILE PER MODIFICA COMPLETA
+   Applicato con: panelClass: 'popup-descrizione-dialog'
+============================================================ */
+::ng-deep .popup-descrizione-dialog .mat-mdc-dialog-container {
+  background-color: transparent !important; // Sfondo trasparente (stile editor)
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* ============================================================
+   DIALOG: STILE PER SOLA VISUALIZZAZIONE (onlyView = true)
+   Applicato tramite: panelClass: 'popup-descrizione-viewonly'
+   Target: contenitore del dialog Angular Material (MDC)
+============================================================ */
+::ng-deep .popup-descrizione-viewonly .mat-mdc-dialog-container {
+  background-color: #fff !important;              // Sfondo bianco per la visualizzazione chiara
+  border-radius: 16px !important;                 // Angoli stondati per effetto soft e moderno
+  padding: 24px !important;                       // Spazio interno regolare
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; // Ombra leggera per profondità visiva
+
+  // Dimensioni dinamiche: si adatta al contenuto
+  width: auto !important;
+  height: auto !important;
+
+  // Previene l'overflow orizzontale e verticale
+  max-width: 90vw !important;   // Non supera il 90% della larghezza dello schermo
+  max-height: 90vh !important;  // Non supera il 90% dell'altezza visibile
+
+  overflow: visible !important; // Permette ai contenuti (es. tooltip, overlay) di uscire dal contenitore
+}
+
+/* Forza visibilità e z-index alto al pulsante di chiusura SERVE PER IL POP UP E LO RENDO GLOBALE*/
+.chiudi-btn {
+  position: absolute !important;
+  top: 1rem !important;
+  right: 1rem !important;
+  z-index: 11000 !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Forza lo stile dell'icona all'interno del bottone */
+.chiudi-btn mat-icon {
+  color: #000 !important;       /* colore nero o quello che preferisci */
+  font-size: 28px !important;   /* dimensione icona più grande */
+  opacity: 1 !important;        /* assicurati che sia visibile */
+  display: block !important;    /* visualizza l'icona come blocco */
+}
+
+
+/* Forza overflow visibile sui contenitori dialog Angular Material */
+.mat-mdc-dialog-inner-container,
+.mat-mdc-dialog-surface,
+.dialog-content {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 10000 !important;
+}
+
+/* ============================================================
    ESEMPIO USO TOOLTIP CON CLASSE PERSONALIZZATA:
 
    <div
-     matTooltip=" FUNZIONA DAL FOR!"
-     matTooltipClass="tooltip-rosso"
+     matTooltip="Testo informativo"
+     matTooltipClass="tooltip-admin"
      matTooltipPosition="above"
    >
      <u style="cursor: help;">Testo con tooltip</u>
    </div>
-========================================================== */
+============================================================ */
 
+/* ============================================================
+   ESEMPIO HTML (da mettere nel tuo componente):
 
-/* 
-ESEMPIO DI TOOLTIP IN HTML
-RICORDA DA INSERIRE AL DI FUORI QUESTO TOOLTIP
-<!-- TOOL TIP DI ANGULAR
-SI FA COSI
-       <div class="media-display-name">
-            <span
-              class="tooltip-wrapper"
-              [matTooltip]="context.descrizione"
-              matTooltipClass="tooltip-admin"
-              [matTooltipDisabled]="!isLongText(context.descrizione)"
-              matTooltipPosition="above"
-            >
-              <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
-                <div class="context-entry">
-                  <strong class="context-label">
-                    {{ contextFormatted.label }}:
-                  </strong>
-                  <span class="context-value">
-                    {{ getPreview(contextFormatted.value) }}
-                  </span>
-                </div>
-              </ng-container>
-            </span>
-          </div> 
-
-
-
-
-
-
--->
-
-*/
-
-
-
-
+   <div class="media-display-name">
+     <span
+       class="tooltip-wrapper"
+       [matTooltip]="context.descrizione"
+       matTooltipClass="tooltip-admin"
+       [matTooltipDisabled]="!isLongText(context.descrizione)"
+       matTooltipPosition="above"
+     >
+       <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
+         <div class="context-entry">
+           <strong class="context-label">{{ contextFormatted.label }}:</strong>
+           <span class="context-value">{{ getPreview(contextFormatted.value) }}</span>
+         </div>
+       </ng-container>
+     </span>
+   </div>
+============================================================ */
