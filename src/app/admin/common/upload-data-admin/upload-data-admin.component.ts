@@ -13,12 +13,13 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaCollection, MediaContext } from '../../../pages/home/home.component';
+import {  MediaContext } from '../../../pages/home/home.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
 import { SharedDataService } from '../../../services/shared-data.service';
+import { MatTableModule } from '@angular/material/table';
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
@@ -29,7 +30,8 @@ import { SharedDataService } from '../../../services/shared-data.service';
     MatDialogModule,
     MatTooltipModule,
     FormsModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatTableModule
   ],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
@@ -196,7 +198,7 @@ aggiungiFiles(files: File[]): void {
     );
 
     if (!giaPresente) {
-      this.filesDaCaricare.push(file);
+    this.filesDaCaricare = [...this.filesDaCaricare, file]; // per il mat data table
 
       const tipoGenerico = file.type.split('/')[0];
       if (["image", "video", "audio"].includes(tipoGenerico)) {
