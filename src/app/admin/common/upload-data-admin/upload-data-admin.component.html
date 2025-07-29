@@ -23,7 +23,7 @@
     </div>
 
     <!-- Pulsante Carica Tutto -->
-    <div class="upload-action" *ngIf="filesDaCaricare.length > 0">
+    <div    class="upload-action" *ngIf="filesDaCaricare.length > 0 && fileSelezionatoComeFrontale">
       <button mat-flat-button color="primary" (click)="uploadFiles()" [disabled]="uploadInCorso">
         {{ uploadInCorso ? 'Caricamento in corso...' : 'Carica tutto' }}
       </button>
@@ -66,11 +66,13 @@
         <ng-container matColumnDef="frontale">
           <th mat-header-cell *matHeaderCellDef>Frontale</th>
           <td mat-cell *matCellDef="let file">
-            <mat-checkbox *ngIf="!fileSelezionatoComeFrontale || fileSelezionatoComeFrontale === file"
-              [checked]="fileSelezionatoComeFrontale === file"
-              (change)="selezionaFrontale(file, $event.checked)"
-              matTooltip="Seleziona come immagine frontale">
-            </mat-checkbox>
+<mat-radio-button
+  [value]="file"
+  [checked]="fileSelezionatoComeFrontale === file"
+  (change)="selezionaFrontale(file, true)"
+  matTooltip="Seleziona come immagine frontale">
+</mat-radio-button>
+
 
             <!-- Metadati del frontale -->
             <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">

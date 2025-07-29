@@ -16,10 +16,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {  MediaContext } from '../../../pages/home/home.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';
 import { SharedDataService } from '../../../services/shared-data.service';
 import { MatTableModule } from '@angular/material/table';
+import { MatRadioModule } from '@angular/material/radio';
+
 @Component({
   selector: 'app-upload-data-admin',
   standalone: true,
@@ -30,8 +31,8 @@ import { MatTableModule } from '@angular/material/table';
     MatDialogModule,
     MatTooltipModule,
     FormsModule,
-    MatCheckboxModule,
-    MatTableModule
+    MatTableModule,
+    MatRadioModule
   ],
   templateUrl: './upload-data-admin.component.html',
   styleUrl: './upload-data-admin.component.scss'
@@ -56,14 +57,15 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   statoUpload: Map<File, 'ok' | 'ko'> = new Map(); // Stato di ogni file caricato
   motiviErroreUpload = new Map<File, string>(); // Motivi errore
   uploadInCorso: boolean = false; // Flag di caricamento
-  
+
   inputFolder: string = '';
 
 
 fileSelezionatoComeFrontale: File | null = null;
   
-
-
+mancaFrontaleMethod(): boolean {
+  return !this.fileSelezionatoComeFrontale;
+}
 /**
  * Metodo per aprire un popup e modificare i metadati di un file selezionato.
  * In input passa il file, così da leggere o creare i metadati associati.
