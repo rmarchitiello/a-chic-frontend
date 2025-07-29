@@ -30,11 +30,24 @@
                   <span class="preview-text">
                     {{ getPreview(contextFormatted.value) }}
                   </span>
-                  <!-- Bottone visibile solo se il campo è "descrizione" -->
-                  <button *ngIf="contextFormatted.key === 'descrizione'" class="show-more-btn" type="button"
-                    aria-label="Espandi descrizione" (click)="apriPopUpViewOrEditMetadataComponent(url, context)">
-                    <mat-icon class="dots">more_horiz</mat-icon>
-                  </button>
+
+                  <!-- Bottoni azione visibili solo una volta nella riga 'display_name' -->
+                  <ng-container *ngIf="contextFormatted.key === 'display_name'">
+                    <div class="vertical-action-buttons">
+                      <!-- Bottone modifica -->
+                      <button class="show-more-btn" type="button" aria-label="Modifica metadati"
+                        (click)="apriPopUpViewOrEditMetadataComponent(url, context)">
+                        <mat-icon class="button-edit">edit</mat-icon>
+                      </button>
+
+                      <!-- Bottone elimina -->
+                      <button class="show-more-btn" type="button" aria-label="Elimina media"
+                        (click)="apriPopUpEliminaMedia()">
+                        <mat-icon class="button-edit">delete</mat-icon>
+                      </button>
+                    </div>
+                  </ng-container>
+
 
 
                 </div>
@@ -91,7 +104,7 @@
 =========================== -->
     <div (click)="apriPopUpUploadMedia()" class="preview-card upload-add-card">
 
-        <span  matTooltip="Aggiungi Prodotto" class="add-icon"> Aggiungi prodotto</span>
+      <span matTooltip="Aggiungi Prodotto" class="add-icon"> Aggiungi prodotto</span>
 
     </div>
 

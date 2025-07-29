@@ -117,14 +117,55 @@
             background-color: rgba(0, 0, 0, 0.04);
           }
 
-          .dots {
-            font-size: 20px;
-            font-weight: 500;
-            line-height: 1;
-            pointer-events: none;
-          }
+
         }
       }
+
+   /* =======================================
+   Pulsanti azione verticali (edit/delete)
+   posizionati in alto a destra della card
+======================================= */
+.vertical-action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+
+  /* Posizionamento assoluto per uscire dal flusso normale */
+  position: absolute;
+  top: 0.5rem;
+   right: -0.43rem;
+  z-index: 2;
+
+  button.show-more-btn {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 4px;
+    border-radius: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .button-edit {
+      font-size: 20px;
+      transition: color 0.2s ease, transform 0.2s ease;
+      pointer-events: none; // evita clic sull'icona direttamente
+    }
+
+    &:hover .button-edit {
+      color: #000;
+      transform: scale(1.1);
+    }
+  }
+}
+
+
     }
   }
 
@@ -316,8 +357,3 @@
     }
   }
 }
-
-
-
-
-
