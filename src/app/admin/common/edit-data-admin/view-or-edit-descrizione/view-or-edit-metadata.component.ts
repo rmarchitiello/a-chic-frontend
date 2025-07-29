@@ -54,6 +54,8 @@ export class ViewOrEditMetadataComponent implements OnInit {
     this.mediaContextMap = Object.fromEntries(
       Object.entries(this.data.context).map(([key, value]) => [key, String(value ?? '')])
     );
+
+    console.log("Context in entrata: ", JSON.stringify(this.mediaContextMap));
   }
 
   /**

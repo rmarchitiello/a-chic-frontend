@@ -77,7 +77,7 @@
             <!-- Metadati del frontale -->
             <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">
               <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">
-                <strong>{{ formatKeyLabel(chiave.key) }}:</strong> {{ chiave.value || '—' }}
+                <strong *ngIf="chiave.key !== 'angolazione'">{{ formatKeyLabel(chiave.key) }}:</strong> <span *ngIf="chiave.key !== 'angolazione'"> {{ chiave.value || '—' }}</span>
               </div>
             </div>
           </td>

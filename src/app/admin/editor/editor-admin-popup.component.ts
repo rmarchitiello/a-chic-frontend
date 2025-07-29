@@ -463,8 +463,11 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   //apro solo il pop up della descrizione
   apriPopUpViewOrEditMetadataComponent(url: string, context: MediaContext): void {
+      const contextSenzaAngolazione = Object.fromEntries(Object.entries(context).filter(([key, _]) => key !== 'angolazione'));    //tolgo l'angolazione dal context non devo poter editarla
+      
+      console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
     this.dialog.open(ViewOrEditMetadataComponent, {
-      data: { urlFrontale: url, context: context },
+      data: { urlFrontale: url, context: contextSenzaAngolazione },
       width: '500px',
       panelClass: 'popup-descrizione-dialog'
     });
@@ -474,29 +477,46 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
-  getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
-    const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
+  /**
+ * Restituisce un array ordinato di metadati da visualizzare,
+ * escludendo la chiave 'angolazione' e applicando etichette leggibili.
+ */
+getOrderedFormattedEntries(context: MediaContext): { key: string, label: string, value: string }[] {
+  // Ordine prioritario dei metadati da mostrare
+  const ordine = ['display_name', 'descrizione', 'type', 'quantita'];
 
-    const customLabels: { [key: string]: string } = {
-      display_name: 'Nome File',
-      descrizione: 'Descrizione',
-      type: 'Tipo',
-      quantita: 'Quantità'
-    };
+  // Etichette personalizzate per i campi noti
+  const customLabels: { [key: string]: string } = {
+    display_name: 'Nome File',
+    descrizione: 'Descrizione',
+    type: 'Tipo',
+    quantita: 'Quantità'
+  };
 
-    // Trasforma le entry in array con chiave, etichetta formattata e valore
-    const entries = Object.entries(context).map(([key, value]) => ({
+  // Chiavi da escludere dalla visualizzazione (es. 'angolazione' è tecnica)
+  const chiaviDaEscludere = ['angolazione'];
+
+  // Costruisco un array con chiave, etichetta leggibile e valore (convertito in stringa)
+  const entries = Object.entries(context)
+    // Rimuovo eventuali chiavi che non devono essere mostrate
+    .filter(([key]) => !chiaviDaEscludere.includes(key))
+    // Formatto ogni entry con etichetta e valore
+    .map(([key, value]) => ({
       key,
+      // Se presente una label personalizzata, la uso; altrimenti capitalizzo la chiave
       label: customLabels[key] || key.replace(/_/g, ' ').replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.slice(1)),
       value: value ?? ''
     }));
 
-    // Ordina prima le chiavi definite in ordine, poi le altre
-    return [
-      ...entries.filter(e => ordine.includes(e.key)).sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
-      ...entries.filter(e => !ordine.includes(e.key))
-    ];
-  }
+  // Restituisco le entry ordinate: prima quelle nell'elenco 'ordine', poi le restanti
+  return [
+    ...entries
+      .filter(e => ordine.includes(e.key))
+      .sort((a, b) => ordine.indexOf(a.key) - ordine.indexOf(b.key)),
+    ...entries
+      .filter(e => !ordine.includes(e.key))
+  ];
+}
 
 
 

@@ -608,8 +608,12 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   }
 
 
-  formatKeyLabel(key: string): string {
-    return key.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, char => char.toUpperCase());
-  }
+formatKeyLabel(key: string): string {
+  if (key === 'display_name') return 'Nome';
+  return key
+    .replace(/_/g, ' ')                   // sostituisce "_" con spazio
+    .toLowerCase()                        // converte tutto in minuscolo
+    .replace(/\b\w/g, char => char.toUpperCase()); // mette maiuscola all'inizio di ogni parola
+}
 
 }
