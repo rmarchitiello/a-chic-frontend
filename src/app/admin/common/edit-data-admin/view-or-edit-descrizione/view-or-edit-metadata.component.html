@@ -20,14 +20,24 @@
       {{ context.value }}
     </p>
 
-    <!-- Input modificabile -->
-    <input
-      *ngIf="isEditing"
-      class="campo-input"
-      [(ngModel)]="mediaContextMap[context.key]"
-      [placeholder]="context.key"
-      [type]="isCampoNumerico(context.key) ? 'number' : 'text'"
-    />
+    <!-- MODIFICA DEGLI INPUTS-->
+<!-- Se il campo è "descrizione", usa textarea -->
+<textarea
+  *ngIf="isEditing && context.key === 'descrizione'"
+  class="campo-input"
+  [(ngModel)]="mediaContextMap[context.key]"
+  [placeholder]="context.key"
+  rows="3"
+></textarea>
+
+<!-- Per tutti gli altri campi, usa input normale -->
+<input
+  *ngIf="isEditing && context.key !== 'descrizione'"
+  class="campo-input"
+  [(ngModel)]="mediaContextMap[context.key]"
+  [placeholder]="context.key"
+  [type]="isCampoNumerico(context.key) ? 'number' : 'text'"
+/>
   </div>
 
   <!-- Pulsante Conferma modifiche (visibile solo se serve confermare) -->

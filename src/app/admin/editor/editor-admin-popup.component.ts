@@ -428,9 +428,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //dato che alcuni dei campi del context sono molto lunghi con questo metodo calcolo i caratteri di ogni context cosi
   //mostro una preview sul sito
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
-  getPreview(value: string, max = 40): string {
+  getPreview(value: string, max = 25): string {
     if (typeof value !== 'string') return value as any;
-    return value.length > max ? value.slice(0, max) : value;
+    return value.length > max ? value.slice(0, max) +' ...' : value;
   }
   //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
   //se lo supera torna true
