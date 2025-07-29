@@ -4,10 +4,9 @@
 .dialog-content {
   height: 100%;
   padding: 2.5rem;
-    z-index: 1100; /* più alto di 1000 della chiudi-btn per contesto stacking */
-
   position: relative;
-  overflow: visible !important; /* assicurati che bottone non venga tagliato */
+  overflow: visible;
+  z-index: 1000; // Più basso della chiudi-btn
 
   .preview-container {
     display: flex;

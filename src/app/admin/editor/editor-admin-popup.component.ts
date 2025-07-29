@@ -94,7 +94,7 @@ import { ViewOrEditMetadataComponent } from '../common/edit-data-admin/view-or-e
   selector: 'app-carosello-edit',
   standalone: true,
   templateUrl: './editor-admin-popup.component.html',
-  styleUrls: ['./editor-admin-popup.component.scss', '../../../styles.scss'],
+  styleUrl: './editor-admin-popup.component.scss',
   imports: [CommonModule, MatIconModule, MatTooltipModule]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {

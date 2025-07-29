@@ -147,27 +147,33 @@ html, body {
   overflow: visible !important; // Permette ai contenuti (es. tooltip, overlay) di uscire dal contenitore
 }
 
-/* Forza visibilità e z-index alto al pulsante di chiusura SERVE PER IL POP UP E LO RENDO GLOBALE*/
+/* Forza visibilità e z-index alto al pulsante di chiusura — SERVE PER IL POP UP E LO RENDO GLOBALE */
 .chiudi-btn {
-  position: absolute !important;
-  top: 1rem !important;
-  right: 1rem !important;
-  z-index: 11000 !important;
-  background: transparent !important;
-  border: none !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 11000;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Forza lo stile dell'icona all'interno del bottone */
+/* Stile globale per mat-icon all'interno del pulsante chiusura */
 .chiudi-btn mat-icon {
-  color: #000 !important;       /* colore nero o quello che preferisci */
-  font-size: 28px !important;   /* dimensione icona più grande */
-  opacity: 1 !important;        /* assicurati che sia visibile */
-  display: block !important;    /* visualizza l'icona come blocco */
+  color: #000;
+  font-size: 28px;
+  opacity: 1;
+  display: block;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
+  font-family: 'Material Icons'; /* Forza il font corretto */
 }
+
+
 
 
 /* Forza overflow visibile sui contenitori dialog Angular Material */
