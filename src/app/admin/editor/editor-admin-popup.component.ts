@@ -465,36 +465,36 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   */
 
   //apro solo il pop up della descrizione se passo onlyView vedo solo il pop up in fase di visualizzazione e non di editing
-apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: MediaContext): void {
-  // Log iniziale per confermare la modalità del popup (visualizzazione o modifica)
-  console.log("Pop up di edit in sola fase di visualizzazione: ", onlyView);
+  apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: MediaContext): void {
+    // Log iniziale per confermare la modalità del popup (visualizzazione o modifica)
+    console.log("Pop up di edit in sola fase di visualizzazione: ", onlyView);
 
-  // Inizializzo la variabile che conterrà il context privo della chiave "angolazione"
-  let contextSenzaAngolazione: MediaContext | undefined = undefined;
+    // Inizializzo la variabile che conterrà il context privo della chiave "angolazione"
+    let contextSenzaAngolazione: MediaContext | undefined = undefined;
 
-  // Se il context è valido, rimuovo la chiave "angolazione" per evitare di modificarla
-  if (context) {
-    contextSenzaAngolazione = Object.fromEntries(
-      Object.entries(context).filter(([key, _]) => key !== 'angolazione')
-    );
-    console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
+    // Se il context è valido, rimuovo la chiave "angolazione" per evitare di modificarla
+    if (context) {
+      contextSenzaAngolazione = Object.fromEntries(
+        Object.entries(context).filter(([key, _]) => key !== 'angolazione')
+      );
+      console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
+    }
+
+    // Apertura del dialog Angular Material per il componente ViewOrEditMetadataComponent
+    this.dialog.open(ViewOrEditMetadataComponent, {
+      data: {
+        urlFrontale: url,                         // URL dell'immagine selezionata
+        onlyView: onlyView,                       // Flag che determina se mostrare solo in lettura
+        context: contextSenzaAngolazione          // Metadati senza angolazione
+      },
+      // Specifico la larghezza solo se non siamo in modalità view-only
+      ...(onlyView ? {} : { width: '1000px', height: '1000px' }),
+      // Applico una classe CSS diversa in base alla modalità
+      panelClass: onlyView
+        ? 'popup-descrizione-viewonly'            // Stile visivo per modalità sola lettura
+        : 'popup-descrizione-dialog'              // Stile per modalità modifica completa
+    });
   }
-
-  // Apertura del dialog Angular Material per il componente ViewOrEditMetadataComponent
-  this.dialog.open(ViewOrEditMetadataComponent, {
-    data: {
-      urlFrontale: url,                         // URL dell'immagine selezionata
-      onlyView: onlyView,                       // Flag che determina se mostrare solo in lettura
-      context: contextSenzaAngolazione          // Metadati senza angolazione
-    },
-    // Specifico la larghezza solo se non siamo in modalità view-only
-  ...(onlyView ? {} : { width: '1000px', height: '1000px' }),
-    // Applico una classe CSS diversa in base alla modalità
-    panelClass: onlyView
-      ? 'popup-descrizione-viewonly'            // Stile visivo per modalità sola lettura
-      : 'popup-descrizione-dialog'              // Stile per modalità modifica completa
-  });
-}
 
 
 
@@ -609,11 +609,15 @@ apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: Me
   //input che serve per caricare il file
 
   apriPopUpUploadMedia() {
+
     this.dialog.open(UploadDataAdminComponent, {
-      width: '90vw',
-      disableClose: false,
-      data: this.folderInput
-    });
+  width: '1000px',
+  height: '1000px',
+  panelClass: 'upload-dialog',
+  disableClose: false,
+  data: this.folderInput
+});
+
 
   }
 

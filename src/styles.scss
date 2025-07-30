@@ -147,6 +147,64 @@ html, body {
   overflow: visible !important; // Permette ai contenuti (es. tooltip, overlay) di uscire dal contenitore
 }
 
+
+
+/* ============================================================
+   DIALOG UPLOAD: Scroll naturale con MDC (Material Design Components)
+   Applicato con: panelClass: 'upload-dialog'
+
+   Obiettivo:
+   - Consentire che il contenuto interno del dialog scrolli
+     solo se eccede l’altezza disponibile.
+   - Evitare scroll del contenitore esterno (container).
+   - Rimuovere margini/padding inutili che causano layout errato.
+============================================================ */
+
+/* 🔹 Stilizzo il contenitore esterno del dialog (involucro generale) */
+::ng-deep .upload-dialog .mat-mdc-dialog-container {
+  width: 1000px;
+  height: 1000px;
+  max-height: 1000px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* 🔸 Contenuto scrollabile interno */
+::ng-deep .upload-dialog .mat-mdc-dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Cruciale per scroll interno in layout flex
+}
+/* SI METTE CONTAINER E CONTENT PERCHE NEL DOM VEDO 
+
+<!-- Overlay generato automaticamente da Angular Material -->
+<div class="cdk-overlay-container">
+  <div class="cdk-overlay-backdrop"></div>
+
+  <!-- Contenitore del dialog -->
+  <div class="cdk-global-overlay-wrapper">
+    <div class="cdk-overlay-pane upload-dialog"> <!-- 👈 panelClass: 'upload-dialog' -->
+      
+      <!-- Contenitore MDC del dialog -->
+      <div class="mat-mdc-dialog-container">
+        
+        <!-- Corpo del tuo contenuto -->
+        <mat-dialog-content class="mat-mdc-dialog-content">
+          <!-- Qui dentro c'è il tuo HTML personalizzato -->
+          <div class="upload-dialog-container">
+            <!-- Esempio: drag-and-drop, tabella, bottoni, ecc. -->
+          </div>
+        </mat-dialog-content>
+
+      </div>
+    </div>
+  </div>
+</div> */
+
 /* Forza visibilità e z-index alto al pulsante di chiusura — SERVE PER IL POP UP E LO RENDO GLOBALE */
 .chiudi-btn {
   position: absolute;
@@ -217,3 +275,4 @@ html, body {
      </span>
    </div>
 ============================================================ */
+

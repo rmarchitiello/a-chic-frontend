@@ -1,26 +1,184 @@
-/* ========================================
-   CONTENITORE PRINCIPALE DEL DIALOG
-   ======================================== */
-.dialog-scroll-content {
-  position: relative;
-  padding-top: 3rem;
-  padding-bottom: 2rem;
-  max-height: 85vh;
-  overflow-y: auto;
 
-  &::-webkit-scrollbar {
-    width: 6px;
+
+/* ============================================================================
+   HEADER NON SCROLLABILE (chiudi, drop-area, azioni)
+============================================================================ */
+  .upload-header {
+    flex-shrink: 0;
+    padding: 1rem;
+    position: relative;
+    z-index: 2;
+    box-shadow: none;
+
+    // Sfondo uniforme + bordi curvi in alto
+    background-color: #e0eff9;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+
+    // Inserisco eventualmente un'ombra soft sotto l'header
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
+/* ============================================================================
+   DROP AREA (TRASCINAMENTO FILE) - UNIFORMATA CON HEADER
+============================================================================ */
+.upload-drop-area {
+  border: none;
+  background: #e0eff9; // Colore coerente con header
+  border-radius: 12px;
+  padding: 48px 24px;
+  text-align: center;
+  margin: 1rem auto;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &.hover-active {
+    background: #d6e8f5;
+    box-shadow: 0 0 10px rgba(28, 125, 194, 0.2);
+  }
+
+  .upload-instructions {
+    font-size: 1.2rem;
+    color: #1c1c1c;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  button[mat-stroked-button] {
+    font-weight: 600;
+    font-size: 15px;
+    padding: 10px 24px;
+    cursor: pointer;
+    border-radius: 6px;
+    background-color: #ffffff;
+    border: 1px solid #1c7dc2;
+    color: #1c7dc2;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f0f8fc;
+      box-shadow: 0 2px 6px rgba(28, 125, 194, 0.3);
+    }
+  }
+
+}
+
+
+/* ============================================================================
+   BOTTONI AZIONE (Carica tutto + Rimuovi tutti i file)
+============================================================================ */
+.bottoni-azione {
+  flex-shrink: 0;
+  padding: 1rem;
+  background-color: transparent;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.04);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+
+  button[mat-flat-button] {
+    padding: 10px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 15px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    min-width: 180px;
+
+    // Stile per il bottone blu (carica)
+    &.mat-primary {
+      background-color: #1c7dc2;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #1668a8;
+        box-shadow: 0 2px 6px rgba(28, 125, 194, 0.3);
+      }
+
+      &:disabled {
+        background-color: #a0c6e0;
+        color: #f2f2f2;
+        cursor: not-allowed;
+        opacity: 0.8;
+      }
+    }
+
+    // Stile per il bottone rosso (rimuovi)
+    &.mat-warn {
+      background-color: #ef5350;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background-color: #d32f2f;
+        box-shadow: 0 2px 6px rgba(239, 83, 80, 0.3);
+      }
+
+      &:disabled {
+        background-color: #f7b9b8;
+        color: #f2f2f2;
+        cursor: not-allowed;
+        opacity: 0.8;
+      }
+    }
   }
 }
 
-/* ========================================
-   OVERLAY DURANTE UPLOAD
-   ======================================== */
+
+
+/* ============================================================================
+   AZIONI PRINCIPALI (CARICA TUTTO + RIMUOVI TUTTO) - SEMPRE VISIBILI
+============================================================================ */
+.upload-actions-fixed {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem auto;
+  max-width: 1000px;
+
+  button {
+    font-weight: 600;
+    padding: 12px 28px;
+    font-size: 15px;
+    border-radius: 8px;
+    background-color: #1976d2;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #1565c0;
+      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
+    }
+
+    &.mat-warn {
+      background-color: #e53935;
+
+      &:hover {
+        background-color: #c62828;
+        box-shadow: 0 4px 12px rgba(198, 40, 40, 0.25);
+      }
+    }
+  }
+}
+
+/* ============================================================================
+   CORPO PRINCIPALE CON SCROLL (solo tabella e anteprima)
+============================================================================ */
+.upload-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================================
+   OVERLAY CON SPINNER DURANTE L'UPLOAD
+============================================================================ */
 .upload-overlay {
   position: fixed;
   inset: 0;
@@ -39,108 +197,20 @@
   }
 }
 
-/* ========================================
-   CONTENUTO PRINCIPALE SFUMATO DURANTE UPLOAD
-   ======================================== */
-.upload-main-content.blur {
+/* ============================================================================
+   SFUMATURA CONTENUTI DURANTE L'UPLOAD
+============================================================================ */
+.upload-scroll-body.blur,
+.upload-header.blur {
   filter: blur(4px);
   pointer-events: none;
   user-select: none;
 }
 
-/* ========================================
-   AREA DROP FILE
-   ======================================== */
-.upload-drop-area {
-  border: 2px dashed #90caf9;
-  background: #f3faff;
-  border-radius: 12px;
-  padding: 48px 24px;
-  text-align: center;
-  margin: 1rem auto;
-  transition: all 0.3s ease;
-  cursor: pointer;
-
-  &.hover-active {
-    background: #e3f2fd;
-    border-color: #1976d2;
-    box-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
-  }
-
-  .upload-instructions {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 16px;
-    line-height: 1.6;
-  }
-
-  button[mat-stroked-button] {
-    font-weight: 600;
-    font-size: 15px;
-    padding: 10px 24px;
-    border-radius: 6px;
-    background-color: white;
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: #e3f2fd;
-      box-shadow: 0 2px 8px rgba(66, 165, 245, 0.3);
-    }
-  }
-}
-
-/* ========================================
-   PULSANTE CARICA TUTTO
-   ======================================== */
-.upload-action {
-  text-align: center;
-  margin: 24px 0;
-
-  button {
-    font-weight: 600;
-    padding: 12px 28px;
-    font-size: 15px;
-    border-radius: 8px;
-    background-color: #1976d2;
-    color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: #1565c0;
-      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
-    }
-  }
-}
-
-/* ========================================
-   CONTAINER ANTEPRIMA
-   ======================================== */
+/* ============================================================================
+   ANTEPRIMA FILE (TABELLA)
+============================================================================ */
 .anteprima-container {
-  margin-top: 2rem;
-
-  .anteprima-header {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1rem;
-
-    button {
-      font-weight: 500;
-      padding: 6px 16px;
-      font-size: 14px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      background-color: #fafafa;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        background-color: #f0f0f0;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
-    }
-  }
-
   .upload-table {
     width: 100%;
     border-radius: 10px;
@@ -211,9 +281,9 @@
   }
 }
 
-/* ========================================
-   METADATI FILE
-   ======================================== */
+/* ============================================================================
+   METADATI DEL FILE VISUALIZZATI
+============================================================================ */
 .file-metadata {
   margin-top: 12px;
   font-size: 0.9rem;
@@ -232,9 +302,9 @@
   }
 }
 
-/* ========================================
-   BOTTONI DI AZIONE (edit / delete)
-   ======================================== */
+/* ============================================================================
+   GRUPPO BOTTONI DI AZIONE (MODIFICA / RIMUOVI)
+============================================================================ */
 .azioni-btn-group {
   display: flex;
   gap: 12px;
@@ -264,17 +334,4 @@
       transform: scale(1.2);
     }
   }
-}
-
-
-
-/* ========================================
-   NG-DEEP PER CONTAINER DIALOG
-   ======================================== */
-::ng-deep .mat-dialog-container {
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  max-width: 100vw;
-  max-height: 90vh !important;
-  box-sizing: border-box;
 }

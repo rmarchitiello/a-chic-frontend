@@ -1,113 +1,135 @@
-<mat-dialog-content class="dialog-scroll-content">
-
-  <!-- Pulsante fisso per chiudere il dialog -->
+<!-- HEADER: parte fissa fuori da mat-dialog-content -->
+<div class="upload-header" [class.blur]="uploadInCorso">
+  <!-- Pulsante per chiudere il dialog -->
   <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!uploadInCorso" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
-  <!-- Overlay con spinner durante upload -->
+  <!-- Area drag & drop -->
+  <div class="upload-drop-area" [class.hover-active]="isHovering" (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+    <p class="upload-instructions">
+      Trascina qui uno o più file da caricare<br />oppure
+    </p>
+    <button mat-stroked-button color="primary" (click)="fileInput.click()">
+      Seleziona dal dispositivo
+    </button>
+    <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
+  </div>
+</div>
+
+<div class="bottoni-azione">
+  <!-- Pulsante Carica Tutto -->
+  <div class="upload-action" *ngIf="filesDaCaricare.length > 0 && fileSelezionatoComeFrontale">
+    <button
+      mat-flat-button
+      color="primary"
+      class="mat-primary"
+      (click)="uploadFiles()"
+      [disabled]="uploadInCorso"
+    >
+      {{ uploadInCorso ? 'Caricamento in corso...' : 'Carica tutto' }}
+    </button>
+  </div>
+
+  <!-- Pulsante Rimuovi Tutti -->
+  <div class="anteprima-header" *ngIf="filesDaCaricare.length > 0">
+    <button
+      mat-flat-button
+      color="warn"
+      class="mat-warn"
+      (click)="rimuoviTuttiIFiles()"
+      *ngIf="!uploadInCorso"
+    >
+      Rimuovi tutti i file da caricare
+    </button>
+  </div>
+</div>
+
+
+<!-- Contenuto scrollabile -->
+<mat-dialog-content class="upload-scroll-content">
+
+  <!-- Overlay con spinner durante l'upload -->
   <div class="upload-overlay" *ngIf="uploadInCorso">
     <mat-spinner diameter="48"></mat-spinner>
     <p>Caricamento in corso...</p>
   </div>
 
-  <!-- Contenuto principale -->
-  <div class="upload-main-content" [class.blur]="uploadInCorso">
+  <!-- Corpo scrollabile -->
+  <div class="upload-scroll-body" [class.blur]="uploadInCorso">
 
-    <!-- Area drag-and-drop -->
-    <div class="upload-drop-area" [class.hover-active]="isHovering" (dragover)="onDragOver($event)"
-      (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-      <p class="upload-instructions">Trascina qui uno o più file da caricare<br />oppure</p>
-      <button mat-stroked-button color="primary" (click)="fileInput.click()">Seleziona dal dispositivo</button>
-      <input #fileInput type="file" multiple accept="*/*" hidden (change)="onFileSelected($event)" />
-    </div>
-
-    <!-- Pulsante Carica Tutto -->
-    <div    class="upload-action" *ngIf="filesDaCaricare.length > 0 && fileSelezionatoComeFrontale">
-      <button mat-flat-button color="primary" (click)="uploadFiles()" [disabled]="uploadInCorso">
-        {{ uploadInCorso ? 'Caricamento in corso...' : 'Carica tutto' }}
-      </button>
-    </div>
-
-    <!-- Anteprima file -->
+    <!-- Anteprima dei file (scroll interno su questa sezione) -->
     <div class="anteprima-container" *ngIf="filesDaCaricare.length > 0">
-      <div class="anteprima-header">
-        <button mat-flat-button color="warn" (click)="rimuoviTuttiIFiles()" *ngIf="!uploadInCorso">
-          Rimuovi tutti i file da caricare
-        </button>
-      </div>
+      <!-- Tabella file scrollabile -->
+      <div class="tabella-scrollabile">
+        <table mat-table [dataSource]="filesDaCaricare" class="upload-table mat-elevation-z1">
 
-      <!-- Tabella -->
-      <table mat-table [dataSource]="filesDaCaricare" class="upload-table mat-elevation-z1">
-
-        <!-- ANTEPRIMA -->
-        <ng-container matColumnDef="anteprima">
-          <th mat-header-cell *matHeaderCellDef>Altre angolazioni</th>
-          <td mat-cell *matCellDef="let file">
-            <div class="file-preview-wrapper">
-              <ng-container *ngIf="anteprimeFile.has(file)">
-                <ng-container [ngSwitch]="file.type.split('/')[0]">
-                  <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)" [alt]="file.name" />
-                  <video *ngSwitchCase="'video'" class="file-thumb" [src]="anteprimeFile.get(file)" muted></video>
-                  <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls
-                    [src]="anteprimeFile.get(file)"></audio>
-                  <div *ngSwitchDefault class="file-icon">📁</div>
+          <!-- ANTEPRIMA -->
+          <ng-container matColumnDef="anteprima">
+            <th mat-header-cell *matHeaderCellDef>Altre angolazioni</th>
+            <td mat-cell *matCellDef="let file">
+              <div class="file-preview-wrapper">
+                <ng-container *ngIf="anteprimeFile.has(file)">
+                  <ng-container [ngSwitch]="file.type.split('/')[0]">
+                    <img *ngSwitchCase="'image'" class="file-thumb" [src]="anteprimeFile.get(file)" [alt]="file.name" />
+                    <video *ngSwitchCase="'video'" class="file-thumb" [src]="anteprimeFile.get(file)" muted></video>
+                    <audio *ngSwitchCase="'audio'" class="file-thumb-audio" controls
+                      [src]="anteprimeFile.get(file)"></audio>
+                    <div *ngSwitchDefault class="file-icon">📁</div>
+                  </ng-container>
                 </ng-container>
-              </ng-container>
-              <!-- Icona di stato -->
-              <mat-icon *ngIf="statoUpload.get(file) === 'ok'" class="stato-icon stato-ok" matTooltip="Caricato">check_circle</mat-icon>
-              <mat-icon *ngIf="statoUpload.get(file) === 'ko'" class="stato-icon stato-ko"
-                [matTooltip]="motiviErroreUpload.get(file)" matTooltipPosition="above">error</mat-icon>
-            </div>
-          </td>
-        </ng-container>
-
-        <!-- FRONTALE -->
-        <ng-container matColumnDef="frontale">
-          <th mat-header-cell *matHeaderCellDef>Frontale</th>
-          <td mat-cell *matCellDef="let file">
-<mat-radio-button
-  [value]="file"
-  [checked]="fileSelezionatoComeFrontale === file"
-  (change)="selezionaFrontale(file, true)"
-  matTooltip="Seleziona come immagine frontale">
-</mat-radio-button>
-
-
-            <!-- Metadati del frontale -->
-            <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">
-              <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">
-                <strong *ngIf="chiave.key !== 'angolazione'">{{ formatKeyLabel(chiave.key) }}:</strong> <span *ngIf="chiave.key !== 'angolazione'"> {{ chiave.value || '—' }}</span>
+                <mat-icon *ngIf="statoUpload.get(file) === 'ok'" class="stato-icon stato-ok" matTooltip="Caricato">
+                  check_circle
+                </mat-icon>
+                <mat-icon *ngIf="statoUpload.get(file) === 'ko'" class="stato-icon stato-ko"
+                  [matTooltip]="motiviErroreUpload.get(file)" matTooltipPosition="above">
+                  error
+                </mat-icon>
               </div>
-            </div>
-          </td>
-        </ng-container>
+            </td>
+          </ng-container>
 
-        <!-- AZIONI -->
-        <ng-container matColumnDef="azioni">
-          <th mat-header-cell *matHeaderCellDef>Azioni</th>
-          <td mat-cell *matCellDef="let file">
-            <div class="azioni-btn-group">
-              <button mat-icon-button color="primary"
-                *ngIf="fileSelezionatoComeFrontale === file && statoUpload.get(file) !== 'ok'"
-                (click)="apriPopUpEditFile(file)" matTooltip="Modifica metadati">
-                <mat-icon>edit</mat-icon>
-              </button>
+          <!-- FRONTALE -->
+          <ng-container matColumnDef="frontale">
+            <th mat-header-cell *matHeaderCellDef>Frontale</th>
+            <td mat-cell *matCellDef="let file">
+              <mat-radio-button [value]="file" [checked]="fileSelezionatoComeFrontale === file"
+                (change)="selezionaFrontale(file, true)" matTooltip="Seleziona come immagine frontale">
+              </mat-radio-button>
 
-              <button mat-icon-button color="warn"
-                *ngIf="statoUpload.get(file) !== 'ok'"
-                (click)="rimuoviFile(file)" matTooltip="Rimuovi file">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </div>
-          </td>
-        </ng-container>
+              <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">
+                <div *ngFor="let chiave of metadatiPerFile.get(file) | keyvalue">
+                  <strong *ngIf="chiave.key !== 'angolazione'">{{ formatKeyLabel(chiave.key) }}:</strong>
+                  <span *ngIf="chiave.key !== 'angolazione'"> {{ chiave.value || '—' }}</span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
 
-        <!-- HEADER E RIGA -->
-        <tr mat-header-row *matHeaderRowDef="['anteprima', 'frontale', 'azioni']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['anteprima', 'frontale', 'azioni']"></tr>
-      </table>
+          <!-- AZIONI -->
+          <ng-container matColumnDef="azioni">
+            <th mat-header-cell *matHeaderCellDef>Azioni</th>
+            <td mat-cell *matCellDef="let file">
+              <div class="azioni-btn-group">
+                <button mat-icon-button color="primary"
+                  *ngIf="fileSelezionatoComeFrontale === file && statoUpload.get(file) !== 'ok'"
+                  (click)="apriPopUpEditFile(file)" matTooltip="Modifica metadati">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" *ngIf="statoUpload.get(file) !== 'ok'" (click)="rimuoviFile(file)"
+                  matTooltip="Rimuovi file">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
 
+          <!-- Header e righe -->
+          <tr mat-header-row *matHeaderRowDef="['anteprima', 'frontale', 'azioni']"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['anteprima', 'frontale', 'azioni']"></tr>
+        </table>
+      </div>
     </div>
   </div>
 </mat-dialog-content>

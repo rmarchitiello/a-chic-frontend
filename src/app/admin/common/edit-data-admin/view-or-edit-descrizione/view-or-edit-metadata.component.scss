@@ -37,7 +37,7 @@
   /* Contenitore scrollabile del contenuto principale */
   .scroll-container {
     flex: 1 1 auto;
-    max-height: 100%;
+    max-height: 100%; //scrolla quando raggiungo il 100% della view
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 8px; // spazio per scrollbar
