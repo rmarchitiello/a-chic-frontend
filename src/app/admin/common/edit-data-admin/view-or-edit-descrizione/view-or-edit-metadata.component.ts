@@ -69,26 +69,37 @@ export class ViewOrEditMetadataComponent implements OnInit {
   /**
    * Abilita la modalità modifica
    */
+
+  //in fase di modifica devo poter aggiungere i metadata
+addMetadatas: boolean = false;
+
   attivaModifica(): void {
     this.isEditing = true;
+    this.addMetadatas = true;
     this.modificaInAttesaDiConferma = false;
   }
 
   /**
    * Salva le modifiche localmente e abilita il pulsante "Conferma"
    */
-  salvaModifica(): void {
-    this.isEditing = false;
+salvaModifica(): void {
+  //  Disattiva la modalità di editing: torna alla visualizzazione normale
+  this.isEditing = false;
+  this.addMetadatas = false;
+  //  Converte l'oggetto attuale dei metadati (modificato dall'utente) in stringa JSON
+  const nuovoContext = JSON.stringify(this.mediaContextMap);
 
-    const nuovoContext = JSON.stringify(this.mediaContextMap);
-    const originale = JSON.stringify(
-      Object.fromEntries(
-        Object.entries(this.originalContext).map(([k, v]) => [k, String(v ?? '')])
-      )
-    );
+  //  Converte l'oggetto dei metadati originali (prima della modifica) in stringa JSON
+  //  Converte ogni valore in stringa (es. numeri -> "42") per confronto coerente
+  const originale = JSON.stringify(
+    Object.fromEntries(
+      Object.entries(this.originalContext).map(([k, v]) => [k, String(v ?? '')])
+    )
+  );
 
-    this.modificaInAttesaDiConferma = nuovoContext !== originale;
-  }
+  //  Se il nuovo contesto è diverso da quello originale, segnala che c'è una modifica da confermare
+  this.modificaInAttesaDiConferma = nuovoContext !== originale;
+}
 
   /**
    * Ripristina i valori originali
@@ -98,6 +109,7 @@ export class ViewOrEditMetadataComponent implements OnInit {
       Object.entries(this.originalContext).map(([key, value]) => [key, String(value ?? '')])
     );
     this.isEditing = false;
+    this.addMetadatas = true;
     this.modificaInAttesaDiConferma = false;
   }
 

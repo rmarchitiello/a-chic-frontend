@@ -4,19 +4,17 @@
 <div class="popup-container">
 
   <!-- ===============================
-       PULSANTE DI CHIUSURA (ANG. DESTRO)
+       PULSANTE DI CHIUSURA
   ================================ -->
-  <button class="chiudi-btn" (click)="chiudiDialog()" matTooltip="chiudi" aria-label="Chiudi popup">
+  <button class="chiudi-btn" (click)="chiudiDialog()" matTooltip="Chiudi" aria-label="Chiudi popup">
     <mat-icon>close</mat-icon>
   </button>
 
   <!-- ===============================
        CONTENITORE SCROLLABILE INTERNO
-       Tutto il contenuto scorre qui
   ================================ -->
   <div class="scroll-container">
 
-    
     <!-- ===============================
          MODALITÀ MODIFICA
     ================================ -->
@@ -25,18 +23,18 @@
       <!-- Titolo -->
       <h2>Modifica dei metadati</h2>
 
-      <!-- Ciclo sui metadati -->
+      <!-- Ciclo sui metadati modificabili -->
       <div *ngFor="let context of contextModificabile(); trackBy: trackByKey">
 
-        <!-- Chiave formattata -->
+        <!-- Etichetta del campo -->
         <p class="campo-key">{{ normalizzaChiave(context.key) }}</p>
 
-        <!-- Valore in sola lettura (se non in editing) -->
+        <!-- Valore in sola lettura -->
         <p class="descrizione-testo" *ngIf="!isEditing">
           {{ context.value }}
         </p>
 
-        <!-- Textarea solo per 'descrizione' (in modifica) -->
+        <!-- Textarea per 'descrizione' -->
         <textarea
           *ngIf="isEditing && context.key === 'descrizione'"
           class="descrizione-textarea"
@@ -45,7 +43,7 @@
           rows="5">
         </textarea>
 
-        <!-- Input per altri campi (in modifica) -->
+        <!-- Input per altri campi -->
         <input
           *ngIf="isEditing && context.key !== 'descrizione'"
           class="campo-input"
@@ -54,32 +52,33 @@
           [type]="isCampoNumerico(context.key) ? 'number' : 'text'" />
       </div>
 
-      <!-- Pulsante di conferma modifiche -->
-      <div *ngIf="modificaInAttesaDiConferma" class="azioni-finali">
+      <!-- ===============================
+           AZIONI UTENTE (piedino)
+      ================================ -->
+      <div class="azioni-popup-unificate">
+
+        <!-- Pulsante di conferma (compare solo se c'è una modifica non ancora inviata) -->
         <button
+          *ngIf="modificaInAttesaDiConferma"
           mat-stroked-button
           color="accent"
           class="btn-conferma"
           (click)="confermaModificaContext()">
           Conferma
         </button>
-      </div>
 
-      <!-- Azioni: modifica / salva / annulla -->
-      <div class="azioni-popup">
-
-        <!-- Attiva modifica -->
+        <!-- Pulsante Modifica (riappare anche dopo un salvataggio) -->
         <button
+          *ngIf="!isEditing"
           mat-icon-button
           class="btn-edit-icon"
           matTooltip="Modifica"
-          *ngIf="!isEditing"
           (click)="attivaModifica()"
           aria-label="Modifica">
           <mat-icon>edit</mat-icon>
         </button>
 
-        <!-- Salva e annulla -->
+        <!-- Pulsanti Salva / Annulla visibili solo in modalità editing -->
         <div *ngIf="isEditing" class="azioni-editing">
           <button mat-raised-button color="primary" (click)="salvaModifica()">Salva</button>
           <button mat-button color="warn" (click)="annullaModifica()">Annulla</button>
@@ -91,31 +90,21 @@
     <!-- ===============================
          MODALITÀ SOLO VISUALIZZAZIONE
     ================================ -->
-<!-- ===============================
-     MODALITÀ VISUALIZZAZIONE (READ-ONLY)
-     Mostra solo i metadati tranne 'descrizione'
-=============================== -->
-<ng-template #soloVisualizzazione>
-  <div class="popup-container-only-view">
+    <ng-template #soloVisualizzazione>
+      <div class="popup-container-only-view">
+        <div class="viewonly-content-wrapper">
 
-    <!-- Contenuto in sola lettura -->
-    <div class="viewonly-content-wrapper">
+          <!-- Ciclo solo su 'descrizione' -->
+          <div
+            class="context-entry"
+            *ngFor="let context of contextVisualizzabile(); trackBy: trackByKey">
 
-      <!-- Ciclo su tutte le chiavi, ESCLUDENDO 'descrizione' -->
-      <div
-        class="context-entry"
-        *ngFor="let context of contextVisualizzabile(); trackBy: trackByKey">
-
-        <!-- Etichetta della chiave (es. Quantità, Tipo, ecc.) -->
-
-        <!-- Valore corrispondente -->
-        <span class="context-value">{{ context.value }}</span>
+            <span class="context-value">{{ context.value }}</span>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</ng-template>
-
-
+    </ng-template>
 
   </div> <!-- Fine scroll-container -->
+
 </div> <!-- Fine popup-container -->
