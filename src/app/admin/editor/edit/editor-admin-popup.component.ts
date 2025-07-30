@@ -624,7 +624,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
     // Apro il popup passando file e metadati
     const dialogRef = this.dialog.open(EditDataAdminComponent, {
-      panelClass: 'popup-metadati-dialog',
+      panelClass: 'popup-edit-metadati-dialog',
       data: {
         context: context
       }

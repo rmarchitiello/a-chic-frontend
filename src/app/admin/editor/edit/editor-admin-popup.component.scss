@@ -350,5 +350,33 @@
 }
 
 
-//qua devo aggiungere le classi per gestire il pop up di edit-data
-/* */
+/* Stile del contenitore principale del dialog centrato */
+::ng-deep .cdk-overlay-pane.popup-edit-metadati-dialog {
+  max-width: 600px !important;
+  width: 90vw !important;
+  max-height: 90vh !important;
+  margin: auto !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  z-index: 1100 !important;
+  border-radius: 16px !important; /* smussatura */
+}
+
+/* Superficie del popup con ombreggiatura e stile card */
+::ng-deep .popup-edit-metadati-dialog .mat-mdc-dialog-surface {
+  width: 100% !important;
+  height: auto !important;
+  background: #fff !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 2rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Contenuto con scroll se necessario */
+::ng-deep .popup-edit-metadati-dialog .mat-mdc-dialog-content {
+  overflow-y: auto !important;
+  max-height: 60vh !important;
+  padding: 1rem 0 !important;
+}
