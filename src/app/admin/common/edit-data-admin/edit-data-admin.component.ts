@@ -16,8 +16,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 // Interfaccia context usata nel componente padre
 import { MediaContext } from '../../../pages/home/home.component';
+
 
 @Component({
   selector: 'app-edit-context-before-upload',
@@ -29,7 +33,8 @@ import { MediaContext } from '../../../pages/home/home.component';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIcon
+    MatIcon,
+    MatSnackBarModule
   ],
   templateUrl: './edit-data-admin.component.html',
   styleUrl: './edit-data-admin.component.scss'
@@ -57,7 +62,8 @@ export class EditDataAdminComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } }
+    @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } },
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -108,7 +114,9 @@ aggiungiMetadato(): void {
 
   // 1) se l’utente sta lasciando a metà la riga corrente, avvisa e termina
   if (!(this.chiaveCompilata && this.valoreCompilato)) {
-    alert('Compila prima CHIAVE e VALORE della riga corrente');
+this.snackBar.open('Compila prima CHIAVE e VALORE della riga corrente', 'Chiudi', {
+  duration: 4000,
+});
     return;
   }
 
@@ -118,7 +126,9 @@ aggiungiMetadato(): void {
   const chiaviUniche = new Set(chiaviPulite);
 
   if (chiaviPulite.length !== chiaviUniche.size) {
-    alert('Attenzione: ci sono chiavi duplicate o vuote.');
+this.snackBar.open('Attenzione: ci sono chiavi duplicate o vuote.', 'Chiudi', {
+  duration: 4000,
+});
     return;
   }
 
@@ -190,8 +200,9 @@ conferma(): void {
   );
 
   if (righeIncomplete.length > 0) {
-    alert('Completa tutti i campi CHIAVE e VALORE prima di confermare.');
-    return;
+  this.snackBar.open('Compila prima CHIAVE e VALORE della riga corrente', 'Chiudi', {
+    duration: 4000,
+  });    return;
   }
 
   /* ───────────────────────────────────────────────────────
@@ -207,7 +218,9 @@ conferma(): void {
   );
 
   if (duplicate) {
-    alert(`La chiave "${duplicate}" è duplicata: modificala prima di confermare.`);
+this.snackBar.open(`La chiave "${duplicate}" è duplicata: modificala prima di confermare.`, 'Chiudi', {
+  duration: 4000,
+});
     return;
   }
 
@@ -224,8 +237,9 @@ conferma(): void {
     isNaN(quantitaNum) ||                        // non è un numero
     quantitaNum < 0                              // numero negativo
   ) {
-    alert('Inserisci una QUANTITÀ valida (numero ≥ 0).');
-    return;
+this.snackBar.open('Inserisci una QUANTITÀ valida (numero ≥ 0).', 'Chiudi', {
+  duration: 4000,
+});    return;
   }
 
   /* ───────────────────────────────────────────────────────
@@ -270,6 +284,10 @@ conferma(): void {
     return val.charAt(0).toUpperCase() + val.slice(1);
   }
 
+  trackByIndex(index: number, item: string): number {
+  return index;
+}
+
 
   /**
  * Gestisce la modifica del nome di una chiave da parte dell’utente.
@@ -289,7 +307,9 @@ onRenameChiave(index: number, nuovaChiave: string): void {
 
   // Se esiste già una chiave con lo stesso nome, blocco per evitare sovrascrittura
   if (this.mapContextInputData[nuovaChiave] !== undefined) {
-    alert('Chiave già esistente, scegline un’altra.');
+this.snackBar.open('Chiave già esistente, scegline un’altra.', 'Chiudi', {
+  duration: 4000,
+});
     return;
   }
 

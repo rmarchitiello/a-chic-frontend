@@ -17,7 +17,8 @@
 
       <!-- Ciclo su tutte le chiavi dei metadati -->
       <!-- Ciclo su tutte le chiavi dei metadati -->
-      <div class="metadata-pair" *ngFor="let chiave of tutteLeChiavi; let i = index"
+      <div class="metadata-pair" *ngFor="let chiave of tutteLeChiavi; let i = index; trackBy: trackByIndex"
+
         [ngClass]="{ 'duplicata': isChiaveDuplicata(chiave, i) }">
 
         <!-- Campo chiave (disabilitato se protetta) -->
