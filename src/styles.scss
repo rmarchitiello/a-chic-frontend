@@ -42,112 +42,211 @@ html, body {
   }
 }
 
-/* =============================================================
-   STILI GLOBALI PER TOOLTIP ANGULAR MATERIAL (matTooltip)
-   Garantisce compatibilità anche dentro i Dialog Material.
-   Va incluso in `styles.scss` per effetto globale.
-============================================================= */
+/* GESTIONE DEI POP UP E COME FUNZIONANO
+Quando si applica un pop up
 
-/* Overlay principale Angular Material */
-.cdk-overlay-container {
-  position: fixed !important;
-  z-index: 9999 !important;
-  overflow: visible !important;
+this.dialog.open(ComponentePopup, {
+  data: { ... },
+  panelClass: 'mia-classe-personalizzata'
+});
+
+viene generato nel dom
+
+<div class="cdk-overlay-container">
+  <div class="cdk-overlay-backdrop"></div>  <!-- Sfondo scuro (backdrop) -->
+  
+  <div class="cdk-global-overlay-wrapper">
+    <div class="cdk-overlay-pane mia-classe-personalizzata">  <!-- Classe personalizzata -->
+      <mat-dialog-container class="mat-mdc-dialog-container">
+        <div class="mat-mdc-dialog-inner-container">
+          <div class="mat-mdc-dialog-surface">
+            <!-- Contenuto del TUO componente -->
+            <app-mio-popup>
+              <mat-dialog-content>
+                <!-- Template del TUO componente -->
+              </mat-dialog-content>
+            </app-mio-popup>
+          </div>
+        </div>
+      </mat-dialog-container>
+    </div>
+  </div>
+</div>
+
+.cdk-overlay-container
+È il contenitore "globale" creato automaticamente da Angular CDK.
+
+Viene aggiunto direttamente al body.
+
+Non modificarlo manualmente se non in casi eccezionali.
+
+.cdk-overlay-backdrop
+È lo sfondo che rende scuro il resto della pagina quando un popup si apre.
+
+Può essere personalizzato con classi specifiche, se necessario.
+
+.cdk-overlay-pane
+È il pannello vero e proprio che ospita il popup.
+
+Qui puoi aggiungere una tua classe personalizzata tramite l’opzione panelClass nel metodo .open() del popup.
+
+Subito dopo..
+
+mat-dialog-container
+È il contenitore diretto del tuo popup.
+
+Ha classi predefinite Angular Material come .mat-mdc-dialog-container.
+
+Puoi personalizzare sfondi, padding, ecc. tramite il tuo CSS.
+
+
+app-mio-popup
+Questo è il tuo componente Angular (es: ViewOrEditDescrizioneComponent).
+
+Qui puoi definire il tuo template personalizzato e logica TypeScript.
+
+e nel mio pop up uso
+mat-dialog-content (opzionale ma consigliato)
+È un wrapper di contenuto che offre Angular Material.
+
+Consigliato perché ha stili predefiniti (padding automatico).
+
+*/
+
+/*
+Ora nell editor quandro apro il pop up
+
+  // Apertura del dialog Angular Material per il componente ViewMetadata
+this.dialog.open(ViewMetadata, {
+  data: { urlFrontale: url, context: context },
+  panelClass: 'popup-view-dialog' // Questo collega lo stile alla .cdk-overlay-pane
+});
 }
 
-/* Pane interno dell'overlay, che ospita i tooltip */
-.cdk-overlay-pane {
-  overflow: visible !important;
-  pointer-events: auto !important; // Permette hover e interazioni
-}
+nel dom avro <div id="cdk-overlay-1" class="cdk-overlay-pane popup-view-dialog mat-mdc-dialog-panel" style="position: static;">
 
-/* Tooltip di base Angular Material */
-::ng-deep .mat-tooltip {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  z-index: 10000 !important;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 13px;
-  white-space: normal !important;
-  max-width: 250px !important;
-  word-break: break-word;
-}
+e posso modificare qui il pop up come deve essere class="cdk-overlay-pane popup-view-dialog mat-mdc-dialog-panel
+e o lo faccio globalmente, o lo faccio nella classe che apre il pop up ovvero nel padre
+usando ng deep, invece qua lo sto facendo globale tanto sono sicuro che la modifica impatta solo li
 
-/* Tooltip panel container */
-::ng-deep .mat-tooltip-panel {
-  max-height: none !important;
-  overflow: visible !important;
-  pointer-events: auto !important;
-}
+Quando apro un pop up di material quel bordo grigio
+e delle classi base di material
+.mat-mdc-dialog-container
+.mdc-dialog__surface
 
-/* ============================================================
-   CLASSE PERSONALIZZATA PER TOOLTIP AMMINISTRATIVO
-   Da usare con: matTooltipClass="tooltip-admin"
-============================================================ */
-::ng-deep .tooltip-admin {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  color: #25d366 !important;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 1.6;
-  border-radius: 8px;
-  padding: 16px 20px;
-  max-width: 90vw;
-  max-height: 60vh;
-  white-space: normal !important;
-  word-break: break-word;
-  overflow-y: auto;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-  scrollbar-width: thin;
-  scrollbar-color: #999 transparent;
+che nel dom 
 
-  * {
-    background-color: transparent !important;
-    color: #000000 !important;
-    font-size: 15px !important;
-    line-height: 1.6 !important;
-  }
-}
+<div id="cdk-overlay-1" class="cdk-overlay-pane popup-view-dialog mat-mdc-dialog-panel" style="position: static;">
+	<div tabindex="0" class="cdk-visually-hidden cdk-focus-trap-anchor" aria-hidden="true"/>
+	<mat-dialog-container tabindex="-1" class="mat-mdc-dialog-container mdc-dialog cdk-dialog-container mdc-dialog--open" id="mat-mdc-dialog-1" role="dialog" aria-modal="false" style="--mat-dialog-transition-duration: 150ms;">
+		<div class="mat-mdc-dialog-inner-container mdc-dialog__container">
+			<div class="mat-mdc-dialog-surface mdc-dialog__surface">
 
-/* ============================================================
-   DIALOG: STILE PER MODIFICA COMPLETA
-   Applicato con: panelClass: 'popup-descrizione-dialog'
-============================================================ */
-::ng-deep .popup-descrizione-dialog .mat-mdc-dialog-container {
-  background-color: transparent !important; // Sfondo trasparente (stile editor)
+      sono figli di popup-view-dialog e faccio cosi
+
+      .cdk-overlay-pane.popup-view-dialog .mat-mdc-dialog-surface {
+  background-color: #25d366 !important; // Verde acceso
   box-shadow: none !important;
   border-radius: 0 !important;
   padding: 0 !important;
-  max-height: none !important;
-  overflow: visible !important;
 }
 
-/* ============================================================
-   DIALOG: STILE PER SOLA VISUALIZZAZIONE (onlyView = true)
-   Applicato tramite: panelClass: 'popup-descrizione-viewonly'
-   Target: contenitore del dialog Angular Material (MDC)
-============================================================ */
-::ng-deep .popup-descrizione-viewonly .mat-mdc-dialog-container {
-  background-color: #fff !important;              // Sfondo bianco per la visualizzazione chiara
-  border-radius: 16px !important;                 // Angoli stondati per effetto soft e moderno
-  padding: 24px !important;                       // Spazio interno regolare
+perche uso .cdk-overlay-pane.popup-view-dialog.mat-mdc-dialog-panel {
+ tutto attaccato (perche sono della stessa classe)
 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; // Ombra leggera per profondità visiva
+ .cdk-overlay-pane.popup-view-dialog .mat-mdc-dialog-surface {
+qua no perche surface è il figlio
 
-  // Dimensioni dinamiche: si adatta al contenuto
-  width: auto !important;
-  height: auto !important;
+Ora se ho due pop up come faccio a dire quello va sopra l'altro ? devo incidere sull asse z 
 
-  // Previene l'overflow orizzontale e verticale
-  max-width: 90vw !important;   // Non supera il 90% della larghezza dello schermo
-  max-height: 90vh !important;  // Non supera il 90% dell'altezza visibile
+supponiamo faccio 
+this.dialog.open(PopupBComponent, {
+  panelClass: 'popup-b-zindex',
+});
 
-  overflow: visible !important; // Permette ai contenuti (es. tooltip, overlay) di uscire dal contenitore
+
+this.dialog.open(PopupAComponent, {
+  panelClass: 'popup-a-zindex',
+});
+
+.cdk-overlay-pane.popup-b-zindex {
+  z-index: 1000 !important;
 }
 
+.cdk-overlay-pane.popup-a-zindex {
+  z-index: 1100 !important; // Questo sarà sopra
+}
 
+A SARA SOPRA A B
+non uso .cdk-overlay-pane.popup-a-zindex.mat-mdc-dialog-panel { ... }
+ ma direttamente il contenitore padre
+
+ Se a un pop up voglio assegnare un altezza larghezza ecc ho due strade, o faccio 
+ this.dialog.open(ViewOrEditMetadataComponent, {
+  panelClass: 'popup-view-dialog',
+  width: '600px',          // oppure '80vw'
+  height: '400px',         // oppure 'auto', '90vh', ecc.
+  data: { ... }
+});
+
+o cosi
+.cdk-overlay-pane.popup-view-dialog.mat-mdc-dialog-panel {
+  width: 600px !important;      // oppure '80vw'
+  height: 400px !important;     // oppure 'auto' o '90vh'
+  max-height: 90vh !important;  // utile per scroll
+  max-width: 95vw !important;
+
+
+  In generale si fa cosi:
+
+  ::ng-deep .cdk-overlay-pane.popup-admin-editor  lo uso per indicare una dimensione del pop up bordi ecc
+    Lo stai usando per stilizzare il contenitore principale del dialog Material (quello che gestisce larghezza, altezza, bordo, ombre, posizione, z-index del popup). Questo è esattamente il posto giusto dove agire per definire:
+  width, height, max-width, max-height
+  padding, margin
+  border-radius
+  box-shadow
+  z-index
+  pointer-events
+  top, left
+
+  ::ng-deep .popup-admin-editor .mat-mdc-dialog-content contenuto del pop pup scrollabile ecc..
+
+
+  ::ng-deep .popup-admin-editor .mat-mdc-dialog-surface per indicare la superfice se trasparente o altro 
+*/
+
+  /* Overlay principale del popup con panelClass: 'popup-view-dialog' */
+  .cdk-overlay-pane.popup-view-dialog.mat-mdc-dialog-panel { //opzionale specificare anche mat-mdc-dialog-panel 
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;   // Rimuove limiti massimi
+    max-height: none !important;  // Rimuove limiti massimi
+    overflow: visible !important; // Permette espansione    
+
+    border-radius: 0 !important;     // Rimuove angoli stondati
+    box-shadow: none !important;     // Rimuove ombra esterna
+    padding: 0 !important;           // Rimuove padding interno
+    overflow: visible !important;    // Permette elementi fuori dal riquadro (es. effetti o frecce)
+    pointer-events: auto !important; // Garantisce l'interazione (hover/click)
+  }
+
+  /* Superficie interna del dialog Material */
+  .cdk-overlay-pane.popup-view-dialog .mat-mdc-dialog-surface {
+    background-color: transparent !important; // Sfondo trasparente
+    box-shadow: none !important;              // Nessuna ombra
+    border-radius: 0 !important;              // Nessun bordo stondato interno
+    padding: 0 !important;                    // Rimuove padding interno
+  }
+
+
+/* ora da qui in po mettero tutti i pop up nelle classi padre senza intaccare lo style scss quindi xon ng deep */
+
+
+/* Applica a TUTTI i dialog (popup) Angular Material */
+.cdk-overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.7) !important;  // più scuro
+  backdrop-filter: blur(5px);                      // effetto sfocato
+}
 
 /* ============================================================
    DIALOG UPLOAD: Scroll naturale con MDC (Material Design Components)
@@ -160,7 +259,10 @@ html, body {
    - Rimuovere margini/padding inutili che causano layout errato.
 ============================================================ */
 
-/* 🔹 Stilizzo il contenitore esterno del dialog (involucro generale) */
+
+
+
+/*  Stilizzo il contenitore esterno del dialog (involucro generale) */
 ::ng-deep .upload-dialog .mat-mdc-dialog-container {
   width: 1000px;
   height: 1000px;
@@ -179,100 +281,9 @@ html, body {
   flex-direction: column;
   min-height: 0; // Cruciale per scroll interno in layout flex
 }
-/* SI METTE CONTAINER E CONTENT PERCHE NEL DOM VEDO 
-
-<!-- Overlay generato automaticamente da Angular Material -->
-<div class="cdk-overlay-container">
-  <div class="cdk-overlay-backdrop"></div>
-
-  <!-- Contenitore del dialog -->
-  <div class="cdk-global-overlay-wrapper">
-    <div class="cdk-overlay-pane upload-dialog"> <!-- 👈 panelClass: 'upload-dialog' -->
-      
-      <!-- Contenitore MDC del dialog -->
-      <div class="mat-mdc-dialog-container">
-        
-        <!-- Corpo del tuo contenuto -->
-        <mat-dialog-content class="mat-mdc-dialog-content">
-          <!-- Qui dentro c'è il tuo HTML personalizzato -->
-          <div class="upload-dialog-container">
-            <!-- Esempio: drag-and-drop, tabella, bottoni, ecc. -->
-          </div>
-        </mat-dialog-content>
-
-      </div>
-    </div>
-  </div>
-</div> */
-
-/* Forza visibilità e z-index alto al pulsante di chiusura — SERVE PER IL POP UP E LO RENDO GLOBALE */
-.chiudi-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  z-index: 11000;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Stile globale per mat-icon all'interno del pulsante chiusura */
-.chiudi-btn mat-icon {
-  color: #000;
-  font-size: 28px;
-  opacity: 1;
-  display: block;
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  font-family: 'Material Icons'; /* Forza il font corretto */
-}
 
 
 
 
-/* Forza overflow visibile sui contenitori dialog Angular Material */
-.mat-mdc-dialog-inner-container,
-.mat-mdc-dialog-surface,
-.dialog-content {
-  overflow: visible !important;
-  position: relative !important;
-  z-index: 10000 !important;
-}
 
-/* ============================================================
-   ESEMPIO USO TOOLTIP CON CLASSE PERSONALIZZATA:
-
-   <div
-     matTooltip="Testo informativo"
-     matTooltipClass="tooltip-admin"
-     matTooltipPosition="above"
-   >
-     <u style="cursor: help;">Testo con tooltip</u>
-   </div>
-============================================================ */
-
-/* ============================================================
-   ESEMPIO HTML (da mettere nel tuo componente):
-
-   <div class="media-display-name">
-     <span
-       class="tooltip-wrapper"
-       [matTooltip]="context.descrizione"
-       matTooltipClass="tooltip-admin"
-       [matTooltipDisabled]="!isLongText(context.descrizione)"
-       matTooltipPosition="above"
-     >
-       <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context)">
-         <div class="context-entry">
-           <strong class="context-label">{{ contextFormatted.label }}:</strong>
-           <span class="context-value">{{ getPreview(contextFormatted.value) }}</span>
-         </div>
-       </ng-container>
-     </span>
-   </div>
-============================================================ */
 

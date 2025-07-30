@@ -1,6 +1,8 @@
 /*
-  QUESTO COMPONENTE viene utilizzato per editare i context quindi i metadata viene usato sia dall'upload per editare i meta
-  in fase di upload ma viene usato anche da EditDataComponent per editare i metadata gia caricati prima
+  Questo componente viene utilizzato per editare i metadati (context) associati a un file.
+  È usato in due casi principali:
+  - Durante l'upload, per permettere all'utente di modificare i metadati prima dell'invio.
+  - Per modificare i metadati di file già presenti su Cloudinary (via EditDataComponent).
 */
 
 import { Component, Inject, OnInit } from '@angular/core';
@@ -8,12 +10,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-// Angular Material Modules
+// Moduli Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+// Interfaccia context usata nel componente padre
 import { MediaContext } from '../../../pages/home/home.component';
 
 @Component({
@@ -33,131 +36,194 @@ import { MediaContext } from '../../../pages/home/home.component';
 })
 export class EditDataAdminComponent implements OnInit {
 
-  // Oggetto contenente i metadati statici (nome_file, descrizione, quantità, angolazione)
-  // È un oggetto indicizzato per supportare anche metadati aggiuntivi dinamici
-  context: MediaContext  = {
-    nome_file: '',
-    descrizione: '',
-    quantita: '0',
-    angolazione: ''
-  };
+  // Metadati in input (modificabili via form)
+  mapContextInputData: { [key: string]: string } = {};
 
-  // Array che rappresenta i metadati personalizzati (chiave-valore)
-  altriMetadati: { key: string; value: string }[] = [];
+  // Backup per annullamento modifiche
+  backUpContext: { [key: string]: string } = {};
 
-  // Inietto nel costruttore i dati ricevuti dal padre: file e context associato (già salvato)
+  // Lista di tutte le chiavi correnti, usata nel *ngFor del template
+  tutteLeChiavi: string[] = [];
+
+  // Mappa delle etichette leggibili da mostrare (es. display_name → Nome)
+  etichetteChiavi: { [chiave: string]: string } = {};
+
+  // Chiavi protette: non modificabili o cancellabili
+  chiaviProtette: string[] = ['display_name', 'descrizione', 'quantita'];
+
+
+  //controlla se chiave valore del metadato aggiunto ci sono:
+
+
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } }
   ) {}
 
-  // All’inizializzazione del componente, popolo i campi del form con i metadati già presenti
-ngOnInit(): void {
-  const ctx = this.data.context || {};
+  ngOnInit(): void {
+    // Clono il context in input per modificarlo localmente
+    this.mapContextInputData = { ...this.data.context };
 
-  // Popolo i campi statici
-  this.context = {
-    display_name: ctx['display_name'] || '',
-    descrizione: ctx['descrizione'] || '',
-    quantita: ctx['quantita'] || '0',
-    angolazione: ctx['angolazione'] || ''
-  };
+    // Salvo una copia per eventuale annullamento modifiche
+    this.backUpContext = { ...this.mapContextInputData };
 
-  // Tutti gli altri metadati vanno nei dinamici
-  this.altriMetadati = Object.entries(ctx)
-    .filter(([key]) => !['display_name', 'descrizione', 'quantita', 'angolazione'].includes(key))
-    .map(([key, value]) => ({ key, value }));
-    
-  console.log("Context statico:", this.context);
-  console.log("Metadati dinamici:", this.altriMetadati);
+    // Popolo la lista di chiavi da visualizzare (escludendo quelle tecniche)
+    this.tutteLeChiavi = Object.keys(this.mapContextInputData).filter(k => k !== 'type');
+
+    // Creo la mappa di etichette leggibili
+    this.etichetteChiavi = this.tutteLeChiavi.reduce((acc, chiave) => {
+      acc[chiave] =
+        chiave === 'display_name' ? 'Nome' :
+        chiave === 'descrizione' ? 'Descrizione' :
+        chiave === 'quantita' ? 'Quantità' :
+        this.normalizzaChiave(chiave);
+      return acc;
+    }, {} as { [key: string]: string });
+
+    console.log('[EditDataAdmin] Metadati ricevuti:', this.mapContextInputData);
+  }
+
+  /** Restituisce true se una chiave è tra quelle protette */
+  isChiaveProtetta(chiave: string): boolean {
+    return this.chiaviProtette.includes(chiave);
+  }
+
+/** Aggiunge un nuovo metadato con una chiave temporanea univoca */
+
+    /** Stato interno dei due campi */
+  private chiaveCompilata  = true;
+  private valoreCompilato = true;
+
+  /** Event handler per l’input “chiave” */
+  onCheckChiave(value: string): void {
+    this.chiaveCompilata = this.isNonEmpty(value);
+    console.log('Chiave compilata:', this.chiaveCompilata);
+  }
+
+  /** Event handler per l’input “valore” */
+  onCheckValore(value: string): void {
+    this.valoreCompilato = this.isNonEmpty(value);
+    console.log('Valore compilato:', this.valoreCompilato);
+  }
+
+
+  /** Utile anche per futuri controlli */
+  private isNonEmpty(s: string | null | undefined): boolean {
+    return !!s?.trim();
+  }
+
+aggiungiMetadato(): void {
+
+  // 1) se l’utente sta lasciando a metà la riga corrente, avvisa e termina
+  if (!(this.chiaveCompilata && this.valoreCompilato)) {
+    alert('Compila prima CHIAVE e VALORE della riga corrente');
+    return;
+  }
+
+
+  const chiavi = Object.keys(this.mapContextInputData);
+  const chiaviPulite = chiavi.map(k => k.trim().toLowerCase()).filter(k => k !== '');
+  const chiaviUniche = new Set(chiaviPulite);
+
+  // Blocco in caso di chiavi duplicate o vuote
+  if (chiaviPulite.length !== chiaviUniche.size) {
+    alert('Attenzione: ci sono chiavi duplicate o vuote.');
+    return;
+  }
+
+  // Creo una nuova chiave temporanea univoca
+  const nuovaChiave = ' ';
+  this.mapContextInputData[nuovaChiave] = ''; // valore iniziale vuoto
+
+  // Aggiungo la nuova chiave all’elenco
+  this.tutteLeChiavi.push(nuovaChiave);
+
+  // Assegno l’etichetta leggibile per la nuova chiave
+  this.etichetteChiavi[nuovaChiave] = this.normalizzaChiave(nuovaChiave);
+
+  // Imposto il flag per disabilitare il pulsante fino a completamento
+
+  console.log('Aggiunto nuovo metadato:', nuovaChiave);
+
+
+    this.chiaveCompilata  = false;
+    this.valoreCompilato = false;
 }
 
-
-  // Aggiunge un nuovo metadato dinamico (se non ci sono chiavi duplicate o vuote)
-  aggiungiMetadato(): void {
-    const chiaviPulite = this.altriMetadati
-      .map(m => m.key?.trim().toLowerCase())
-      .filter(k => !!k); // Escludo chiavi vuote
-
-    const chiaviUniche = new Set(chiaviPulite);
-
-    // Se ci sono chiavi duplicate o vuote, blocco l'aggiunta
-    if (chiaviPulite.length !== chiaviUniche.size) {
-      alert('Attenzione: ci sono chiavi duplicate o vuote nei metadati esistenti.');
-      return;
-    }
-
-    // Aggiungo un metadato vuoto
-    this.altriMetadati.push({ key: '', value: '' });
-  }
-
-  // Rimuove un metadato dinamico dato il suo indice
+  /** Rimuove il metadato indicato solo se non è protetto */
   rimuoviMetadato(index: number): void {
-    this.altriMetadati.splice(index, 1);
+    const chiaveDaRimuovere = this.tutteLeChiavi[index];
+    if (this.isChiaveProtetta(chiaveDaRimuovere)) return;
+
+    delete this.mapContextInputData[chiaveDaRimuovere];
+    this.tutteLeChiavi.splice(index, 1);
+    delete this.etichetteChiavi[chiaveDaRimuovere];
+
+    console.log('Rimosso metadato:', chiaveDaRimuovere);
   }
 
-  // Metodo chiamato quando l'utente conferma e clicca "Salva"
-  conferma(): void {
-    const quantitaNum = Number(this.context['quantita']);
+  /** Restituisce true se la chiave suggerisce un campo numerico (prezzo, sconto, quantita) */
+  isNumericKey(key: string): boolean {
+    if (!key) return false;
+    const lower = key.toLowerCase();
+    return lower.includes('prezzo') || lower.includes('sconto') || lower.includes('quantita');
+  }
 
-    // Verifico che la quantità sia un numero >= 0
-    if (isNaN(quantitaNum) || quantitaNum < 0) {
+  /** Verifica se la chiave corrente è duplicata (usata per evidenziare l'errore nel form) */
+  isChiaveDuplicata(chiave: string, indexCorrente: number): boolean {
+    return this.tutteLeChiavi.filter((k, i) => k === chiave && i !== indexCorrente).length > 0;
+  }
+
+  /** Chiude il dialog salvando i metadati normalizzati */
+  conferma(): void {
+    // Validazione quantità
+    const quantitaNum = Number(this.mapContextInputData['quantita']);
+    if ('quantita' in this.mapContextInputData && (isNaN(quantitaNum) || quantitaNum < 0)) {
       alert('Inserisci una quantità valida maggiore o uguale a 0.');
       return;
     }
 
-    // Aggiungo i metadati dinamici al contesto principale (normalizzando la chiave)
-    this.altriMetadati.forEach(m => {
-      const chiaveOriginale = m.key?.trim();
-      const valore = m.value?.trim();
+    const contextFinale: MediaContext = {};
 
-      if (chiaveOriginale && valore) {
-        const chiaveNormalizzata = this.normalizzaChiave(chiaveOriginale);
-        this.context[chiaveNormalizzata] = valore;
+    // Normalizzo e includo solo chiavi con valore non vuoto
+    Object.entries(this.mapContextInputData).forEach(([chiave, valore]) => {
+      const k = chiave.trim();
+      const v = valore?.trim();
+      if (k && v) {
+        contextFinale[this.normalizzaChiave(k)] = v;
       }
     });
 
-    // Restituisco il contesto al componente padre
-    this.dialogRef.close(this.context);
+    this.dialogRef.close(contextFinale);
   }
 
-  // Metodo chiamato quando l'utente annulla l'operazione
-  annulla(): void {
-    this.dialogRef.close();
+  /** Chiude il dialog senza salvare le modifiche */
+  chiudiDialog(): void {
+    this.mapContextInputData = { ...this.backUpContext };
+    console.log('Modifiche annullate. Metadati ripristinati.', this.mapContextInputData);
+    this.dialogRef.close(this.backUpContext);
   }
 
-  // Ritorna true se una chiave (es. 'prezzo') sembra essere di tipo numerico
-  isNumericKey(key: string): boolean {
-    if (!key) return false;
-    const lower = key.toLowerCase();
-    return lower.includes('prezzo') || lower.includes('sconto');
+  /** Converte una chiave tecnica (es. display_name, pippoFranco) in etichetta leggibile */
+  normalizzaChiave(chiave: string): string {
+    if (!chiave) return '';
+    const conSpazi = chiave
+      .replace(/_/g, ' ')                   // underscore → spazio
+      .replace(/([a-z])([A-Z])/g, '$1 $2'); // camelCase → spazio
+    return conSpazi
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   }
 
-  // Rende coerente la chiave del metadato: minuscolo + spazi convertiti in underscore
-  private normalizzaChiave(chiave: string): string {
-    return chiave.trim().toLowerCase().replace(/\s+/g, '_');
+  /** Rende maiuscola la prima lettera del valore, senza alterare il resto */
+  normalizzaValore(val: string): string {
+    if (!val) return '';
+    return val.charAt(0).toUpperCase() + val.slice(1);
   }
 
-  // Verifica se la chiave all’indice `i` è già presente tra i dinamici o tra i campi statici
-  isChiaveDuplicata(i: number): boolean {
-    const currentKey = this.altriMetadati[i]?.key?.trim().toLowerCase();
-    if (!currentKey) return false;
+  
 
-    const chiaviStatiche = ['nome_file', 'descrizione', 'quantita', 'angolazione'];
 
-    // Controllo duplicati tra i metadati dinamici (escludendo se stesso)
-    const duplicatoTraDinamici = this.altriMetadati
-      .filter((_, idx) => idx !== i)
-      .some(m => m.key?.trim().toLowerCase() === currentKey);
 
-    // Controllo duplicato rispetto alle chiavi statiche
-    const duplicatoConStatici = chiaviStatiche.includes(currentKey);
-
-    return duplicatoTraDinamici || duplicatoConStatici;
-  }
-
-  // Ritorna true se almeno una chiave dinamica è duplicata
-  hasChiaviDuplicate(): boolean {
-    return this.altriMetadati.some((_, i) => this.isChiaveDuplicata(i));
-  }
 }

@@ -8,6 +8,7 @@
   background-color: #ffffff;
   border-radius: 12px;
 
+  // Scrollbar personalizzata per Webkit (Chrome/Safari)
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -18,89 +19,91 @@
   }
 }
 
-/* Layout principale del contenuto */
+/* Layout verticale del contenuto principale */
 .upload-main-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
-/* Form: 2 colonne */
+/* Titolo del modulo */
+.titolo-form {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* Contenitore della lista di metadati */
 .form-metadata {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-
-  mat-form-field:nth-child(2),
-  mat-form-field:nth-child(4) {
-    grid-column: 1 / -1;
-  }
-
-  mat-form-field {
-    width: 100%;
-  }
-}
-
-/* Sezione metadati dinamici */
-.dynamic-metadata-section {
-  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 1.5rem;
+  padding-bottom: 2rem; // migliora scroll con molti campi
 }
 
-/* Coppia chiave-valore + bottone rimozione */
+/* Singola riga metadato (chiave, valore, rimuovi) */
+/* Singola riga metadato (chiave, valore, rimuovi) */
 .metadata-pair {
   display: grid;
   grid-template-columns: 0.4fr 0.6fr auto;
+  align-items: flex-start; // cambio da center a flex-start per gestire hint/error
   gap: 1rem;
-  align-items: center;
 
   mat-form-field {
     width: 100%;
+    max-width: 100%;
   }
 
-  .delete-metadata {
-    justify-self: end;
-    align-self: center;
+  .mat-input-element {
+    word-break: break-word;
+  }
+
+  /* Pulsante rimozione */
+  button[mat-icon-button] {
+    color: #d32f2f;
     font-size: 20px;
-    color: red;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease-in-out;
 
     &:hover {
-      color: darkred;
+      color: #b71c1c;
     }
   }
 
-  /* Se il campo chiave è duplicato */
-  &.duplicata mat-form-field:first-child {
-    .mat-form-field-outline {
-      color: red;
-      border-color: red !important;
-    }
+  /* Classe in caso di chiave duplicata */
+  &.duplicata {
+    mat-form-field:first-child {
+      .mat-form-field-outline {
+        border-color: red !important;
+        transition: border-color 0.3s ease;
+      }
 
-    .mat-input-element {
-      border-color: red !important;
+      .mat-input-element {
+        border-color: red !important;
+      }
     }
+  }
 
-    .errore-duplicato {
-      color: red;
-      font-size: 12px;
-      margin-top: 4px;
-    }
+  /* Messaggio di errore (mat-hint personalizzato) */
+  .errore-duplicato {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+    line-height: 1.2;
+    display: block;
+    font-weight: 500;
   }
 }
 
-/* Pulsante "Aggiungi metadato" */
+
+/* Pulsante per aggiungere un nuovo metadato */
 .add-metadata-btn {
-  grid-column: 1 / -1;
   align-self: flex-start;
-  font-weight: 600;
-  color: #1976d2;
+  padding: 0.5rem 1rem;
   background-color: #e3f2fd;
-  padding: 6px 12px;
+  color: #1976d2;
+  font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -110,30 +113,50 @@
   }
 }
 
-/* Pulsanti finali */
-.bottoni-form {
-  grid-column: 1 / -1;
+/* Sezione pulsanti finali (annulla/salva) */
+.azioni-footer {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
   margin-top: 2rem;
+
+  button {
+    min-width: 120px;
+  }
 }
 
+/* Pulsante di chiusura in alto a destra */
+.chiudi-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 
+  mat-icon {
+    font-size: 24px;
+    color: #444;
+  }
 
-/* Blur disattivazione */
+  &:hover mat-icon {
+    color: #000;
+  }
+}
+
+/* Classe per disabilitare temporaneamente le interazioni */
 .blur {
   filter: blur(3px);
   pointer-events: none;
   user-select: none;
 }
 
-/* Dialog container ottimizzato */
+/* Personalizzazione del contenitore del dialog */
 ::ng-deep .mat-dialog-container {
   overflow-x: hidden !important;
+  overflow-y: auto !important;
   max-width: 90vw;
   max-height: 90vh !important;
-  overflow-y: auto !important;
   padding: 0 !important;
   border-radius: 16px;
   box-sizing: border-box;

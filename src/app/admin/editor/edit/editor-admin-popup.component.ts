@@ -1,3 +1,5 @@
+//component che mi serve per modificare un layout
+
 /* L'EDITOR E UN COMPONENT DOVE ALL INTERNO POSSO CANCELLARE UPLOADARE CANCELLARE EDITARE METADATI POSSO FARE TUTTO
 MOSTRA LA LISTA DI CIO CHE C E DENTRO  
 In pratica l'editor mi consente di lavorare su un json del genere
@@ -83,13 +85,16 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteDataAdminComponent } from '../common/delete-data-admin/delete-data-admin.component';
-import { DownloadDataAdminComponent } from '../common/download-data-admin/download-data-admin.component';
-import { UploadDataAdminComponent } from '../common/upload-data-admin/upload-data-admin.component';
-import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../pages/home/home.component';
+import { DeleteDataAdminComponent } from '../../common/delete-data-admin/delete-data-admin.component';
+import { DownloadDataAdminComponent } from '../../common/download-data-admin/download-data-admin.component';
+import { UploadDataAdminComponent } from '../../common/upload-data-admin/upload-data-admin.component';
+import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../../pages/home/home.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SharedDataService } from '../../services/shared-data.service';
-import { ViewOrEditMetadataComponent } from '../common/edit-data-admin/view-or-edit-descrizione/view-or-edit-metadata.component';
+import { SharedDataService } from '../../../services/shared-data.service';
+import { ViewMetadata } from '../view/view-metadata.component';
+//importato per modificare i metadati (come nella fase di upload)
+import { EditDataAdminComponent } from '../../common/edit-data-admin/edit-data-admin.component';
+
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -285,7 +290,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
       console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
-      console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali));
+      console.log("Mappa Url non frontali recuperate: ", this.mapUrlsNoFrontali);
 
       //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
       //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
@@ -397,7 +402,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
         }
       });
 
-      console.log("Mappa ritornata: ", JSON.stringify(mappa));
 
     });
 
@@ -464,40 +468,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   */
 
-  //apro solo il pop up della descrizione se passo onlyView vedo solo il pop up in fase di visualizzazione e non di editing
-  apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: MediaContext): void {
-    // Log iniziale per confermare la modalità del popup (visualizzazione o modifica)
-    console.log("Pop up di edit in sola fase di visualizzazione: ", onlyView);
-
-    // Inizializzo la variabile che conterrà il context privo della chiave "angolazione"
-    let contextSenzaAngolazione: MediaContext | undefined = undefined;
-
-    // Se il context è valido, rimuovo la chiave "angolazione" per evitare di modificarla
-    if (context) {
-      contextSenzaAngolazione = Object.fromEntries(
-        Object.entries(context).filter(([key, _]) => key !== 'angolazione')
-      );
-      console.log("Sto inviando il seguente context: ", contextSenzaAngolazione);
-    }
-
-    // Apertura del dialog Angular Material per il componente ViewOrEditMetadataComponent
-    this.dialog.open(ViewOrEditMetadataComponent, {
-      data: {
-        urlFrontale: url,                         // URL dell'immagine selezionata
-        onlyView: onlyView,                       // Flag che determina se mostrare solo in lettura
-        context: contextSenzaAngolazione          // Metadati senza angolazione
-      },
-      // Specifico la larghezza solo se non siamo in modalità view-only
-      ...(onlyView ? {} : { width: '1000px', height: '1000px' }),
-      // Applico una classe CSS diversa in base alla modalità
-      panelClass: onlyView
-        ? 'popup-descrizione-viewonly'            // Stile visivo per modalità sola lettura
-        : 'popup-descrizione-dialog'              // Stile per modalità modifica completa
-    });
-  }
-
-
-
 
   /**
  * Restituisce un array ordinato di metadati da visualizzare,
@@ -541,19 +511,45 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
+  // Mostra l'immagine secondaria precedente
+  prevSecondaryImage(url: string): void {
+    if (this.mapUrlsNoFrontali[url]) {
+      const total = this.mapUrlsNoFrontali[url].length;
+      this.currentSecondaryIndex[url] =
+        (this.currentSecondaryIndex[url] - 1 + total) % total;
+    }
+  }
+
+  // Mostra l'immagine secondaria successiva
+  nextSecondaryImage(url: string): void {
+    if (this.mapUrlsNoFrontali[url]) {
+      const total = this.mapUrlsNoFrontali[url].length;
+      this.currentSecondaryIndex[url] =
+        (this.currentSecondaryIndex[url] + 1) % total;
+    }
+  }
 
 
 
+  chiudiDialog(): void {
+    this.dialogRef.close();
+  }
 
 
 
+  /* POP UP DELL EDITOR */
 
+  //pop up per visualizzare i metadati
+  apriPopUpViewMetadata(url: string, context: MediaContext): void {
 
+    // Apertura del dialog Angular Material per il componente ViewMetadata
+    this.dialog.open(ViewMetadata, {
+      data: { urlFrontale: url, context: context },
+      panelClass: 'popup-view-dialog' // Questo collega lo stile alla .cdk-overlay-pane
+    });
+  }
 
-
-
-
-
+  //pop up per eliminare un media
   apriPopUpEliminaMedia(): void {
     // Recupero l'URL dell'immagine attualmente selezionata
     const mediaDaEliminare = this.inputFromFatherComponent;
@@ -588,6 +584,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     });
   }
 
+  //pop up per scaricare un media
   apriPopUpDownloadMedia(): void {
     const mediaDaScaricare = this.inputFromFatherComponent;
     console.log("Oggetti da scaricare: ", mediaDaScaricare)
@@ -605,45 +602,39 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
-  //input statico al momento 
-  //input che serve per caricare il file
-
+  //pop up per caricare un media
   apriPopUpUploadMedia() {
 
     this.dialog.open(UploadDataAdminComponent, {
-  width: '1000px',
-  height: '1000px',
-  panelClass: 'upload-dialog',
-  disableClose: false,
-  data: this.folderInput
-});
+      width: '1000px',
+      height: '1000px',
+      panelClass: 'upload-dialog',
+      disableClose: false,
+      data: this.folderInput
+    });
 
 
   }
 
 
-  // Mostra l'immagine secondaria precedente
-  prevSecondaryImage(url: string): void {
-    if (this.mapUrlsNoFrontali[url]) {
-      const total = this.mapUrlsNoFrontali[url].length;
-      this.currentSecondaryIndex[url] =
-        (this.currentSecondaryIndex[url] - 1 + total) % total;
-    }
+
+  //pop up per editare i metadati
+  apriPopUpEditMedia(context: MediaContext): void {
+      console.log("[EditorAdmin] context da editare: ", context);
+
+    // Apro il popup passando file e metadati
+    const dialogRef = this.dialog.open(EditDataAdminComponent, {
+      panelClass: 'popup-metadati-dialog',
+      data: {
+        context: context
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((result: MediaContext | undefined) => {
+      
+    });
   }
 
-  // Mostra l'immagine secondaria successiva
-  nextSecondaryImage(url: string): void {
-    if (this.mapUrlsNoFrontali[url]) {
-      const total = this.mapUrlsNoFrontali[url].length;
-      this.currentSecondaryIndex[url] =
-        (this.currentSecondaryIndex[url] + 1) % total;
-    }
-  }
 
-
-
-  chiudiDialog(): void {
-    this.dialogRef.close();
-  }
 
 }

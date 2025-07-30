@@ -4,9 +4,9 @@
 .dialog-content {
   height: 100%;
   padding: 2.5rem;
-  position: relative;
+  position: relative;  // Necessario per posizionare il pulsante in alto a destra
   overflow: visible;
-  z-index: 1000; // Più basso della chiudi-btn
+  z-index: 1000;
 
   .preview-container {
     display: flex;
@@ -14,6 +14,33 @@
     gap: 2rem;
     justify-content: center;
     margin-bottom: 2.5rem;
+  }
+
+  /* ===============================
+     Pulsante di chiusura (in alto a destra)
+  =============================== */
+  .chiudi-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;               // Sovrapposto ai contenuti interni
+    background: transparent;   // Nessuno sfondo
+    border: none;              // Nessun bordo
+    cursor: pointer;           // Cursor a forma di mano
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    mat-icon {
+      color: #000;             // Colore icona (puoi personalizzare)
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      font-family: 'Material Icons'; // Forza il font corretto
+      display: block;
+    }
   }
 }
 
@@ -282,10 +309,6 @@
 
 
 
-::ng-deep .cdk-overlay-pane {
-  overflow: visible !important;
-}
-
 
 .preview-card.upload-add-card {
   border: 2px dashed #4caf50;
@@ -325,3 +348,7 @@
     }
   }
 }
+
+
+//qua devo aggiungere le classi per gestire il pop up di edit-data
+/* */

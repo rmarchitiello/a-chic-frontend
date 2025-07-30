@@ -1,0 +1,29 @@
+<!-- ===============================
+     COMPONENTE DI VISUALIZZAZIONE METADATI
+     CON USO DI mat-dialog-content
+=============================== -->
+
+<!-- L’intero contenuto è gestito da Angular Material all’interno del container dialog -->
+ <!--
+Quando ho a che fare con i pop up, devo usare mat dialog content se nell scss voglio modificare la classe del mat dialog content altrimenti
+angular assegna una classe cdk sua standard
+ -->
+<mat-dialog-content class="popup-container-only-view">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi"  (click)="chiudiDialog()">
+    <mat-icon>close</mat-icon>
+  </button>
+  <!-- Wrapper che contiene tutti i metadati in visualizzazione -->
+  <div class="viewonly-content-wrapper">
+
+    <!-- Ciclo su ogni metadato da visualizzare -->
+    <div class="context-entry" *ngFor="let context of contextVisualizzabile(); trackBy: trackByKey">
+
+
+      <!-- Valore associato alla chiave -->
+      <div class="context-value">{{ context.value }}</div>
+
+    </div>
+
+  </div>
+
+</mat-dialog-content>

@@ -21,8 +21,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
-import { EditorAdminPopUpComponent } from '../../admin/editor/editor-admin-popup.component';
-
+import { EditorAdminPopUpComponent } from '../../admin/editor/edit/editor-admin-popup.component';
 
 /* DEFINISCO LE INTERFACCE */
 /**
@@ -617,12 +616,6 @@ e quindi si fa questa cosa:
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,
       panelClass: 'popup-admin-editor',
-
-      // (FACOLTATIVO) Se vuoi forzare grandezza piena anche da qui:
-      width: '100vw',
-      height: '100vh',
-      maxWidth: '100vw',
-      autoFocus: false // Disattiva focus automatico per evitare "salti" in contenuti lunghi
     });
   }
 
