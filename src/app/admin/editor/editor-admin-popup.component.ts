@@ -488,7 +488,7 @@ apriPopUpViewOrEditMetadataComponent(url: string, onlyView: boolean, context: Me
       context: contextSenzaAngolazione          // Metadati senza angolazione
     },
     // Specifico la larghezza solo se non siamo in modalità view-only
-  ...(onlyView ? {} : { width: '500px' }),
+  ...(onlyView ? {} : { width: '1000px', height: '1000px' }),
     // Applico una classe CSS diversa in base alla modalità
     panelClass: onlyView
       ? 'popup-descrizione-viewonly'            // Stile visivo per modalità sola lettura

@@ -142,70 +142,87 @@ export class ViewOrEditMetadataComponent implements OnInit {
     return item.key;
   }
 
-  //non devo poter modifica type e angolazione
+/**
+ * Restituisce un array di metadati [{ key, value }] modificabili,
+ * escludendo i campi 'type' e 'angolazione'.
+ * I metadati sono ordinati secondo una priorità stabilita:
+ * Nome, Descrizione, Quantità, Prezzo, seguiti da eventuali altri metadati dinamici.
+ */
 contextModificabile() {
-  // Ritorna un array [{ key, value }, ...], escludendo type e angolazione
-  return Object.entries(this.mediaContextMap)
-    .filter(([key, _]) => key !== 'type' && key !== 'angolazione')
-    .map(([key, value]) => ({ key, value }));
+  // Filtro il contesto per escludere le chiavi non modificabili
+  const contextFiltrato: MediaContext = Object.fromEntries(
+    Object.entries(this.mediaContextMap)
+      .filter(([key, _]) => key !== 'type' && key !== 'angolazione')
+  );
+
+  // Applico l'ordinamento personalizzato delle chiavi
+  return this.ordinaChiaviMetadati(contextFiltrato);
 }
 
+
+/**
+ * Restituisce un array di metadati in sola visualizzazione.
+ * In questo caso viene restituita solo la chiave 'descrizione', se presente.
+ * Utile per mostrare un riepilogo statico e non modificabile del contenuto.
+ */
 contextVisualizzabile() {
+  // Opzionalmente loggo il contenuto per debug
   console.log(JSON.stringify(this.mediaContextMap));
-  // Ritorna solo [{ key: 'descrizione', value: ... }] se presente
+
+  // Ritorno solo la chiave 'descrizione', se esiste
   return Object.entries(this.mediaContextMap)
     .filter(([key, _]) => key === 'descrizione')
     .map(([key, value]) => ({ key, value }));
 }
 
-/**
- * Converte una chiave tecnica (es. 'display_name' o 'pippo_franco')
- * in una stringa leggibile formattata (es. 'Display Name' o 'Pippo Franco').
- */
-normalizzaChiave(key: string): string {
-  // Se la chiave è nulla o vuota, restituisco una stringa vuota
-  if (!key) return '';
-
-  return key
-    // Sostituisco tutti gli underscore con spazi (es. 'pippo_franco' → 'pippo franco')
-    .replace(/_/g, ' ')
-    // Converto tutta la stringa in minuscolo per uniformare il formato
-    .toLowerCase()
-    // Converto la prima lettera di ogni parola in maiuscola (es. 'pippo franco' → 'Pippo Franco')
-    .replace(/\b\w/g, c => c.toUpperCase());
-}
 
 
 /**
- * Ordina le chiavi del metadato secondo una priorità stabilita (Nome, Descrizione, Quantità, Prezzo).
- * Le chiavi non prioritarie vengono mantenute in coda nell'ordine originale.
- */
-/**
- * Ordina le chiavi del metadato secondo una priorità stabilita (Nome, Descrizione, Quantità, Prezzo).
- * Le chiavi non prioritarie vengono mantenute in coda nell'ordine originale.
+ * Restituisce un array ordinato di metadati [{ key, value }],
+ * con priorità su Nome, Descrizione, Quantità, Prezzo,
+ * seguiti da eventuali metadati dinamici.
  */
 ordinaChiaviMetadati(context: MediaContext): { key: string; value: string }[] {
-  // Ordine prioritario da rispettare (se le chiavi esistono)
+  // Ordine prioritario con nomi tecnici (non alias)
   const ordinePrioritario = ['display_name', 'descrizione', 'quantita', 'prezzo'];
 
-  // Creo un array delle chiavi effettivamente presenti nel contesto
+  // Estrai tutte le chiavi effettive
   const tutteLeChiavi = Object.keys(context);
 
-  // Prima aggiungo le chiavi presenti che sono nella lista prioritaria, mantenendo l'ordine definito
+  // Ordina prima quelle prioritarie, se presenti
   const chiaviPrioritarie = ordinePrioritario.filter(k => tutteLeChiavi.includes(k));
 
-  // Poi aggiungo le chiavi che non sono nella lista prioritaria
+  // Aggiungi le chiavi dinamiche, escludendo le prioritarie
   const chiaviRestanti = tutteLeChiavi.filter(k => !ordinePrioritario.includes(k));
 
-  // Unisco le due liste: prima quelle prioritarie, poi le restanti
-  const chiaviFinali = [...chiaviPrioritarie, ...chiaviRestanti];
-
-  // Ritorno un array di oggetti { key, value } per ogni chiave normalizzata
-  return chiaviFinali.map(k => ({
+  // Ritorna in ordine corretto
+  return [...chiaviPrioritarie, ...chiaviRestanti].map(k => ({
     key: k,
-    value: context[k] ?? ''  // <-- Risolve il problema di tipo
+    value: context[k] ?? ''
   }));
 }
+
+/**
+   * Converte una chiave tecnica in un'etichetta leggibile.
+   * Usa alias per chiavi note, con fallback generico.
+   */
+  normalizzaChiave(key: string): string {
+    if (!key) return '';
+
+    const alias: { [k: string]: string } = {
+      display_name: 'Nome',
+      descrizione: 'Descrizione',
+      quantita: 'Quantità',
+      prezzo: 'Prezzo',
+      type: 'Tipo',
+      angolazione: 'Angolazione'
+    };
+
+    return alias[key] || key
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
 
 
 
