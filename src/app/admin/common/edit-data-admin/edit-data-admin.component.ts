@@ -95,22 +95,14 @@ export class EditDataAdminComponent implements OnInit {
   private valoreCompilato = true;
 
   /** Event handler per l’input “chiave” */
-  onCheckChiave(value: string): void {
-    this.chiaveCompilata = this.isNonEmpty(value);
-    console.log('Chiave compilata:', this.chiaveCompilata);
-  }
+onCheckChiave(value: string): void {
+  this.chiaveCompilata = !!value?.trim();
+}
 
-  /** Event handler per l’input “valore” */
-  onCheckValore(value: string): void {
-    this.valoreCompilato = this.isNonEmpty(value);
-    console.log('Valore compilato:', this.valoreCompilato);
-  }
+onCheckValore(value: string): void {
+  this.valoreCompilato = !!value?.trim();
+}
 
-
-  /** Utile anche per futuri controlli */
-  private isNonEmpty(s: string | null | undefined): boolean {
-    return !!s?.trim();
-  }
 
 aggiungiMetadato(): void {
 
@@ -151,16 +143,31 @@ aggiungiMetadato(): void {
 }
 
   /** Rimuove il metadato indicato solo se non è protetto */
-  rimuoviMetadato(index: number): void {
-    const chiaveDaRimuovere = this.tutteLeChiavi[index];
-    if (this.isChiaveProtetta(chiaveDaRimuovere)) return;
+rimuoviMetadato(index: number): void {
+  const chiaveDaRimuovere = this.tutteLeChiavi[index];
 
-    delete this.mapContextInputData[chiaveDaRimuovere];
-    this.tutteLeChiavi.splice(index, 1);
-    delete this.etichetteChiavi[chiaveDaRimuovere];
+  // 1. blocco eventuale su chiavi protette
+  if (this.isChiaveProtetta(chiaveDaRimuovere)) return;
 
-    console.log('Rimosso metadato:', chiaveDaRimuovere);
+  // 2. rimozione vera e propria
+  delete this.mapContextInputData[chiaveDaRimuovere];
+  this.tutteLeChiavi.splice(index, 1);
+  delete this.etichetteChiavi[chiaveDaRimuovere];
+
+  // 3. ***aggiornamento dei flag***
+  if (this.tutteLeChiavi.length === 0) {
+    // Nessuna riga rimasta → lascio l’utente creare la prossima
+    this.chiaveCompilata  = true;
+    this.valoreCompilato = true;
+  } else {
+    // Calcolo i flag sulla NUOVA “riga corrente” (ultima dell’elenco)
+    const ultimaChiave = this.tutteLeChiavi[this.tutteLeChiavi.length - 1];
+    this.chiaveCompilata  = !!ultimaChiave.trim();
+    this.valoreCompilato = !!this.mapContextInputData[ultimaChiave]?.trim();
   }
+
+  console.log('Rimosso metadato:', chiaveDaRimuovere);
+}
 
   /** Restituisce true se la chiave suggerisce un campo numerico (prezzo, sconto, quantita) */
   isNumericKey(key: string): boolean {
@@ -174,28 +181,65 @@ aggiungiMetadato(): void {
     return this.tutteLeChiavi.filter((k, i) => k === chiave && i !== indexCorrente).length > 0;
   }
 
-  /** Chiude il dialog salvando i metadati normalizzati */
-  conferma(): void {
-    // Validazione quantità
-    const quantitaNum = Number(this.mapContextInputData['quantita']);
-    if ('quantita' in this.mapContextInputData && (isNaN(quantitaNum) || quantitaNum < 0)) {
-      alert('Inserisci una quantità valida maggiore o uguale a 0.');
-      return;
-    }
+/** Chiude il dialog solo se tutti i metadati sono validi */
+conferma(): void {
 
-    const contextFinale: MediaContext = {};
+  /* ───────────────────────────────────────────────────────
+     1) CONTROLLA CHIAVI / VALORI VUOTI
+  ─────────────────────────────────────────────────────── */
+  const righeIncomplete = Object.entries(this.mapContextInputData).filter(
+    ([k, v]) => k.trim() === '' || v?.trim() === ''
+  );
 
-    // Normalizzo e includo solo chiavi con valore non vuoto
-    Object.entries(this.mapContextInputData).forEach(([chiave, valore]) => {
-      const k = chiave.trim();
-      const v = valore?.trim();
-      if (k && v) {
-        contextFinale[this.normalizzaChiave(k)] = v;
-      }
-    });
-
-    this.dialogRef.close(contextFinale);
+  if (righeIncomplete.length > 0) {
+    alert('Completa tutti i campi CHIAVE e VALORE prima di confermare.');
+    return;
   }
+
+  /* ───────────────────────────────────────────────────────
+     2) CONTROLLA CHIAVI DUPLICATE dopo la normalizzazione
+  ─────────────────────────────────────────────────────── */
+  const chiaviNormalizzate = Object.keys(this.mapContextInputData)
+    .map(k => this.normalizzaChiave(k.trim().toLowerCase()));
+
+  const duplicate = chiaviNormalizzate.find(
+    (val, idx, arr) => arr.indexOf(val) !== idx
+  );
+
+  if (duplicate) {
+    alert(`La chiave "${duplicate}" è duplicata: modificala prima di confermare.`);
+    return;
+  }
+
+  /* ───────────────────────────────────────────────────────
+     3) VALIDAZIONE QUANTITÀ
+  ─────────────────────────────────────────────────────── */
+  const quantitaStr = this.mapContextInputData['quantita'];
+  const quantitaNum = Number(quantitaStr);
+
+  if (
+    quantitaStr === undefined ||
+    quantitaStr.trim() === '' ||
+    isNaN(quantitaNum) ||
+    quantitaNum < 0
+  ) {
+    alert('Inserisci una QUANTITÀ valida (numero ≥ 0).');
+    return;
+  }
+
+  /* ───────────────────────────────────────────────────────
+     4) COSTRUZIONE CONTESTO FINALE se tutto è valido
+  ─────────────────────────────────────────────────────── */
+  const contextFinale: MediaContext = {};
+
+  Object.entries(this.mapContextInputData).forEach(([chiave, valore]) => {
+    const k = this.normalizzaChiave(chiave.trim());
+    const v = valore.trim();
+    contextFinale[k] = v; // tutte le coppie sono già valide
+  });
+
+  this.dialogRef.close(contextFinale);
+}
 
   /** Chiude il dialog senza salvare le modifiche */
   chiudiDialog(): void {
