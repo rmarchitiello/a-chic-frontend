@@ -47,7 +47,7 @@
       </div>
 <!-- Pulsante '+' semplice a sinistra -->
 <div class="azione-aggiunta-metada-sinistra">
-  <button class="btn-plus-semplice" (click)="aggiungiNuovoMetadato()" matTooltip="Aggiungi metadato" aria-label="Aggiungi metadato">
+  <button *ngIf="isEditing" class="btn-plus-semplice" (click)="aggiungiNuovoMetadato()" matTooltip="Aggiungi metadato" aria-label="Aggiungi metadato">
     <mat-icon>add</mat-icon>
   </button>
 </div>

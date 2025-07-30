@@ -71,13 +71,11 @@ export class ViewOrEditMetadataComponent implements OnInit {
    */
 
   //in fase di modifica devo poter aggiungere i metadata
-addMetadatas: boolean = false;
 aggiungiNuovoMetadato(){
-  
+
 }
   attivaModifica(): void {
     this.isEditing = true;
-    this.addMetadatas = true;
     this.modificaInAttesaDiConferma = false;
   }
 
@@ -87,7 +85,6 @@ aggiungiNuovoMetadato(){
 salvaModifica(): void {
   //  Disattiva la modalità di editing: torna alla visualizzazione normale
   this.isEditing = false;
-  this.addMetadatas = false;
   //  Converte l'oggetto attuale dei metadati (modificato dall'utente) in stringa JSON
   const nuovoContext = JSON.stringify(this.mediaContextMap);
 
@@ -111,7 +108,6 @@ salvaModifica(): void {
       Object.entries(this.originalContext).map(([key, value]) => [key, String(value ?? '')])
     );
     this.isEditing = false;
-    this.addMetadatas = true;
     this.modificaInAttesaDiConferma = false;
   }
 
