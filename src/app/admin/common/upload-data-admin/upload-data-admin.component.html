@@ -48,7 +48,7 @@
 
 
 <!-- Contenuto scrollabile -->
-<mat-dialog-content class="upload-scroll-content">
+<mat-dialog-content class="upload-scroll-content" *ngIf="filesDaCaricare.length > 0; else templateNoFile">
 
   <!-- Overlay con spinner durante l'upload -->
   <div class="upload-overlay" *ngIf="uploadInCorso">
@@ -133,3 +133,9 @@
     </div>
   </div>
 </mat-dialog-content>
+
+<ng-template #templateNoFile>
+  <div class="messaggio-nessun-file">
+    Qui verranno mostrati i contenuti e metadata da caricare
+  </div>
+</ng-template>

@@ -335,3 +335,15 @@
     }
   }
 }
+
+
+.messaggio-nessun-file {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  padding: 2rem;
+}
