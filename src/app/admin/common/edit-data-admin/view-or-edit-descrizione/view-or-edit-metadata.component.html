@@ -10,6 +10,7 @@
     <mat-icon>close</mat-icon>
   </button>
 
+
   <!-- ===============================
        CONTENITORE SCROLLABILE INTERNO
   ================================ -->
@@ -45,12 +46,32 @@
           [(ngModel)]="mediaContextMap[context.key]" [placeholder]="normalizzaChiave(context.key)"
           [type]="isCampoNumerico(context.key) ? 'number' : 'text'" />
       </div>
-<!-- Pulsante '+' semplice a sinistra -->
-<div class="azione-aggiunta-metada-sinistra">
-  <button *ngIf="isEditing" class="btn-plus-semplice" (click)="aggiungiNuovoMetadato()" matTooltip="Aggiungi metadato" aria-label="Aggiungi metadato">
-    <mat-icon>add</mat-icon>
-  </button>
-</div>
+
+      <!-- visualizzazione dei metadati dinamici mediante il tasto + sotto-->
+      <div *ngIf="isEditing && addDinamicFormMetadata" class="blocco-nuovo-metadato">
+
+        <!-- Campo chiave -->
+        <mat-form-field appearance="outline" class="campo-metadata">
+          <mat-label>Chiave</mat-label>
+          <input matInput placeholder="es. materiale" [(ngModel)]="nuovoMetadato.key" />
+        </mat-form-field>
+
+        <!-- Campo valore -->
+        <mat-form-field appearance="outline" class="campo-metadata">
+          <mat-label>Valore</mat-label>
+          <input matInput placeholder="es. pelle" [(ngModel)]="nuovoMetadato.value" />
+        </mat-form-field>
+
+      </div>
+
+
+      <!-- Pulsante '+' semplice a sinistra -->
+      <div class="azione-aggiunta-metada-sinistra">
+        <button *ngIf="isEditing" class="btn-plus-semplice" (click)="aggiungiNuovoMetadato()"
+          matTooltip="Aggiungi metadato" aria-label="Aggiungi metadato">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
 
       <!-- ===============================
            AZIONI UTENTE (piedino)

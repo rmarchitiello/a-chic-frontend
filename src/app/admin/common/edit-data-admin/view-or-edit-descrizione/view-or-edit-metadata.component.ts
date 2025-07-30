@@ -8,6 +8,14 @@ import { MediaContext } from '../../../../pages/home/home.component';
 import { SharedDataService } from '../../../../services/shared-data.service';
 import { AdminService } from '../../../../services/admin.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormField } from '@angular/material/input';
+import { MatLabel } from '@angular/material/input';
+import { MatInput } from '@angular/material/input';
+//serve solo qui internamente per aggiungere il metadatato
+interface Metadato {
+  key: string;
+  value: string;
+}
 
 @Component({
   selector: 'app-view-or-edit-descrizione',
@@ -17,7 +25,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FormsModule,
     MatIconModule,
     MatButtonModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatFormField,
+    MatLabel,
+    MatInput
     
 ],
   templateUrl: './view-or-edit-metadata.component.html',
@@ -71,12 +82,24 @@ export class ViewOrEditMetadataComponent implements OnInit {
    */
 
   //in fase di modifica devo poter aggiungere i metadata
-aggiungiNuovoMetadato(){
+  
+  //questa variabile mi serve per far attivare un div chiave valore se true si abilita
+  addDinamicFormMetadata: boolean = false;
+  //qui e l oggetto metadato chiave valore
+  nuovoMetadato: Metadato = { key: '', value: '' };
 
+aggiungiNuovoMetadato(){
+  this.addDinamicFormMetadata = true;
+  console.log("Sto per aggiungere dei metadati");
+  const copiaMedatatiInIgresso: Record<string, string> = this.mediaContextMap
+  console.log("Copia dei metadati in ingresso da aggiungerne altri. . .", copiaMedatatiInIgresso);
+  
 }
+
   attivaModifica(): void {
     this.isEditing = true;
     this.modificaInAttesaDiConferma = false;
+    console.log("Metadata da modificare: ", this.mediaContextMap);
   }
 
   /**

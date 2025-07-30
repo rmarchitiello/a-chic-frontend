@@ -82,6 +82,17 @@
   }
 }
 
+.blocco-nuovo-metadato {
+  display: flex;                    /* disposizione orizzontale */
+  flex-direction: row;
+  gap: 1rem;                        /* spazio tra chiave e valore */
+  align-items: flex-start;         /* allinea in alto */
+  margin: 1.5rem 0 1rem;           /* spazio sopra e sotto */
+  flex-wrap: wrap;                 /* va a capo se troppo largo */
+}
+
+
+
   }
 
   /* Etichetta della chiave (es. Quantita) */
