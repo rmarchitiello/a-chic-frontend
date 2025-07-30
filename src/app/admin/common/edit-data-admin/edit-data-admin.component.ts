@@ -296,37 +296,33 @@ this.snackBar.open('Inserisci una QUANTITÀ valida (numero ≥ 0).', 'Chiudi', {
  * eliminando la vecchia, e aggiornando tutte le strutture correlate.
  */
 onRenameChiave(index: number, nuovaChiave: string): void {
-  // Recupero la chiave attuale (vecchia) in base all’indice
-  const chiaveVecchia = this.tutteLeChiavi[index];
+  const chiavi = Object.keys(this.mapContextInputData);
+  const chiaveVecchia = chiavi[index];
 
-  // Se l’utente non ha modificato la chiave, non serve fare nulla
-  if (chiaveVecchia === nuovaChiave) return;
+  const nuovaChiavePulita = nuovaChiave.trim();
 
-  // Recupero il valore associato alla chiave vecchia (di default stringa vuota)
-  const valore = this.mapContextInputData[chiaveVecchia] || '';
+  // Se la nuova chiave è vuota o identica a quella vecchia, esco
+  if (!nuovaChiavePulita || chiaveVecchia === nuovaChiavePulita) return;
 
-  // Se esiste già una chiave con lo stesso nome, blocco per evitare sovrascrittura
-  if (this.mapContextInputData[nuovaChiave] !== undefined) {
-this.snackBar.open('Chiave già esistente, scegline un’altra.', 'Chiudi', {
-  duration: 4000,
-});
+  // Se esiste già, non permetto la sovrascrittura
+  if (this.mapContextInputData.hasOwnProperty(nuovaChiavePulita)) {
+    this.snackBar.open('Chiave già esistente', 'Chiudi', { duration: 3000 });
     return;
   }
 
-  // Elimino la chiave vecchia e assegno il valore alla nuova chiave
+  // Copio il valore dalla vecchia chiave, poi elimino la vecchia
+  this.mapContextInputData[nuovaChiavePulita] = this.mapContextInputData[chiaveVecchia];
   delete this.mapContextInputData[chiaveVecchia];
-  this.mapContextInputData[nuovaChiave] = valore;
 
-  // Aggiorno l’elenco delle chiavi visibili nel form
-  this.tutteLeChiavi[index] = nuovaChiave;
-
-  // Aggiorno la mappa delle etichette leggibili da mostrare nel placeholder
-  this.etichetteChiavi[nuovaChiave] = this.normalizzaChiave(nuovaChiave);
-  delete this.etichetteChiavi[chiaveVecchia];
-
-  // Imposto il flag di completamento a true se la chiave nuova è valida (non vuota)
-  this.chiaveCompilata = !!nuovaChiave.trim();
+  // Aggiorno anche i flag se vuoi:
+  this.onCheckChiave(nuovaChiavePulita);
 }
+
+
+getChiave(index: number): string {
+  return Object.keys(this.mapContextInputData)[index];
+}
+
 
   
 
