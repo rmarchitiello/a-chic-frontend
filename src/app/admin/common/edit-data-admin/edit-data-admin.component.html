@@ -23,7 +23,8 @@
         <!-- Campo chiave (disabilitato se protetta) -->
         <mat-form-field appearance="outline" floatLabel="always">
           <input matInput [disabled]="isChiaveProtetta(chiave)"
-          (ngModelChange)="onCheckChiave($event)"
+          (ngModelChange)="onRenameChiave(i, $event); onCheckChiave($event)"
+
           [(ngModel)]="tutteLeChiavi[i]" [name]="'chiave_' + i"
             [placeholder]="normalizzaChiave(chiave)" />
 

@@ -112,35 +112,31 @@ aggiungiMetadato(): void {
     return;
   }
 
-
+  // 2) Controlla se ci sono chiavi duplicate
   const chiavi = Object.keys(this.mapContextInputData);
   const chiaviPulite = chiavi.map(k => k.trim().toLowerCase()).filter(k => k !== '');
   const chiaviUniche = new Set(chiaviPulite);
 
-  // Blocco in caso di chiavi duplicate o vuote
   if (chiaviPulite.length !== chiaviUniche.size) {
     alert('Attenzione: ci sono chiavi duplicate o vuote.');
     return;
   }
 
-  // Creo una nuova chiave temporanea univoca
-  const nuovaChiave = 'Inserisci un valore';
-  this.mapContextInputData[nuovaChiave] = 'Inserisci un valore'; // valore iniziale vuoto
+  // 3) Crea una chiave temporanea univoca
+  const nuovaChiave = `__temp_${Date.now()}`;
+  this.mapContextInputData[nuovaChiave] = '';
 
-  // Aggiungo la nuova chiave all’elenco
+  // 4) Aggiorna tutte le strutture collegate
   this.tutteLeChiavi.push(nuovaChiave);
-
-  // Assegno l’etichetta leggibile per la nuova chiave
   this.etichetteChiavi[nuovaChiave] = this.normalizzaChiave(nuovaChiave);
 
-  // Imposto il flag per disabilitare il pulsante fino a completamento
+  // 5) Blocca ulteriori aggiunte finché l’utente non compila la nuova riga
+  this.chiaveCompilata = false;
+  this.valoreCompilato = false;
 
   console.log('Aggiunto nuovo metadato:', nuovaChiave);
-
-
-    this.chiaveCompilata  = false;
-    this.valoreCompilato = false;
 }
+
 
   /** Rimuove il metadato indicato solo se non è protetto */
 rimuoviMetadato(index: number): void {
@@ -186,6 +182,8 @@ conferma(): void {
 
   /* ───────────────────────────────────────────────────────
      1) CONTROLLA CHIAVI / VALORI VUOTI
+     Verifica che ogni coppia chiave/valore abbia contenuto.
+     Serve a evitare conferme con righe incomplete.
   ─────────────────────────────────────────────────────── */
   const righeIncomplete = Object.entries(this.mapContextInputData).filter(
     ([k, v]) => k.trim() === '' || v?.trim() === ''
@@ -197,12 +195,14 @@ conferma(): void {
   }
 
   /* ───────────────────────────────────────────────────────
-     2) CONTROLLA CHIAVI DUPLICATE dopo la normalizzazione
+     2) CONTROLLA CHIAVI DUPLICATE
+     Usa la versione "pulita" (trim e lowercase) per evitare collisioni
+     tra chiavi come "Materiale" e "materiale".
   ─────────────────────────────────────────────────────── */
-  const chiaviNormalizzate = Object.keys(this.mapContextInputData)
-    .map(k => this.normalizzaChiave(k.trim().toLowerCase()));
+  const chiaviPulite = Object.keys(this.mapContextInputData)
+    .map(k => k.trim().toLowerCase());
 
-  const duplicate = chiaviNormalizzate.find(
+  const duplicate = chiaviPulite.find(
     (val, idx, arr) => arr.indexOf(val) !== idx
   );
 
@@ -213,31 +213,35 @@ conferma(): void {
 
   /* ───────────────────────────────────────────────────────
      3) VALIDAZIONE QUANTITÀ
+     Verifica che la chiave "quantita" esista, sia numerica e ≥ 0.
   ─────────────────────────────────────────────────────── */
   const quantitaStr = this.mapContextInputData['quantita'];
   const quantitaNum = Number(quantitaStr);
 
   if (
-    quantitaStr === undefined ||
-    quantitaStr.trim() === '' ||
-    isNaN(quantitaNum) ||
-    quantitaNum < 0
+    quantitaStr === undefined ||                  // campo mancante
+    quantitaStr.trim() === '' ||                 // campo vuoto
+    isNaN(quantitaNum) ||                        // non è un numero
+    quantitaNum < 0                              // numero negativo
   ) {
     alert('Inserisci una QUANTITÀ valida (numero ≥ 0).');
     return;
   }
 
   /* ───────────────────────────────────────────────────────
-     4) COSTRUZIONE CONTESTO FINALE se tutto è valido
+     4) COSTRUISCI OGGETTO FINALE DA RITORNARE
+     Crea una copia pulita del contesto, con chiavi e valori trim.
+     Nessuna normalizzazione formattata qui: si usano le chiavi effettive.
   ─────────────────────────────────────────────────────── */
   const contextFinale: MediaContext = {};
 
   Object.entries(this.mapContextInputData).forEach(([chiave, valore]) => {
-    const k = this.normalizzaChiave(chiave.trim());
-    const v = valore.trim();
-    contextFinale[k] = v; // tutte le coppie sono già valide
+    const k = chiave.trim();   // chiave reale usata come oggetto
+    const v = valore.trim();   // valore normalizzato
+    contextFinale[k] = v;
   });
 
+  // ✅ Chiude il dialog e restituisce i metadati validati
   this.dialogRef.close(contextFinale);
 }
 
@@ -265,6 +269,44 @@ conferma(): void {
     if (!val) return '';
     return val.charAt(0).toUpperCase() + val.slice(1);
   }
+
+
+  /**
+ * Gestisce la modifica del nome di una chiave da parte dell’utente.
+ * Quando l’utente cambia il nome di un metadato (es. da '' a 'materiale'),
+ * aggiorna l'oggetto `mapContextInputData` spostando il valore alla nuova chiave,
+ * eliminando la vecchia, e aggiornando tutte le strutture correlate.
+ */
+onRenameChiave(index: number, nuovaChiave: string): void {
+  // Recupero la chiave attuale (vecchia) in base all’indice
+  const chiaveVecchia = this.tutteLeChiavi[index];
+
+  // Se l’utente non ha modificato la chiave, non serve fare nulla
+  if (chiaveVecchia === nuovaChiave) return;
+
+  // Recupero il valore associato alla chiave vecchia (di default stringa vuota)
+  const valore = this.mapContextInputData[chiaveVecchia] || '';
+
+  // Se esiste già una chiave con lo stesso nome, blocco per evitare sovrascrittura
+  if (this.mapContextInputData[nuovaChiave] !== undefined) {
+    alert('Chiave già esistente, scegline un’altra.');
+    return;
+  }
+
+  // Elimino la chiave vecchia e assegno il valore alla nuova chiave
+  delete this.mapContextInputData[chiaveVecchia];
+  this.mapContextInputData[nuovaChiave] = valore;
+
+  // Aggiorno l’elenco delle chiavi visibili nel form
+  this.tutteLeChiavi[index] = nuovaChiave;
+
+  // Aggiorno la mappa delle etichette leggibili da mostrare nel placeholder
+  this.etichetteChiavi[nuovaChiave] = this.normalizzaChiave(nuovaChiave);
+  delete this.etichetteChiavi[chiaveVecchia];
+
+  // Imposto il flag di completamento a true se la chiave nuova è valida (non vuota)
+  this.chiaveCompilata = !!nuovaChiave.trim();
+}
 
   
 
