@@ -57,6 +57,31 @@
     &::-webkit-scrollbar-track {
       background-color: transparent;
     }
+
+    /* Pulsante '+' semplice, allineato a sinistra, senza cerchio */
+.azione-aggiunta-metada-sinistra {
+  display: flex;
+  justify-content: flex-start; // Allineato a sinistra
+  margin-top: 1rem;
+
+  .btn-plus-semplice {
+    background: transparent;     // Sfondo trasparente
+    border: none;                // Nessun bordo
+    padding: 0.25rem;            // Padding minimo
+    cursor: pointer;
+
+    mat-icon {
+      font-size: 20px;
+      color: #0c0c0c;
+      transition: color 0.2s ease;
+    }
+
+    &:hover mat-icon {
+      color: #494848;
+    }
+  }
+}
+
   }
 
   /* Etichetta della chiave (es. Quantita) */

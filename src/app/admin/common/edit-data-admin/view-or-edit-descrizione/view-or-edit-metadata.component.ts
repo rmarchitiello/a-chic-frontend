@@ -72,7 +72,9 @@ export class ViewOrEditMetadataComponent implements OnInit {
 
   //in fase di modifica devo poter aggiungere i metadata
 addMetadatas: boolean = false;
-
+aggiungiNuovoMetadato(){
+  
+}
   attivaModifica(): void {
     this.isEditing = true;
     this.addMetadatas = true;
