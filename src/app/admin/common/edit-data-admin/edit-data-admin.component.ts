@@ -124,8 +124,8 @@ aggiungiMetadato(): void {
   }
 
   // Creo una nuova chiave temporanea univoca
-  const nuovaChiave = ' ';
-  this.mapContextInputData[nuovaChiave] = ''; // valore iniziale vuoto
+  const nuovaChiave = 'Inserisci un valore';
+  this.mapContextInputData[nuovaChiave] = 'Inserisci un valore'; // valore iniziale vuoto
 
   // Aggiungo la nuova chiave all’elenco
   this.tutteLeChiavi.push(nuovaChiave);
