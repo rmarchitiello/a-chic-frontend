@@ -3,329 +3,545 @@
   È usato in due casi principali:
   - Durante l'upload, per permettere all'utente di modificare i metadati prima dell'invio.
   - Per modificare i metadati di file già presenti su Cloudinary (via EditDataComponent).
-*/
 
-import { Component, Inject, OnInit } from '@angular/core';
+  Per questo component, che deve avere una form dinamica con validazione usiamo direttamente ReactiveForm
+  Vediamo che cosa sono le reactive form in angular passo dopo passo.
+
+  A primo appunto una ReactiveForm in angular si sviluppa all'interno del typescript, ovvero supponiamo di avere una rappresentazione di un json
+
+  Ogni singolo campo è considerato un oggetto e sul quel campo/oggetto possiamo fare logica, se è valido oppure no ecc.. Esempio grafico
+
+  FormGroup
+    │
+    ├── FormControl: "nome"
+    ├── FormControl: "email"
+    └── FormControl: "password"
+    
+    Ogni FormControl sono reattivi ed emettono valori, sono degli observable, infatti possiamo leggerne i valori se invocati in subscribe mode in un ngOnInit
+    Come Funziona il ciclo di vita:
+
+    1) Si crea la Form in typescrypt, li diciamo se quel campo è un oggetto FormGroup o un semplice campo FormControl o un array FormArray ecc.. per questo
+    prima dicevo consideriamo la rappresentazione JSON, se il mio MediaContext e un singolo oggetto con campi statici avro che i campi statici sono dei
+    FormControl, ma i metadati dinamici (che non so apriori quali sono), sono FormGroup (oggetto chiave valore) che creano un FormArray
+      Per utilizzare FormControl nel typescript quindi nel component si importa FormControl
+    2) Collegare il form di typescript al template usando le direttive [formGroup] se è un FormGroup o [formControlName] per un FormControl e cosi via..
+        Per collegare bisogna importare il modulo ReactiveFormModule
+    3) Posso usare RxJS per osservare i cambiamenti . . . . .
+
+    - - - FormControl - - -
+    Un form control, è un singolo campo del json per esempio la descrizione mentre context rappresenta il form group perche sarebbe il mio oggetto context-
+    Si tradute in html con un campo di input semplicemente
+    Di un form control posso saperne:
+      - Il valore, valore corrente del campo
+      - Validita, se il valore è valido
+      - Stato, per capire se è stato toccato
+      - Stream, usare observable, per fare la subscribe e ottenere i valori reattivamente valueChanges e statusChanges.
+    
+    Supponiamo abbia un json del genere:
+    {
+      display_name: 'Conchiglia',
+      quantita: '0'
+      }
+    Il FormControl lo creo cosi:
+
+    const display_name = new FormControl('Conchiglia');
+    const quantita = new FormControl('0');
+
+    Per recuperare il valore di display_name faccio:
+    console.log("Il nome è: ", this.display_name.value)
+
+    Oppure se voglio stare in ascolto dei suoi cambiamenti ogni volta faccio
+
+    this.display_name.valueChanges.subscribe(valoreAttuale =>{
+      console.log("Il valore attuale è: ", valoreAttuale);
+    })
+
+    Se voglio collegare il formControl alla form HTML faccio cosi
+
+    <input id="nome" [formControl]="nome" placeholder="Inserisci il tuo nome" />  di solito si inserisce un id per rendere il valore accessibile
+
+        - - - FormGroup - - -
+        Viene usato per definizio un oggetto dove al cui interno abbiamo i campi, supponiamo quest oggetto qua 
+        {
+          context: 
+              display_name: 'Conchiglia',
+              quantita: '0',
+              descrizione: 'Da inserire'
+        }
+        
+        La logica di base è questa
+
+        context (FormGroup)
+          │
+          ├── display_name (FormControl) → 'Conchiglia'
+          ├── quantita      (FormControl) → '0'
+          └── descrizione   (FormControl) → 'Da inserire'
+        
+        Utilizzando FormGroup e i vari FormControl, è come rappresentare una forma reattiva (HTML + TS) del mio JSON.
+        
+        Domanda: perche conviene usare FormGroup ? perche supponiamo che la mia form sia da sottomettere, io invece di validare campo per campo,
+        mi affido al gruppo dicendo, senti ma è valida la form, cioe tu FormGroup sei valido ? e lui va a controllare campo per campo
+
+        Posso accedere anche ai dati del gruppo in questo modo form.get('context.display_name')
+        Ovviamente un FormGroup po contenere piu FormGroup e ogni FormGroup annidato contiene i vari FormControl (bisogna pensare come se fosse un vero e proprio JSON).
+
+        Posso usare i metodi 
+
+        Proprietà	    |Significato
+        .value	          Un oggetto con tutti i valori attuali dei controlli figli
+        .valid	          true se tutti i controlli sono validi
+        .invalid	        true se almeno un controllo è invalido
+        .pending	        true se almeno un controllo è in stato PENDING (es. validatore asincrono)
+        .pristine	        true se nessun controllo è stato modificato
+        .dirty	          true se almeno un controllo è stato modificato
+        .touched	        true se almeno un controllo è stato toccato (focus perso)
+        .untouched	      true se nessun controllo è stato toccato
+        .errors	          Oggetto con gli errori a livello di gruppo (es. validatori personalizzati)
+
+       Metodi principali
+        Metodo	        |  Cosa fa
+        .get(path)	        Recupera un controllo figlio, anche annidato. Es: get('context.quantita')
+        .setValue(obj)	    Imposta tutti i valori. L’oggetto deve avere tutte le chiavi
+
+        Anche qui posso usare observable per ricevere gli aggiornamenti
+
+        Creo un form group cosi
+
+        contextForm = new FormGroup({
+          display_name: new FormControl('Conchiglia'),
+          quantita: new FormControl('0'),
+          descrizione: new FormControl('Da inserire')
+        });
+
+        this.contextForm.valueChanges.subscribe(valori => {
+          console.log('Valori aggiornati del gruppo:', valori);
+          ricevendo il nuovo oggetto json
+
+          Oppure recuperare il suo valore direttamente this.contextForm.value
+          Oppure di un figlio
+          this.contextForm.value                      // tutti i valori
+          this.contextForm.get('quantita')?.value     // valore del campo 'quantita'
+
+          Se invece ho un FormGroup padre faccio
+
+          formPrincipale = new FormGroup({
+            contextForm: new FormGroup({
+            display_name: new FormControl('Conchiglia'),
+            quantita: new FormControl('0'),
+            descrizione: new FormControl('Da inserire')
+       })
+      });
+    });
+
+    creo un gettere per formPrincipale
+    get form(){
+        return this.formPrincipale.get('contextForm') as FormGroup
+    }
+
+    cosi per recuperare i valori faccio
+    this.form.value ed è come se stessi facendo this.contextForm.value oppure this.formPrincipale.get('contextForm')?.value
+
+    cosi:
+
+    <form [formGroup]="contextForm">
+        <label>Nome</label>
+        <input formControlName="display_name" />
+
+        <label>Quantità</label>
+        <input formControlName="quantita" />
+
+        <label>Descrizione</label>
+        <input formControlName="descrizione" />
+    </form>
+
+    Se pero ho un form padre ? 
+
+    formPrincipale = new FormGroup({
+  contextForm: new FormGroup({ ... })
+});
+
+faccio
+
+<form [formGroup]="formPrincipale">
+  <div formGroupName="contextForm">
+    <input formControlName="display_name" />
+    <input formControlName="quantita" />
+    <input formControlName="descrizione" />
+  </div>
+</form>
+
+      --- FormArray - - -
+      Un FormArray puo essere un array fi formControl quindi di campi o di form group
+      Esempio supponiamo in una form devo inserire numeri di telefono, ora di quella persona non sai quanti telefoni ha e quindi non sai a priori il numero
+      (come per il mio caso i metadata) non so quanti ce ne sono quindi rappresento i metadata dinamici come array di form control
+      
+      come per il form group
+
+      new FormArray([
+        new FormControl('estate'),
+        new FormControl('spiaggia'),
+        new FormControl('vacanze')
+      ])
+
+    Supponiamo di avere:
+
+    formPrincipale = new FormGroup({
+        tags: new FormArray([
+                  new FormControl('estate'),
+                  new FormControl('spiaggia')
+      ])
+    });
+
+    JSON
+    
+    {
+    formPrincipale: {
+            tags: ['estate','spiaggia']
+        }
+}
+
+la rappresentazione html è 
+<!-- Colleghiamo il form principale -->
+<form [formGroup]="formPrincipale">
+
+  <!-- Sezione FormArray -->
+  <div formArrayName="tags">
+
+    <!-- Cicliamo su ogni elemento dell'array -->
+    <div *ngFor="let tagCtrl of tags.controls; let i = index">
+      <!-- Ogni input è legato al FormControl in posizione i -->
+      <input [formControlName]="i" placeholder="Inserisci un tag" />
+      <button type="button" (click)="rimuoviTag(i)">Rimuovi</button>
+    </div>
+
+    <!-- Pulsante per aggiungere un nuovo tag -->
+    <button type="button" (click)="aggiungiTag()">Aggiungi Tag</button>
+
+  </div>
+
+</form>
+
+Vediamo bene let tagCtrl of tags.controls; let i = index" per accedere a un valore dell array si indica la posizione e non il valore 
+
+Mentre nel type script per accedere al valore faccio cosi 
+(this.formPrincipale.get('tags') as FormArray).at(1).value
+per leggere tutti i valori this.tags.value
+
+In definitiva se ho dei campi dinamici posso rappresentare un formControl dinamico, mentre il FormArray si usa per questo tipo di rappresentazione
+{
+  indirizzi: [
+    { via: "Roma", cap: "00100" },
+    { via: "Milano", cap: "20100" }
+  ]
+}
+
+Posso aggiungere dinamicamente negli indirizzi esempio:
+  formPrincipale = new FormGroup({
+    indirizzi: new FormArray([
+      new FormGroup({
+        via: new FormControl('Roma'),
+        cap: new FormControl('00100')
+      }),
+      new FormGroup({
+        via: new FormControl('Milano'),
+        cap: new FormControl('20100')
+      })
+    ])
+  });
+
+    // Getter per accedere facilmente al FormArray nel template e nel codice
+  get indirizzi(): FormArray {
+    return this.formPrincipale.get('indirizzi') as FormArray;
+  }
+
+  // Metodo per aggiungere un nuovo gruppo di indirizzo (via + cap)
+  aggiungiIndirizzo(): void {
+    const nuovoIndirizzo = new FormGroup({
+      via: new FormControl(''),
+      cap: new FormControl('')
+    });
+
+    this.indirizzi.push(nuovoIndirizzo);
+  }
+
+
+    - - -  FormBuilder - - -
+ Cos’è FormBuilder?
+FormBuilder è una utility di Angular che ti semplifica la creazione di FormGroup, FormControl e FormArray.
+
+Senza FormBuilder usi:
+
+ts
+Copia
+Modifica
+new FormGroup({
+  nome: new FormControl('Mario'),
+  eta: new FormControl(30)
+});
+Con FormBuilder puoi scrivere in modo più compatto:
+
+ts
+Copia
+Modifica
+this.fb.group({
+  nome: ['Mario'],
+  eta: [30]
+});
+e opzionale usarlo..
+
+
+      */
+
+
+  /* In base a quanto detto sopra l'idea di base è creare un formGroup padre chiamato contextGroup all intenro abbiamo due form group uno con
+     i metadati di input quindi dal component padre al figlio (questo) con n form control per quanti dati sono passati dal padre
+     e un altro form group con  due form control statici formControlKey e formControlValue per gestire la chiave e il valore ovvero avere una situazione del genere:
+
+     contextForm (FormGroup)
+        ├── metadatiDiInput (FormGroup)
+        │       ├── display_name (FormControl)
+        │       ├── descrizione (FormControl)
+        │       └── ...
+        └── metadatiAggiunti (FormGroup)
+                ├── nuovaChiave1 (FormControl)
+                ├── nuovaChiave2 (FormControl)
+                └── ...
+  */
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
-// Moduli Angular Material
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 // Interfaccia context usata nel componente padre
 import { MediaContext } from '../../../pages/home/home.component';
 
-
+//Reactive Form
+import { FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
+import { FormGroup } from '@angular/forms';
+import { Validators } from '@angular/forms';
+//material
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltip } from '@angular/material/tooltip';
+import { chiaviDuplicateValidator } from '../../validators/chiavi-duplicate.validator';
 @Component({
   selector: 'app-edit-context-before-upload',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatButtonModule,
-    MatIcon,
-    MatSnackBarModule
-  ],
+    MatIconModule,
+    MatTooltip
+],
   templateUrl: './edit-data-admin.component.html',
   styleUrl: './edit-data-admin.component.scss'
 })
-export class EditDataAdminComponent implements OnInit {
+export class EditDataAdminComponent implements OnInit,OnDestroy {
+  /* Per gestire l'invalidita della form contextGroup, creo un Validator custom sul FormsArray per gestire le chiavi duplicate*/
 
-  // Metadati in input (modificabili via form)
-  mapContextInputData: { [key: string]: string } = {};
+  //Recupero il context in input
+  contextInputFromFather: MediaContext = {};
 
-  // Backup per annullamento modifiche
-  backUpContext: { [key: string]: string } = {};
+  //Contiene l'array di tutte le chiavi
+  contextInputFromFatherKeys: string[] = [];
 
-  // Lista di tutte le chiavi correnti, usata nel *ngFor del template
-  tutteLeChiavi: string[] = [];
-
-  // Mappa delle etichette leggibili da mostrare (es. display_name → Nome)
-  etichetteChiavi: { [chiave: string]: string } = {};
-
-  // Chiavi protette: non modificabili o cancellabili
-  chiaviProtette: string[] = ['display_name', 'descrizione', 'quantita'];
+  //Salvo una copia di backup in fase di chiusura o distruzione del pop up
+  backUpContextFromFather: MediaContext = {};
 
 
-  //controlla se chiave valore del metadato aggiunto ci sono:
+
+
+  //per ogni chiave devo creare un suo form control quindi creo una mappa
+  //Quindi a ogni chiave associamo un form control
+  formControlsFromFather: { [key: string]: FormControl } = {};
+
+  //dichiaro la variabile senza inizializzarla questo form group rappresenta il gruppo di metadati in ingresso dal padre
+  contextFormGroupFromFather!: FormGroup;
+
+
+  //contiene l'insieme del contextFormGroupFromFather e del medatatiAggiuntiGroup
+  contextFormGroup!: FormGroup;
+
+
+
+  //per gestire chiave e valore dinamici perche form control devo sapere apriori la chiave invece nei dinamici non la conosco a priori
+  //altrimenti avrei dovuto settare una chiave con date e poi modificarla
+  metadatiAggiuntiFormArray!: FormArray
 
 
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } },
-    private snackBar: MatSnackBar
   ) {}
 
-  ngOnInit(): void {
-    // Clono il context in input per modificarlo localmente
-    this.mapContextInputData = { ...this.data.context };
-
-    // Salvo una copia per eventuale annullamento modifiche
-    this.backUpContext = { ...this.mapContextInputData };
-
-    // Popolo la lista di chiavi da visualizzare (escludendo quelle tecniche)
-    this.tutteLeChiavi = Object.keys(this.mapContextInputData).filter(k => k !== 'type');
-
-    // Creo la mappa di etichette leggibili
-    this.etichetteChiavi = this.tutteLeChiavi.reduce((acc, chiave) => {
-      acc[chiave] =
-        chiave === 'display_name' ? 'Nome' :
-        chiave === 'descrizione' ? 'Descrizione' :
-        chiave === 'quantita' ? 'Quantità' :
-        this.normalizzaChiave(chiave);
-      return acc;
-    }, {} as { [key: string]: string });
-
-    console.log('[EditDataAdmin] Metadati ricevuti:', this.mapContextInputData);
-  }
-
-  /** Restituisce true se una chiave è tra quelle protette */
-  isChiaveProtetta(chiave: string): boolean {
-    return this.chiaviProtette.includes(chiave);
-  }
-
-/** Aggiunge un nuovo metadato con una chiave temporanea univoca */
-
-    /** Stato interno dei due campi */
-  private chiaveCompilata  = true;
-  private valoreCompilato = true;
-
-  /** Event handler per l’input “chiave” */
-onCheckChiave(value: string): void {
-  this.chiaveCompilata = !!value?.trim();
-}
-
-onCheckValore(value: string): void {
-  this.valoreCompilato = !!value?.trim();
-}
 
 
-aggiungiMetadato(): void {
 
-  // 1) se l’utente sta lasciando a metà la riga corrente, avvisa e termina
-  if (!(this.chiaveCompilata && this.valoreCompilato)) {
-this.snackBar.open('Compila prima CHIAVE e VALORE della riga corrente', 'Chiudi', {
-  duration: 4000,
+    ngOnInit(): void {
+        this.contextInputFromFather = this.data.context;
+        console.log("[EditDataAdmin] sto ricevento questo context: ", this.contextInputFromFather);
+        
+        this.backUpContextFromFather = {...this.contextInputFromFather};
+        console.log("BackUp del context: ", this.backUpContextFromFather);
+
+        //recupero le chiavi di contextInput
+        this.contextInputFromFatherKeys = Object.keys(this.contextInputFromFather);
+        console.log("Chiavi inizializzate: ", this.contextInputFromFatherKeys);
+
+        //recuperate le chiavi inizio a creare i miei form control da inserire nel group
+        this.contextInputFromFatherKeys.forEach(chiave =>
+            this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required)
+        )
+        /* Capiamo un attimo perche viene cosi sopra:
+          Quando creo una mappa 
+          const miaMappa: { [key: string]: string } = {};
+
+          se voglio assegnare un qualcosa alla mia mappa faccio map["miaChiave"] = "valroe";
+          stessa cosa sto facendo sopra 
+          display_name = new FormControl
+
+        */
+
+
+
+        console.log("Form control creati: ", this.formControlsFromFather);
+
+        //associamo gli n form control al form group
+        this.contextFormGroupFromFather = new FormGroup(this.formControlsFromFather); // funziona perche form group si aspetta chiave valore e qui in effetti sto passando             this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required) chiave valore anche perche   formControlsFromFather: { [key: string]: FormControl } = {};
+
+
+        console.log("From Group generato: ", this.contextFormGroupFromFather);
+
+        //lo istanzio vuoto per il momento //non so cosa conterra il mio array quindi any
+        this.metadatiAggiuntiFormArray = new FormArray<any>([], chiaviDuplicateValidator);
+
+        //inizio a creare il primo gruppo e lo assegno al gruppo padre
+        this.contextFormGroup = new FormGroup({
+          'metadatiFromFather': this.contextFormGroupFromFather,
+          'metadatiAggiunti': this.metadatiAggiuntiFormArray
 });
-    return;
-  }
 
-  // 2) Controlla se ci sono chiavi duplicate
-  const chiavi = Object.keys(this.mapContextInputData);
-  const chiaviPulite = chiavi.map(k => k.trim().toLowerCase()).filter(k => k !== '');
-  const chiaviUniche = new Set(chiaviPulite);
+        /*Ottenendo una cosa del genere:
+        {
+          metadatiFromFather: FormGroup {
+                  display_name: FormControl,
+                  descrizione: FormControl,
+                  ...
+                  },
+          metadatiAggiunti: FormGroup {
+                // dinamico
+          }
+} */
+    }
 
-  if (chiaviPulite.length !== chiaviUniche.size) {
-this.snackBar.open('Attenzione: ci sono chiavi duplicate o vuote.', 'Chiudi', {
-  duration: 4000,
-});
-    return;
-  }
-
-  // 3) Crea una chiave temporanea univoca
-  const nuovaChiave = `__temp_${Date.now()}`;
-  this.mapContextInputData[nuovaChiave] = '';
-
-  // 4) Aggiorna tutte le strutture collegate
-  this.tutteLeChiavi.push(nuovaChiave);
-  this.etichetteChiavi[nuovaChiave] = this.normalizzaChiave(nuovaChiave);
-
-  // 5) Blocca ulteriori aggiunte finché l’utente non compila la nuova riga
-  this.chiaveCompilata = false;
-  this.valoreCompilato = false;
-
-  console.log('Aggiunto nuovo metadato:', nuovaChiave);
-}
-
-
-  /** Rimuove il metadato indicato solo se non è protetto */
-rimuoviMetadato(index: number): void {
-  const chiaveDaRimuovere = this.tutteLeChiavi[index];
-
-  // 1. blocco eventuale su chiavi protette
-  if (this.isChiaveProtetta(chiaveDaRimuovere)) return;
-
-  // 2. rimozione vera e propria
-  delete this.mapContextInputData[chiaveDaRimuovere];
-  this.tutteLeChiavi.splice(index, 1);
-  delete this.etichetteChiavi[chiaveDaRimuovere];
-
-  // 3. ***aggiornamento dei flag***
-  if (this.tutteLeChiavi.length === 0) {
-    // Nessuna riga rimasta → lascio l’utente creare la prossima
-    this.chiaveCompilata  = true;
-    this.valoreCompilato = true;
-  } else {
-    // Calcolo i flag sulla NUOVA “riga corrente” (ultima dell’elenco)
-    const ultimaChiave = this.tutteLeChiavi[this.tutteLeChiavi.length - 1];
-    this.chiaveCompilata  = !!ultimaChiave.trim();
-    this.valoreCompilato = !!this.mapContextInputData[ultimaChiave]?.trim();
-  }
-
-  console.log('Rimosso metadato:', chiaveDaRimuovere);
-}
-
-  /** Restituisce true se la chiave suggerisce un campo numerico (prezzo, sconto, quantita) */
-  isNumericKey(key: string): boolean {
-    if (!key) return false;
-    const lower = key.toLowerCase();
-    return lower.includes('prezzo') || lower.includes('sconto') || lower.includes('quantita');
-  }
-
-  /** Verifica se la chiave corrente è duplicata (usata per evidenziare l'errore nel form) */
-  isChiaveDuplicata(chiave: string, indexCorrente: number): boolean {
-    return this.tutteLeChiavi.filter((k, i) => k === chiave && i !== indexCorrente).length > 0;
-  }
-
-/** Chiude il dialog solo se tutti i metadati sono validi */
-conferma(): void {
-
-  /* ───────────────────────────────────────────────────────
-     1) CONTROLLA CHIAVI / VALORI VUOTI
-     Verifica che ogni coppia chiave/valore abbia contenuto.
-     Serve a evitare conferme con righe incomplete.
-  ─────────────────────────────────────────────────────── */
-  const righeIncomplete = Object.entries(this.mapContextInputData).filter(
-    ([k, v]) => k.trim() === '' || v?.trim() === ''
-  );
-
-  if (righeIncomplete.length > 0) {
-  this.snackBar.open('Compila prima CHIAVE e VALORE della riga corrente', 'Chiudi', {
-    duration: 4000,
-  });    return;
-  }
-
-  /* ───────────────────────────────────────────────────────
-     2) CONTROLLA CHIAVI DUPLICATE
-     Usa la versione "pulita" (trim e lowercase) per evitare collisioni
-     tra chiavi come "Materiale" e "materiale".
-  ─────────────────────────────────────────────────────── */
-  const chiaviPulite = Object.keys(this.mapContextInputData)
-    .map(k => k.trim().toLowerCase());
-
-  const duplicate = chiaviPulite.find(
-    (val, idx, arr) => arr.indexOf(val) !== idx
-  );
-
-  if (duplicate) {
-this.snackBar.open(`La chiave "${duplicate}" è duplicata: modificala prima di confermare.`, 'Chiudi', {
-  duration: 4000,
-});
-    return;
-  }
-
-  /* ───────────────────────────────────────────────────────
-     3) VALIDAZIONE QUANTITÀ
-     Verifica che la chiave "quantita" esista, sia numerica e ≥ 0.
-  ─────────────────────────────────────────────────────── */
-  const quantitaStr = this.mapContextInputData['quantita'];
-  const quantitaNum = Number(quantitaStr);
-
-  if (
-    quantitaStr === undefined ||                  // campo mancante
-    quantitaStr.trim() === '' ||                 // campo vuoto
-    isNaN(quantitaNum) ||                        // non è un numero
-    quantitaNum < 0                              // numero negativo
-  ) {
-this.snackBar.open('Inserisci una QUANTITÀ valida (numero ≥ 0).', 'Chiudi', {
-  duration: 4000,
-});    return;
-  }
-
-  /* ───────────────────────────────────────────────────────
-     4) COSTRUISCI OGGETTO FINALE DA RITORNARE
-     Crea una copia pulita del contesto, con chiavi e valori trim.
-     Nessuna normalizzazione formattata qui: si usano le chiavi effettive.
-  ─────────────────────────────────────────────────────── */
-  const contextFinale: MediaContext = {};
-
-  Object.entries(this.mapContextInputData).forEach(([chiave, valore]) => {
-    const k = chiave.trim();   // chiave reale usata come oggetto
-    const v = valore.trim();   // valore normalizzato
-    contextFinale[k] = v;
-  });
-
-  // ✅ Chiude il dialog e restituisce i metadati validati
-  this.dialogRef.close(contextFinale);
-}
-
-  /** Chiude il dialog senza salvare le modifiche */
-  chiudiDialog(): void {
-    this.mapContextInputData = { ...this.backUpContext };
-    console.log('Modifiche annullate. Metadati ripristinati.', this.mapContextInputData);
-    this.dialogRef.close(this.backUpContext);
-  }
-
-  /** Converte una chiave tecnica (es. display_name, pippoFranco) in etichetta leggibile */
-  normalizzaChiave(chiave: string): string {
-    if (!chiave) return '';
-    const conSpazi = chiave
-      .replace(/_/g, ' ')                   // underscore → spazio
-      .replace(/([a-z])([A-Z])/g, '$1 $2'); // camelCase → spazio
-    return conSpazi
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
-  }
-
-  /** Rende maiuscola la prima lettera del valore, senza alterare il resto */
-  normalizzaValore(val: string): string {
-    if (!val) return '';
-    return val.charAt(0).toUpperCase() + val.slice(1);
-  }
-
-  trackByIndex(index: number, item: string): number {
-  return index;
-}
-
-
-  /**
- * Gestisce la modifica del nome di una chiave da parte dell’utente.
- * Quando l’utente cambia il nome di un metadato (es. da '' a 'materiale'),
- * aggiorna l'oggetto `mapContextInputData` spostando il valore alla nuova chiave,
- * eliminando la vecchia, e aggiornando tutte le strutture correlate.
+    /**
+ * Trasforma una chiave tecnica in una label leggibile
+ * Esempi:
+ *  'pippo_franco'   → 'Pippo Franco'
+ *  'ciao mondo'     → 'Ciao Mondo'
+ *  'display_name'   → 'Display Name'
  */
-onRenameChiave(index: number, nuovaChiave: string): void {
-  const chiavi = Object.keys(this.mapContextInputData);
-  const chiaveVecchia = chiavi[index];
+normalizzaChiave(chiave: string): string {
+  return chiave
+    // sostituisce underscore o più spazi con uno spazio singolo
+    .replace(/[_\s]+/g, ' ')
+    // divide in parole
+    .split(' ')
+    // capitalizza la prima lettera di ogni parola
+    .map(parola => parola.charAt(0).toUpperCase() + parola.slice(1).toLowerCase())
+    // ricompone la frase
+    .join(' ');
+}
 
-  const nuovaChiavePulita = nuovaChiave.trim();
-
-  // Se la nuova chiave è vuota o identica a quella vecchia, esco
-  if (!nuovaChiavePulita || chiaveVecchia === nuovaChiavePulita) return;
-
-  // Se esiste già, non permetto la sovrascrittura
-  if (this.mapContextInputData.hasOwnProperty(nuovaChiavePulita)) {
-    this.snackBar.open('Chiave già esistente', 'Chiudi', { duration: 3000 });
-    return;
+//prende come input una stringa e, vede se è display_name e la mette come nome
+normalizzaDisplayName(input: string){
+  let cambioNome;
+  if(input === 'display_name'){
+      cambioNome = 'nome file';
   }
-
-  // Copio il valore dalla vecchia chiave, poi elimino la vecchia
-  this.mapContextInputData[nuovaChiavePulita] = this.mapContextInputData[chiaveVecchia];
-  delete this.mapContextInputData[chiaveVecchia];
-
-  // Aggiorno anche i flag se vuoi:
-  this.onCheckChiave(nuovaChiavePulita);
+  else{
+    return input;
+  }
+  return cambioNome;
 }
-
-
-getChiave(index: number): string {
-  return Object.keys(this.mapContextInputData)[index];
-}
-
 
   
 
+
+
+
+    ngOnDestroy(): void {
+      this.contextInputFromFather = this.backUpContextFromFather;
+      console.log("Context ripristinato: ", this.contextInputFromFather);
+      this.dialogRef.close();
+    }
+
+    chiudiDialog(){
+      this.contextInputFromFather = this.backUpContextFromFather;
+      console.log("Context ripristinato: ", this.contextInputFromFather);
+      this.dialogRef.close();
+        }
+    
+        onConferma(){
+          console.log("la form è valida ? ", this.contextFormGroupFromFather.valid);
+        }
+
+        /* Ora per l'aggiunta dei metadata facciamo cosi:
+          Creiamo un nuovo FormGroup
+          Creo un form array 
+          */
+      addMetadata: boolean = false;
+      //metodo per aggiungere nuovi  metadati:
+onAggiungiCampo() {
+  // abilito il template per aggiungere un metadato
+  this.addMetadata = true;
+
+  // Creo un FormGroup per un nuovo metadato: { key: '', value: '' }
+  const nuovoMetadato = new FormGroup({
+    key: new FormControl('', Validators.required),
+    value: new FormControl('', Validators.required)
+  });
+
+  // Aggiungo il nuovo gruppo al FormArray
+  this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
+}
+
+// Getter per accedere facilmente al FormArray dei metadati aggiunti
+get getMetadatiAggiuntiFormArray(): FormArray {
+  return this.contextFormGroup.get('metadatiAggiunti') as FormArray;
+}
+
+
+// Metodo per verificare se una chiave inserita nel FormArray è già presente
+isChiaveDuplicata(indexDaEscludere: number = -1): boolean {
+  // Estrai l'elenco delle chiavi attualmente presenti nel FormArray
+  const keys = this.getMetadatiAggiuntiFormArray.controls
+    .map((control, index) => {
+      const keyValue = control.get('key')?.value?.trim();
+      return { key: keyValue, index };
+    })
+    .filter(item => item.key); // Filtra chiavi non vuote
+
+  // Crea un Set per controllare i duplicati
+  const chiaviVisitate = new Set<string>();
+
+  for (const { key, index } of keys) {
+    if (index === indexDaEscludere) continue; // escludi l'indice attuale (se serve)
+    if (chiaviVisitate.has(key)) {
+      return true; // Trovato duplicato
+    }
+    chiaviVisitate.add(key);
+  }
+
+  return false; // Nessun duplicato trovato
+}
 
 
 }

@@ -1,163 +1,128 @@
-/* Contenitore principale scrollabile del dialog */
-.dialog-scroll-content {
-  position: relative;
-  padding: 2rem 3rem;
-  padding-top: 3rem;
-  max-height: 85vh;
+/* ============================
+   Contenuto principale del dialog
+   ============================ */
+.contenuto-dialog {
+  padding: 16px;
+  max-height: 75vh;
   overflow-y: auto;
-  background-color: #ffffff;
-  border-radius: 12px;
-
-  // Scrollbar personalizzata per Webkit (Chrome/Safari)
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-  }
+  box-sizing: border-box;
+  background-color: #fff;
 }
 
-/* Layout verticale del contenuto principale */
-.upload-main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-/* Titolo del modulo */
-.titolo-form {
-  font-size: 1.6rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #333;
-}
-
-/* Contenitore della lista di metadati */
-.form-metadata {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding-bottom: 2rem; // migliora scroll con molti campi
-}
-
-/* Singola riga metadato (chiave, valore, rimuovi) */
-/* Singola riga metadato (chiave, valore, rimuovi) */
-.metadata-pair {
-  display: grid;
-  grid-template-columns: 0.4fr 0.6fr auto;
-  align-items: flex-start; // cambio da center a flex-start per gestire hint/error
-  gap: 1rem;
-
-  mat-form-field {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .mat-input-element {
-    word-break: break-word;
-  }
-
-  /* Pulsante rimozione */
-  button[mat-icon-button] {
-    color: #d32f2f;
-    font-size: 20px;
-    cursor: pointer;
-    transition: color 0.2s ease-in-out;
-
-    &:hover {
-      color: #b71c1c;
-    }
-  }
-
-  /* Classe in caso di chiave duplicata */
-  &.duplicata {
-    mat-form-field:first-child {
-      .mat-form-field-outline {
-        border-color: red !important;
-        transition: border-color 0.3s ease;
-      }
-
-      .mat-input-element {
-        border-color: red !important;
-      }
-    }
-  }
-
-  /* Messaggio di errore (mat-hint personalizzato) */
-  .errore-duplicato {
-    color: red;
-    font-size: 12px;
-    margin-top: 4px;
-    line-height: 1.2;
-    display: block;
-    font-weight: 500;
-  }
-}
-
-
-/* Pulsante per aggiungere un nuovo metadato */
-.add-metadata-btn {
-  align-self: flex-start;
-  padding: 0.5rem 1rem;
-  background-color: #e3f2fd;
-  color: #1976d2;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #bbdefb;
-  }
-}
-
-/* Sezione pulsanti finali (annulla/salva) */
-.azioni-footer {
+/* ============================
+   Sezione delle azioni in fondo
+   ============================ */
+.azioni-dialog {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fff;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
 
-  button {
-    min-width: 120px;
+/* ============================
+   Spazio tra i campi del form
+   ============================ */
+.form-row {
+  margin-bottom: 16px;
+}
+
+/* ============================
+   Campo input a larghezza piena
+   ============================ */
+.full-width {
+  width: 100%;
+}
+
+/* ============================
+   Stile per il pulsante di submit
+   ============================ */
+button[type='submit'] {
+  font-weight: 600;
+}
+
+/* ============================
+   Stile opzionale per textarea
+   ============================ */
+textarea[matInput] {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ============================
+   Sezione per pulsante "aggiungi campo"
+   ============================ */
+.add-button-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 4px;
+  padding-left: 4px;
+}
+
+/* Etichetta accanto al pulsante add */
+.add-label {
+  font-size: 14px;
+  color: #444;
+}
+
+/* ============================
+   Sezione per i metadati aggiunti
+   ============================ */
+.metadata-preview {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-left: 4px solid #1976d2;
+  border-radius: 4px;
+  font-size: 14px;
+
+  p {
+    margin: 0 0 8px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .metadata-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+
+    .key {
+      font-weight: 500;
+      color: #555;
+    }
+
+    .value {
+      color: #222;
+    }
   }
 }
 
-/* Pulsante di chiusura in alto a destra */
-.chiudi-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-
-  mat-icon {
-    font-size: 24px;
-    color: #444;
-  }
-
-  &:hover mat-icon {
-    color: #000;
-  }
+/* ============================
+   Titoli delle sezioni nel form
+   ============================ */
+h3 {
+  margin-top: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
 }
 
-/* Classe per disabilitare temporaneamente le interazioni */
-.blur {
-  filter: blur(3px);
-  pointer-events: none;
-  user-select: none;
-}
 
-/* Personalizzazione del contenitore del dialog */
-::ng-deep .mat-dialog-container {
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  max-width: 90vw;
-  max-height: 90vh !important;
-  padding: 0 !important;
-  border-radius: 16px;
-  box-sizing: border-box;
+/* Messaggio di chiave duplicata – versione compatta */
+.error-chiave-duplicata {
+  margin: 2px 0 6px;      /* meno spazio sopra e sotto */
+  font-size: 12px;        /* più piccolo */
+  line-height: 14px;      /* compattato */
+  color: #d32f2f;         /* rosso “warn” Material */
 }

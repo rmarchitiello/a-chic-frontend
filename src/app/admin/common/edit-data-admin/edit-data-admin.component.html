@@ -1,69 +1,85 @@
-<!-- Contenitore principale con scroll interno -->
-<div class="dialog-scroll-content">
+<!-- Form principale -->
+<form [formGroup]="contextFormGroup" (ngSubmit)="onConferma()">
 
-  <!-- Pulsante per chiudere il dialog -->
-  <button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
-    <mat-icon>close</mat-icon>
-  </button>
+  <!-- Contenitore scrollabile del contenuto del dialog -->
+  <div class="contenuto-dialog">
 
-  <!-- Contenuto principale del form -->
-  <div class="upload-main-content">
+    <!-- Sezione: Metadati esistenti ereditati dal padre -->
+    <div formGroupName="metadatiFromFather">
+      <h3>Metadati esistenti</h3>
 
-    <!-- Titolo del dialog -->
-    <h2 class="titolo-form">Modifica metadati del file</h2>
+      <!-- Ciclo su tutte le chiavi dei metadati ereditati -->
+      <div *ngFor="let key of contextInputFromFatherKeys" class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <!-- Etichetta leggibile normalizzata -->
+          <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
 
-    <!-- Contenitore della lista di metadati -->
-    <div class="form-metadata">
-
-      <!-- Ciclo su tutte le chiavi dei metadati -->
-      <!-- Ciclo su tutte le chiavi dei metadati -->
-      <div class="metadata-pair" *ngFor="let chiave of tutteLeChiavi; let i = index; trackBy: trackByIndex"
-
-        [ngClass]="{ 'duplicata': isChiaveDuplicata(chiave, i) }">
-
-        <!-- Campo chiave (disabilitato se protetta) -->
-        <mat-form-field appearance="outline" floatLabel="always">
-          <input matInput [disabled]="isChiaveProtetta(chiave)"
-          (ngModelChange)="onRenameChiave(i, $event); onCheckChiave($event)"
-
-          [(ngModel)]="tutteLeChiavi[i]" [name]="'chiave_' + i"
-            [placeholder]="normalizzaChiave(chiave)" />
-
-          <!-- Messaggio di errore visivo semplice -->
-          <div *ngIf="isChiaveDuplicata(chiave, i)" class="errore-duplicato">
-            Chiave già presente
-          </div>
+          <!-- Campo input associato alla chiave specifica -->
+          <input
+            matInput
+            [formControlName]="key"
+            [placeholder]="'Inserisci ' + key"
+          />
         </mat-form-field>
-
-        <!-- Campo valore (modificabile sempre) -->
-        <mat-form-field appearance="outline" floatLabel="always">
-          <input matInput [type]="isNumericKey(chiave) ? 'number' : 'text'"
-            (ngModelChange)="onCheckValore($event)"
-          [(ngModel)]="mapContextInputData[chiave]"
-            [name]="'valore_' + i" [placeholder]="isNumericKey(chiave) ? 'es. 29.90' : 'es. pelle'" />
-        </mat-form-field>
-
-        <!-- Bottone per eliminare il metadato (solo se non è protetto) -->
-        <button mat-icon-button *ngIf="!isChiaveProtetta(chiave)" color="warn" type="button"
-          (click)="rimuoviMetadato(i)" matTooltip="Rimuovi metadato">
-          <mat-icon>delete</mat-icon>
-        </button>
-
       </div>
-
-
-
-      <!-- Pulsante per aggiungere un nuovo metadato -->
-      <button mat-stroked-button class="add-metadata-btn"   type="button" (click)="aggiungiMetadato()">
-        + Aggiungi metadato
-      </button>
-
-      <!-- Azioni in fondo (annulla / conferma) -->
-      <div class="azioni-footer">
-        <button mat-button color="warn" (click)="chiudiDialog()">Annulla</button>
-        <button mat-flat-button color="primary" (click)="conferma()">Conferma</button>
-      </div>
-
     </div>
+
+    <!-- Sezione: Metadati aggiunti manualmente dall'utente -->
+    <div formArrayName="metadatiAggiunti">
+      <h3>Metadati aggiunti</h3>
+
+      <!-- Ciclo su ogni gruppo (key + value) presente nel FormArray -->
+      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i" class="form-row">
+
+        <!-- Campo per la chiave del metadato -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Chiave</mat-label>
+          <input matInput formControlName="key" placeholder="Es. colore" />
+
+    <!-- Errore di chiave duplicata -->
+    <p class="error-chiave-duplicata" *ngIf="
+      getMetadatiAggiuntiFormArray.errors?.['chiaviDuplicate']
+      && group.get('key')?.touched
+      ">
+      Chiave duplicata: esiste già un metadato con lo stesso nome.
+        </p>
+        </mat-form-field>
+
+        <!-- Campo per il valore del metadato -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Valore</mat-label>
+          <input matInput formControlName="value" placeholder="Es. rosso" />
+        </mat-form-field>
+
+      </div>
+    </div>
+
+    <!-- Pulsante per aggiungere un nuovo metadato dinamico -->
+    <div class="add-button-container">
+      <button
+        mat-mini-fab
+        color="primary"
+        matTooltip="Aggiungi metadata"
+        type="button"
+        (click)="onAggiungiCampo()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
   </div>
-</div>
+
+  <!-- Sezione con i pulsanti di azione in basso -->
+  <div class="azioni-dialog">
+    <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      [disabled]="contextFormGroup.invalid"
+    >
+      Conferma
+    </button>
+  </div>
+
+</form>
