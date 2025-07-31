@@ -627,7 +627,7 @@ export class EditDataAdminComponent implements OnInit {
       const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
       console.log("Display Name Ottenuto: ", displayNameOttenuto);
       const checkExistImage = Object.keys(this.onlyDisplayNameAndUrlFrontale).some(
-        nome => nome === displayNameOttenuto
+        nome => nome.toLocaleLowerCase() === displayNameOttenuto.toLocaleLowerCase()
       ); if (checkExistImage && this.onChangeDisplayName) {
         console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
         this.errorEditMetadata = true;
