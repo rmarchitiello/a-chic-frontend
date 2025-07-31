@@ -114,7 +114,7 @@
               <div class="azioni-btn-group">
                 <button mat-icon-button color="primary"
                   *ngIf="fileSelezionatoComeFrontale === file && statoUpload.get(file) !== 'ok'"
-                  (click)="apriPopUpEditFile(file)" matTooltip="Modifica metadati">
+                  (click)="apriPopUpEditMedia(file,true)" matTooltip="Modifica metadati">
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" *ngIf="statoUpload.get(file) !== 'ok'" (click)="rimuoviFile(file)"

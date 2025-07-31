@@ -78,7 +78,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
    * Metodo per aprire un popup e modificare i metadati di un file selezionato.
    * In input passa il file, così da leggere o creare i metadati associati.
    */
-  apriPopUpEditFile(file: File): void {
+  apriPopUpEditMedia(file: File, isUploadComponent: boolean): void {
     // Recupero i metadati già presenti oppure inizializzo a oggetto vuoto
     const metadataEsistenti = this.metadatiPerFile.get(file) || {};
 
@@ -90,12 +90,15 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
       panelClass: 'popup-edit-metadati-dialog',
       data: {
         file,
-        context: metadataClonati
+        context: metadataClonati,
+        isUploadComponent: isUploadComponent
       }
     });
 
     dialogRef.afterClosed().subscribe((result: MediaContext | undefined) => {
+      console.log("DialogRed chiamato", result);
       if (result) {
+        console.log("[UploadDataAdmin] RICEVO CONTEXT AGGIORNATO: ", result);
         // Se il file è quello selezionato come frontale, imposto angolazione frontale
         if (this.fileSelezionatoComeFrontale === file) {
           result['angolazione'] = 'frontale';

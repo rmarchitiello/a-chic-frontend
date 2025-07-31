@@ -327,7 +327,7 @@ e opzionale usarlo..
   ]
 }
 */
-import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 
@@ -366,7 +366,7 @@ import { AdminService } from '../../../services/admin.service';
   templateUrl: './edit-data-admin.component.html',
   styleUrl: './edit-data-admin.component.scss'
 })
-export class EditDataAdminComponent implements OnInit, OnDestroy {
+export class EditDataAdminComponent implements OnInit {
   /* Per gestire l'invalidita della form contextGroup, creo un Validator custom sul FormsArray per gestire le chiavi duplicate*/
 
   //Recupero il context in input
@@ -596,10 +596,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
 
 
 
-  ngOnDestroy(): void {
-    this.dialogRef.close();
-  }
-
+ 
   chiudiDialog() {
     this.contextInputFromFather = this.backUpContextFromFather;
     console.log("Context ripristinato: ", this.contextInputFromFather);
@@ -612,6 +609,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
   chiudiAfterEditOK(){
     this.dialogRef.close();
   }
+
 
   //per generare un messaggio di errore che l'edit è fallito
   errorEditMetadata: boolean = false;
@@ -653,6 +651,12 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
           }
         });
       }
+
+      }else{
+        console.log("siamo nella fase di upload e quindi non di edit: ");
+        const contextAggiornato: MediaContext = this.trasformInMediaContext();
+        console.log("Aggiorno il context da inviare all'upload: ", contextAggiornato);
+            this.dialogRef.close(contextAggiornato);
 
     }
 
