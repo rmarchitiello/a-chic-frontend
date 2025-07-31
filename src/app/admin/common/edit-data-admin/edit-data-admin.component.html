@@ -51,6 +51,13 @@
    ">
             Chiave già presente nei metadati esistenti.
           </p>
+          <p class="error-chiave-duplicata" *ngIf="
+     group.get('key')?.hasError('pattern') &&
+     group.get('key')?.touched
+   ">
+            Inserisci caratteri validi.
+          </p>
+
 
         </mat-form-field>
 

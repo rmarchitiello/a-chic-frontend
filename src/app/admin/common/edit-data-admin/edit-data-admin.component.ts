@@ -306,6 +306,26 @@ e opzionale usarlo..
               ├── nuovaChiave1 (FormControl)
               ├── nuovaChiave2 (FormControl)
               └── ...
+
+              Ottenere quindi un oggetto del genere:
+              {
+	"metadatiFromFather": {
+		"display_name": "carosello2",
+		"descrizione": "Da inserire",
+		"quantita": "0",
+		"type": "image"
+	},
+	"metadatiAggiunti": [
+		{
+			"key": "prezzo",
+			"value": "10"
+		},
+		{
+			"key": "materiale",
+			"value": "pelle"
+		}
+	]
+}
 */
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -575,6 +595,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
   errorEditMetadata: boolean = false;
   onConferma() {
 
+    //vuol dire che se è false (non mi sta chiamando l'upload allora qui sara true e chiama il service admin che esegue l'update dei metadata)
     if (!this.data.isUploadComponent) {
       console.log("Non mi sta chiamando l'upload");
       //non mi sta chiamando l'upload cio vuol dire che devo invocare media la put('/admin/media-images del backend per modificare i metadati
@@ -590,11 +611,68 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
         console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
         this.errorEditMetadata = true;
       }
-      const contextAggiornato = this.contextFormGroup.value;
-      console.log("Procedo con la rinomina o aggiunta dei metadati. . . ", JSON.stringify(contextAggiornato));
+      const contextAggiornato: MediaContext = this.trasformInMediaContext();
+      console.log("MediaContext aggiornato . . .", contextAggiornato);
     }
 
   }
+
+  /* Devo trasformare la form in MediaContext
+    La form è questa {
+	"metadatiFromFather": {
+		"display_name": "carosello2",
+		"descrizione": "Da inserire",
+		"quantita": "0",
+		"type": "image"
+	},
+	"metadatiAggiunti": [
+		{
+			"key": "prezzo",
+			"value": "10"
+		},
+		{
+			"key": "materiale",
+			"value": "pelle"
+		}
+	]
+}
+  */
+ //La invoco nella conferma
+ /**
+ * Metodo per trasformare i dati presenti nel FormGroup padre (`contextFormGroupFromFather`)
+ * e nel FormArray (`getMetadatiAggiuntiFormArray`) in un unico oggetto piatto
+ * conforme all'interfaccia `MediaContext`, che unisce i metadati statici e quelli dinamici.
+ *
+ */
+trasformInMediaContext(): MediaContext {
+  // 1. Recupera i metadati principali (statici) dal FormGroup padre
+  const metadatiPrincipali = this.contextFormGroupFromFather.value;
+
+  // 2. Recupera i metadati aggiuntivi (dinamici) dal FormArray, come array di oggetti { key, value }
+  const metadatiAggiunti = this.getMetadatiAggiuntiFormArray.value;
+
+  // 3. Costruisce un oggetto a partire dai metadati aggiuntivi, ignorando quelli con key o value vuoti
+  const aggiuntiviObj = metadatiAggiunti.reduce((acc: { [key: string]: string }, curr: any) => {
+if (curr.key && curr.value) {
+  // Normalizza la chiave: trim e rimozione spazi multipli
+  const chiaveNormalizzata = curr.key.toString().trim().replace(/\s+/g, '_');
+  acc[chiaveNormalizzata] = curr.value;
+}
+    return acc;
+  }, {});
+
+  // 4. Unisce i metadati statici e dinamici in un unico oggetto `MediaContext`
+  const contextAggiornato: MediaContext = {
+    ...metadatiPrincipali,
+    ...aggiuntiviObj
+  };
+
+  // 5. Stampa di debug per verifica
+
+  // 6. Ritorna il contesto unificato
+  return contextAggiornato;
+}
+
 
   /* Ora per l'aggiunta dei metadata facciamo cosi:
     Creiamo un nuovo FormGroup
@@ -602,19 +680,23 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
     */
   addMetadata: boolean = false;
   //metodo per aggiungere nuovi  metadati:
-  onAggiungiCampo() {
-    // abilito il template per aggiungere un metadato
-    this.addMetadata = true;
+onAggiungiCampo() {
+  // ✅ Mostra il template per aggiungere un metadato
+  this.addMetadata = true;
 
-    // Creo un FormGroup per un nuovo metadato: { key: '', value: '' }
-    const nuovoMetadato = new FormGroup({
-      key: new FormControl('', Validators.required),
-      value: new FormControl('', Validators.required)
-    });
+  // ✅ Crea un FormGroup per il nuovo campo con validazioni
+  const nuovoMetadato = new FormGroup({
+    key: new FormControl('', [
+      Validators.required,
+      Validators.pattern(/^[a-zA-Z0-9_-]+$/)  // ✅ Nessuno spazio o carattere speciale
+    ]),
+    value: new FormControl('', Validators.required)
+  });
 
-    // Aggiungo il nuovo gruppo al FormArray
-    this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
-  }
+  // ✅ Aggiunge il nuovo gruppo al FormArray
+  this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
+}
+
 
   // Getter per accedere facilmente al FormArray dei metadati aggiunti
   get getMetadatiAggiuntiFormArray(): FormArray {
