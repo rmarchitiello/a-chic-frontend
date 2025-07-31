@@ -3,68 +3,67 @@
 
   <!-- Contenitore scrollabile del contenuto del dialog -->
   <div class="contenuto-dialog">
+
+    <!-- Pulsante di chiusura in alto a destra -->
     <button class="chiudi-btn" type="button" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
+
     <!-- Sezione: Metadati esistenti ereditati dal padre -->
     <div formGroupName="metadatiFromFather">
       <h3>Metadati esistenti</h3>
 
-      <div *ngFor="let key of contextInputFromFatherKeys" class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
+      <!-- Iterazione sui metadati esistenti -->
+      <!-- I metadati con chiave 'angolazione' e 'type' vengono esclusi -->
+      <ng-container *ngFor="let key of contextInputFromFatherKeys">
+        <div class="form-row" *ngIf="key !== 'angolazione' && key !== 'type'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
 
-          <!-- Textarea solo per 'descrizione' -->
-          <textarea *ngIf="key === 'descrizione'" matInput [formControlName]="key" rows="3"
-            [placeholder]="'Inserisci ' + key"></textarea>
+            <!-- Textarea solo per il campo 'descrizione' -->
+            <textarea *ngIf="key === 'descrizione'" matInput [formControlName]="key" rows="3"
+              [placeholder]="'Inserisci ' + key"></textarea>
 
-          <!-- Input per tutte le altre chiavi -->
-          <input *ngIf="key !== 'descrizione'" matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
-        </mat-form-field>
-      </div>
+            <!-- Input per tutti gli altri campi -->
+            <input *ngIf="key !== 'descrizione'" matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
+          </mat-form-field>
+        </div>
+      </ng-container>
     </div>
-
 
     <!-- Sezione: Metadati aggiunti manualmente dall'utente -->
     <div formArrayName="metadatiAggiunti">
       <h3>Metadati aggiunti</h3>
 
-      <!-- Ciclo su ogni gruppo (key + value) presente nel FormArray -->
+      <!-- Iterazione sui campi dinamici (aggiunti dall'utente) -->
       <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i"
         class="form-row">
 
-        <!-- Campo per la chiave del metadato -->
+        <!-- Campo per la chiave -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Chiave</mat-label>
           <input matInput formControlName="key" placeholder="Es. colore" />
 
-          <!-- Errore di chiave duplicata -->
-          <!-- messaggio per duplicato interno -->
+          <!-- Messaggio di errore: chiave duplicata -->
           <p class="error-chiave-duplicata" *ngIf="
-     group.get('key')?.hasError('chiaviDuplicate') &&
-     group.get('key')?.touched
-   ">
+            group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
             Chiave duplicata: esiste già un metadato con lo stesso nome.
           </p>
 
-          <!-- messaggio per conflitto con chiave riservata -->
+          <!-- Messaggio di errore: conflitto con chiave riservata -->
           <p class="error-chiave-duplicata" *ngIf="
-     group.get('key')?.hasError('chiaviRiservate') &&
-     group.get('key')?.touched
-   ">
+            group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
             Chiave già presente nei metadati esistenti.
           </p>
+
+          <!-- Messaggio di errore: caratteri non validi -->
           <p class="error-chiave-duplicata" *ngIf="
-     group.get('key')?.hasError('pattern') &&
-     group.get('key')?.touched
-   ">
+            group.get('key')?.hasError('pattern') && group.get('key')?.touched">
             Inserisci caratteri validi.
           </p>
-
-
         </mat-form-field>
 
-        <!-- Campo per il valore del metadato -->
+        <!-- Campo per il valore -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Valore</mat-label>
           <input matInput formControlName="value" placeholder="Es. rosso" />
@@ -82,9 +81,9 @@
 
   </div>
 
-  <!-- Sezione con i pulsanti di azione in basso -->
+  <!-- Sezione inferiore con i pulsanti di azione -->
   <div class="azioni-dialog">
-    <button mat-button type="button" type="button" (click)="chiudiDialog()">Annulla</button>
+    <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
     <button mat-flat-button color="primary" type="submit" [disabled]="contextFormGroup.invalid">
       Conferma
     </button>
