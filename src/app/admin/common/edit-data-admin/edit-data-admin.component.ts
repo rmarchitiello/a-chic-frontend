@@ -293,20 +293,20 @@ e opzionale usarlo..
       */
 
 
-  /* In base a quanto detto sopra l'idea di base è creare un formGroup padre chiamato contextGroup all intenro abbiamo due form group uno con
-     i metadati di input quindi dal component padre al figlio (questo) con n form control per quanti dati sono passati dal padre
-     e un altro form group con  due form control statici formControlKey e formControlValue per gestire la chiave e il valore ovvero avere una situazione del genere:
+/* In base a quanto detto sopra l'idea di base è creare un formGroup padre chiamato contextGroup all intenro abbiamo due form group uno con
+   i metadati di input quindi dal component padre al figlio (questo) con n form control per quanti dati sono passati dal padre
+   e un altro form group con  due form control statici formControlKey e formControlValue per gestire la chiave e il valore ovvero avere una situazione del genere:
 
-     contextForm (FormGroup)
-        ├── metadatiDiInput (FormGroup)
-        │       ├── display_name (FormControl)
-        │       ├── descrizione (FormControl)
-        │       └── ...
-        └── metadatiAggiunti (FormGroup)
-                ├── nuovaChiave1 (FormControl)
-                ├── nuovaChiave2 (FormControl)
-                └── ...
-  */
+   contextForm (FormGroup)
+      ├── metadatiDiInput (FormGroup)
+      │       ├── display_name (FormControl)
+      │       ├── descrizione (FormControl)
+      │       └── ...
+      └── metadatiAggiunti (FormGroup)
+              ├── nuovaChiave1 (FormControl)
+              ├── nuovaChiave2 (FormControl)
+              └── ...
+*/
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -341,11 +341,11 @@ import { SharedDataService } from '../../../services/shared-data.service';
     MatButtonModule,
     MatIconModule,
     MatTooltip
-],
+  ],
   templateUrl: './edit-data-admin.component.html',
   styleUrl: './edit-data-admin.component.scss'
 })
-export class EditDataAdminComponent implements OnInit,OnDestroy {
+export class EditDataAdminComponent implements OnInit, OnDestroy {
   /* Per gestire l'invalidita della form contextGroup, creo un Validator custom sul FormsArray per gestire le chiavi duplicate*/
 
   //Recupero il context in input
@@ -395,253 +395,256 @@ export class EditDataAdminComponent implements OnInit,OnDestroy {
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string }, isUploadComponent: boolean },
     private sharedDataService: SharedDataService
-  ) {}
+  ) { }
 
 
 
 
-    ngOnInit(): void {
-        // se this.data.isUploadComponent e tyrue vuol dire che mi sta chiamando l'upload e quindi quando chiudo il pop up non chiamo direttamente qui media-update ma do i dati al padre
-        console.log("Mi sta chiamando l'[UploadDataAdminComponent? ], se false allora recupero tutte le media collections ", this.data.isUploadComponent)
-      
-        this.sharedDataService.mediasCollectionsConfig$.subscribe(data =>{
-          this.mediaCollectionsFromAppComponent = data;
-          
-          if(this.mediaCollectionsFromAppComponent.length > 0){
-                    //recupero solo il display name di metadati frontali recupero solo il primo elemento anche perche viene passata una folder precisa quindi
+  ngOnInit(): void {
+    // se this.data.isUploadComponent e tyrue vuol dire che mi sta chiamando l'upload e quindi quando chiudo il pop up non chiamo direttamente qui media-update ma do i dati al padre
+    console.log("Mi sta chiamando l'[UploadDataAdminComponent? ], se false allora recupero tutte le media collections ", this.data.isUploadComponent)
+
+    this.sharedDataService.mediasCollectionsConfig$.subscribe(data => {
+      this.mediaCollectionsFromAppComponent = data;
+
+      if (this.mediaCollectionsFromAppComponent.length > 0) {
+        //recupero solo il display name di metadati frontali recupero solo il primo elemento anche perche viene passata una folder precisa quindi
         const mediaCollection = this.mediaCollectionsFromAppComponent[0];
 
         console.log("Ricezione della media collection . . . ", mediaCollection);
         mediaCollection.items.forEach(item => {
-         let displayName = item.context.display_name;
-         if(displayName){
-              this.onlyDisplayNameFrontale.push(displayName);
+          let displayName = item.context.display_name;
+          if (displayName) {
+            this.onlyDisplayNameFrontale.push(displayName);
 
-         }
-        })
           }
-          
-                  console.log("Array di nomi immagine frontale: ", this.onlyDisplayNameFrontale);
-
-
         })
+      }
+
+      console.log("Array di nomi immagine frontale: ", this.onlyDisplayNameFrontale);
+
+
+    })
 
 
 
-        this.contextInputFromFather = this.data.context;
-        console.log("[EditDataAdmin] sto ricevento questo context: ", this.contextInputFromFather);
-        
-        this.backUpContextFromFather = {...this.contextInputFromFather};
-        console.log("BackUp del context: ", this.backUpContextFromFather);
+    this.contextInputFromFather = this.data.context;
+    console.log("[EditDataAdmin] sto ricevento questo context: ", this.contextInputFromFather);
 
-        //recupero le chiavi di contextInput
-        this.contextInputFromFatherKeys = Object.keys(this.contextInputFromFather);
-        console.log("Chiavi inizializzate: ", this.contextInputFromFatherKeys);
+    this.backUpContextFromFather = { ...this.contextInputFromFather };
+    console.log("BackUp del context: ", this.backUpContextFromFather);
 
-        //recuperate le chiavi inizio a creare i miei form control da inserire nel group
-        this.contextInputFromFatherKeys.forEach(chiave =>
-            this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required)
-        )
-        /* Capiamo un attimo perche viene cosi sopra:
-          Quando creo una mappa 
-          const miaMappa: { [key: string]: string } = {};
+    //recupero le chiavi di contextInput
+    this.contextInputFromFatherKeys = Object.keys(this.contextInputFromFather);
+    console.log("Chiavi inizializzate: ", this.contextInputFromFatherKeys);
 
-          se voglio assegnare un qualcosa alla mia mappa faccio map["miaChiave"] = "valroe";
-          stessa cosa sto facendo sopra 
-          display_name = new FormControl
+    //recuperate le chiavi inizio a creare i miei form control da inserire nel group
+    this.contextInputFromFatherKeys.forEach(chiave =>
+      this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required)
+    )
+    /* Capiamo un attimo perche viene cosi sopra:
+      Quando creo una mappa 
+      const miaMappa: { [key: string]: string } = {};
 
-        */
+      se voglio assegnare un qualcosa alla mia mappa faccio map["miaChiave"] = "valroe";
+      stessa cosa sto facendo sopra 
+      display_name = new FormControl
 
-
-
-        console.log("Form control creati: ", this.formControlsFromFather);
-
-        //associamo gli n form control al form group
-        this.contextFormGroupFromFather = new FormGroup(this.formControlsFromFather); // funziona perche form group si aspetta chiave valore e qui in effetti sto passando             this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required) chiave valore anche perche   formControlsFromFather: { [key: string]: FormControl } = {};
+    */
 
 
-        console.log("From Group generato: ", this.contextFormGroupFromFather);
 
-        //lo istanzio vuoto per il momento //non so cosa conterra il mio array quindi any
-        this.metadatiAggiuntiFormArray = new FormArray<any>([], chiaviValidatorEsteso(this.contextInputFromFatherKeys));
+    console.log("Form control creati: ", this.formControlsFromFather);
 
-        //inizio a creare il primo gruppo e lo assegno al gruppo padre
-        this.contextFormGroup = new FormGroup({
-          'metadatiFromFather': this.contextFormGroupFromFather,
-          'metadatiAggiunti': this.metadatiAggiuntiFormArray
-});
+    //associamo gli n form control al form group
+    this.contextFormGroupFromFather = new FormGroup(this.formControlsFromFather); // funziona perche form group si aspetta chiave valore e qui in effetti sto passando             this.formControlsFromFather[chiave] = new FormControl(this.contextInputFromFather[chiave], Validators.required) chiave valore anche perche   formControlsFromFather: { [key: string]: FormControl } = {};
 
-        /*Ottenendo una cosa del genere:
-        {
-          metadatiFromFather: FormGroup {
-                  display_name: FormControl,
-                  descrizione: FormControl,
-                  ...
-                  },
-          metadatiAggiunti: FormGroup {
-                // dinamico
-          }
+
+    console.log("From Group generato: ", this.contextFormGroupFromFather);
+
+    //lo istanzio vuoto per il momento //non so cosa conterra il mio array quindi any
+    this.metadatiAggiuntiFormArray = new FormArray<any>([], chiaviValidatorEsteso(this.contextInputFromFatherKeys));
+
+    //inizio a creare il primo gruppo e lo assegno al gruppo padre
+    this.contextFormGroup = new FormGroup({
+      'metadatiFromFather': this.contextFormGroupFromFather,
+      'metadatiAggiunti': this.metadatiAggiuntiFormArray
+    });
+
+    /*Ottenendo una cosa del genere:
+    {
+      metadatiFromFather: FormGroup {
+              display_name: FormControl,
+              descrizione: FormControl,
+              ...
+              },
+      metadatiAggiunti: FormGroup {
+            // dinamico
+      }
 } */
 
 
-// -----------------------------------------------------------------------------
-// ASCOLTO DEL CAMPO “display_name”  (versione senza distinctUntilChanged)
-// -----------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
+    // ASCOLTO DEL CAMPO “display_name”  (versione senza distinctUntilChanged)
+    // -----------------------------------------------------------------------------
 
-// 1. Salvo il valore originale quando apro il dialog
-const nomeOriginale = this.contextFormGroupFromFather
-  .get('display_name')
-  ?.value
-  ?.toString()
-  .trim();
+    // 1. Salvo il valore originale quando apro il dialog
+    const nomeOriginale = this.contextFormGroupFromFather
+      .get('display_name')
+      ?.value
+      ?.toString()
+      .trim();
 
-console.log('Nome originale:', nomeOriginale);
+    console.log('Nome originale:', nomeOriginale);
 
-// 2. Mi metto in ascolto su tutti i cambiamenti dell’input
-this.contextFormGroupFromFather
-  .get('display_name')
-  ?.valueChanges
-  .subscribe(nuovoValore => {
+    // 2. Mi metto in ascolto su tutti i cambiamenti dell’input
+    this.contextFormGroupFromFather
+      .get('display_name')
+      ?.valueChanges
+      .subscribe(nuovoValore => {
 
-    const nuovoNormalizzato = nuovoValore?.toString().trim();
-    console.log('Sta cambiando display_name →', nuovoNormalizzato);
+        const nuovoNormalizzato = nuovoValore?.toString().trim();
+        console.log('Sta cambiando display_name →', nuovoNormalizzato);
 
-    /* onChangeDisplayName diventa true se il valore è diverso
-       dall’originale; altrimenti resta/torna false                */
-    this.onChangeDisplayName = nuovoNormalizzato !== nomeOriginale;
+        /* onChangeDisplayName diventa true se il valore è diverso
+           dall’originale; altrimenti resta/torna false                */
+        this.onChangeDisplayName = nuovoNormalizzato !== nomeOriginale;
 
-    console.log('Display name è cambiato?', this.onChangeDisplayName);
-  });
+        console.log('Display name è cambiato?', this.onChangeDisplayName);
+      });
 
-/* Se gestisci unsubscribe:
-   - crea un Subject destroy$  (private destroy$ = new Subject<void>();)
-   - usa takeUntil(this.destroy$) nella pipe
-   - chiama this.destroy$.next() in ngOnDestroy()                      */
-
-
+    /* Se gestisci unsubscribe:
+       - crea un Subject destroy$  (private destroy$ = new Subject<void>();)
+       - usa takeUntil(this.destroy$) nella pipe
+       - chiama this.destroy$.next() in ngOnDestroy()                      */
 
 
-    }
 
-    /**
- * Trasforma una chiave tecnica in una label leggibile
- * Esempi:
- *  'pippo_franco'   → 'Pippo Franco'
- *  'ciao mondo'     → 'Ciao Mondo'
- *  'display_name'   → 'Display Name'
- */
-normalizzaChiave(chiave: string): string {
-  return chiave
-    // sostituisce underscore o più spazi con uno spazio singolo
-    .replace(/[_\s]+/g, ' ')
-    // divide in parole
-    .split(' ')
-    // capitalizza la prima lettera di ogni parola
-    .map(parola => parola.charAt(0).toUpperCase() + parola.slice(1).toLowerCase())
-    // ricompone la frase
-    .join(' ');
-}
 
-//prende come input una stringa e, vede se è display_name e la mette come nome
-normalizzaDisplayName(input: string){
-  let cambioNome;
-  if(input === 'display_name'){
+  }
+
+  /**
+* Trasforma una chiave tecnica in una label leggibile
+* Esempi:
+*  'pippo_franco'   → 'Pippo Franco'
+*  'ciao mondo'     → 'Ciao Mondo'
+*  'display_name'   → 'Display Name'
+*/
+  normalizzaChiave(chiave: string): string {
+    return chiave
+      // sostituisce underscore o più spazi con uno spazio singolo
+      .replace(/[_\s]+/g, ' ')
+      // divide in parole
+      .split(' ')
+      // capitalizza la prima lettera di ogni parola
+      .map(parola => parola.charAt(0).toUpperCase() + parola.slice(1).toLowerCase())
+      // ricompone la frase
+      .join(' ');
+  }
+
+  //prende come input una stringa e, vede se è display_name e la mette come nome
+  normalizzaDisplayName(input: string) {
+    let cambioNome;
+    if (input === 'display_name') {
       cambioNome = 'nome file';
+    }
+    else {
+      return input;
+    }
+    return cambioNome;
   }
-  else{
-    return input;
+
+
+
+
+
+
+  ngOnDestroy(): void {
+    this.chiudiDialog();
   }
-  return cambioNome;
-}
 
-  
+  chiudiDialog() {
+    this.contextInputFromFather = this.backUpContextFromFather;
+    console.log("Context ripristinato: ", this.contextInputFromFather);
+    this.errorEditMetadata = false;
+    this.onChangeDisplayName = false;
+    this.dialogRef.close();
+  }
 
+  //per generare un messaggio di errore che l'edit è fallito
+  errorEditMetadata: boolean = false;
+  onConferma() {
 
-
-
-    ngOnDestroy(): void {
-            this.chiudiDialog();
+    if (!this.data.isUploadComponent) {
+      console.log("Non mi sta chiamando l'upload");
+      //non mi sta chiamando l'upload cio vuol dire che devo invocare media la put('/admin/media-images del backend per modificare i metadati
+      //e notificare l'app component col servizio di notify, prima però verifico se esiste gia quel display_name altrimenti non devo modificare
+      //i metdadati e devo dare errore
+      /* Ma deve anche verificare che in effetti sia stato cambiato il valore di display_name e che quindi devo stare in ascolto
+      ai cambiamenti di display_name perche altrimenti andrei sempre in errore
+      verifica anche se è lo stesso file con const nomeFileOriginale*/
+      const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
+      console.log("Display Name Ottenuto: ", displayNameOttenuto);
+      const checkExistImage = this.onlyDisplayNameFrontale.some(nome => nome === displayNameOttenuto)
+      if (checkExistImage && this.onChangeDisplayName) {
+        console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
+        this.errorEditMetadata = true;
+      }
+      const contextAggiornato = this.contextFormGroup.value;
+      console.log("Procedo con la rinomina o aggiunta dei metadati. . . ", JSON.stringify(contextAggiornato));
     }
 
-    chiudiDialog(){
-      this.contextInputFromFather = this.backUpContextFromFather;
-      console.log("Context ripristinato: ", this.contextInputFromFather);
-      this.errorEditMetadata = false;
-      this.onChangeDisplayName = false;
-      this.dialogRef.close();
-        }
-    
-        //per generare un messaggio di errore che l'edit è fallito
-        errorEditMetadata: boolean = false;
-        onConferma(){
-
-          if(!this.data.isUploadComponent){
-            console.log("Non mi sta chiamando l'upload");
-            //non mi sta chiamando l'upload cio vuol dire che devo invocare media la put('/admin/media-images del backend per modificare i metadati
-            //e notificare l'app component col servizio di notify, prima però verifico se esiste gia quel display_name altrimenti non devo modificare
-            //i metdadati e devo dare errore
-            /* Ma deve anche verificare che in effetti sia stato cambiato il valore di display_name e che quindi devo stare in ascolto
-            ai cambiamenti di display_name perche altrimenti andrei sempre in errore*/
-            const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
-            console.log("Display Name Ottenuto: ", displayNameOttenuto);
-            const checkExistImage = this.onlyDisplayNameFrontale.some(nome => nome === displayNameOttenuto)
-            if(checkExistImage && this.onChangeDisplayName){
-              console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
-              this.errorEditMetadata = true;
-            }
-          }
-
-        }
-
-        /* Ora per l'aggiunta dei metadata facciamo cosi:
-          Creiamo un nuovo FormGroup
-          Creo un form array 
-          */
-      addMetadata: boolean = false;
-      //metodo per aggiungere nuovi  metadati:
-onAggiungiCampo() {
-  // abilito il template per aggiungere un metadato
-  this.addMetadata = true;
-
-  // Creo un FormGroup per un nuovo metadato: { key: '', value: '' }
-  const nuovoMetadato = new FormGroup({
-    key: new FormControl('', Validators.required),
-    value: new FormControl('', Validators.required)
-  });
-
-  // Aggiungo il nuovo gruppo al FormArray
-  this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
-}
-
-// Getter per accedere facilmente al FormArray dei metadati aggiunti
-get getMetadatiAggiuntiFormArray(): FormArray {
-  return this.contextFormGroup.get('metadatiAggiunti') as FormArray;
-}
-
-
-// Metodo per verificare se una chiave inserita nel FormArray è già presente
-isChiaveDuplicata(indexDaEscludere: number = -1): boolean {
-  // Estrai l'elenco delle chiavi attualmente presenti nel FormArray
-  const keys = this.getMetadatiAggiuntiFormArray.controls
-    .map((control, index) => {
-      const keyValue = control.get('key')?.value?.trim();
-      return { key: keyValue, index };
-    })
-    .filter(item => item.key); // Filtra chiavi non vuote
-
-  // Crea un Set per controllare i duplicati
-  const chiaviVisitate = new Set<string>();
-
-  for (const { key, index } of keys) {
-    if (index === indexDaEscludere) continue; // escludi l'indice attuale (se serve)
-    if (chiaviVisitate.has(key)) {
-      return true; // Trovato duplicato
-    }
-    chiaviVisitate.add(key);
   }
 
-  return false; // Nessun duplicato trovato
-}
+  /* Ora per l'aggiunta dei metadata facciamo cosi:
+    Creiamo un nuovo FormGroup
+    Creo un form array 
+    */
+  addMetadata: boolean = false;
+  //metodo per aggiungere nuovi  metadati:
+  onAggiungiCampo() {
+    // abilito il template per aggiungere un metadato
+    this.addMetadata = true;
+
+    // Creo un FormGroup per un nuovo metadato: { key: '', value: '' }
+    const nuovoMetadato = new FormGroup({
+      key: new FormControl('', Validators.required),
+      value: new FormControl('', Validators.required)
+    });
+
+    // Aggiungo il nuovo gruppo al FormArray
+    this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
+  }
+
+  // Getter per accedere facilmente al FormArray dei metadati aggiunti
+  get getMetadatiAggiuntiFormArray(): FormArray {
+    return this.contextFormGroup.get('metadatiAggiunti') as FormArray;
+  }
+
+
+  // Metodo per verificare se una chiave inserita nel FormArray è già presente
+  isChiaveDuplicata(indexDaEscludere: number = -1): boolean {
+    // Estrai l'elenco delle chiavi attualmente presenti nel FormArray
+    const keys = this.getMetadatiAggiuntiFormArray.controls
+      .map((control, index) => {
+        const keyValue = control.get('key')?.value?.trim();
+        return { key: keyValue, index };
+      })
+      .filter(item => item.key); // Filtra chiavi non vuote
+
+    // Crea un Set per controllare i duplicati
+    const chiaviVisitate = new Set<string>();
+
+    for (const { key, index } of keys) {
+      if (index === indexDaEscludere) continue; // escludi l'indice attuale (se serve)
+      if (chiaviVisitate.has(key)) {
+        return true; // Trovato duplicato
+      }
+      chiaviVisitate.add(key);
+    }
+
+    return false; // Nessun duplicato trovato
+  }
 
 
 }
