@@ -3,24 +3,27 @@
 
   <!-- Contenitore scrollabile del contenuto del dialog -->
   <div class="contenuto-dialog">
-    <button  class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
+    <button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
     <!-- Sezione: Metadati esistenti ereditati dal padre -->
     <div formGroupName="metadatiFromFather">
       <h3>Metadati esistenti</h3>
 
-      <!-- Ciclo su tutte le chiavi dei metadati ereditati -->
       <div *ngFor="let key of contextInputFromFatherKeys" class="form-row">
         <mat-form-field appearance="outline" class="full-width">
-          <!-- Etichetta leggibile normalizzata -->
           <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
 
-          <!-- Campo input associato alla chiave specifica -->
-          <input matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
+          <!-- Textarea solo per 'descrizione' -->
+          <textarea *ngIf="key === 'descrizione'" matInput [formControlName]="key" rows="3"
+            [placeholder]="'Inserisci ' + key"></textarea>
+
+          <!-- Input per tutte le altre chiavi -->
+          <input *ngIf="key !== 'descrizione'" matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
         </mat-form-field>
       </div>
     </div>
+
 
     <!-- Sezione: Metadati aggiunti manualmente dall'utente -->
     <div formArrayName="metadatiAggiunti">

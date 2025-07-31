@@ -347,7 +347,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { chiaviValidatorEsteso } from '../../validators/chiavi-duplicate.validator';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../../../services/shared-data.service';
 @Component({
   selector: 'app-edit-context-before-upload',
@@ -414,7 +414,8 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string }, isUploadComponent: boolean },
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private snackBar: MatSnackBar
   ) { }
 
 
@@ -610,9 +611,12 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
       if (checkExistImage && this.onChangeDisplayName) {
         console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
         this.errorEditMetadata = true;
+        this.mostraErrore('Il media è già presente nella raccolta. Si prega di indicare un nome differente.');
+      }else{
+                const contextAggiornato: MediaContext = this.trasformInMediaContext();
+                console.log("MediaContext aggiornato . . .", contextAggiornato);
       }
-      const contextAggiornato: MediaContext = this.trasformInMediaContext();
-      console.log("MediaContext aggiornato . . .", contextAggiornato);
+
     }
 
   }
@@ -728,5 +732,15 @@ onAggiungiCampo() {
     return false; // Nessun duplicato trovato
   }
 
+
+  //snackbar
+  mostraErrore(messaggio: string) {
+  this.snackBar.open(messaggio, 'Chiudi', {
+    duration: 4000, // durata in ms
+    panelClass: ['snackbar-errore'], // classe CSS personalizzata
+    horizontalPosition: 'center',
+    verticalPosition: 'top'
+  });
+}
 
 }

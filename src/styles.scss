@@ -286,4 +286,77 @@ o cosi
 
 
 
+/* Stile personalizzato per Snackbar di errore */
+.snackbar-errore {
+  background-color: #ff4d4f !important; // Colore rosso acceso per evidenziare l’errore
+  color: white !important;
+  font-size: 16px;
+  padding: 18px 28px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-align: center;
+  max-width: 500px; // Larghezza più contenuta
+  margin: 0 auto; // Centra orizzontalmente
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  animation: slideInSnack 0.3s ease-out;
 
+  // Rimuove lo sfondo nero di default di Angular Material
+  .mdc-snackbar__surface,
+  .mat-mdc-snackbar-surface {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  // Testo principale della snackbar
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+    flex: 1;
+  }
+
+  // Stile del pulsante "Chiudi"
+  .mat-mdc-snack-bar-action {
+    color: white !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+}
+
+// Animazione di comparsa leggera
+@keyframes slideInSnack {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+// Effetto "pulse" per dare vita alla comparsa del messaggio (non usato attualmente)
+@keyframes pulseErrore {
+  0% {
+    transform: scale(0.95); // Leggera compressione iniziale
+    opacity: 0.7;           // Semi-trasparente all'inizio
+  }
+  100% {
+    transform: scale(1);    // Ritorna alla dimensione originale
+    opacity: 1;             // Opacità completa
+  }
+}
+
+// Animazione verticale (non usata attualmente), utile per height dinamica
+@keyframes slideIn {
+  from {
+    height: 0%;  // Altezza iniziale nulla
+  }
+  to {
+    height: 100%; // Altezza completa
+  }
+}
