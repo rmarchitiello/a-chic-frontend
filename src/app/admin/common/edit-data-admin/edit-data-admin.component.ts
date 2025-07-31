@@ -326,7 +326,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { chiaviDuplicateValidator } from '../../validators/chiavi-duplicate.validator';
+import { chiaviValidatorEsteso } from '../../validators/chiavi-duplicate.validator';
 @Component({
   selector: 'app-edit-context-before-upload',
   standalone: true,
@@ -420,7 +420,7 @@ export class EditDataAdminComponent implements OnInit,OnDestroy {
         console.log("From Group generato: ", this.contextFormGroupFromFather);
 
         //lo istanzio vuoto per il momento //non so cosa conterra il mio array quindi any
-        this.metadatiAggiuntiFormArray = new FormArray<any>([], chiaviDuplicateValidator);
+        this.metadatiAggiuntiFormArray = new FormArray<any>([], chiaviValidatorEsteso(this.contextInputFromFatherKeys));
 
         //inizio a creare il primo gruppo e lo assegno al gruppo padre
         this.contextFormGroup = new FormGroup({

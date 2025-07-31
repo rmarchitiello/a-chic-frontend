@@ -15,11 +15,7 @@
           <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
 
           <!-- Campo input associato alla chiave specifica -->
-          <input
-            matInput
-            [formControlName]="key"
-            [placeholder]="'Inserisci ' + key"
-          />
+          <input matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
         </mat-form-field>
       </div>
     </div>
@@ -29,20 +25,31 @@
       <h3>Metadati aggiunti</h3>
 
       <!-- Ciclo su ogni gruppo (key + value) presente nel FormArray -->
-      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i" class="form-row">
+      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i"
+        class="form-row">
 
         <!-- Campo per la chiave del metadato -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Chiave</mat-label>
           <input matInput formControlName="key" placeholder="Es. colore" />
 
-    <!-- Errore di chiave duplicata -->
-    <p class="error-chiave-duplicata" *ngIf="
-      getMetadatiAggiuntiFormArray.errors?.['chiaviDuplicate']
-      && group.get('key')?.touched
-      ">
-      Chiave duplicata: esiste già un metadato con lo stesso nome.
-        </p>
+          <!-- Errore di chiave duplicata -->
+          <!-- messaggio per duplicato interno -->
+          <p class="error-chiave-duplicata" *ngIf="
+     group.get('key')?.hasError('chiaviDuplicate') &&
+     group.get('key')?.touched
+   ">
+            Chiave duplicata: esiste già un metadato con lo stesso nome.
+          </p>
+
+          <!-- messaggio per conflitto con chiave riservata -->
+          <p class="error-chiave-duplicata" *ngIf="
+     group.get('key')?.hasError('chiaviRiservate') &&
+     group.get('key')?.touched
+   ">
+            Chiave già presente nei metadati esistenti.
+          </p>
+
         </mat-form-field>
 
         <!-- Campo per il valore del metadato -->
@@ -56,13 +63,7 @@
 
     <!-- Pulsante per aggiungere un nuovo metadato dinamico -->
     <div class="add-button-container">
-      <button
-        mat-mini-fab
-        color="primary"
-        matTooltip="Aggiungi metadata"
-        type="button"
-        (click)="onAggiungiCampo()"
-      >
+      <button mat-mini-fab color="primary" matTooltip="Aggiungi metadata" type="button" (click)="onAggiungiCampo()">
         <mat-icon>add</mat-icon>
       </button>
     </div>
@@ -72,12 +73,7 @@
   <!-- Sezione con i pulsanti di azione in basso -->
   <div class="azioni-dialog">
     <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
-    <button
-      mat-flat-button
-      color="primary"
-      type="submit"
-      [disabled]="contextFormGroup.invalid"
-    >
+    <button mat-flat-button color="primary" type="submit" [disabled]="contextFormGroup.invalid">
       Conferma
     </button>
   </div>
