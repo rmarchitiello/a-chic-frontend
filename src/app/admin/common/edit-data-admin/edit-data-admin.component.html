@@ -13,19 +13,38 @@
     <div formGroupName="metadatiFromFather">
       <h3>Metadati esistenti</h3>
 
-      <!-- Iterazione sui metadati esistenti -->
-      <!-- I metadati con chiave 'angolazione' e 'type' vengono esclusi -->
+      <!-- Campo: display_name (etichettato tramite normalizzaChiave) -->
+      <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('display_name')">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ normalizzaChiave(normalizzaDisplayName('display_name')) }}</mat-label>
+          <input matInput formControlName="display_name" placeholder="Inserisci il nome" />
+        </mat-form-field>
+      </div>
+
+      <!-- Campo: descrizione -->
+      <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('descrizione')">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ normalizzaChiave('descrizione') }}</mat-label>
+          <textarea matInput formControlName="descrizione" rows="3" placeholder="Inserisci la descrizione"></textarea>
+        </mat-form-field>
+      </div>
+
+      <!-- Campo: quantita -->
+      <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('quantita')">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ normalizzaChiave('quantita') }}</mat-label>
+          <input matInput formControlName="quantita" placeholder="Inserisci la quantità" />
+        </mat-form-field>
+      </div>
+
+      <!-- Altri metadati (esclusi: display_name, descrizione, quantita, angolazione, type) -->
       <ng-container *ngFor="let key of contextInputFromFatherKeys">
-        <div class="form-row" *ngIf="key !== 'angolazione' && key !== 'type'">
+        <div
+          class="form-row"
+          *ngIf="key !== 'display_name' && key !== 'descrizione' && key !== 'quantita' && key !== 'angolazione' && key !== 'type'">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>{{ normalizzaChiave(normalizzaDisplayName(key)) }}</mat-label>
-
-            <!-- Textarea solo per il campo 'descrizione' -->
-            <textarea *ngIf="key === 'descrizione'" matInput [formControlName]="key" rows="3"
-              [placeholder]="'Inserisci ' + key"></textarea>
-
-            <!-- Input per tutti gli altri campi -->
-            <input *ngIf="key !== 'descrizione'" matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
+            <mat-label>{{ normalizzaChiave(key) }}</mat-label>
+            <input matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
           </mat-form-field>
         </div>
       </ng-container>
@@ -35,35 +54,27 @@
     <div formArrayName="metadatiAggiunti">
       <h3>Metadati aggiunti</h3>
 
-      <!-- Iterazione sui campi dinamici (aggiunti dall'utente) -->
-      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i"
-        class="form-row">
+      <!-- Iterazione sui campi dinamici -->
+      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i" class="form-row">
 
-        <!-- Campo per la chiave -->
+        <!-- Campo: chiave -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Chiave</mat-label>
           <input matInput formControlName="key" placeholder="Es. colore" />
 
-          <!-- Messaggio di errore: chiave duplicata -->
-          <p class="error-chiave-duplicata" *ngIf="
-            group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
+          <!-- Messaggi di errore chiave -->
+          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
             Chiave duplicata: esiste già un metadato con lo stesso nome.
           </p>
-
-          <!-- Messaggio di errore: conflitto con chiave riservata -->
-          <p class="error-chiave-duplicata" *ngIf="
-            group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
+          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
             Chiave già presente nei metadati esistenti.
           </p>
-
-          <!-- Messaggio di errore: caratteri non validi -->
-          <p class="error-chiave-duplicata" *ngIf="
-            group.get('key')?.hasError('pattern') && group.get('key')?.touched">
+          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('pattern') && group.get('key')?.touched">
             Inserisci caratteri validi.
           </p>
         </mat-form-field>
 
-        <!-- Campo per il valore -->
+        <!-- Campo: valore -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Valore</mat-label>
           <input matInput formControlName="value" placeholder="Es. rosso" />
@@ -72,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Pulsante per aggiungere un nuovo metadato dinamico -->
+    <!-- Pulsante per aggiunta metadato dinamico -->
     <div class="add-button-container">
       <button mat-mini-fab color="primary" matTooltip="Aggiungi metadata" type="button" (click)="onAggiungiCampo()">
         <mat-icon>add</mat-icon>
@@ -81,7 +92,7 @@
 
   </div>
 
-  <!-- Sezione inferiore con i pulsanti di azione -->
+  <!-- Sezione con pulsanti azione -->
   <div class="azioni-dialog">
     <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
     <button mat-flat-button color="primary" type="submit" [disabled]="contextFormGroup.invalid">
