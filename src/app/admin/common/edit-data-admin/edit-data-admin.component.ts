@@ -608,6 +608,11 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
     this.dialogRef.close();
   }
 
+
+  chiudiAfterEditOK(){
+    this.dialogRef.close();
+  }
+
   //per generare un messaggio di errore che l'edit è fallito
   errorEditMetadata: boolean = false;
   onConferma() {
@@ -639,6 +644,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
             console.log('Metadati aggiornati con successo:', response);
             this.mostraMessaggioSnakBar('Dati aggiornati con successo', false);
             this.sharedDataService.notifyConfigCacheIsChanged();
+            this.chiudiAfterEditOK();
           },
           error: (error) => {
             console.error('Errore durante l\'aggiornamento dei metadati:', JSON.stringify(error));
