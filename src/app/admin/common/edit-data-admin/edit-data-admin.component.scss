@@ -1,6 +1,6 @@
 /* ============================
    Contenuto principale del dialog
-   ============================ */
+============================ */
 .contenuto-dialog {
   padding: 16px;
   max-height: 75vh;
@@ -9,28 +9,28 @@
   background-color: #fff;
 
   /* ===============================
-     Pulsante di chiusura (in alto a destra)
+     Pulsante di chiusura in alto a destra
   =============================== */
   .chiudi-btn {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    z-index: 10;               // Sovrapposto ai contenuti interni
-    background: transparent;   // Nessuno sfondo
-    border: none;              // Nessun bordo
-    cursor: pointer;           // Cursor a forma di mano
+    z-index: 10;
+    background: transparent;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
 
     mat-icon {
-      color: #000;             // Colore icona
+      color: #000;
       font-size: 28px;
       width: 28px;
       height: 28px;
       line-height: 28px;
-      font-family: 'Material Icons'; // Font corretto
+      font-family: 'Material Icons';
       display: block;
     }
   }
@@ -38,7 +38,7 @@
 
 /* ============================
    Sezione delle azioni in fondo
-   ============================ */
+============================ */
 .azioni-dialog {
   display: flex;
   justify-content: flex-end;
@@ -53,37 +53,64 @@
 }
 
 /* ============================
-   Spazio tra i campi del form
-   ============================ */
+   Righe del form
+============================ */
 .form-row {
   margin-bottom: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+  .remove-btn {
+    margin-top: 8px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 50%;
+    background-color: #fce4ec; // rosa chiaro
+    color: #c2185b;            // rosa scuro
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #f8bbd0;
+    }
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
 }
 
 /* ============================
-   Campo input a larghezza piena
-   ============================ */
+   Campi a larghezza piena
+============================ */
 .full-width {
   width: 100%;
 }
 
 /* ============================
-   Stile per il pulsante di submit
-   ============================ */
+   Pulsante di submit
+============================ */
 button[type='submit'] {
   font-weight: 600;
 }
 
 /* ============================
-   Stile opzionale per textarea
-   ============================ */
+   Textarea opzionale
+============================ */
 textarea[matInput] {
   min-height: 80px;
   resize: vertical;
 }
 
 /* ============================
-   Sezione per pulsante "aggiungi campo"
-   ============================ */
+   Sezione pulsante "aggiungi campo"
+============================ */
 .add-button-container {
   display: flex;
   align-items: center;
@@ -91,17 +118,28 @@ textarea[matInput] {
   margin-top: 12px;
   margin-bottom: 4px;
   padding-left: 4px;
+
+  button {
+    background-color: #e3f2fd; // azzurro chiaro
+    color: #1565c0;
+
+    &:hover {
+      background-color: #bbdefb;
+    }
+  }
 }
 
-/* Etichetta accanto al pulsante add */
+/* ============================
+   Etichetta accanto al pulsante add
+============================ */
 .add-label {
   font-size: 14px;
   color: #444;
 }
 
 /* ============================
-   Sezione per i metadati aggiunti
-   ============================ */
+   Sezione metadati statici (preview)
+============================ */
 .metadata-preview {
   margin-top: 20px;
   padding: 12px;
@@ -134,8 +172,8 @@ textarea[matInput] {
 }
 
 /* ============================
-   Titoli delle sezioni nel form
-   ============================ */
+   Titoli sezioni
+============================ */
 h3 {
   margin-top: 24px;
   font-size: 18px;
@@ -146,8 +184,8 @@ h3 {
 }
 
 /* ============================
-   Messaggio di chiave duplicata – compatto
-   ============================ */
+   Messaggi errore chiavi
+============================ */
 .error-chiave-duplicata {
   margin: 2px 0 6px;
   font-size: 12px;
@@ -156,22 +194,18 @@ h3 {
 }
 
 /* ============================
-   Righe dinamiche con pulsante di rimozione
-   ============================ */
-.form-row.with-remove-button {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+   Override per pulsante icona
+============================ */
+button.mat-icon-button.remove-btn {
+  background-color: #fce4ec;
+  color: #c2185b;
+  margin-top: 8px;
 
-  mat-form-field {
-    flex: 1;
+  &:hover {
+    background-color: #f8bbd0;
   }
 
-  button {
-    margin-top: 12px;
-    height: 40px;
-    width: 40px;
-    min-width: 40px;
-    min-height: 40px;
+  mat-icon {
+    font-size: 20px;
   }
 }

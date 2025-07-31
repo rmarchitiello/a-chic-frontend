@@ -743,9 +743,113 @@ export class EditDataAdminComponent implements OnInit {
   }
 
 
-  onRimuoviCampo(index: number): void {
-  this.getMetadatiAggiuntiFormArray.removeAt(index);
+/**
+ * Rimuove un metadato, sia dal gruppo padre (metadati esistenti) che dal FormArray dei metadati aggiunti dinamicamente.
+ * 
+ * - Se la chiave è 'display_name', la rimozione viene bloccata per sicurezza.
+ * - Se la chiave è tra i metadati esistenti, viene rimossa dal FormGroup padre e dalla lista delle chiavi riservate.
+ * - Se la chiave è tra i metadati dinamici, viene rimossa dal FormArray.
+ * - Dopo ogni rimozione, viene forzata la rivalutazione della validità del form con refresh completo.
+ */
+rimuoviMetadato(key: string): void {
+  // Blocco la rimozione della chiave riservata 'display_name'
+  if (key === 'display_name') {
+    console.warn("Il metadato 'display_name' non può essere rimosso.");
+    return;
+  }
+
+  // Recupero il gruppo dei metadati ereditati (metadatiFromFather)
+  const padre = this.contextFormGroup.get('metadatiFromFather') as FormGroup;
+
+  // Recupero il FormArray dei metadati dinamici
+  const array = this.getMetadatiAggiuntiFormArray;
+
+  // Se la chiave è nel gruppo padre, la rimuovo
+  if (padre.get(key)) {
+    padre.removeControl(key);
+
+    // Rimuovo la chiave anche dalla lista delle chiavi ereditate
+    const index = this.contextInputFromFatherKeys.indexOf(key);
+    if (index !== -1) {
+      this.contextInputFromFatherKeys.splice(index, 1);
+    }
+
+    // Aggiorno i validator e forzo il refresh completo
+    this.aggiornaValidazioneChiavi();
+    this.forzaRefreshValidazioneForm(); // Aggiorna la validità dell’intero form
+    return;
+  }
+
+  // Se la chiave è nel FormArray dinamico, cerco l'indice del campo da rimuovere
+  const indexToRemove = array.controls.findIndex(ctrl => ctrl.get('key')?.value === key);
+  if (indexToRemove !== -1) {
+    // Rimuovo l'intero gruppo dal FormArray
+    array.removeAt(indexToRemove);
+
+    // Aggiorno i validator e forzo il refresh completo
+    this.aggiornaValidazioneChiavi();
+    this.forzaRefreshValidazioneForm();
+  } else {
+    console.warn(`Il metadato '${key}' non è stato trovato tra quelli dinamici.`);
+  }
 }
+
+
+/**
+ * Aggiorna la validazione del FormArray dei metadati dinamici.
+ * 
+ * - Reimposta il validator personalizzato che controlla i duplicati e le chiavi riservate.
+ * - Aggiorna la validità di ciascun controllo individuale all'interno del FormArray.
+ * - Aggiorna anche la validità del gruppo principale.
+ */
+aggiornaValidazioneChiavi(): void {
+  // Recupero il FormArray
+  const array = this.getMetadatiAggiuntiFormArray;
+
+  // Applico il validator aggiornato passando le chiavi riservate correnti
+  array.setValidators(chiaviValidatorEsteso(this.contextInputFromFatherKeys));
+
+  // Aggiorno la validità di ogni controllo 'key' presente nel FormArray
+  array.controls.forEach(ctrl => {
+    const keyCtrl = ctrl.get('key');
+    if (keyCtrl) {
+      keyCtrl.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    }
+  });
+
+  // Aggiorno la validità dell’intero FormArray
+  array.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+
+  // Aggiorno la validità del form principale
+  this.contextFormGroup.updateValueAndValidity({ onlySelf: true, emitEvent: true });
+}
+
+
+/**
+ * Forza il ricalcolo della validità di tutti i controlli nel form, incluso ogni FormGroup e FormArray nidificato.
+ * 
+ * Utile in casi in cui, anche dopo la rimozione di errori visivi (es. chiavi duplicate), 
+ * il form non viene riconosciuto come valido. Questo metodo garantisce un "refresh profondo" di tutto il form.
+ */
+forzaRefreshValidazioneForm(): void {
+  // Per ogni controllo diretto del FormGroup principale
+  Object.values(this.contextFormGroup.controls).forEach(control => {
+    // Aggiorna la validità del controllo stesso
+    control.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+
+    // Se il controllo ha figli (FormGroup o FormArray), aggiorna anche quelli
+    if ((control as FormGroup | FormArray).controls) {
+      Object.values((control as FormGroup | FormArray).controls).forEach(child => {
+        child.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+      });
+    }
+  });
+
+  // Infine aggiorna la validità dell’intero FormGroup
+  this.contextFormGroup.updateValueAndValidity({ onlySelf: false, emitEvent: true });
+}
+
+
 
   // Getter per accedere facilmente al FormArray dei metadati aggiunti
   get getMetadatiAggiuntiFormArray(): FormArray {

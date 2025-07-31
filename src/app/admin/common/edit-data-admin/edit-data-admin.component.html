@@ -1,19 +1,27 @@
-<!-- Form principale -->
+<!-- =============================
+     Form principale del dialog
+     ============================= -->
 <form [formGroup]="contextFormGroup" (ngSubmit)="onConferma()">
 
-  <!-- Contenitore scrollabile del contenuto del dialog -->
+  <!-- =============================
+       Contenitore scrollabile interno
+       ============================= -->
   <div class="contenuto-dialog">
 
-    <!-- Pulsante di chiusura in alto a destra -->
+    <!-- =============================
+         Pulsante di chiusura (alto a destra)
+         ============================= -->
     <button class="chiudi-btn" type="button" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
 
-    <!-- Sezione: Metadati esistenti ereditati dal padre -->
+    <!-- =============================
+         Sezione: Metadati esistenti (da padre)
+         ============================= -->
     <div formGroupName="metadatiFromFather">
       <h3>Metadati esistenti</h3>
 
-      <!-- Campo: display_name (etichettato tramite normalizzaChiave) -->
+      <!-- Metadato: display_name (non rimovibile) -->
       <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('display_name')">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ normalizzaChiave(normalizzaDisplayName('display_name')) }}</mat-label>
@@ -21,90 +29,106 @@
         </mat-form-field>
       </div>
 
-      <!-- Campo: descrizione -->
-      <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('descrizione')">
+      <!-- Metadato: descrizione -->
+      <div class="form-row with-remove-button" *ngIf="contextInputFromFatherKeys.includes('descrizione')">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ normalizzaChiave('descrizione') }}</mat-label>
           <textarea matInput formControlName="descrizione" rows="3" placeholder="Inserisci la descrizione"></textarea>
         </mat-form-field>
+        <button mat-icon-button matTooltip="Rimuovi metadato"
+                type="button" class="remove-button" (click)="rimuoviMetadato('descrizione')">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
       </div>
 
-      <!-- Campo: quantita -->
-      <div class="form-row" *ngIf="contextInputFromFatherKeys.includes('quantita')">
+      <!-- Metadato: quantita -->
+      <div class="form-row with-remove-button" *ngIf="contextInputFromFatherKeys.includes('quantita')">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ normalizzaChiave('quantita') }}</mat-label>
           <input matInput formControlName="quantita" placeholder="Inserisci la quantità" />
         </mat-form-field>
+        <button mat-icon-button matTooltip="Rimuovi metadato"
+                type="button" class="remove-button" (click)="rimuoviMetadato('quantita')">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
       </div>
 
-      <!-- Altri metadati (esclusi: display_name, descrizione, quantita, angolazione, type) -->
+      <!-- Altri metadati generici (escludendo le chiavi fisse) -->
       <ng-container *ngFor="let key of contextInputFromFatherKeys">
-        <div
-          class="form-row"
-          *ngIf="key !== 'display_name' && key !== 'descrizione' && key !== 'quantita' && key !== 'angolazione' && key !== 'type'">
+        <div class="form-row with-remove-button"
+             *ngIf="key !== 'display_name' && key !== 'descrizione' && key !== 'quantita' && key !== 'angolazione' && key !== 'type'">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>{{ normalizzaChiave(key) }}</mat-label>
             <input matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
           </mat-form-field>
+          <button mat-icon-button matTooltip="Rimuovi metadato"
+                  type="button" class="remove-button" (click)="rimuoviMetadato(key)">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
         </div>
       </ng-container>
     </div>
 
-    <!-- Sezione: Metadati aggiunti manualmente dall'utente -->
+    <!-- =============================
+         Sezione: Metadati aggiunti dall’utente (dinamici)
+         ============================= -->
     <div formArrayName="metadatiAggiunti">
-  <h3>Metadati aggiunti</h3>
+      <h3>Metadati aggiunti</h3>
 
-  <!-- Iterazione sui campi dinamici -->
-  <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index"
-       [formGroupName]="i"
-       class="form-row with-remove-button">
+      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index"
+           [formGroupName]="i" class="form-row with-remove-button">
 
-    <!-- Campo: chiave -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Chiave</mat-label>
-      <input matInput formControlName="key" placeholder="Es. colore" />
+        <!-- Campo: chiave -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Chiave</mat-label>
+          <input matInput formControlName="key" placeholder="Es. colore" />
 
-      <!-- Messaggi di errore chiave -->
-      <p class="error-chiave-duplicata"
-         *ngIf="group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
-        Chiave duplicata: esiste già un metadato con lo stesso nome.
-      </p>
-      <p class="error-chiave-duplicata"
-         *ngIf="group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
-        Chiave già presente nei metadati esistenti.
-      </p>
-      <p class="error-chiave-duplicata"
-         *ngIf="group.get('key')?.hasError('pattern') && group.get('key')?.touched">
-        Inserisci caratteri validi.
-      </p>
-    </mat-form-field>
+          <!-- Messaggi di errore validazione chiave -->
+          <p class="error-chiave-duplicata"
+             *ngIf="group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
+            Chiave duplicata: esiste già un metadato con lo stesso nome.
+          </p>
+          <p class="error-chiave-duplicata"
+             *ngIf="group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
+            Chiave già presente nei metadati esistenti.
+          </p>
+          <p class="error-chiave-duplicata"
+             *ngIf="group.get('key')?.hasError('pattern') && group.get('key')?.touched">
+            Inserisci caratteri validi.
+          </p>
+        </mat-form-field>
 
-    <!-- Campo: valore -->
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Valore</mat-label>
-      <input matInput formControlName="value" placeholder="Es. rosso" />
-    </mat-form-field>
+        <!-- Campo: valore -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Valore</mat-label>
+          <input matInput formControlName="value" placeholder="Es. rosso" />
+        </mat-form-field>
 
-    <!-- Pulsante per rimuovere il campo -->
-    <button mat-icon-button color="warn" matTooltip="Rimuovi metadato"
-            type="button" (click)="onRimuoviCampo(i)">
-      <mat-icon>delete</mat-icon>
-    </button>
+        <!-- Pulsante rimozione metadato dinamico -->
+        <button mat-icon-button matTooltip="Rimuovi metadato"
+                type="button" class="remove-button"
+                (click)="rimuoviMetadato(group.get('key')?.value)">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
 
-  </div>
-</div>
-
-
-    <!-- Pulsante per aggiunta metadato dinamico -->
+    <!-- =============================
+         Pulsante per aggiungere un nuovo campo
+         ============================= -->
     <div class="add-button-container">
-      <button mat-mini-fab color="primary" matTooltip="Aggiungi metadata" type="button" (click)="onAggiungiCampo()">
+      <button mat-mini-fab color="primary" matTooltip="Aggiungi metadato" type="button"
+              (click)="onAggiungiCampo()">
         <mat-icon>add</mat-icon>
       </button>
+      <span class="add-label">Aggiungi campo personalizzato</span>
     </div>
 
   </div>
 
-  <!-- Sezione con pulsanti azione -->
+  <!-- =============================
+       Azioni finali in fondo al dialog
+       ============================= -->
   <div class="azioni-dialog">
     <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
     <button mat-flat-button color="primary" type="submit" [disabled]="contextFormGroup.invalid">
