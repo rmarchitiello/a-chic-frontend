@@ -309,22 +309,22 @@ e opzionale usarlo..
 
               Ottenere quindi un oggetto del genere:
               {
-	"metadatiFromFather": {
-		"display_name": "carosello2",
-		"descrizione": "Da inserire",
-		"quantita": "0",
-		"type": "image"
-	},
-	"metadatiAggiunti": [
-		{
-			"key": "prezzo",
-			"value": "10"
-		},
-		{
-			"key": "materiale",
-			"value": "pelle"
-		}
-	]
+  "metadatiFromFather": {
+    "display_name": "carosello2",
+    "descrizione": "Da inserire",
+    "quantita": "0",
+    "type": "image"
+  },
+  "metadatiAggiunti": [
+    {
+      "key": "prezzo",
+      "value": "10"
+    },
+    {
+      "key": "materiale",
+      "value": "pelle"
+    }
+  ]
 }
 */
 import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
@@ -349,6 +349,7 @@ import { MatTooltip } from '@angular/material/tooltip';
 import { chiaviValidatorEsteso } from '../../validators/chiavi-duplicate.validator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../../../services/shared-data.service';
+import { AdminService } from '../../../services/admin.service';
 @Component({
   selector: 'app-edit-context-before-upload',
   standalone: true,
@@ -404,18 +405,26 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
   */
   mediaCollectionsFromAppComponent: MediaCollection[] = [];
   //mi serve per creare un array di soli display name frontali da confrontale in modo da non poter fare la rinomina in fase di conferma se siamo in edit
-  //di metadati gia esistenti
-  onlyDisplayNameFrontale: string[] = [];
+  //di metadati gia esistenti  in realta è una mappa chiave valore display name url
+
+  onlyDisplayNameAndUrlFrontale: { [display_name: string]: string } = {};
 
 
   //variabile che mi consente se display name è cambiato altrimetni non posso fare l'edit (lo spiego giu nel metodo di conferma)
   onChangeDisplayName: boolean = false;
 
+  /*mi salvo il nome originale sia percche in fase di edit ne ho bisogno perche
+  nel caso in cui voglio modificare carosello1, pero poi da carosello1 porto a carosello2 e poi carosello1
+  se in effetti sto modificando veramente la card carosello1 deve modificarla altrimenti dice che quel media e gia presente
+  ma carosello1 e il media cliccato.*/
+  nomeOriginale: string = '';
+
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string }, isUploadComponent: boolean },
     private sharedDataService: SharedDataService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private adminService: AdminService
   ) { }
 
 
@@ -429,20 +438,27 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
       this.mediaCollectionsFromAppComponent = data;
 
       if (this.mediaCollectionsFromAppComponent.length > 0) {
-        //recupero solo il display name di metadati frontali recupero solo il primo elemento anche perche viene passata una folder precisa quindi
-        const mediaCollection = this.mediaCollectionsFromAppComponent[0];
+        // Reset della mappa dei display_name → URL frontale
+        this.onlyDisplayNameAndUrlFrontale = {};
 
-        console.log("Ricezione della media collection . . . ", mediaCollection);
-        mediaCollection.items.forEach(item => {
-          let displayName = item.context.display_name;
-          if (displayName) {
-            this.onlyDisplayNameFrontale.push(displayName);
+        for (const collezione of this.mediaCollectionsFromAppComponent) {
+          for (const item of collezione.items) {
+            // Verifica che display_name esista ed è una stringa valida
+            const displayName = item.context?.display_name;
 
+            // Cerca l'immagine con angolazione 'frontale'
+            const mediaFrontale = item.media.find(m => m.angolazione === 'frontale');
+
+            // Se display_name è definito e la URL della frontale esiste, salva nella mappa
+            if (typeof displayName === 'string' && mediaFrontale?.url) {
+              this.onlyDisplayNameAndUrlFrontale[displayName] = mediaFrontale.url;
+            }
           }
-        })
+        }
       }
 
-      console.log("Array di nomi immagine frontale: ", this.onlyDisplayNameFrontale);
+
+      console.log("Array di nomi immagine frontale: ", this.onlyDisplayNameAndUrlFrontale);
 
 
     })
@@ -510,13 +526,13 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
     // -----------------------------------------------------------------------------
 
     // 1. Salvo il valore originale quando apro il dialog
-    const nomeOriginale = this.contextFormGroupFromFather
+    this.nomeOriginale = this.contextFormGroupFromFather
       .get('display_name')
       ?.value
       ?.toString()
       .trim();
 
-    console.log('Nome originale:', nomeOriginale);
+    console.log('Nome originale:', this.nomeOriginale);
 
     // 2. Mi metto in ascolto su tutti i cambiamenti dell’input
     this.contextFormGroupFromFather
@@ -529,7 +545,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
 
         /* onChangeDisplayName diventa true se il valore è diverso
            dall’originale; altrimenti resta/torna false                */
-        this.onChangeDisplayName = nuovoNormalizzato !== nomeOriginale;
+        this.onChangeDisplayName = nuovoNormalizzato !== this.nomeOriginale;
 
         console.log('Display name è cambiato?', this.onChangeDisplayName);
       });
@@ -607,14 +623,29 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
       verifica anche se è lo stesso file con const nomeFileOriginale*/
       const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
       console.log("Display Name Ottenuto: ", displayNameOttenuto);
-      const checkExistImage = this.onlyDisplayNameFrontale.some(nome => nome === displayNameOttenuto)
-      if (checkExistImage && this.onChangeDisplayName) {
+      const checkExistImage = Object.keys(this.onlyDisplayNameAndUrlFrontale).some(
+        nome => nome === displayNameOttenuto
+      ); if (checkExistImage && this.onChangeDisplayName) {
         console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
         this.errorEditMetadata = true;
-        this.mostraErrore('Il media è già presente nella raccolta. Si prega di indicare un nome differente.');
-      }else{
-                const contextAggiornato: MediaContext = this.trasformInMediaContext();
-                console.log("MediaContext aggiornato . . .", contextAggiornato);
+        this.mostraMessaggioSnakBar('Il media è già presente nella raccolta. Si prega di indicare un nome differente.', true);
+      } else {
+        const contextAggiornato: MediaContext = this.trasformInMediaContext();
+        console.log("MediaContext aggiornato . . .", contextAggiornato);
+        const url = this.onlyDisplayNameAndUrlFrontale[this.nomeOriginale];
+        console.log("Url del media da aggiornare: ", url);
+        this.adminService.updateImageMetadata(url, contextAggiornato, true).subscribe({ //ahahahaahha
+          next: (response) => {
+            console.log('Metadati aggiornati con successo:', response);
+            this.mostraMessaggioSnakBar('Dati aggiornati con successo', false);
+            this.sharedDataService.notifyConfigCacheIsChanged();
+          },
+          error: (error) => {
+            console.error('Errore durante l\'aggiornamento dei metadati:', JSON.stringify(error));
+            this.mostraMessaggioSnakBar('Errore generico', true);
+
+          }
+        });
       }
 
     }
@@ -623,59 +654,59 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
 
   /* Devo trasformare la form in MediaContext
     La form è questa {
-	"metadatiFromFather": {
-		"display_name": "carosello2",
-		"descrizione": "Da inserire",
-		"quantita": "0",
-		"type": "image"
-	},
-	"metadatiAggiunti": [
-		{
-			"key": "prezzo",
-			"value": "10"
-		},
-		{
-			"key": "materiale",
-			"value": "pelle"
-		}
-	]
+  "metadatiFromFather": {
+    "display_name": "carosello2",
+    "descrizione": "Da inserire",
+    "quantita": "0",
+    "type": "image"
+  },
+  "metadatiAggiunti": [
+    {
+      "key": "prezzo",
+      "value": "10"
+    },
+    {
+      "key": "materiale",
+      "value": "pelle"
+    }
+  ]
 }
   */
- //La invoco nella conferma
- /**
- * Metodo per trasformare i dati presenti nel FormGroup padre (`contextFormGroupFromFather`)
- * e nel FormArray (`getMetadatiAggiuntiFormArray`) in un unico oggetto piatto
- * conforme all'interfaccia `MediaContext`, che unisce i metadati statici e quelli dinamici.
- *
- */
-trasformInMediaContext(): MediaContext {
-  // 1. Recupera i metadati principali (statici) dal FormGroup padre
-  const metadatiPrincipali = this.contextFormGroupFromFather.value;
+  //La invoco nella conferma
+  /**
+  * Metodo per trasformare i dati presenti nel FormGroup padre (`contextFormGroupFromFather`)
+  * e nel FormArray (`getMetadatiAggiuntiFormArray`) in un unico oggetto piatto
+  * conforme all'interfaccia `MediaContext`, che unisce i metadati statici e quelli dinamici.
+  *
+  */
+  trasformInMediaContext(): MediaContext {
+    // 1. Recupera i metadati principali (statici) dal FormGroup padre
+    const metadatiPrincipali = this.contextFormGroupFromFather.value;
 
-  // 2. Recupera i metadati aggiuntivi (dinamici) dal FormArray, come array di oggetti { key, value }
-  const metadatiAggiunti = this.getMetadatiAggiuntiFormArray.value;
+    // 2. Recupera i metadati aggiuntivi (dinamici) dal FormArray, come array di oggetti { key, value }
+    const metadatiAggiunti = this.getMetadatiAggiuntiFormArray.value;
 
-  // 3. Costruisce un oggetto a partire dai metadati aggiuntivi, ignorando quelli con key o value vuoti
-  const aggiuntiviObj = metadatiAggiunti.reduce((acc: { [key: string]: string }, curr: any) => {
-if (curr.key && curr.value) {
-  // Normalizza la chiave: trim e rimozione spazi multipli
-  const chiaveNormalizzata = curr.key.toString().trim().replace(/\s+/g, '_');
-  acc[chiaveNormalizzata] = curr.value;
-}
-    return acc;
-  }, {});
+    // 3. Costruisce un oggetto a partire dai metadati aggiuntivi, ignorando quelli con key o value vuoti
+    const aggiuntiviObj = metadatiAggiunti.reduce((acc: { [key: string]: string }, curr: any) => {
+      if (curr.key && curr.value) {
+        // Normalizza la chiave: trim e rimozione spazi multipli
+        const chiaveNormalizzata = curr.key.toString().trim().replace(/\s+/g, '_');
+        acc[chiaveNormalizzata] = curr.value;
+      }
+      return acc;
+    }, {});
 
-  // 4. Unisce i metadati statici e dinamici in un unico oggetto `MediaContext`
-  const contextAggiornato: MediaContext = {
-    ...metadatiPrincipali,
-    ...aggiuntiviObj
-  };
+    // 4. Unisce i metadati statici e dinamici in un unico oggetto `MediaContext`
+    const contextAggiornato: MediaContext = {
+      ...metadatiPrincipali,
+      ...aggiuntiviObj
+    };
 
-  // 5. Stampa di debug per verifica
+    // 5. Stampa di debug per verifica
 
-  // 6. Ritorna il contesto unificato
-  return contextAggiornato;
-}
+    // 6. Ritorna il contesto unificato
+    return contextAggiornato;
+  }
 
 
   /* Ora per l'aggiunta dei metadata facciamo cosi:
@@ -684,22 +715,22 @@ if (curr.key && curr.value) {
     */
   addMetadata: boolean = false;
   //metodo per aggiungere nuovi  metadati:
-onAggiungiCampo() {
-  // ✅ Mostra il template per aggiungere un metadato
-  this.addMetadata = true;
+  onAggiungiCampo() {
+    // ✅ Mostra il template per aggiungere un metadato
+    this.addMetadata = true;
 
-  // ✅ Crea un FormGroup per il nuovo campo con validazioni
-  const nuovoMetadato = new FormGroup({
-    key: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^[a-zA-Z0-9_-]+$/)  // ✅ Nessuno spazio o carattere speciale
-    ]),
-    value: new FormControl('', Validators.required)
-  });
+    // ✅ Crea un FormGroup per il nuovo campo con validazioni
+    const nuovoMetadato = new FormGroup({
+      key: new FormControl('', [
+        Validators.required,
+        Validators.pattern(/^[a-zA-Z0-9_-]+$/)  // ✅ Nessuno spazio o carattere speciale
+      ]),
+      value: new FormControl('', Validators.required)
+    });
 
-  // ✅ Aggiunge il nuovo gruppo al FormArray
-  this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
-}
+    // ✅ Aggiunge il nuovo gruppo al FormArray
+    this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
+  }
 
 
   // Getter per accedere facilmente al FormArray dei metadati aggiunti
@@ -734,13 +765,20 @@ onAggiungiCampo() {
 
 
   //snackbar
-  mostraErrore(messaggio: string) {
-  this.snackBar.open(messaggio, 'Chiudi', {
-    duration: 4000, // durata in ms
-    panelClass: ['snackbar-errore'], // classe CSS personalizzata
-    horizontalPosition: 'center',
-    verticalPosition: 'top'
-  });
-}
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
+    let panelClassCustom;
+    if (isError) {
+      panelClassCustom = 'snackbar-errore';
+    }
+    else {
+      panelClassCustom = 'snackbar-ok';
+    }
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration: 4000, // durata in ms
+      panelClass: panelClassCustom, // classe CSS personalizzata
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+  }
 
 }

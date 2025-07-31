@@ -3,7 +3,7 @@
 
   <!-- Contenitore scrollabile del contenuto del dialog -->
   <div class="contenuto-dialog">
-    <button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
+    <button class="chiudi-btn" type="button" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
     <!-- Sezione: Metadati esistenti ereditati dal padre -->
@@ -84,7 +84,7 @@
 
   <!-- Sezione con i pulsanti di azione in basso -->
   <div class="azioni-dialog">
-    <button mat-button type="button" (click)="chiudiDialog()">Annulla</button>
+    <button mat-button type="button" type="button" (click)="chiudiDialog()">Annulla</button>
     <button mat-flat-button color="primary" type="submit" [disabled]="contextFormGroup.invalid">
       Conferma
     </button>
