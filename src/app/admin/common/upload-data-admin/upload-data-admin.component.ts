@@ -87,9 +87,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
     // Apro il popup passando file e metadati
     const dialogRef = this.dialog.open(EditDataAdminComponent, {
-      width: '720px',
-      maxHeight: '90vh',
-      panelClass: 'popup-metadati-dialog',
+      panelClass: 'popup-edit-metadati-dialog',
       data: {
         file,
         context: metadataClonati

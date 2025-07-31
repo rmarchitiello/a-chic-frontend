@@ -3,7 +3,9 @@
 
   <!-- Contenitore scrollabile del contenuto del dialog -->
   <div class="contenuto-dialog">
-
+    <button  class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
     <!-- Sezione: Metadati esistenti ereditati dal padre -->
     <div formGroupName="metadatiFromFather">
       <h3>Metadati esistenti</h3>

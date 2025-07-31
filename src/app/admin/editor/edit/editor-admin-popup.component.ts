@@ -619,20 +619,21 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
   //pop up per editare i metadati
-  apriPopUpEditMedia(context: MediaContext): void {
+  //se viene chiamato dall'upload allora non deve restituire nulla ma anzi riceve dal subscribeConfiMediacollections tutta la collections 
+  //perche se tenta di editare una card e mettere lo stesso nome deve andare in errore
+  apriPopUpEditMedia(context: MediaContext, isUploadComponent: boolean): void {
       console.log("[EditorAdmin] context da editare: ", context);
 
     // Apro il popup passando file e metadati
-    const dialogRef = this.dialog.open(EditDataAdminComponent, {
+     this.dialog.open(EditDataAdminComponent, {
       panelClass: 'popup-edit-metadati-dialog',
       data: {
-        context: context
+        context: context,
+        isUploadComponent: isUploadComponent
       }
     });
 
-    dialogRef.afterClosed().subscribe((result: MediaContext | undefined) => {
-      
-    });
+ 
   }
 
 

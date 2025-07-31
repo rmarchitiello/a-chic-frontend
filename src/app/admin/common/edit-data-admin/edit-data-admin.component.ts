@@ -312,7 +312,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 
 // Interfaccia context usata nel componente padre
-import { MediaContext } from '../../../pages/home/home.component';
+import { MediaContext, MediaCollection } from '../../../pages/home/home.component';
 
 //Reactive Form
 import { FormArray, ReactiveFormsModule } from '@angular/forms';
@@ -327,6 +327,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
 import { chiaviValidatorEsteso } from '../../validators/chiavi-duplicate.validator';
+
+import { SharedDataService } from '../../../services/shared-data.service';
 @Component({
   selector: 'app-edit-context-before-upload',
   standalone: true,
@@ -375,16 +377,57 @@ export class EditDataAdminComponent implements OnInit,OnDestroy {
   //altrimenti avrei dovuto settare una chiave con date e poi modificarla
   metadatiAggiuntiFormArray!: FormArray
 
+  /*
+  Questa variabile serve perche, se mi chiama l'upload allora quando confermo, invece di inviare i dati in response, 
+  sono in ascolto sul subscribeConfig settato da AppComponent per capire se posso rinominare quel display_name 
+  perche se gia esiste una foto frontale con lo stesso nome devo inviare l'errore al chiamante
+  */
+  mediaCollectionsFromAppComponent: MediaCollection[] = [];
+  //mi serve per creare un array di soli display name frontali da confrontale in modo da non poter fare la rinomina in fase di conferma se siamo in edit
+  //di metadati gia esistenti
+  onlyDisplayNameFrontale: string[] = [];
+
+
+  //variabile che mi consente se display name è cambiato altrimetni non posso fare l'edit (lo spiego giu nel metodo di conferma)
+  onChangeDisplayName: boolean = false;
 
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { file: File; context: { [key: string]: string } },
+    @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string }, isUploadComponent: boolean },
+    private sharedDataService: SharedDataService
   ) {}
 
 
 
 
     ngOnInit(): void {
+        // se this.data.isUploadComponent e tyrue vuol dire che mi sta chiamando l'upload e quindi quando chiudo il pop up non chiamo direttamente qui media-update ma do i dati al padre
+        console.log("Mi sta chiamando l'[UploadDataAdminComponent? ], se false allora recupero tutte le media collections ", this.data.isUploadComponent)
+      
+        this.sharedDataService.mediasCollectionsConfig$.subscribe(data =>{
+          this.mediaCollectionsFromAppComponent = data;
+          
+          if(this.mediaCollectionsFromAppComponent.length > 0){
+                    //recupero solo il display name di metadati frontali recupero solo il primo elemento anche perche viene passata una folder precisa quindi
+        const mediaCollection = this.mediaCollectionsFromAppComponent[0];
+
+        console.log("Ricezione della media collection . . . ", mediaCollection);
+        mediaCollection.items.forEach(item => {
+         let displayName = item.context.display_name;
+         if(displayName){
+              this.onlyDisplayNameFrontale.push(displayName);
+
+         }
+        })
+          }
+          
+                  console.log("Array di nomi immagine frontale: ", this.onlyDisplayNameFrontale);
+
+
+        })
+
+
+
         this.contextInputFromFather = this.data.context;
         console.log("[EditDataAdmin] sto ricevento questo context: ", this.contextInputFromFather);
         
@@ -439,6 +482,45 @@ export class EditDataAdminComponent implements OnInit,OnDestroy {
                 // dinamico
           }
 } */
+
+
+// -----------------------------------------------------------------------------
+// ASCOLTO DEL CAMPO “display_name”  (versione senza distinctUntilChanged)
+// -----------------------------------------------------------------------------
+
+// 1. Salvo il valore originale quando apro il dialog
+const nomeOriginale = this.contextFormGroupFromFather
+  .get('display_name')
+  ?.value
+  ?.toString()
+  .trim();
+
+console.log('Nome originale:', nomeOriginale);
+
+// 2. Mi metto in ascolto su tutti i cambiamenti dell’input
+this.contextFormGroupFromFather
+  .get('display_name')
+  ?.valueChanges
+  .subscribe(nuovoValore => {
+
+    const nuovoNormalizzato = nuovoValore?.toString().trim();
+    console.log('Sta cambiando display_name →', nuovoNormalizzato);
+
+    /* onChangeDisplayName diventa true se il valore è diverso
+       dall’originale; altrimenti resta/torna false                */
+    this.onChangeDisplayName = nuovoNormalizzato !== nomeOriginale;
+
+    console.log('Display name è cambiato?', this.onChangeDisplayName);
+  });
+
+/* Se gestisci unsubscribe:
+   - crea un Subject destroy$  (private destroy$ = new Subject<void>();)
+   - usa takeUntil(this.destroy$) nella pipe
+   - chiama this.destroy$.next() in ngOnDestroy()                      */
+
+
+
+
     }
 
     /**
@@ -478,19 +560,37 @@ normalizzaDisplayName(input: string){
 
 
     ngOnDestroy(): void {
-      this.contextInputFromFather = this.backUpContextFromFather;
-      console.log("Context ripristinato: ", this.contextInputFromFather);
-      this.dialogRef.close();
+            this.chiudiDialog();
     }
 
     chiudiDialog(){
       this.contextInputFromFather = this.backUpContextFromFather;
       console.log("Context ripristinato: ", this.contextInputFromFather);
+      this.errorEditMetadata = false;
+      this.onChangeDisplayName = false;
       this.dialogRef.close();
         }
     
+        //per generare un messaggio di errore che l'edit è fallito
+        errorEditMetadata: boolean = false;
         onConferma(){
-          console.log("la form è valida ? ", this.contextFormGroupFromFather.valid);
+
+          if(!this.data.isUploadComponent){
+            console.log("Non mi sta chiamando l'upload");
+            //non mi sta chiamando l'upload cio vuol dire che devo invocare media la put('/admin/media-images del backend per modificare i metadati
+            //e notificare l'app component col servizio di notify, prima però verifico se esiste gia quel display_name altrimenti non devo modificare
+            //i metdadati e devo dare errore
+            /* Ma deve anche verificare che in effetti sia stato cambiato il valore di display_name e che quindi devo stare in ascolto
+            ai cambiamenti di display_name perche altrimenti andrei sempre in errore*/
+            const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
+            console.log("Display Name Ottenuto: ", displayNameOttenuto);
+            const checkExistImage = this.onlyDisplayNameFrontale.some(nome => nome === displayNameOttenuto)
+            if(checkExistImage && this.onChangeDisplayName){
+              console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
+              this.errorEditMetadata = true;
+            }
+          }
+
         }
 
         /* Ora per l'aggiunta dei metadata facciamo cosi:
