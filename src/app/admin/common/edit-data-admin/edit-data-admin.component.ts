@@ -597,7 +597,7 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    this.chiudiDialog();
+    this.dialogRef.close();
   }
 
   chiudiDialog() {
@@ -738,6 +738,10 @@ export class EditDataAdminComponent implements OnInit, OnDestroy {
     this.getMetadatiAggiuntiFormArray.push(nuovoMetadato);
   }
 
+
+  onRimuoviCampo(index: number): void {
+  this.getMetadatiAggiuntiFormArray.removeAt(index);
+}
 
   // Getter per accedere facilmente al FormArray dei metadati aggiunti
   get getMetadatiAggiuntiFormArray(): FormArray {

@@ -52,36 +52,48 @@
 
     <!-- Sezione: Metadati aggiunti manualmente dall'utente -->
     <div formArrayName="metadatiAggiunti">
-      <h3>Metadati aggiunti</h3>
+  <h3>Metadati aggiunti</h3>
 
-      <!-- Iterazione sui campi dinamici -->
-      <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index" [formGroupName]="i" class="form-row">
+  <!-- Iterazione sui campi dinamici -->
+  <div *ngFor="let group of getMetadatiAggiuntiFormArray.controls; let i = index"
+       [formGroupName]="i"
+       class="form-row with-remove-button">
 
-        <!-- Campo: chiave -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Chiave</mat-label>
-          <input matInput formControlName="key" placeholder="Es. colore" />
+    <!-- Campo: chiave -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Chiave</mat-label>
+      <input matInput formControlName="key" placeholder="Es. colore" />
 
-          <!-- Messaggi di errore chiave -->
-          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
-            Chiave duplicata: esiste già un metadato con lo stesso nome.
-          </p>
-          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
-            Chiave già presente nei metadati esistenti.
-          </p>
-          <p class="error-chiave-duplicata" *ngIf="group.get('key')?.hasError('pattern') && group.get('key')?.touched">
-            Inserisci caratteri validi.
-          </p>
-        </mat-form-field>
+      <!-- Messaggi di errore chiave -->
+      <p class="error-chiave-duplicata"
+         *ngIf="group.get('key')?.hasError('chiaviDuplicate') && group.get('key')?.touched">
+        Chiave duplicata: esiste già un metadato con lo stesso nome.
+      </p>
+      <p class="error-chiave-duplicata"
+         *ngIf="group.get('key')?.hasError('chiaviRiservate') && group.get('key')?.touched">
+        Chiave già presente nei metadati esistenti.
+      </p>
+      <p class="error-chiave-duplicata"
+         *ngIf="group.get('key')?.hasError('pattern') && group.get('key')?.touched">
+        Inserisci caratteri validi.
+      </p>
+    </mat-form-field>
 
-        <!-- Campo: valore -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Valore</mat-label>
-          <input matInput formControlName="value" placeholder="Es. rosso" />
-        </mat-form-field>
+    <!-- Campo: valore -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Valore</mat-label>
+      <input matInput formControlName="value" placeholder="Es. rosso" />
+    </mat-form-field>
 
-      </div>
-    </div>
+    <!-- Pulsante per rimuovere il campo -->
+    <button mat-icon-button color="warn" matTooltip="Rimuovi metadato"
+            type="button" (click)="onRimuoviCampo(i)">
+      <mat-icon>delete</mat-icon>
+    </button>
+
+  </div>
+</div>
+
 
     <!-- Pulsante per aggiunta metadato dinamico -->
     <div class="add-button-container">

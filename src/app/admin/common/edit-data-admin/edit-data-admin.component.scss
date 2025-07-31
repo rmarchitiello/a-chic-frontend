@@ -8,7 +8,7 @@
   box-sizing: border-box;
   background-color: #fff;
 
-/* ===============================
+  /* ===============================
      Pulsante di chiusura (in alto a destra)
   =============================== */
   .chiudi-btn {
@@ -25,12 +25,12 @@
     padding: 0;
 
     mat-icon {
-      color: #000;             // Colore icona (puoi personalizzare)
+      color: #000;             // Colore icona
       font-size: 28px;
       width: 28px;
       height: 28px;
       line-height: 28px;
-      font-family: 'Material Icons'; // Forza il font corretto
+      font-family: 'Material Icons'; // Font corretto
       display: block;
     }
   }
@@ -145,11 +145,33 @@ h3 {
   padding-bottom: 4px;
 }
 
-
-/* Messaggio di chiave duplicata – versione compatta */
+/* ============================
+   Messaggio di chiave duplicata – compatto
+   ============================ */
 .error-chiave-duplicata {
-  margin: 2px 0 6px;      /* meno spazio sopra e sotto */
-  font-size: 12px;        /* più piccolo */
-  line-height: 14px;      /* compattato */
-  color: #d32f2f;         /* rosso “warn” Material */
+  margin: 2px 0 6px;
+  font-size: 12px;
+  line-height: 14px;
+  color: #d32f2f;
+}
+
+/* ============================
+   Righe dinamiche con pulsante di rimozione
+   ============================ */
+.form-row.with-remove-button {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+  }
+
+  button {
+    margin-top: 12px;
+    height: 40px;
+    width: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
 }
