@@ -150,10 +150,10 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     console.log("UploadDataAdminComponent inizializzato", this.dialogRef);
 
     //recupero i file che mi invia l'editor e li aggiungo
-    if(this.data.isDroppedByEditor && this.data.files &&  this.data.files?.length > 0){
+    if (this.data.isDroppedByEditor && this.data.files && this.data.files?.length > 0) {
       const filesDroppedFromEditor = this.data.files;
-            console.log("Files droppati dall editor: ", filesDroppedFromEditor);
-            this.aggiungiFiles(filesDroppedFromEditor);
+      console.log("Files droppati dall editor: ", filesDroppedFromEditor);
+      this.aggiungiFiles(filesDroppedFromEditor);
 
     }
 
@@ -377,7 +377,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     const formDataFrontale = new FormData();
     let contextFrontale: MediaContext | undefined;
     if (fileDaCaricareFrontale) {
-       contextFrontale = this.metadatiPerFile.get(fileDaCaricareFrontale); 
+      contextFrontale = this.metadatiPerFile.get(fileDaCaricareFrontale);
       console.log("Context recuperato per il file frontale:", contextFrontale);
 
       if (contextFrontale) {
@@ -386,7 +386,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         formDataFrontale.append('cloudinary', JSON.stringify(contextFrontale));
       }
     }
-     
+
 
     // ───── Caricamento del file frontale con attesa risposta ─────
     const risultatoCaricamentoFrontale = await this.caricaMediaInToCloud(formDataFrontale, isConfig);
@@ -396,65 +396,67 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     const statusFrontale = risultatoCaricamentoFrontale.find(r => r.angolazione === 'frontale')?.status;
     console.log("Risultato caricamento della frontale (solo status):", statusFrontale);
 
-
+    let statusNonFrontale: string[] = [];
     if (statusFrontale === 'ok') {
-      if(filesDaCaricareNonFrontali.length > 0){
+      if (filesDaCaricareNonFrontali.length > 0) {
 
-     
-      console.log(" La frontale è stata caricata correttamente, adesso procedo al caricamento delle altre angolazioni...");
-      risultatiTotali.push(statusFrontale); //inizio a inserire il primo stato
-      let formDataNonFrontale = new FormData();
-      //creo il contex per la non frontale sovrascrivendo l'angolazione
-      let contextNonFrontale: MediaContext | undefined = contextFrontale;
+
+        console.log(" La frontale è stata caricata correttamente, adesso procedo al caricamento delle altre angolazioni...");
+        risultatiTotali.push(statusFrontale); //inizio a inserire il primo stato
+        let formDataNonFrontale = new FormData();
+        //creo il contex per la non frontale sovrascrivendo l'angolazione
+        let contextNonFrontale: MediaContext | undefined = contextFrontale;
         if (contextFrontale) {
           contextNonFrontale = {
-          ...contextFrontale,
-          angolazione: 'altra'  // Sovrascrive solo la chiave angolazione
-        };
+            ...contextFrontale,
+            angolazione: 'altra'  // Sovrascrive solo la chiave angolazione
+          };
 
-      console.log("Anche per le non frontali carico il seguente context: ", contextFrontale);
+          console.log("Anche per le non frontali carico il seguente context: ", contextFrontale);
 
 
-    }
-      for (const file of filesDaCaricareNonFrontali) {
-        // Crea un nuovo FormData per ogni file non frontale
-        formDataNonFrontale.append('file', file);
-        formDataNonFrontale.append('folder', folder);
-        formDataNonFrontale.append('cloudinary', JSON.stringify(contextNonFrontale));
-      }
+        }
+        for (const file of filesDaCaricareNonFrontali) {
+          // Crea un nuovo FormData per ogni file non frontale
+          formDataNonFrontale.append('file', file);
+          formDataNonFrontale.append('folder', folder);
+          formDataNonFrontale.append('cloudinary', JSON.stringify(contextNonFrontale));
+        }
 
-      
+
         // Attende il caricamento e stampa il risultato
         const risultatoCaricamentoNonFrontali = await this.caricaMediaInToCloud(formDataNonFrontale, isConfig);
         console.log("aaaaa", JSON.stringify(risultatoCaricamentoNonFrontali));
         // Trova il primo risultato che NON è frontale e recupera solo il campo 'status'
-        const statusNonFrontale: string[] = risultatoCaricamentoNonFrontali.map(r => r.status);
+         statusNonFrontale  = risultatoCaricamentoNonFrontali.map(r => r.status);
         // Logga correttamente lo status del file non frontale
         console.log("Risultato caricamento della non frontale (solo status):", statusNonFrontale);
         // Aggiunge lo status alla lista dei risultati totali (string[])
 
+
+      } else {
+        console.log("Non ci sono altre angolazioni per quest immagine");
+      }
+
         //mi serve sapere se c e almeno un ko 
-         statusNonFrontale.push(statusFrontale);
-         const statusFinale: boolean = statusNonFrontale.some(s => s === 'ko')
+        statusNonFrontale.push(statusFrontale);
+        const statusFinale: boolean = statusNonFrontale.some(s => s === 'ko')
 
         const rapportinoUpload = {
-            totale_file: numeroDeiFileDaCaricare,
-            status_frontali_caricati: statusFrontale,
-            status_non_frontali_caricati: statusNonFrontale,
-            status_finale: statusFinale ? 'ko' : 'ok' // se in totale, ci sono dei ko non chiudere il pop up altrimenti chiudi il pop up e invia la notifica ad app component
+          totale_file: numeroDeiFileDaCaricare,
+          status_frontali_caricati: statusFrontale,
+          status_non_frontali_caricati: statusNonFrontale,
+          status_finale: statusFinale ? 'ko' : 'ok' // se in totale, ci sono dei ko non chiudere il pop up altrimenti chiudi il pop up e invia la notifica ad app component
 
         }
         console.log("Rapportino finale: ", rapportinoUpload);
-      
-      if(rapportinoUpload.status_finale === 'ko'){
-        console.log("Ci sono stati errori durante l'upload di una non frontale")
-      }
-      else{
-        this.chiudiDialog();
-      }
-    } else {
-          console.log("Non ci sono altre angolazioni per quest immagine");
-    }
+
+        if (rapportinoUpload.status_finale === 'ko') {
+          console.log("Ci sono stati errori durante l'upload di una non frontale")
+        }
+        else {
+          this.chiudiDialog();
+        }
 
     } else {
       console.error(" Errore nel caricamento della frontale. Upload interrotto.");
@@ -630,12 +632,12 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   }
 
 
-formatKeyLabel(key: string): string {
-  if (key === 'display_name') return 'Nome';
-  return key
-    .replace(/_/g, ' ')                   // sostituisce "_" con spazio
-    .toLowerCase()                        // converte tutto in minuscolo
-    .replace(/\b\w/g, char => char.toUpperCase()); // mette maiuscola all'inizio di ogni parola
-}
+  formatKeyLabel(key: string): string {
+    if (key === 'display_name') return 'Nome';
+    return key
+      .replace(/_/g, ' ')                   // sostituisce "_" con spazio
+      .toLowerCase()                        // converte tutto in minuscolo
+      .replace(/\b\w/g, char => char.toUpperCase()); // mette maiuscola all'inizio di ogni parola
+  }
 
 }
