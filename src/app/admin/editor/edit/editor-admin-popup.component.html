@@ -1,5 +1,10 @@
 <div class="dialog-content">
 
+  <!-- QUANDO IS DRAGGING E TRUE VUOL DIRE STIAMO CARICANDO IL FIGLIO EMETTE L'EVENTO DIVENTA FALSE SI TOGLIE LO SPINNER-->
+<div class="spinner-overlay" *ngIf="isDragging">
+  <mat-spinner diameter="50"></mat-spinner>
+</div>
+
   <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
@@ -27,7 +32,7 @@
                 </strong>
                 <div class="context-value">
                   <span class="preview-text">
-                    {{ getPreview(contextFormatted.value) }}
+                    {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
                   <!-- Bottone per visualizzare la descrizione completa, mostrato solo se la descrizione è lunga -->
                   <button *ngIf="descrizioneLunga" class="visualizza-descrizione-btn"
@@ -117,3 +122,10 @@
 
   </div>
 </div>
+
+
+<!-- input One-Way binding-->
+<app-upload-data-admin hidden *ngIf="isDragging" [inputFolderFromEdiorOneWayBinding]="folderInput"
+  [droppedByEditorOneWayBinding]="true" [filesDroppedFromEditorOneWayBinding]="fileArray"
+  [typeMediaFromEditorOneWayBinding]="mediaTypeDropped"
+  (eventoChiudiUpload)="gestisciChiusuraUpload($event)"></app-upload-data-admin>

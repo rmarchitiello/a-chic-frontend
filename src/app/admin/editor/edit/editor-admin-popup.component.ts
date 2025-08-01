@@ -95,13 +95,26 @@ import { SharedDataService } from '../../../services/shared-data.service';
 import { ViewMetadata } from '../view/view-metadata.component';
 //importato per modificare i metadati (come nella fase di upload)
 import { EditDataAdminComponent } from '../../common/edit-data-admin/edit-data-admin.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+/* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
+Voglio implementare una nuova funzionalita quando dall editor
+
+trascino un file, in automatico viene subito caricato per poi modificare in metadata direttamente nella card, e, secondo me è molto piu scabile anziche aprire un 
+pop up e gestire tutto da li.
+Anche per i metadata voglio gestire tutto da editor quindi ogni valore nella card, sarà una reactive form.
+
+Ora, per utilizzare le funzionalità del component di upload utilizzo l'approccio One-Way input binding, 
+ovvero l'Editor mediante @Input nel figlio passa i campi in questo caso la folder e i file.
+*/
 
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
   templateUrl: './editor-admin-popup.component.html',
   styleUrl: './editor-admin-popup.component.scss',
-  imports: [CommonModule, MatIconModule, MatTooltipModule]
+  imports: [CommonModule, MatIconModule, MatTooltipModule,UploadDataAdminComponent,MatProgressSpinnerModule]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
@@ -157,6 +170,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<EditorAdminPopUpComponent>,
     private sharedService: SharedDataService,
     private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) { }
 
 
@@ -356,6 +370,12 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   isLongText(value: any): boolean {
     return typeof value === 'string' && !!value && value.length > 40;
   }
+
+  capitalizeFirstLetter(text: string): string {
+  if (!text) return '';
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
 
 
 
@@ -559,7 +579,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     this.dialog.open(UploadDataAdminComponent, {
       panelClass: 'upload-dialog',
       disableClose: false,
-      data: {inputFolder: this.folderInput, files: files, isDroppedByEditor: this.isDragging} //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
+      data: {inputFolder: this.folderInput, files: files} //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
     });
 
 
@@ -576,45 +596,153 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   isDragging: boolean = false;
 
   onDragEnter(event: DragEvent) {
-    this.isDragging = true;
+    this.isDragging = false;
     console.log("Sono entrato nel drag");
   }
 
 
   onDragOver(event: DragEvent) {
-    this.isDragging = true;
+    this.isDragging = false;
     console.log("Ora mi sto spostando nella drop area");
     event.preventDefault(); // necessario per permettere il drop altrimenti il browser lo apre normalmente
 
   }
 
-  onDrop(event: DragEvent) {
-    console.log("Ho droppato nell area");
-    this.isDragging = true;
-    event.preventDefault();  //quel over si collega a questo drop
+fileArray!: File[];               // Qui salvo i file validi da caricare
+tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
+mediaTypeDropped: 'image' | 'video' | 'audio' | '' = '';
 
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      console.log("Count dei file da inviare all'upload: ", files.length);
-      console.log("Lista dei file droppati: ", files);
-      //quando ho rilasciato tutti i file da caricare devo aprire il pop up upload component
-      //converto files che è un file list in un array di file
-      const fileArray: File[] = Array.from(files);
+readonly tipiSupportati = ['image', 'video', 'audio']; // Definisco i soli tipi MIME che accetto
 
-      this.apriPopUpUploadMedia(fileArray);
-    }
+// Metodo invocato quando l'utente rilascia i file nell'area di drop
+// Metodo invocato quando l'utente rilascia dei file nell'area di drop
+/* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
+onDrop(event: DragEvent) {
+  // Attivo il flag visivo per segnalare che un'area di drop è attiva
+  this.isDragging = true;
+  console.log("Ho droppato nell'area");
 
+  // Impedisco il comportamento di default del browser (es. apertura file)
+  event.preventDefault();
 
+  // Recupero i file trascinati
+  const files = event.dataTransfer?.files;
+  if (!files || files.length === 0) return;
 
+  // Converto la FileList in un array per una gestione più comoda
+  const arrayFiles = Array.from(files);
 
+  // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+  const filesSupportati = arrayFiles.filter(file => {
+    const tipo = file.type.split('/')[0];
+    return this.tipiSupportati.includes(tipo);
+  });
+
+  // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
+  if (filesSupportati.length === 0) {
+    this.mostraMessaggioSnakBar(
+      "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+      true
+    );
+    return;
   }
+
+  // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
+  const tipiContati: { [tipo: string]: number } = {};
+  filesSupportati.forEach(file => {
+    const tipoGenerico = file.type.split('/')[0];
+    tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
+  });
+
+  // Determino il tipo prevalente: quello con il maggior numero di file presenti
+  const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
+    return tipiContati[a] > tipiContati[b] ? a : b;
+  });
+
+  // Verifico che il tipo prevalente sia uno di quelli accettati
+  if (!this.tipiSupportati.includes(tipoPrevalente)) {
+    this.mostraMessaggioSnakBar(
+      "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+      true
+    );
+    return;
+  }
+
+  // Imposto il tipo accettato e lo comunico anche al componente figlio
+  this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
+  this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+
+  // Seleziono solo i file che appartengono al tipo prevalente
+  const filesValidi = filesSupportati.filter(file => {
+    return file.type.split('/')[0] === this.tipoAccettato;
+  });
+
+  // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
+  const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
+  const estensioniScartate = Array.from(new Set(
+    filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+  ));
+
+  // Se ci sono file scartati, mostro un messaggio di errore informativo
+  if (filesScartati.length > 0) {
+    const tipoEstensione = this.tipoAccettato;
+    const msg = filesScartati.length === 1
+      ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione}`}. Scartato: ${estensioniScartate.join(', ')}`
+      : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+    console.warn(msg);
+    this.mostraMessaggioSnakBar(msg, true);
+  }
+
+  // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
+  if (filesValidi.length === 0) {
+    this.mostraMessaggioSnakBar(
+      "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+      true
+    );
+    return;
+  }
+
+  // Salvo i file validi in memoria per l’upload
+  this.fileArray = filesValidi;
+
+  // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
+}
+
+
+
+
 
   onDragLeave(event: DragEvent) {
     console.log("Sono uscito dalla area");
     this.isDragging = false;
   }
 
+gestisciChiusuraUpload(valore: boolean) {
+  this.isDragging = false;
 
+  if (valore) {
+    this.mostraMessaggioSnakBar("File caricati correttamente.", false);
+  } else {
+    this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
+  }
+}
+
+    //snackbar
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
+    let panelClassCustom;
+    if (isError) {
+      panelClassCustom = 'snackbar-errore';
+    }
+    else {
+      panelClassCustom = 'snackbar-ok';
+    }
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration: 4000, // durata in ms
+      panelClass: panelClassCustom, // classe CSS personalizzata
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+  }
 
 
 

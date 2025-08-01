@@ -37,7 +37,7 @@ export interface MediaMeta {
 /* Sono gli attributi ovvero i metadata su cloudinary*/
 export interface MediaContext {
   display_name?: string;
-  type?: 'image' | 'video' | 'audio';
+  type?: 'image' | 'video' | 'audio' | '';
   descrizione?: string;
   quantita?: string;
   // altri metadati dinamici: prezzo, materiale, colore, ecc.

@@ -410,3 +410,16 @@
   max-height: 60vh !important;
   padding: 1rem 0 !important;
 }
+
+.spinner-overlay {
+  position: absolute; // se sei dentro un dialog Material
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.7); // semi-trasparente
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; // sopra tutti gli elementi del dialog
+}

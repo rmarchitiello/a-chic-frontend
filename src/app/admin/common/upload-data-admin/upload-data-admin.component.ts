@@ -16,7 +16,7 @@ dragleave	 Quando esci dal div	USCITA
 drop	📥 Quando rilasci il file	INSERIMENTO
  */
 
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, Input, EventEmitter, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { AdminService } from '../../../services/admin.service';
 import { MatIconModule } from '@angular/material/icon';
@@ -32,7 +32,6 @@ import { SharedDataService } from '../../../services/shared-data.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatRadioModule } from '@angular/material/radio';
 import { firstValueFrom } from 'rxjs'; // Necessario per convertire l'observable in promise
-
 export interface UploadResult {
   key_file: string;
   status: 'ok' | 'ko';
@@ -63,7 +62,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private sharedService: SharedDataService,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { inputFolder: string, files?: File[], isDroppedByEditor: boolean } // La cartella viene fornita dal padre
+    @Inject(MAT_DIALOG_DATA) public data: { inputFolder: string, files?: File[] } // La cartella viene fornita dal padre
     /* Se viene inviata anche la lista dei file vuol dire che editor component non ha premuto il tasto per aggiungere  ma ha droppato direttamente lui */
   ) { }
 
@@ -82,6 +81,16 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
 
   fileSelezionatoComeFrontale: File | null = null;
+
+  @Input() inputFolderFromEdiorOneWayBinding!: string;
+  @Input() droppedByEditorOneWayBinding!: boolean;
+  @Input() filesDroppedFromEditorOneWayBinding!: File[];
+  @Input() typeMediaFromEditorOneWayBinding: 'image' | 'video' | 'audio' | '' = '';
+
+  @Output() eventoChiudiUpload = new EventEmitter<boolean>(); //emetto al padre l'evento di fine upload
+
+  isDroppedByEditor: boolean = false;
+
 
   mancaFrontaleMethod(): boolean {
     return !this.fileSelezionatoComeFrontale;
@@ -146,20 +155,28 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
 
 
+
   ngOnInit(): void {
     console.log("UploadDataAdminComponent inizializzato", this.dialogRef);
+    this.isDroppedByEditor = this.droppedByEditorOneWayBinding
+    console.log("Droppato dall editor ? ", this.isDroppedByEditor)
 
-    //recupero i file che mi invia l'editor e li aggiungo
-    if (this.data.isDroppedByEditor && this.data.files && this.data.files?.length > 0) {
-      const filesDroppedFromEditor = this.data.files;
+    this.inputFolder = this.data?.inputFolder || this.inputFolderFromEdiorOneWayBinding;
+    console.log("Folder dove caricare: ", this.inputFolder);
+
+
+
+
+    //quando l'editor droppa aggiungo i file e chiamo l'upload
+    if (this.isDroppedByEditor) {
+      const filesDroppedFromEditor = this.data?.files || this.filesDroppedFromEditorOneWayBinding;
       console.log("Files droppati dall editor: ", filesDroppedFromEditor);
       this.aggiungiFiles(filesDroppedFromEditor);
-
+      console.log("File aggiunto sto per caricare: . . . ")
+      this.uploadFiles();
     }
 
 
-    this.inputFolder = this.data.inputFolder;
-    console.log("Folder dove caricare: ", this.inputFolder);
 
     //non fa uploadre cose all esterno del drop
     window.addEventListener('dragover', this.preventBrowserDefault, false);
@@ -324,29 +341,68 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   /**
  * Avvia l'upload dei file (singolo o multiplo)
  */
-  async uploadFiles(fileInput?: File): Promise<void> {
+  async uploadFiles(): Promise<void> {
+    console.log("Inizio metodo di upload")
+    // Verifica che l'utente abbia specificato una cartella
+    const folder = this.inputFolder?.trim();
+    const isConfig = folder.toLowerCase().includes('config');
+
+    if (!folder) {
+      alert("Errore: specifica una cartella di destinazione.");
+      return;
+    }
     let risultatiTotali: string[] = []; // variabile che inserisco tutti i risultati se qui dentro trovo almeno un ko non chiudo il pop up 
 
+    if (this.isDroppedByEditor) {
+      // Log iniziale per debugging
+      console.log("UPLOAD DA EDITOR");
+      console.log("File da caricare droppati dall'editor:", this.filesDaCaricare); // Array di File
+      console.log("Media input type ricevuto:", this.typeMediaFromEditorOneWayBinding);
+
+      if (this.isDroppedByEditor) {
+        // Log iniziale per verificare cosa sto gestendo
+        console.log("UPLOAD DA EDITOR");
+        console.log("File da caricare droppati dall'editor:", this.filesDaCaricare); // Array di File
+        console.log("Media input type ricevuto:", this.typeMediaFromEditorOneWayBinding);
+
+        // Timestamp per generare nomi univoci
+        const timestamp = Date.now();
+
+        // Ciclo su ogni file droppato per creare un FormData dedicato
+        this.filesDaCaricare.forEach((file, index) => {
+          // Imposto dinamicamente l’angolazione: la prima è 'frontale', le altre 'altra'
+          const angolazione = index === 0 ? 'frontale' : 'altra';
+
+          // Creo un context base con i valori predefiniti
+          const context: MediaContext = {
+            display_name: 'Nome_' + timestamp + '_' + index,
+            type: this.typeMediaFromEditorOneWayBinding, // Deve essere 'image' | 'video' | 'audio'
+            descrizione: "Da inserire",
+            quantita: "0",
+            angolazione: angolazione
+          };
+
+          // Salvo il context nella mappa per poterlo recuperare in fase successiva se serve
+          this.metadatiPerFile.set(file, context);
+        });
+      }
+
+    }
     // Controlla che ci siano file da caricare
     if (this.filesDaCaricare.length === 0) {
       alert("Errore: seleziona almeno un file da caricare.");
       return;
     }
 
-    // Verifica che l'utente abbia specificato una cartella
-    const folder = this.inputFolder?.trim();
-    if (!folder) {
-      alert("Errore: specifica una cartella di destinazione.");
-      return;
-    }
 
-    const isConfig = folder.toLowerCase().includes('config');
 
     // ───── Step 1: Recupero del file frontale (se presente) ─────
     const fileDaCaricareFrontale = this.filesDaCaricare.find(f => {
       const meta = this.metadatiPerFile.get(f);
       return meta?.['angolazione'] === 'frontale';
     });
+
+    console.log("ahjahahaha: ", fileDaCaricareFrontale);
 
     if (fileDaCaricareFrontale) {
       console.log("File frontale identificato:", fileDaCaricareFrontale.name);
@@ -355,9 +411,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
       console.warn("Nessun file frontale trovato tra i file selezionati.");
     }
 
-    const filesDaCaricareNonFrontali = fileInput
-      ? [fileInput].filter(f => this.metadatiPerFile.get(f)?.['angolazione'] !== 'frontale')
-      : this.filesDaCaricare.filter(f => this.metadatiPerFile.get(f)?.['angolazione'] !== 'frontale');
+    const filesDaCaricareNonFrontali = this.filesDaCaricare.filter(f => this.metadatiPerFile.get(f)?.['angolazione'] !== 'frontale');
 
     console.log("File con altre angolazioni da caricare:");
     filesDaCaricareNonFrontali.forEach(f => {
@@ -384,6 +438,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         formDataFrontale.append('file', fileDaCaricareFrontale);
         formDataFrontale.append('folder', folder);
         formDataFrontale.append('cloudinary', JSON.stringify(contextFrontale));
+        console.log("Lalalalalal", JSON.stringify(contextFrontale));
       }
     }
 
@@ -428,7 +483,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         const risultatoCaricamentoNonFrontali = await this.caricaMediaInToCloud(formDataNonFrontale, isConfig);
         console.log("aaaaa", JSON.stringify(risultatoCaricamentoNonFrontali));
         // Trova il primo risultato che NON è frontale e recupera solo il campo 'status'
-         statusNonFrontale  = risultatoCaricamentoNonFrontali.map(r => r.status);
+        statusNonFrontale = risultatoCaricamentoNonFrontali.map(r => r.status);
         // Logga correttamente lo status del file non frontale
         console.log("Risultato caricamento della non frontale (solo status):", statusNonFrontale);
         // Aggiunge lo status alla lista dei risultati totali (string[])
@@ -438,35 +493,56 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         console.log("Non ci sono altre angolazioni per quest immagine");
       }
 
-        //mi serve sapere se c e almeno un ko 
-        statusNonFrontale.push(statusFrontale);
-        const statusFinale: boolean = statusNonFrontale.some(s => s === 'ko')
+      //mi serve sapere se c e almeno un ko 
+      statusNonFrontale.push(statusFrontale);
+      const statusFinale: boolean = statusNonFrontale.some(s => s === 'ko')
 
-        const rapportinoUpload = {
-          totale_file: numeroDeiFileDaCaricare,
-          status_frontali_caricati: statusFrontale,
-          status_non_frontali_caricati: statusNonFrontale,
-          status_finale: statusFinale ? 'ko' : 'ok' // se in totale, ci sono dei ko non chiudere il pop up altrimenti chiudi il pop up e invia la notifica ad app component
+      const rapportinoUpload = {
+        totale_file: numeroDeiFileDaCaricare,
+        status_frontali_caricati: statusFrontale,
+        status_non_frontali_caricati: statusNonFrontale,
+        status_finale: statusFinale ? 'ko' : 'ok' // se in totale, ci sono dei ko non chiudere il pop up altrimenti chiudi il pop up e invia la notifica ad app component
 
-        }
-        console.log("Rapportino finale: ", rapportinoUpload);
+      }
+      console.log("Rapportino finale: ", rapportinoUpload);
 
-        if (rapportinoUpload.status_finale === 'ko') {
-          console.log("Ci sono stati errori durante l'upload di una non frontale")
+      if (rapportinoUpload.status_finale === 'ko') {
+        console.log("Ci sono stati errori durante l'upload di una non frontale")
+      }
+      else {
+        //quando tutto è ok
+        if(this.isDroppedByEditor){
+          console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
+          //notifico al padre
+          this.sharedService.notifyConfigCacheIsChanged();
+          this.eventoChiudiUpload.emit(true); //emetto l'evento al padre per dire guarda è finito l'upload mostra una snackbar ok
         }
-        else {
-          this.chiudiDialog();
+        else{
+
+        
+        this.chiudiDialog();
         }
+      }
 
     } else {
+      if(this.isDroppedByEditor){
+                      console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
+          //notifico al padre
+          this.sharedService.notifyConfigCacheIsChanged();
+          this.eventoChiudiUpload.emit(false);
+      }else{
+
       console.error(" Errore nel caricamento della frontale. Upload interrotto.");
+
+      }
     }
 
 
     this.uploadInCorso = false; //disabilito lo spinner di caricamento
 
 
-    // Qui puoi continuare con il caricamento degli altri file...
+
+
   }
 
 
