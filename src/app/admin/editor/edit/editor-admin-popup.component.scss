@@ -309,43 +309,64 @@
 
 
 .preview-card.upload-add-card {
-  border: 2px dashed #4caf50;
-  background-color: transparent;
-  height: auto;
-  width: 260px;
+  // Contenitore principale del pulsante "Aggiungi" con drop area
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 16px;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-  cursor: pointer;
+  border: 2px dashed #4caf50; // bordo iniziale verde chiaro
+  border-radius: 16px; // angoli stondati
+  background-color: transparent;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08); // ombra leggera per profondità
+  cursor: pointer; // mostra il cursore di tipo "click"
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 
-  .card-inner {
-    display: none;
-  }
-
+  // Elemento centrale che contiene il testo "Aggiungi prodotto" o "Rilascia prodotto"
   .add-icon {
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 1.25rem;
-    border-radius: 10px;
-    color: #4caf50;
-    transition: transform 0.25s ease, color 0.25s ease;
+    font-size: 1rem; // dimensione testo leggibile
+    font-weight: 600; // testo leggermente in grassetto
+    padding: 1.25rem 2rem; // spaziatura interna uniforme
+    border-radius: 10px; // angoli arrotondati per il contenitore del testo
+    color: #4caf50; // colore verde iniziale
+    background: transparent;
     text-align: center;
-    user-select: none;
     line-height: 1.2;
+    user-select: none; // impedisce la selezione accidentale del testo
+    pointer-events: none; // disabilita interazioni sull'icona
+    transition:
+      transform 0.25s ease,
+      color 0.25s ease,
+      opacity 0.25s ease; // animazioni fluide su trasformazione, colore e opacità
   }
 
+  // Stato al passaggio del mouse sopra la drop area (hover standard)
   &:hover {
-    background-color: rgba(76, 175, 80, 0.06);
-    border-color: #388e3c;
+    background-color: rgba(76, 175, 80, 0.06); // sfondo leggero verde trasparente
+    border-color: #388e3c; // bordo più scuro per dare feedback
 
     .add-icon {
-      transform: scale(1.05);
-      color: #388e3c;
+      transform: scale(1.05); // leggera espansione dell'icona
+      color: #388e3c; // cambio di colore in hover
+    }
+  }
+
+  // Stato attivo durante dragenter o dragover (quando si trascina un file sopra)
+  &.drag-over {
+    background: linear-gradient(
+      135deg,
+      rgba(76, 175, 80, 0.08),
+      rgba(200, 230, 201, 0.2)
+    ); // sfondo sfumato per effetto visivo
+    border-color: #2e7d32; // bordo verde scuro durante il trascinamento
+
+    .add-icon {
+      color: #2e7d32; // colore del testo più marcato
+      transform: scale(1.1); // espansione maggiore per evidenziare il rilascio
+      opacity: 0.85; // leggera trasparenza per evidenziare stato attivo
     }
   }
 }
+
 
 
 /*  - - - - - - GESTIONE DI TUTTI I POP UP - - - - - - - */ 

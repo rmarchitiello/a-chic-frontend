@@ -74,13 +74,14 @@ ESSENDO CHE IL TOOL TIP NON PUO AVERE degli ngFor dove l'array viene restituito 
 per questo carico gli array mediaurls frontale 
 
 
-caricamento qui dentro direttamente:
-dragover	Quando un file viene trascinato sopra l'area	Serve per permettere il drop e attivare un effetto visivo
-dragleave	Quando il file esce dall’area (senza lasciarlo)	Serve per ripristinare lo stile (es. togli hover attivo)
-drop	Quando il file viene effettivamente lasciato	Serve per recuperare i file e avviare il caricamento
 
+
+/* Questo component espone dei vari pop up per editare eliminare fare la download upload dei media.
+  Il pop up di upload posso aprirlo o cliccando sul bottone aggiungi o con drag and drop
 */
-import { Component, OnDestroy, OnInit } from '@angular/core';
+
+
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -149,6 +150,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
+
   constructor(
     //ricevo il dato dalla home
     //@Inject(MAT_DIALOG_DATA) public data: MediaCollection lo commento non serve perche ricevo l'input dal observable mediante subscribe,
@@ -157,103 +159,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
   ) { }
 
-  /**  ------------  UPLOAD DEI FILE DRAG E DROP ------------ */
-  // Variabile per lo stato visivo dell'hover drag&drop
-  isHovering: boolean = false;
-
-  filesDaCaricare: File[] = []; // Lista dei file selezionati
-
-  anteprimeFile: Map<File, string> = new Map(); // Anteprima dei file che sto per caricare
-
-  metadatiPerFile: Map<File, MediaContext> = new Map(); // Metadati per file che sto per caricare
-
-  // Metodo chiamato quando si trascina un file sopra l'area
-  onDragOver(event: DragEvent): void {
-    event.preventDefault(); // Necessario per permettere il drop
-    this.isHovering = true; // Attiva lo stile visivo dell'area
-  }
-
-  // Metodo chiamato quando il file esce dall’area di drop
-  onDragLeave(event: DragEvent): void {
-    event.preventDefault(); // Previene comportamenti indesiderati
-    this.isHovering = false; // Rimuove lo stile visivo
-  }
-
-  // Metodo chiamato quando l’utente rilascia un file sull’area di drop
-  onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.isHovering = false;
-    const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      this.aggiungiFiles(Array.from(files));
-      console.log("Files droppati da aggiungere: ", files)
-    }
-  }
-
-  // Metodo chiamato quando l’utente seleziona file dal file picker
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    if (files && files.length > 0) {
-      this.aggiungiFiles(Array.from(files));
-      console.log("Files selezionati da aggiungere: ", files)
-
-    }
-    input.value = '';
-  }
-
-  // Metodo centrale per elaborare i file caricati (drag o picker)
-  aggiungiFiles(files: File[]): void {
-    files.forEach(file => {
-      const giaPresente = this.filesDaCaricare.some(
-        f => f.name === file.name && f.size === file.size
-      );
-      if (!giaPresente) {
-        this.filesDaCaricare.push(file);
-
-        const tipoGenerico = file.type.split('/')[0];
-        if (["image", "video", "audio"].includes(tipoGenerico)) {
-          const previewUrl = URL.createObjectURL(file);
-          this.anteprimeFile.set(file, previewUrl);
-        }
-
-        // Inizializza i metadati base
-        const meta: MediaContext = {
-          display_name: file.name.split('.')[0],
-          nome_file: file.name.split('.')[0],
-          angolazione: 'frontale',
-          quantita: '0',
-          descrizione: 'Descrizione da inserire'
-        };
-
-        this.metadatiPerFile.set(file, meta);
-        console.log("Lista di tutti i file da caricare: ", this.filesDaCaricare);
-      }
-    });
-  }
-
-  rimuoviFile(file: File): void {
-    this.filesDaCaricare = this.filesDaCaricare.filter(f => f !== file);
-    this.anteprimeFile.delete(file);
-    this.metadatiPerFile.delete(file);
-  }
-
-  rimuoviTuttiIFiles(): void {
-    this.filesDaCaricare = [];
-    this.anteprimeFile.clear();
-    this.metadatiPerFile.clear();
-  }
-
-  //per non far droppare roba fuori con le foto e non mi apre il browser
-  preventDefaultGlobal = (event: DragEvent) => {
-    event.preventDefault();
-  };
-
-  ngOnDestroy(): void {
-    window.removeEventListener('dragover', this.preventDefaultGlobal, false);
-    window.removeEventListener('drop', this.preventDefaultGlobal, false);
-  }
-  /*--------------FINE UPLOAD-----------------*/
 
   caricaMediaCollection(data: MediaCollection) {
     if (data) {
@@ -312,11 +217,19 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngOnDestroy(): void {
+    console.log("Distrutto");
+    window.removeEventListener('dragover', this.preventBrowserDefault, false);
+    window.removeEventListener('drop', this.preventBrowserDefault, false);
+  }
+
   ngOnInit(): void {
 
-    // Previene comportamento di default del browser per file trascinati fuori area
-    window.addEventListener('dragover', this.preventDefaultGlobal, false);
-    window.addEventListener('drop', this.preventDefaultGlobal, false);
+    // Previene l'apertura del file nel browser se droppato fuori dalla zona consentita
+    // Impedisci il comportamento di default per il drag/drop a livello globale
+    //non fa uploadre cose all esterno del drop
+    window.addEventListener('dragover', this.preventBrowserDefault, false);
+    window.addEventListener('drop', this.preventBrowserDefault, false);
 
     //primo caricamento quando home apre il pop up
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
@@ -602,17 +515,13 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
-  //pop up per caricare un media
-  apriPopUpUploadMedia() {
-
-    this.dialog.open(UploadDataAdminComponent, {
-      panelClass: 'upload-dialog',
-      disableClose: false,
-      data: this.folderInput
-    });
 
 
-  }
+  /* APERTURA DEL POP UP DI UPLOAD SIA MEDIANTE DRAG AND DROP CHE CON CLICK 
+  Quando clicco normalmente si apre la finestra di upload e li o seleziono il file o
+  faccio drad e drop (ma questo nella finestra di upload)
+  
+  Se apro invece il pop up mediante drag e drop passo direttamente all'upload il context isUploadComponent true o false e direttamente la lista dei file*/
 
 
 
@@ -620,10 +529,10 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //se viene chiamato dall'upload allora non deve restituire nulla ma anzi riceve dal subscribeConfiMediacollections tutta la collections 
   //perche se tenta di editare una card e mettere lo stesso nome deve andare in errore
   apriPopUpEditMedia(context: MediaContext, isUploadComponent: boolean): void {
-      console.log("[EditorAdmin] context da editare: ", context);
+    console.log("[EditorAdmin] context da editare: ", context);
 
     // Apro il popup passando file e metadati
-     this.dialog.open(EditDataAdminComponent, {
+    this.dialog.open(EditDataAdminComponent, {
       panelClass: 'popup-edit-metadati-dialog',
       data: {
         context: context,
@@ -631,8 +540,81 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       }
     });
 
- 
   }
+
+
+  
+  //pop up per caricare un media
+  /* Posso sia cliccare per aprirlo che trascinare qualcosa all interno e si apre passando la lista dei file da caricare
+  /* Puo accettare una lista di file da inviare al pop up di upload 
+    Se la lista dei file non viene inviata allora li carico a mano nel pop up
+    altrimenti accetta una lista di file oltre all input folder cosi si apre il pop up direttamente con i file da caricare
+    Quindi se premo il tasto aggiungi prodotto, si apre il pop up senza lista di file.
+    Se faccio drag e drop si apre direttamente il pop up con la lista dei file
+  */
+
+  apriPopUpUploadMedia(files?: File[]) {
+
+    console.log("File sono droppati dall'editor ? " , this.isDragging);
+    this.dialog.open(UploadDataAdminComponent, {
+      panelClass: 'upload-dialog',
+      disableClose: false,
+      data: {inputFolder: this.folderInput, files: files, isDroppedByEditor: this.isDragging} //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
+    });
+
+
+  }
+
+
+
+  preventBrowserDefault(event: Event): void {
+    event.preventDefault();
+  }
+
+
+  //mi fa capire se sono sull area di drop
+  isDragging: boolean = false;
+
+  onDragEnter(event: DragEvent) {
+    this.isDragging = true;
+    console.log("Sono entrato nel drag");
+  }
+
+
+  onDragOver(event: DragEvent) {
+    this.isDragging = true;
+    console.log("Ora mi sto spostando nella drop area");
+    event.preventDefault(); // necessario per permettere il drop altrimenti il browser lo apre normalmente
+
+  }
+
+  onDrop(event: DragEvent) {
+    console.log("Ho droppato nell area");
+    this.isDragging = true;
+    event.preventDefault();  //quel over si collega a questo drop
+
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      console.log("Count dei file da inviare all'upload: ", files.length);
+      console.log("Lista dei file droppati: ", files);
+      //quando ho rilasciato tutti i file da caricare devo aprire il pop up upload component
+      //converto files che è un file list in un array di file
+      const fileArray: File[] = Array.from(files);
+
+      this.apriPopUpUploadMedia(fileArray);
+    }
+
+
+
+
+  }
+
+  onDragLeave(event: DragEvent) {
+    console.log("Sono uscito dalla area");
+    this.isDragging = false;
+  }
+
+
 
 
 

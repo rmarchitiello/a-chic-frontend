@@ -1,8 +1,6 @@
-
-
 <div class="dialog-content">
 
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi"  (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -32,9 +30,8 @@
                     {{ getPreview(contextFormatted.value) }}
                   </span>
                   <!-- Bottone per visualizzare la descrizione completa, mostrato solo se la descrizione è lunga -->
-                  <button *ngIf="descrizioneLunga" class="visualizza-descrizione-btn" 
-                     aria-label="Visualizza descrizione"
-                    (click)="apriPopUpViewMetadata(url,context)">
+                  <button *ngIf="descrizioneLunga" class="visualizza-descrizione-btn"
+                    aria-label="Visualizza descrizione" (click)="apriPopUpViewMetadata(url,context)">
                     <mat-icon>visibility</mat-icon>
                   </button>
 
@@ -109,16 +106,14 @@
 
 
     <!-- ===========================
-     Pulsante singolo "Aggiungi"
+     Pulsante singolo "Aggiungi" + drop area
 =========================== -->
-    <div (click)="apriPopUpUploadMedia()" class="preview-card upload-add-card">
-
-      <span matTooltip="Aggiungi Prodotto" class="add-icon"> Aggiungi prodotto</span>
-
+    <div (click)="apriPopUpUploadMedia()" class="preview-card upload-add-card" [class.drag-over]="isDragging"
+      (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      <span matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="!isDragging">Aggiungi prodotto</span>
+      <span matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="isDragging">Rilascia prodotto</span>
     </div>
-
-
-
 
   </div>
 </div>

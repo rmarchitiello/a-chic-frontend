@@ -3,6 +3,17 @@
  * tramite drag and drop o selezione manuale, in modalità popup.
  * La cartella di destinazione viene fornita dal componente padre.
  * I metadati dei file sono gestiti e personalizzabili prima dell'invio.
+ * 
+ * 
+ * 
+ *
+ * 
+ * 
+ * Evento	Quando si attiva	Cosa segnala
+dragenter	 Appena entra nel div (anche di 1px)	INGRESSO
+dragover	 Ogni millisecondo finché ci stai sopra	MOVIMENTO
+dragleave	 Quando esci dal div	USCITA
+drop	📥 Quando rilasci il file	INSERIMENTO
  */
 
 import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
@@ -52,7 +63,8 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private sharedService: SharedDataService,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public folder: string // La cartella viene fornita dal padre
+    @Inject(MAT_DIALOG_DATA) public data: { inputFolder: string, files?: File[], isDroppedByEditor: boolean } // La cartella viene fornita dal padre
+    /* Se viene inviata anche la lista dei file vuol dire che editor component non ha premuto il tasto per aggiungere  ma ha droppato direttamente lui */
   ) { }
 
   isHovering = false; // Evidenzia drop-zone
@@ -137,7 +149,16 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     console.log("UploadDataAdminComponent inizializzato", this.dialogRef);
 
-    this.inputFolder = this.folder;
+    //recupero i file che mi invia l'editor e li aggiungo
+    if(this.data.isDroppedByEditor && this.data.files &&  this.data.files?.length > 0){
+      const filesDroppedFromEditor = this.data.files;
+            console.log("Files droppati dall editor: ", filesDroppedFromEditor);
+            this.aggiungiFiles(filesDroppedFromEditor);
+
+    }
+
+
+    this.inputFolder = this.data.inputFolder;
     console.log("Folder dove caricare: ", this.inputFolder);
 
     //non fa uploadre cose all esterno del drop
