@@ -308,8 +308,6 @@
 }
 
 
-
-
 .preview-card.upload-add-card {
   border: 2px dashed #4caf50;
   background-color: transparent;
@@ -349,6 +347,8 @@
   }
 }
 
+
+/*  - - - - - - GESTIONE DI TUTTI I POP UP - - - - - - - */ 
 
 /* Stile del contenitore principale del dialog centrato */
 ::ng-deep .cdk-overlay-pane.popup-edit-metadati-dialog {

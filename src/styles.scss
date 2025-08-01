@@ -248,42 +248,6 @@ o cosi
   backdrop-filter: blur(5px);                      // effetto sfocato
 }
 
-/* ============================================================
-   DIALOG UPLOAD: Scroll naturale con MDC (Material Design Components)
-   Applicato con: panelClass: 'upload-dialog'
-
-   Obiettivo:
-   - Consentire che il contenuto interno del dialog scrolli
-     solo se eccede l’altezza disponibile.
-   - Evitare scroll del contenitore esterno (container).
-   - Rimuovere margini/padding inutili che causano layout errato.
-============================================================ */
-
-
-
-
-/*  Stilizzo il contenitore esterno del dialog (involucro generale) */
-::ng-deep .upload-dialog .mat-mdc-dialog-container {
-  width: 1000px;
-  height: 1000px;
-  max-height: 1000px;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-}
-
-/* 🔸 Contenuto scrollabile interno */
-::ng-deep .upload-dialog .mat-mdc-dialog-content {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 0; // Cruciale per scroll interno in layout flex
-}
-
-
-
 
 
 /* Stile personalizzato per Snackbar di errore */
