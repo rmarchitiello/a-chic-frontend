@@ -637,7 +637,7 @@ export class EditDataAdminComponent implements OnInit {
         console.log("MediaContext aggiornato . . .", contextAggiornato);
         const url = this.onlyDisplayNameAndUrlFrontale[this.nomeOriginale];
         console.log("Url del media da aggiornare: ", url);
-        this.adminService.updateImageMetadata(url, contextAggiornato, true).subscribe({ //ahahahaahha
+        this.adminService.updateImageMetadata(url, contextAggiornato, true).subscribe({ 
           next: (response) => {
             console.log('Metadati aggiornati con successo:', response);
             this.mostraMessaggioSnakBar('Dati aggiornati con successo', false);
