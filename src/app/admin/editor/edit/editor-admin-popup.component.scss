@@ -380,3 +380,12 @@
   max-height: 60vh !important;
   padding: 1rem 0 !important;
 }
+
+
+
+//POP UP DI UPLOAD AGGIUNGO LO SCROLL POI HO GESTITO TUTTO DENTRO L'HTML DI UPLOAD
+::ng-deep .upload-dialog .mat-mdc-dialog-content {
+  overflow-y: auto !important;
+  max-height: 60vh !important;
+  padding: 1rem 0 !important;
+}
