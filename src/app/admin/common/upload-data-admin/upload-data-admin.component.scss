@@ -17,6 +17,33 @@
 
     // Inserisco eventualmente un'ombra soft sotto l'header
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+
+    /* ===============================
+     Pulsante di chiusura in alto a destra
+  =============================== */
+  .chiudi-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+
+    mat-icon {
+      color: #000;
+      font-size: 28px;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      font-family: 'Material Icons';
+      display: block;
+    }
+  }
   }
 
 /* ============================================================================

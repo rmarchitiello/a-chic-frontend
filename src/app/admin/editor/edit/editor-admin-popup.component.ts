@@ -606,8 +606,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   apriPopUpUploadMedia() {
 
     this.dialog.open(UploadDataAdminComponent, {
-      width: '1000px',
-      height: '1000px',
       panelClass: 'upload-dialog',
       disableClose: false,
       data: this.folderInput
