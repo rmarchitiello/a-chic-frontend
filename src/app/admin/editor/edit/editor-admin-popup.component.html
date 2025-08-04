@@ -36,25 +36,36 @@
                 <div class="context-value">
 
                   <!-- Preview del valore (cliccabile per entrare in modifica) -->
-                  <span *ngIf="campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text"
+                  <!-- Preview NON editabile per 'type' -->
+                  <span *ngIf="contextFormatted.key === 'type'" class="preview-text non-editable"
+                    matTooltip="Campo non modificabile">
+                    {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
+                  </span>
+
+                  <!-- Preview editabile per TUTTI tranne 'type' -->
+                  <span *ngIf="contextFormatted.key !== 'type' &&
+             campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text"
                     (click)="editMetaDataInline(contextFormatted, url)">
                     {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
 
-                  <!-- Modalità modifica (Reactive Form) -->
-                  <mat-form-field *ngIf="campoInlineInEditing === url + '_' + contextFormatted.key" appearance="fill"
+                  <!-- Input in edit SOLO per TUTTI tranne 'type' -->
+                  <mat-form-field *ngIf="contextFormatted.key !== 'type' &&
+                       campoInlineInEditing === url + '_' + contextFormatted.key" appearance="fill"
                     class="inline-edit-form-field">
 
-
                     <ng-container *ngIf="contextFormatted.key === 'quantita'; else testo">
-                      <input matInput type="number" [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
-                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label , url)"
+                      <input matInput type="number" min="0" step="1" inputmode="numeric"
+                        [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
+                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
+                        (keydown.enter)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
                         placeholder="Inserisci quantità" />
                     </ng-container>
 
                     <ng-template #testo>
                       <input matInput type="text" [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
-                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label , url)"
+                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
+                        (keydown.enter)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
                         placeholder="Modifica valore" />
                     </ng-template>
 
@@ -65,6 +76,7 @@
                       Valore non valido
                     </mat-error>
                   </mat-form-field>
+
 
 
 
