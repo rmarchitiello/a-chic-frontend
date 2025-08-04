@@ -421,7 +421,7 @@ export class EditDataAdminComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<EditDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string }, isUploadComponent: boolean },
+    @Inject(MAT_DIALOG_DATA) public data: { context: { [key: string]: string } },
     private sharedDataService: SharedDataService,
     private snackBar: MatSnackBar,
     private adminService: AdminService
@@ -431,8 +431,6 @@ export class EditDataAdminComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // se this.data.isUploadComponent e tyrue vuol dire che mi sta chiamando l'upload e quindi quando chiudo il pop up non chiamo direttamente qui media-update ma do i dati al padre
-    console.log("Mi sta chiamando l'[UploadDataAdminComponent? ], se false allora recupero tutte le media collections ", this.data.isUploadComponent)
 
     this.sharedDataService.mediasCollectionsConfig$.subscribe(data => {
       this.mediaCollectionsFromAppComponent = data;
@@ -615,50 +613,13 @@ export class EditDataAdminComponent implements OnInit {
   errorEditMetadata: boolean = false;
   onConferma() {
 
-    //vuol dire che se è false (non mi sta chiamando l'upload allora qui sara true e chiama il service admin che esegue l'update dei metadata)
-    if (!this.data.isUploadComponent) {
-      console.log("Non mi sta chiamando l'upload");
-      //non mi sta chiamando l'upload cio vuol dire che devo invocare media la put('/admin/media-images del backend per modificare i metadati
-      //e notificare l'app component col servizio di notify, prima però verifico se esiste gia quel display_name altrimenti non devo modificare
-      //i metdadati e devo dare errore
-      /* Ma deve anche verificare che in effetti sia stato cambiato il valore di display_name e che quindi devo stare in ascolto
-      ai cambiamenti di display_name perche altrimenti andrei sempre in errore
-      verifica anche se è lo stesso file con const nomeFileOriginale*/
-      const displayNameOttenuto = this.contextFormGroupFromFather.get('display_name')?.value
-      console.log("Display Name Ottenuto: ", displayNameOttenuto);
-      const checkExistImage = Object.keys(this.onlyDisplayNameAndUrlFrontale).some(
-        nome => nome.toLocaleLowerCase() === displayNameOttenuto.toLocaleLowerCase()
-      ); if (checkExistImage && this.onChangeDisplayName) {
-        console.log("Non puoi cambiare il nome all immagine perche gia esiste una frontale cosi. . .")
-        this.errorEditMetadata = true;
-        this.mostraMessaggioSnakBar('Il media è già presente nella raccolta. Si prega di indicare un nome differente.', true);
-      } else {
-        const contextAggiornato: MediaContext = this.trasformInMediaContext();
-        console.log("MediaContext aggiornato . . .", contextAggiornato);
-        const url = this.onlyDisplayNameAndUrlFrontale[this.nomeOriginale];
-        console.log("Url del media da aggiornare: ", url);
-        this.adminService.updateImageMetadata(url, contextAggiornato, true).subscribe({ 
-          next: (response) => {
-            console.log('Metadati aggiornati con successo:', response);
-            this.mostraMessaggioSnakBar('Dati aggiornati con successo', false);
-            this.sharedDataService.notifyConfigCacheIsChanged();
-            this.chiudiAfterEditOK();
-          },
-          error: (error) => {
-            console.error('Errore durante l\'aggiornamento dei metadati:', JSON.stringify(error));
-            this.mostraMessaggioSnakBar('Errore generico', true);
-
-          }
-        });
-      }
-
-      }else{
+   
         console.log("siamo nella fase di upload e quindi non di edit: ");
         const contextAggiornato: MediaContext = this.trasformInMediaContext();
         console.log("Aggiorno il context da inviare all'upload: ", contextAggiornato);
             this.dialogRef.close(contextAggiornato);
 
-    }
+    
 
   }
 

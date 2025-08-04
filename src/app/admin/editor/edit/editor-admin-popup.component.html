@@ -68,7 +68,6 @@
                         (keydown.enter)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
                         placeholder="Modifica valore" />
                     </ng-template>
-
                     <mat-error *ngIf="formControlsInline[url + '_' + contextFormatted.key]?.hasError('required')">
                       Campo obbligatorio
                     </mat-error>
@@ -76,6 +75,12 @@
                       Valore non valido
                     </mat-error>
                   </mat-form-field>
+                  <!-- bottoni di elimina metadata o aggiungi-->
+                  <button (click)="rimuoviMetadatoInline(context,contextFormatted.key,contextFormatted.label,url)" *ngIf="contextFormatted.key !== 'type' &&
+             campoInlineInEditing === url + '_' + contextFormatted.key">
+            <mat-icon>delete</mat-icon> 
+            </button>
+
 
 
 

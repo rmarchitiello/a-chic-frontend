@@ -560,23 +560,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
-  //pop up per editare i metadati
-  //se viene chiamato dall'upload allora non deve restituire nulla ma anzi riceve dal subscribeConfiMediacollections tutta la collections 
-  //perche se tenta di editare una card e mettere lo stesso nome deve andare in errore
-  //se upload e true si apre la form di editing nel component di upload
-  apriPopUpEditMedia(context: MediaContext, isUploadComponent: boolean): void {
-    console.log("[EditorAdmin] context da editare: ", context);
 
-    // Apro il popup passando file e metadati
-    this.dialog.open(EditDataAdminComponent, {
-      panelClass: 'popup-edit-metadati-dialog',
-      data: {
-        context: context,
-        isUploadComponent: isUploadComponent
-      }
-    });
-
-  }
 
 
 
@@ -801,69 +785,84 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
   }
 
 
-  //conferma la form anzi l input
+// Conferma la modifica inline del singolo metadato
 confermaValoreInline(context: MediaContext, key: string, label: string, url: string): void {
-
-  const labelInput = label;
   const campoId = `${url}_${key}`;
   const control = this.formControlsInline[campoId];
 
+  // 1) Verifica che esista il FormControl
   if (!control) {
     console.warn('FormControl non trovato per', campoId);
     return;
   }
 
-  if (control.valid) {
-    const nuovoValore = control.value;
+  // 2) Se non è valido, mostro solo l’errore di validazione
+  if (!control.valid) {
+    control.markAsTouched();
+    this.mostraMessaggioSnakBar(`Controlla i dati inseriti in "${label}".`, true);
+    return;
+  }
 
+  // 3) Normalizzo il valore in ingresso (trim per stringhe)
+  const rawValue = control.value;
+  const nuovoValore = typeof rawValue === 'string' ? rawValue.trim() : rawValue;
 
-
-    // Verifica specifica per il campo 'display_name'
-    if (key === 'display_name') {
-      const nuovoValoreLower = nuovoValore.toLocaleLowerCase();
-
-      const esisteGia = this.itemsInput.some(item =>
-        item.context.display_name?.toLocaleLowerCase() === nuovoValoreLower &&
-        this.getMediaUrlsFrontale(item.media).includes(url) === false
-      );
-
-      if (esisteGia) {
-       this.mostraMessaggioSnakBar(`${labelInput} non aggiornato: esiste già un altro prodotto con lo stesso ${labelInput}`, true);
-
-        control.setErrors({ duplicate: true });
-        return;
-      }
-    }
-
-    // Aggiorno il valore nel contesto
-    context[key] = nuovoValore;
-
-    //  Se il campo è quantita → forzo la stringa
-    if (key === 'quantita' && context['quantita'] !== undefined && context['quantita'] !== null) {
-      context['quantita'] = String(context['quantita']);
-    }
-
-    // Esco dalla modalità modifica
+  // 4) Se non è cambiato, esco in silenzio (niente messaggi, niente chiamate)
+  const currentValue = context[key];
+  const canonCorrente = key === 'quantita' ? String(currentValue ?? '') : String(currentValue ?? '');
+  const canonNuovo    = key === 'quantita' ? String(nuovoValore ?? '') : String(nuovoValore ?? '');
+  if (canonNuovo === canonCorrente) {
+    // pulizia e uscita dall’editing, ma nessun messaggio
     this.campoInlineInEditing = null;
     delete this.formControlsInline[campoId];
-
-    // Chiamo il servizio per aggiornare
-    this.adminService.updateImageMetadata(url, context, true).subscribe({
-      next: () => {
-        this.mostraMessaggioSnakBar(`Campo ${labelInput}  aggiornato`, false);
-        this.sharedService.notifyConfigCacheIsChanged();
-        
-      },
-      error: (err) => {
-        console.error("Errore durante l'aggiornamento dei metadati:", err);
-         this.mostraMessaggioSnakBar(`Error durante l'aggiornamento di ${labelInput}  aggiornato`, true);
-      }
-    });
-
-  } else {
-    control.markAsTouched();
+    return;
   }
+
+  // 5) Regola specifica per "display_name": evita duplicati su altri prodotti
+  if (key === 'display_name') {
+    const nuovoValoreLower = String(nuovoValore).toLocaleLowerCase();
+
+    const esisteGia = this.itemsInput.some(item =>
+      item.context.display_name?.toLocaleLowerCase() === nuovoValoreLower &&
+      !this.getMediaUrlsFrontale(item.media).includes(url) // escludi l’item corrente
+    );
+
+    if (esisteGia) {
+      this.mostraMessaggioSnakBar(
+        `"${label}" non aggiornato: esiste già un altro prodotto con lo stesso ${label}.`,
+        true
+      );
+      control.setErrors?.({ duplicate: true });
+      return;
+    }
+  }
+
+  // 6) Aggiorno il context locale
+  //    - "quantita": nel form è numero, verso backend salviamo come stringa
+  if (key === 'quantita') {
+    context[key] = String(nuovoValore);
+  } else {
+    context[key] = nuovoValore;
+  }
+
+  // 7) Uscita dalla modalità di editing e pulizia del controllo inline
+  this.campoInlineInEditing = null;
+  delete this.formControlsInline[campoId];
+
+  // 8) Persistenza lato backend
+  this.adminService.updateImageMetadata(url, context, true).subscribe({
+    next: () => {
+      this.mostraMessaggioSnakBar(`"${label}" è stato aggiornato correttamente.`, false);
+      this.sharedService.notifyConfigCacheIsChanged();
+    },
+    error: (err) => {
+      console.error("Errore durante l'aggiornamento dei metadati:", err);
+      this.mostraMessaggioSnakBar(`Non è stato possibile aggiornare "${label}". Riprova.`, true);
+    }
+  });
 }
+
+
 
 
 
@@ -872,6 +871,66 @@ confermaValoreInline(context: MediaContext, key: string, label: string, url: str
     return item.key;
   }
 
+
+rimuoviMetadatoInline(context: any, key: string, label: string, url: string): void {
+  console.log('Context in ingresso:', context, ' | chiave da rimuovere:', key, ' | url:', url);
+
+  // Campi non rimovibili
+  const nonRimovibili = new Set(['display_name', 'type']);
+  if (nonRimovibili.has(key)) {
+    this.mostraMessaggioSnakBar(`"${label}" non può essere rimosso.`, true);
+    return;
+  }
+
+  // Se stai editando questo campo, esci dall’editing
+  const campoId = `${url}_${key}`;
+  if (this.campoInlineInEditing === campoId) {
+    this.campoInlineInEditing = null;
+  }
+
+  // Rimuovi l’eventuale FormControl collegato
+  const ctrl = this.formControlsInline[campoId];
+  if (ctrl) {
+    ctrl.clearValidators?.();
+    ctrl.clearAsyncValidators?.();
+    ctrl.reset(undefined, { emitEvent: false });
+    ctrl.updateValueAndValidity({ emitEvent: false });
+    delete this.formControlsInline[campoId];
+  }
+
+  // Se il metadato non esiste nel context
+  if (!(key in context)) {
+    this.mostraMessaggioSnakBar(`"${label}" non è presente.`, true);
+    return;
+  }
+
+  // Aggiorna il context (immutabile per forzare il refresh)
+  const updatedContext = { ...context };
+  delete updatedContext[key];
+
+  // Sincronizza strutture locali (se usi una mappa url → context)
+  this.contextMap[url] = updatedContext;
+
+  // Allinea anche itemsInput se necessario
+  const item = this.itemsInput?.find(i => this.getMediaUrlsFrontale(i.media)?.includes(url));
+  if (item) {
+    item.context = updatedContext;
+  }
+
+  console.log('Context aggiornato (chiave rimossa):', updatedContext);
+
+  // Persisti lato backend
+  this.adminService.updateImageMetadata(url, updatedContext, true).subscribe({
+    next: () => {
+      this.sharedService.notifyConfigCacheIsChanged();
+      this.mostraMessaggioSnakBar(`"${label}" è stato rimosso.`, false);
+    },
+    error: (err) => {
+      console.error('Errore durante la rimozione del metadato:', err);
+      this.mostraMessaggioSnakBar(`Non è stato possibile rimuovere "${label}". Riprova.`, true);
+    }
+  });
+}
 
 
 }
