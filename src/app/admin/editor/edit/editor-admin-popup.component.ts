@@ -375,7 +375,8 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //mostro una preview sul sito
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
   descrizioneLunga: boolean = false;
-  getPreview(value: string, max = 18): string {
+  maxLength: number = 10;
+  getPreview(value: string, max = this.maxLength): string {
     this.descrizioneLunga = value.length > max //se la descrizione è grande ritorna true;
     if (typeof value !== 'string') return value as any;
     return value.length > max ? value.slice(0, max) + '...' : value;
@@ -383,7 +384,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //metodo che mi fa capire se un determinata stringa supera i 40 caratteri
   //se lo supera torna true
   isLongText(value: any): boolean {
-    return typeof value === 'string' && !!value && value.length > 40;
+    return typeof value === 'string' && !!value && value.length > this.maxLength;
   }
 
   capitalizeFirstLetter(text: string): string {
