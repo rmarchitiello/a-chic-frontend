@@ -97,6 +97,12 @@ import { ViewMetadata } from '../view/view-metadata.component';
 import { EditDataAdminComponent } from '../../common/edit-data-admin/edit-data-admin.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { FormControl, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { AdminService } from '../../../services/admin.service';
+
 
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
@@ -114,7 +120,15 @@ ovvero l'Editor mediante @Input nel figlio passa i campi in questo caso la folde
   standalone: true,
   templateUrl: './editor-admin-popup.component.html',
   styleUrl: './editor-admin-popup.component.scss',
-  imports: [CommonModule, MatIconModule, MatTooltipModule,UploadDataAdminComponent,MatProgressSpinnerModule]
+  imports: [CommonModule,
+    MatIconModule,
+    MatTooltipModule,
+    UploadDataAdminComponent,
+    MatProgressSpinnerModule,
+    MatInputModule,
+    MatFormFieldModule,
+    ReactiveFormsModule
+  ]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
@@ -170,7 +184,8 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     private dialogRef: MatDialogRef<EditorAdminPopUpComponent>,
     private sharedService: SharedDataService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private adminService: AdminService
   ) { }
 
 
@@ -372,9 +387,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
   capitalizeFirstLetter(text: string): string {
-  if (!text) return '';
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
 
 
 
@@ -548,6 +563,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //pop up per editare i metadati
   //se viene chiamato dall'upload allora non deve restituire nulla ma anzi riceve dal subscribeConfiMediacollections tutta la collections 
   //perche se tenta di editare una card e mettere lo stesso nome deve andare in errore
+  //se upload e true si apre la form di editing nel component di upload
   apriPopUpEditMedia(context: MediaContext, isUploadComponent: boolean): void {
     console.log("[EditorAdmin] context da editare: ", context);
 
@@ -563,7 +579,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
-  
+
   //pop up per caricare un media
   /* Posso sia cliccare per aprirlo che trascinare qualcosa all interno e si apre passando la lista dei file da caricare
   /* Puo accettare una lista di file da inviare al pop up di upload 
@@ -575,11 +591,11 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   apriPopUpUploadMedia(files?: File[]) {
 
-    console.log("File sono droppati dall'editor ? " , this.isDragging);
+    console.log("File sono droppati dall'editor ? ", this.isDragging);
     this.dialog.open(UploadDataAdminComponent, {
       panelClass: 'upload-dialog',
       disableClose: false,
-      data: {inputFolder: this.folderInput, files: files} //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
+      data: { inputFolder: this.folderInput, files: files } //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
     });
 
 
@@ -608,105 +624,105 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   }
 
-fileArray!: File[];               // Qui salvo i file validi da caricare
-tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
-mediaTypeDropped: 'image' | 'video' | 'audio' | '' = '';
+  fileArray!: File[];               // Qui salvo i file validi da caricare
+  tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
+  mediaTypeDropped: 'image' | 'video' | 'audio' | '' = '';
 
-readonly tipiSupportati = ['image', 'video', 'audio']; // Definisco i soli tipi MIME che accetto
+  readonly tipiSupportati = ['image', 'video', 'audio']; // Definisco i soli tipi MIME che accetto
 
-// Metodo invocato quando l'utente rilascia i file nell'area di drop
-// Metodo invocato quando l'utente rilascia dei file nell'area di drop
-/* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
-onDrop(event: DragEvent) {
-  // Attivo il flag visivo per segnalare che un'area di drop è attiva
-  this.isDragging = true;
-  console.log("Ho droppato nell'area");
+  // Metodo invocato quando l'utente rilascia i file nell'area di drop
+  // Metodo invocato quando l'utente rilascia dei file nell'area di drop
+  /* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
+  onDrop(event: DragEvent) {
+    // Attivo il flag visivo per segnalare che un'area di drop è attiva
+    this.isDragging = true;
+    console.log("Ho droppato nell'area");
 
-  // Impedisco il comportamento di default del browser (es. apertura file)
-  event.preventDefault();
+    // Impedisco il comportamento di default del browser (es. apertura file)
+    event.preventDefault();
 
-  // Recupero i file trascinati
-  const files = event.dataTransfer?.files;
-  if (!files || files.length === 0) return;
+    // Recupero i file trascinati
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) return;
 
-  // Converto la FileList in un array per una gestione più comoda
-  const arrayFiles = Array.from(files);
+    // Converto la FileList in un array per una gestione più comoda
+    const arrayFiles = Array.from(files);
 
-  // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
-  const filesSupportati = arrayFiles.filter(file => {
-    const tipo = file.type.split('/')[0];
-    return this.tipiSupportati.includes(tipo);
-  });
+    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+    const filesSupportati = arrayFiles.filter(file => {
+      const tipo = file.type.split('/')[0];
+      return this.tipiSupportati.includes(tipo);
+    });
 
-  // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
-  if (filesSupportati.length === 0) {
-    this.mostraMessaggioSnakBar(
-      "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
-      true
-    );
-    return;
+    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
+    if (filesSupportati.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
+    const tipiContati: { [tipo: string]: number } = {};
+    filesSupportati.forEach(file => {
+      const tipoGenerico = file.type.split('/')[0];
+      tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
+    });
+
+    // Determino il tipo prevalente: quello con il maggior numero di file presenti
+    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
+      return tipiContati[a] > tipiContati[b] ? a : b;
+    });
+
+    // Verifico che il tipo prevalente sia uno di quelli accettati
+    if (!this.tipiSupportati.includes(tipoPrevalente)) {
+      this.mostraMessaggioSnakBar(
+        "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+    // Imposto il tipo accettato e lo comunico anche al componente figlio
+    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
+    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+
+    // Seleziono solo i file che appartengono al tipo prevalente
+    const filesValidi = filesSupportati.filter(file => {
+      return file.type.split('/')[0] === this.tipoAccettato;
+    });
+
+    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
+    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
+    const estensioniScartate = Array.from(new Set(
+      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+    ));
+
+    // Se ci sono file scartati, mostro un messaggio di errore informativo
+    if (filesScartati.length > 0) {
+      const tipoEstensione = this.tipoAccettato;
+      const msg = filesScartati.length === 1
+        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione}`}. Scartato: ${estensioniScartate.join(', ')}`
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+      console.warn(msg);
+      this.mostraMessaggioSnakBar(msg, true);
+    }
+
+    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
+    if (filesValidi.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+        true
+      );
+      return;
+    }
+
+    // Salvo i file validi in memoria per l’upload
+    this.fileArray = filesValidi;
+
+    // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
   }
-
-  // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
-  const tipiContati: { [tipo: string]: number } = {};
-  filesSupportati.forEach(file => {
-    const tipoGenerico = file.type.split('/')[0];
-    tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
-  });
-
-  // Determino il tipo prevalente: quello con il maggior numero di file presenti
-  const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
-    return tipiContati[a] > tipiContati[b] ? a : b;
-  });
-
-  // Verifico che il tipo prevalente sia uno di quelli accettati
-  if (!this.tipiSupportati.includes(tipoPrevalente)) {
-    this.mostraMessaggioSnakBar(
-      "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
-      true
-    );
-    return;
-  }
-
-  // Imposto il tipo accettato e lo comunico anche al componente figlio
-  this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
-  this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
-
-  // Seleziono solo i file che appartengono al tipo prevalente
-  const filesValidi = filesSupportati.filter(file => {
-    return file.type.split('/')[0] === this.tipoAccettato;
-  });
-
-  // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
-  const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
-  const estensioniScartate = Array.from(new Set(
-    filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
-  ));
-
-  // Se ci sono file scartati, mostro un messaggio di errore informativo
-  if (filesScartati.length > 0) {
-    const tipoEstensione = this.tipoAccettato;
-    const msg = filesScartati.length === 1
-      ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione}`}. Scartato: ${estensioniScartate.join(', ')}`
-      : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
-    console.warn(msg);
-    this.mostraMessaggioSnakBar(msg, true);
-  }
-
-  // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
-  if (filesValidi.length === 0) {
-    this.mostraMessaggioSnakBar(
-      "Nessun file valido da caricare. Tutti i file sono stati scartati.",
-      true
-    );
-    return;
-  }
-
-  // Salvo i file validi in memoria per l’upload
-  this.fileArray = filesValidi;
-
-  // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
-}
 
 
 
@@ -717,17 +733,17 @@ onDrop(event: DragEvent) {
     this.isDragging = false;
   }
 
-gestisciChiusuraUpload(valore: boolean) {
-  this.isDragging = false;
+  gestisciChiusuraUpload(valore: boolean) {
+    this.isDragging = false;
 
-  if (valore) {
-    this.mostraMessaggioSnakBar("File caricati correttamente.", false);
-  } else {
-    this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
+    if (valore) {
+      this.mostraMessaggioSnakBar("File caricati correttamente.", false);
+    } else {
+      this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
+    }
   }
-}
 
-    //snackbar
+  //snackbar
   mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
     let panelClassCustom;
     if (isError) {
@@ -742,6 +758,125 @@ gestisciChiusuraUpload(valore: boolean) {
       horizontalPosition: 'center',
       verticalPosition: 'top'
     });
+  }
+
+
+  //metodo che serve per abilitare l'editing del valore del metadata corrente 
+  /* 
+    Ho un json del genere da modificare.
+     {"url":"https://res.cloudinary.com/dmf1qtmqd/image/upload/v1754085953/Config/Home/Carosello/refbn0oykij41gfewavn.jpg",
+            "contextFormatted":{
+                "key":"descrizione",
+                "label":"Descrizione",
+                "value":"Da inserire"}
+}
+
+Creo un singolo form control per ogni key, non ha senso creare un form group perche qua la mia form è un solo campo alla volta
+
+  */
+
+
+  //quando clicco su span devo poter visualizzare quel campo da editare mentre gli altri no
+  campoInlineInEditing: string | null = null;
+
+  /* 
+    Form controls perche per ogni chiave creo un suo form control
+  */
+  formControlsInline: { [campoId: string]: FormControl } = {};
+
+  //e vale campo campoInlineInEditing  https://res.cloudinary.com/dmf1qtmqd/image/upload/v1754085953/Config/Home/Carosello/refbn0oykij41gfewavn.jpg_descrizione
+  editMetaDataInline(contextFormatted: { key: string; label: string; value: string }, url: string): void {
+    const campoId = `${url}_${contextFormatted.key}`; //cosi sono sicuro di prendere univocamente quella descrizione di quella url
+    this.campoInlineInEditing = `${url}_${contextFormatted.key}`;
+    console.log('[Edit Inline] Editing:', JSON.stringify({ url: url, contextFormatted }));
+    console.log("campo campoInlineInEditing ", this.campoInlineInEditing) // 
+
+    // Crea il FormControl solo se non esiste cosi non duplica i form control
+    if (!this.formControlsInline[campoId]) {
+      this.formControlsInline[campoId] = new FormControl(contextFormatted.value, Validators.required); // do come valore iniziale non '' ma la inizializzo con il suo valore del campo key
+    }
+
+    console.log("Form control generato: ", this.formControlsInline)
+
+  }
+
+
+  //conferma la form anzi l input
+  confermaValoreInline(context: any, key: string, url: string): void {
+  const campoId = `${url}_${key}`;
+  const control = this.formControlsInline[campoId];
+
+  if (!control) {
+    console.warn('FormControl non trovato per', campoId);
+    return;
+  }
+
+  if (control.valid) {
+    const nuovoValore = control.value;
+
+    // Verifica se il nuovo valore è uguale a quello già presente
+    const valoreCorrente = context[key];
+    if (nuovoValore === valoreCorrente) {
+      // Non ha senso aggiornare lo stesso valore
+      this.mostraMessaggioSnakBar("Campo non aggiornato: il valore è identico a quello attuale", true);
+      control.setErrors({ noChange: true });
+      return;
+    }
+
+// Verifica specifica per il campo 'display_name'
+if (key === 'display_name') {
+  const nuovoValoreLower = nuovoValore.toLocaleLowerCase();
+
+  // Controllo se esiste già un altro elemento con lo stesso display_name (ignorando maiuscole/minuscole),
+  // ma associato a un'immagine con URL frontale diverso da quello attualmente modificato
+  const esisteGia = this.itemsInput.some(item =>
+    item.context.display_name?.toLocaleLowerCase() === nuovoValoreLower &&
+    !this.getMediaUrlsFrontale(item.media).includes(url)
+  );
+
+  if (esisteGia) {
+    // Trovato un altro elemento con lo stesso display_name ma URL frontale diverso: non permettere l'aggiornamento
+    this.mostraMessaggioSnakBar(
+      "Campo non aggiornato: esiste già un altro elemento con questo nome",
+      true
+    );
+    // Imposta un errore specifico sul controllo per gestione visiva o logica
+    control.setErrors({ duplicate: true });
+    return;
+  }
+}
+
+
+    // Se sono arrivato fin qui, posso aggiornare il valore
+    context[key] = nuovoValore;
+    this.campoInlineInEditing = null;
+    delete this.formControlsInline[campoId];
+
+    console.log(`[Inline] ${key} aggiornato con:`, nuovoValore);
+    console.log("Nuovo context:", context);
+
+    // Aggiorno i metadati tramite il servizio
+    this.adminService.updateImageMetadata(url, context, true).subscribe({
+      next: () => {
+        this.sharedService.notifyConfigCacheIsChanged();
+        this.mostraMessaggioSnakBar("Campo aggiornato", false);
+      },
+      error: (err) => {
+        console.error("Errore durante l'aggiornamento dei metadati:", err);
+        this.mostraMessaggioSnakBar("Errore durante l'aggiornamento del campo", true);
+      }
+    });
+  } else {
+    // Mostra eventuali errori di validazione standard
+    control.markAsTouched();
+  }
+}
+
+
+
+  trackByContextFormatted(item: any): string {
+    // Se contextFormatted ha una chiave unica, tipo `key`, usala come identificatore
+    return item.key;
   }
 
 
