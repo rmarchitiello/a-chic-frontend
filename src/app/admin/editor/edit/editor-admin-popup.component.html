@@ -48,13 +48,13 @@
 
                     <ng-container *ngIf="contextFormatted.key === 'quantita'; else testo">
                       <input matInput type="number" [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
-                        (blur)="confermaValoreInline(context, contextFormatted.key, url)"
+                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label , url)"
                         placeholder="Inserisci quantità" />
                     </ng-container>
 
                     <ng-template #testo>
                       <input matInput type="text" [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
-                        (blur)="confermaValoreInline(context, contextFormatted.key, url)"
+                        (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label , url)"
                         placeholder="Modifica valore" />
                     </ng-template>
 

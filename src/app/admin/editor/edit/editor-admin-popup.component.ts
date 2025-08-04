@@ -802,7 +802,9 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
 
   //conferma la form anzi l input
-confermaValoreInline(context: any, key: string, url: string): void {
+confermaValoreInline(context: MediaContext, key: string, label: string, url: string): void {
+
+  const labelInput = label;
   const campoId = `${url}_${key}`;
   const control = this.formControlsInline[campoId];
 
@@ -826,16 +828,17 @@ confermaValoreInline(context: any, key: string, url: string): void {
       );
 
       if (esisteGia) {
-        this.mostraMessaggioSnakBar("Campo non aggiornato: esiste già un altro elemento con questo nome", true);
+       this.mostraMessaggioSnakBar(`${labelInput} non aggiornato: esiste già un altro prodotto con lo stesso ${labelInput}`, true);
+
         control.setErrors({ duplicate: true });
         return;
       }
     }
 
-    // ✅ Aggiorno il valore nel contesto
+    // Aggiorno il valore nel contesto
     context[key] = nuovoValore;
 
-    // ✅ Se il campo è quantita → forzo la stringa
+    //  Se il campo è quantita → forzo la stringa
     if (key === 'quantita' && context['quantita'] !== undefined && context['quantita'] !== null) {
       context['quantita'] = String(context['quantita']);
     }
@@ -847,12 +850,13 @@ confermaValoreInline(context: any, key: string, url: string): void {
     // Chiamo il servizio per aggiornare
     this.adminService.updateImageMetadata(url, context, true).subscribe({
       next: () => {
+        this.mostraMessaggioSnakBar(`Campo ${labelInput}  aggiornato`, false);
         this.sharedService.notifyConfigCacheIsChanged();
-        this.mostraMessaggioSnakBar("Campo aggiornato", false);
+        
       },
       error: (err) => {
         console.error("Errore durante l'aggiornamento dei metadati:", err);
-        this.mostraMessaggioSnakBar("Errore durante l'aggiornamento del campo", true);
+         this.mostraMessaggioSnakBar(`Error durante l'aggiornamento di ${labelInput}  aggiornato`, true);
       }
     });
 
