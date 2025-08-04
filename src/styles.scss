@@ -364,3 +364,40 @@ o cosi
     height: 100%; // Altezza completa
   }
 }
+
+
+/* Tooltip Angular Material (MDC) – versione grande, semi-trasparente */
+/* MDC (Angular Material 15+) */
+.tooltip-custom.mdc-tooltip .mdc-tooltip__surface {
+  background-color: rgba(17, 17, 17, 0.65); /* prima 0.85 */
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 420px;
+  white-space: normal;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(3px) saturate(120%); /* leggero boost di leggibilità */
+  /* opzionale: un filo di text-shadow per contrasto su sfondi complessi */
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+}
+
+.tooltip-custom.mdc-tooltip .mdc-tooltip__caret-surface {
+  background-color: rgba(17, 17, 17, 0.65);
+}
+
+/* Legacy (pre-MDC), se serve */
+.mat-tooltip.tooltip-custom {
+  background-color: rgba(17, 17, 17, 0.65);
+  color: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 420px;
+  white-space: normal;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+  backdrop-filter: blur(3px) saturate(120%);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+}

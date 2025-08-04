@@ -1,7 +1,9 @@
 <!-- HEADER: parte fissa fuori da mat-dialog-content -->
 <div class="upload-header" [class.blur]="uploadInCorso">
   <!-- Pulsante per chiudere il dialog -->
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" *ngIf="!uploadInCorso" (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn"
+  [matTooltipClass]="'tooltip-custom'"
+  matTooltip="Chiudi" *ngIf="!uploadInCorso" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -83,6 +85,7 @@
                   check_circle
                 </mat-icon>
                 <mat-icon *ngIf="statoUpload.get(file) === 'ko'" class="stato-icon stato-ko"
+                [matTooltipClass]="'tooltip-custom'"
                   [matTooltip]="motiviErroreUpload.get(file)" matTooltipPosition="above">
                   error
                 </mat-icon>
@@ -95,7 +98,9 @@
             <th mat-header-cell *matHeaderCellDef>Frontale</th>
             <td mat-cell *matCellDef="let file">
               <mat-radio-button [value]="file" [checked]="fileSelezionatoComeFrontale === file"
-                (change)="selezionaFrontale(file, true)" matTooltip="Seleziona come immagine frontale">
+                (change)="selezionaFrontale(file, true)" 
+                [matTooltipClass]="'tooltip-custom'"
+                matTooltip="Seleziona come immagine frontale">
               </mat-radio-button>
 
               <div class="file-metadata" *ngIf="fileSelezionatoComeFrontale === file">
@@ -118,7 +123,8 @@
                   <mat-icon>edit</mat-icon>
                 </button>
                 <button mat-icon-button color="warn" *ngIf="statoUpload.get(file) !== 'ok'" (click)="rimuoviFile(file)"
-                  matTooltip="Rimuovi file">
+                [matTooltipClass]="'tooltip-custom'"  
+                matTooltip="Rimuovi file">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>

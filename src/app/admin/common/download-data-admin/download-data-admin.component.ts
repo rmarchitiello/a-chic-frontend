@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Interfacce condivise dal componente home
 import { MediaCollection,  MediaMeta, MediaContext } from '../../../pages/home/home.component';
@@ -12,7 +13,7 @@ import { MediaCollection,  MediaMeta, MediaContext } from '../../../pages/home/h
 @Component({
   selector: 'app-download-data-admin',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [CommonModule, MatIconModule, MatProgressSpinnerModule,MatTooltipModule],
   templateUrl: './download-data-admin.component.html',
   styleUrl: './download-data-admin.component.scss'
 })

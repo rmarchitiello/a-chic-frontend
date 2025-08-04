@@ -2,7 +2,7 @@
 <div mat-dialog-content class="download-dialog-content">
 
   <!-- Pulsante chiudi -->
-  <button mat-icon-button class="chiudi-btn" *ngIf="!downloadInCorso && !checkDataIsEmpty" (click)="chiudiPopUp()">
+  <button mat-icon-button class="chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi"  *ngIf="!downloadInCorso && !checkDataIsEmpty" (click)="chiudiPopUp()">
     <mat-icon>close</mat-icon>
   </button>
 

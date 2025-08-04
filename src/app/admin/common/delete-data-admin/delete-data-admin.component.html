@@ -2,7 +2,7 @@
 <div mat-dialog-content class="delete-dialog-content">
 
   <!-- Pulsante chiudi -->
-  <button mat-icon-button class="chiudi-btn" *ngIf="!eliminazioneInCorso && !checkDataIsEmpty" (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" *ngIf="!eliminazioneInCorso && !checkDataIsEmpty" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -37,6 +37,7 @@
                'in-eliminazione': activeAsset.inEliminazione
              }"
              [matTooltip]="activeAsset.dettaglioErrore || ''"
+             [matTooltipClass]="'tooltip-custom'"
              matTooltipPosition="above">
 
           <img *ngIf="item.context.type === 'image'" [src]="activeAsset.url" alt="preview" class="preview-img" />
@@ -61,6 +62,7 @@
                'in-eliminazione': extra.inEliminazione
              }"
              [matTooltip]="extra.dettaglioErrore || ''"
+             [matTooltipClass]="'tooltip-custom'"
              matTooltipPosition="above">
           <img *ngIf="item.context.type === 'image'" [src]="extra.url" alt="extra" class="preview-img" />
           <video *ngIf="item.context.type === 'video'" [src]="extra.url" autoplay muted loop playsinline class="preview-img"></video>

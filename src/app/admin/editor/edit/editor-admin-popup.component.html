@@ -5,7 +5,7 @@
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
@@ -43,7 +43,8 @@
 
                   <!-- 1) Campo NON modificabile: 'type' -->
                   <span *ngIf="contextFormatted.key === 'type'" class="preview-text non-editable"
-                    matTooltip="Campo non modificabile">
+                    matTooltip="Campo non modificabile"
+                    [matTooltipClass]="'tooltip-custom'">
                     {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
 
@@ -55,6 +56,7 @@
   (click)="editMetaDataInline(contextFormatted, url)"
   [matTooltip]="contextFormatted?.value"
   [matTooltipDisabled]="!isLongText(contextFormatted?.value)"
+  [matTooltipClass]="'tooltip-custom'"
   matTooltipShowDelay="300"
 >
   {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
@@ -93,6 +95,7 @@
                     <button type="button" class="delete-metadata-btn"
                       [attr.aria-label]="'Rimuovi ' + contextFormatted.label"
                       matTooltip="Rimuovi {{ contextFormatted.label }}"
+                      [matTooltipClass]="'tooltip-custom'"
                       (click)="rimuoviMetadatoInline(context, contextFormatted.key, contextFormatted.label, url)">
                       <mat-icon>delete</mat-icon>
                     </button>
@@ -156,8 +159,8 @@
     <div (click)="apriPopUpUploadMedia()" class="preview-card upload-add-card" [class.drag-over]="isDragging"
       (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)">
-      <span matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="!isDragging">Aggiungi prodotto</span>
-      <span matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="isDragging">Rilascia prodotto</span>
+      <span [matTooltipClass]="'tooltip-custom'" matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="!isDragging">Aggiungi prodotto</span>
+      <span [matTooltipClass]="'tooltip-custom'" matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="isDragging">Rilascia prodotto</span>
     </div>
 
   </div>

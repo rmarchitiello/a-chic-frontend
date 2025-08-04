@@ -11,7 +11,7 @@
     <!-- =============================
          Pulsante di chiusura (alto a destra)
          ============================= -->
-    <button class="chiudi-btn" type="button" matTooltip="Chiudi" (click)="chiudiDialog()">
+    <button class="chiudi-btn" type="button" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
 
@@ -35,7 +35,7 @@
           <mat-label>{{ normalizzaChiave('descrizione') }}</mat-label>
           <textarea matInput formControlName="descrizione" rows="3" placeholder="Inserisci la descrizione"></textarea>
         </mat-form-field>
-        <button mat-icon-button matTooltip="Rimuovi metadato"
+        <button mat-icon-button [matTooltipClass]="'tooltip-custom'" matTooltip="Rimuovi metadato"
                 type="button" class="remove-button" (click)="rimuoviMetadato('descrizione')">
           <mat-icon>delete_outline</mat-icon>
         </button>
@@ -47,7 +47,7 @@
           <mat-label>{{ normalizzaChiave('quantita') }}</mat-label>
           <input matInput formControlName="quantita" placeholder="Inserisci la quantità" />
         </mat-form-field>
-        <button mat-icon-button matTooltip="Rimuovi metadato"
+        <button mat-icon-button [matTooltipClass]="'tooltip-custom'" matTooltip="Rimuovi metadato"
                 type="button" class="remove-button" (click)="rimuoviMetadato('quantita')">
           <mat-icon>delete_outline</mat-icon>
         </button>
@@ -61,7 +61,7 @@
             <mat-label>{{ normalizzaChiave(key) }}</mat-label>
             <input matInput [formControlName]="key" [placeholder]="'Inserisci ' + key" />
           </mat-form-field>
-          <button mat-icon-button matTooltip="Rimuovi metadato"
+          <button mat-icon-button [matTooltipClass]="'tooltip-custom'" matTooltip="Rimuovi metadato"
                   type="button" class="remove-button" (click)="rimuoviMetadato(key)">
             <mat-icon>delete_outline</mat-icon>
           </button>
@@ -105,7 +105,7 @@
         </mat-form-field>
 
         <!-- Pulsante rimozione metadato dinamico -->
-        <button mat-icon-button matTooltip="Rimuovi metadato"
+        <button mat-icon-button [matTooltipClass]="'tooltip-custom'" matTooltip="Rimuovi metadato"
                 type="button" class="remove-button"
                 (click)="rimuoviMetadato(group.get('key')?.value)">
           <mat-icon>delete_outline</mat-icon>
@@ -117,7 +117,7 @@
          Pulsante per aggiungere un nuovo campo
          ============================= -->
     <div class="add-button-container">
-      <button mat-mini-fab color="primary" matTooltip="Aggiungi metadato" type="button"
+      <button mat-mini-fab color="primary" [matTooltipClass]="'tooltip-custom'" matTooltip="Aggiungi metadato" type="button"
               (click)="onAggiungiCampo()">
         <mat-icon>add</mat-icon>
       </button>

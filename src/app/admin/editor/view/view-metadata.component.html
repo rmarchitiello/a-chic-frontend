@@ -9,7 +9,7 @@ Quando ho a che fare con i pop up, devo usare mat dialog content se nell scss vo
 angular assegna una classe cdk sua standard
  -->
 <mat-dialog-content class="popup-container-only-view">
-  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi"  (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
   <!-- Wrapper che contiene tutti i metadati in visualizzazione -->
