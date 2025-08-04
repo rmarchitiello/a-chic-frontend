@@ -1,4 +1,5 @@
 //component che mi serve per modificare un layout
+//Posso anche editare i metadati in line ora
 
 /* L'EDITOR E UN COMPONENT DOVE ALL INTERNO POSSO CANCELLARE UPLOADARE CANCELLARE EDITARE METADATI POSSO FARE TUTTO
 MOSTRA LA LISTA DI CIO CHE C E DENTRO  

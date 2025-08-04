@@ -1,8 +1,6 @@
 /*
   Questo componente viene utilizzato per editare i metadati (context) associati a un file.
-  È usato in due casi principali:
-  - Durante l'upload, per permettere all'utente di modificare i metadati prima dell'invio.
-  - Per modificare i metadati di file già presenti su Cloudinary (via EditDataComponent).
+- Edito solo nell upload, poi nell editorComponent li edito in line
 
   Per questo component, che deve avere una form dinamica con validazione usiamo direttamente ReactiveForm
   Vediamo che cosa sono le reactive form in angular passo dopo passo.
