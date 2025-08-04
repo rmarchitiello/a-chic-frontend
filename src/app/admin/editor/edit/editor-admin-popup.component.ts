@@ -802,7 +802,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
 
   //conferma la form anzi l input
-  confermaValoreInline(context: any, key: string, url: string): void {
+confermaValoreInline(context: any, key: string, url: string): void {
   const campoId = `${url}_${key}`;
   const control = this.formControlsInline[campoId];
 
@@ -814,48 +814,37 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
   if (control.valid) {
     const nuovoValore = control.value;
 
-    // Verifica se il nuovo valore è uguale a quello già presente
-    const valoreCorrente = context[key];
-    if (nuovoValore === valoreCorrente) {
-      // Non ha senso aggiornare lo stesso valore
-      this.mostraMessaggioSnakBar("Campo non aggiornato: il valore è identico a quello attuale", true);
-      control.setErrors({ noChange: true });
-      return;
+
+
+    // Verifica specifica per il campo 'display_name'
+    if (key === 'display_name') {
+      const nuovoValoreLower = nuovoValore.toLocaleLowerCase();
+
+      const esisteGia = this.itemsInput.some(item =>
+        item.context.display_name?.toLocaleLowerCase() === nuovoValoreLower &&
+        this.getMediaUrlsFrontale(item.media).includes(url) === false
+      );
+
+      if (esisteGia) {
+        this.mostraMessaggioSnakBar("Campo non aggiornato: esiste già un altro elemento con questo nome", true);
+        control.setErrors({ duplicate: true });
+        return;
+      }
     }
 
-// Verifica specifica per il campo 'display_name'
-if (key === 'display_name') {
-  const nuovoValoreLower = nuovoValore.toLocaleLowerCase();
-
-  // Controllo se esiste già un altro elemento con lo stesso display_name (ignorando maiuscole/minuscole),
-  // ma associato a un'immagine con URL frontale diverso da quello attualmente modificato
-  const esisteGia = this.itemsInput.some(item =>
-    item.context.display_name?.toLocaleLowerCase() === nuovoValoreLower &&
-    !this.getMediaUrlsFrontale(item.media).includes(url)
-  );
-
-  if (esisteGia) {
-    // Trovato un altro elemento con lo stesso display_name ma URL frontale diverso: non permettere l'aggiornamento
-    this.mostraMessaggioSnakBar(
-      "Campo non aggiornato: esiste già un altro elemento con questo nome",
-      true
-    );
-    // Imposta un errore specifico sul controllo per gestione visiva o logica
-    control.setErrors({ duplicate: true });
-    return;
-  }
-}
-
-
-    // Se sono arrivato fin qui, posso aggiornare il valore
+    // ✅ Aggiorno il valore nel contesto
     context[key] = nuovoValore;
+
+    // ✅ Se il campo è quantita → forzo la stringa
+    if (key === 'quantita' && context['quantita'] !== undefined && context['quantita'] !== null) {
+      context['quantita'] = String(context['quantita']);
+    }
+
+    // Esco dalla modalità modifica
     this.campoInlineInEditing = null;
     delete this.formControlsInline[campoId];
 
-    console.log(`[Inline] ${key} aggiornato con:`, nuovoValore);
-    console.log("Nuovo context:", context);
-
-    // Aggiorno i metadati tramite il servizio
+    // Chiamo il servizio per aggiornare
     this.adminService.updateImageMetadata(url, context, true).subscribe({
       next: () => {
         this.sharedService.notifyConfigCacheIsChanged();
@@ -866,8 +855,8 @@ if (key === 'display_name') {
         this.mostraMessaggioSnakBar("Errore durante l'aggiornamento del campo", true);
       }
     });
+
   } else {
-    // Mostra eventuali errori di validazione standard
     control.markAsTouched();
   }
 }
