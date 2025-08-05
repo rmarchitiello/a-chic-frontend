@@ -28,6 +28,18 @@
                - Frecce: visibili se esistono secondarie
           ========================================================== -->
           <section class="media-gallery">
+              <!-- ===== Frecce (solo se esistono secondarie) ===== -->
+              <ng-container *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
+                <button class="gallery-nav-btn prev" mat-icon-button (click)="prevSecondaryImage(url)"
+                  aria-label="Slide precedente">
+                  <mat-icon>chevron_left</mat-icon>
+                </button>
+
+                <button class="gallery-nav-btn next" mat-icon-button (click)="nextSecondaryImage(url)"
+                  aria-label="Slide successiva">
+                  <mat-icon>chevron_right</mat-icon>
+                </button>
+              </ng-container>
             <div class="gallery-viewport" [ngSwitch]="context.type || 'image'">
 
               <!-- identifico il media frontale -->
@@ -79,18 +91,7 @@
                 </ng-template>
               </ng-container>
 
-              <!-- ===== Frecce (solo se esistono secondarie) ===== -->
-              <ng-container *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
-                <button class="gallery-nav-btn prev" mat-icon-button (click)="prevSecondaryImage(url)"
-                  aria-label="Slide precedente">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
 
-                <button class="gallery-nav-btn next" mat-icon-button (click)="nextSecondaryImage(url)"
-                  aria-label="Slide successiva">
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
-              </ng-container>
 
               <!-- ===== Contatore (include il frontale) ===== -->
               <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
@@ -109,7 +110,7 @@
             <ng-container
               *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
 
-              
+
               <div class="context-entry" [class.is-editing]="contextFormatted.key !== 'type' &&
                                     campoInlineInEditing === url + '_' + contextFormatted.key">
 
