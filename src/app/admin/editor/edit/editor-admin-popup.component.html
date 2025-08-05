@@ -96,31 +96,31 @@
                   </audio>
                 </ng-template>
               </ng-container>
-
-              
-
-
             </div>
+
+            <!-- pulsante per espandere i metadata-->
               <div class="metadata-toggle-container">
                 <p class="media-display-name-preview">{{ capitalizeFirstLetter(context.display_name || '') }}</p>
 
                 <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati !== url"
-                  (click)="onEspandiMetadati(url)">
+                  (click)="onEspandiMetadati(url)" matTooltip="Espandi Metadata" [matTooltipClass]="'tooltip-custom'">
                   <mat-icon>expand_more</mat-icon>
                 </button>
 
                 <button class="toggle-metadata-btn hide-btn" *ngIf="espandiMetaDati === url"
-                  (click)="onChiudiMetaDati()">
+                  (click)="onChiudiMetaDati()" matTooltip="Riduci Metadata" [matTooltipClass]="'tooltip-custom'">
                   <mat-icon>expand_less</mat-icon>
                 </button>
               </div>
+
+
           </section>
 
 
           <!-- =========================================================
                METADATA (editing inline)
           ========================================================== -->
-          <div *ngIf="espandiMetaDati === url" class="media-display-name">
+          <div class="media-display-name" [class.expanded]="espandiMetaDati === url">
 
             <ng-container
               *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
