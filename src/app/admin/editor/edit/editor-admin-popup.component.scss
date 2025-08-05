@@ -79,14 +79,15 @@
   width: 100%;
   position: relative;
 
-  .gallery-viewport {
-    position: relative;
-    width: 100%;
-    border-radius: 12px;
-    background: #0f4780;
-    overflow: hidden;
-    border: 1px solid #081530;
-  }
+.gallery-viewport {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  background: transparent; // Nessun colore di sfondo
+  overflow: hidden;
+  border: none; // ✅ Rimuove il bordo
+}
+
 
  /* =============================
    ► Frecce di navigazione (sempre visibili)
@@ -168,7 +169,7 @@
     object-fit: contain;
     border-radius: 12px;
     display: block;
-    background: #0f4780;
+    background: transparent;
   }
 
   .audio-cover {
