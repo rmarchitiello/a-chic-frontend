@@ -245,6 +245,66 @@
       }
     }
   }
+
+/* Pulsante “+” per aggiungere metadati */
+.add-metadata-button {
+  /* dimensioni quadrate e layout */
+  --btn-size: 36px;
+  appearance: none;
+  width: var(--btn-size);
+  height: var(--btn-size);
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: center;
+
+  /* stile di base */
+  background: #ffffff;                   /* neutro chiaro */
+  border: 2px dashed #d1d5db;            /* tratteggiato per suggerire “slot vuoto” */
+  border-radius: 8px;
+  color: #000000;                        /* primario (indigo-600) */
+  cursor: pointer;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .15s ease;
+
+  /* icona */
+  mat-icon {
+    font-size: 22px;
+    line-height: 22px;
+    width: 22px;
+    height: 22px;
+  }
+
+  /* hover / focus / active */
+  &:hover {
+    background-color: #f5f3ff;          /* indigo-50 */
+    border-color: #c7d2fe;              /* indigo-300 */
+    box-shadow: 0 2px 4px rgba(0,0,0,.08);
+  }
+
+  &:active {
+    transform: scale(.94);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99,102,241,.4); /* indigo-500 */
+  }
+
+  /* stato disabilitato, se servisse */
+  &:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    background: #f3f4f6;                /* gray-100 */
+    border-color: #e5e7eb;              /* gray-200 */
+    color: #9ca3af;                     /* gray-400 */
+  }
+}
+
+
 }
 
 

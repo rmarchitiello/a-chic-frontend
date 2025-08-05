@@ -133,6 +133,15 @@
               </div>
 
             </ng-container>
+            <!-- aggiungo il bottone per aggiungere i nuovi metadati dinamici che sono dei form array-->
+            <button 
+                class="add-metadata-button" 
+                matTooltip="Aggiungi i campi" 
+                [matTooltipClass]="'tooltip-custom'"
+                (click)="aggiuntiMetadati(url)">
+              <mat-icon>add</mat-icon>
+            </button>
+
           </div>
 
           <!-- MINIATURE SECONDARIE (image | video | audio) -->
