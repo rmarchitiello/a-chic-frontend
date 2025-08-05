@@ -103,7 +103,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AdminService } from '../../../services/admin.service';
-
+import { MatTableModule } from '@angular/material/table';
 
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
@@ -128,7 +128,8 @@ ovvero l'Editor mediante @Input nel figlio passa i campi in questo caso la folde
     MatProgressSpinnerModule,
     MatInputModule,
     MatFormFieldModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTableModule
   ]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
@@ -164,7 +165,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   //  Mappa di url no frontali ovvero, per ogni url non frontale associo un array di url non frontali
   //  urlFrontale: [url1_nofrontale, url2_nofrontale, url3_nofrontale]
-  mapUrlsNoFrontali: { [urlFrontale: string]: string[] } = {};
+mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
 
   //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
   //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
@@ -173,8 +174,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   currentIndex: number = 0;
 
-  // Mappa per tracciare l'indice dell'immagine non frontale attualmente visibile per ciascuna card
-  currentSecondaryIndex: { [urlFrontale: string]: number } = {};
+
 
 
 
@@ -304,13 +304,39 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
-  private inizializzaIndiciSecondari(): void {
-    for (const url of this.mediasUrlsFrontale) {
-      if (this.mapUrlsNoFrontali[url]?.length > 0) {
-        this.currentSecondaryIndex[url] = 0;
-      }
-    }
+/* PER GLI INDICI SECONDARI */
+currentSecondaryIndex: { [urlFrontale: string]: number | undefined } = {};
+
+
+private inizializzaIndiciSecondari(): void {
+  for (const url of this.mediasUrlsFrontale) {
+    // metti sempre un valore: -1 = frontale
+    this.currentSecondaryIndex[url] = -1;
   }
+}
+
+// PREV: -1 <- 0 <- 1 <- ... <- n-1 <- -1
+prevSecondaryImage(url: string): void {
+  const sec = this.mapUrlsNoFrontali[url] || [];
+  if (!sec.length) return;
+
+  const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
+  const prev = (curr + sec.length + 1) % (sec.length + 1) - 1;
+  this.currentSecondaryIndex[url] = prev;
+}
+
+// NEXT: -1 -> 0 -> 1 -> ... -> n-1 -> -1
+nextSecondaryImage(url: string): void {
+  const sec = this.mapUrlsNoFrontali[url] || [];
+  if (!sec.length) return;
+
+  const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
+  const next = (curr + 2) % (sec.length + 1) - 1;
+  this.currentSecondaryIndex[url] = next;
+}
+
+
+/* ---------------------------   */
 
 
 
@@ -376,7 +402,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //mostro una preview sul sito
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
   descrizioneLunga: boolean = false;
-  maxLength: number = 10;
+  maxLength: number = 50;
   getPreview(value: string, max = this.maxLength): string {
     this.descrizioneLunga = value.length > max //se la descrizione è grande ritorna true;
     if (typeof value !== 'string') return value as any;
@@ -461,23 +487,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
-  // Mostra l'immagine secondaria precedente
-  prevSecondaryImage(url: string): void {
-    if (this.mapUrlsNoFrontali[url]) {
-      const total = this.mapUrlsNoFrontali[url].length;
-      this.currentSecondaryIndex[url] =
-        (this.currentSecondaryIndex[url] - 1 + total) % total;
-    }
-  }
 
-  // Mostra l'immagine secondaria successiva
-  nextSecondaryImage(url: string): void {
-    if (this.mapUrlsNoFrontali[url]) {
-      const total = this.mapUrlsNoFrontali[url].length;
-      this.currentSecondaryIndex[url] =
-        (this.currentSecondaryIndex[url] + 1) % total;
-    }
-  }
 
 
 
