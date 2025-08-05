@@ -351,18 +351,51 @@
 
   /* pulsanti azione a destra */
   .add-metadata-actions {
+    margin-right: auto;
+    display: inline-flex;
+    gap: 6px;
+
+    button {
+      cursor: pointer;
+    }
+  }
+}
+
+.add-metadata-actions {
     margin-left: auto;
     display: inline-flex;
     gap: 6px;
 
     button {
+      width: 32px;
       height: 32px;
-      line-height: 32px;
-      padding: 0 10px;
       border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+      background: #fff;
+      transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
+
+      mat-icon { font-size: 20px; line-height: 20px; width: 20px; height: 20px; }
+      &:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(25,118,210,.25); }
+      &:disabled { opacity: .5; cursor: not-allowed; }
+    }
+
+    .confirm-btn {
+      color: #047857; /* verde-700 */
+      border-color: rgba(4,120,87,.25);
+      &:hover { background-color: rgba(4,120,87,.08); border-color: rgba(4,120,87,.35); }
+      &:active { background-color: rgba(4,120,87,.14); }
+    }
+
+    .cancel-btn {
+      color: #374151; /* gray-700 */
+      border-color: rgba(55,65,81,.25);
+      &:hover { background-color: rgba(55,65,81,.08); border-color: rgba(55,65,81,.35); }
+      &:active { background-color: rgba(55,65,81,.14); }
     }
   }
-}
 
 
 

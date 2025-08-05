@@ -1053,5 +1053,15 @@ if (isValueEmpty) {
   this.metadataFormGroup.reset({ key: '', valore: '' });
 }
 
+annullaAggiunta(): void {
+  // chiudi la mini-form e pulisci lo stato
+  this.isAddingMetadataFromForm = false;
+  this.currentMetadataTargetUrl = null;           // se tipizzata string | null
+  this.metadataFormGroup.reset({ key: '', valore: '' });
+
+  // opzionale: feedback UI
+  // this.mostraMessaggioSnakBar('Aggiunta annullata.', false);
+}
+
 
 }

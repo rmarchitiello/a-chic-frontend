@@ -138,40 +138,44 @@
 
 
             <!-- Contenitore azione + form -->
-             <!-- salvo in una variabile la url corrente in currentMedataTargetUrl
+            <!-- salvo in una variabile la url corrente in currentMedataTargetUrl
               Questo perche, quando aggiungo il metadata, vedo l aggiunta del metadata solo di quella url 
              -->
             <div class="add-metadata-row full-row">
               <button type="button" class="add-metadata-button" aria-label="Aggiungi metadato" [matTooltip]="isAddingMetadataFromForm
                     ? 'Completa l’aggiunta in corso prima di aggiungerne altri'
                     : 'Aggiungi un metadato'" [matTooltipClass]="'tooltip-custom'"
-                [disabled]="isAddingMetadataFromForm &&  currentMetadataTargetUrl === url" (click)="aggiungiMetadati(url)">
+                [disabled]="isAddingMetadataFromForm &&  currentMetadataTargetUrl === url"
+                (click)="aggiungiMetadati(url)">
                 <mat-icon>add</mat-icon>
               </button>
 
               <!-- Mini-form di aggiunta (staging) e lego il form group-->
-              <div *ngIf="isAddingMetadataFromForm   && currentMetadataTargetUrl === url" class="add-metadata-form" [formGroup]="metadataFormGroup">
+              <div *ngIf="isAddingMetadataFromForm   && currentMetadataTargetUrl === url" class="add-metadata-form"
+                [formGroup]="metadataFormGroup">
                 <mat-form-field appearance="outline" class="inline-edit-form-field">
                   <mat-label>Es. Materiale</mat-label>
-                  <input 
-                        matInput 
-                        formControlName="key" 
-                        placeholder="Es. materiale" 
-                        cdkFocusInitial
-                        (keydown.enter)="salvaMetadato(url)"
-                        >
+                  <input matInput formControlName="key" placeholder="Es. materiale" cdkFocusInitial
+                    (keydown.enter)="salvaMetadato(url)">
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="inline-edit-form-field">
                   <mat-label>Es. Pelle</mat-label>
-                  <input 
-                        matInput 
-                        formControlName="valore" 
-                        placeholder="Es. pelle"
-                        (blur)="salvaMetadato(url)"
-                        (keydown.enter)="salvaMetadato(url)"
-                        >
+                  <input matInput formControlName="valore" placeholder="Es. pelle" (blur)="salvaMetadato(url)"
+                    (keydown.enter)="salvaMetadato(url)">
                 </mat-form-field>
+                <!-- Azioni: Conferma (✓) e Annulla (✕) -->
+                <div class="add-metadata-actions">
+                  <button type="button" class="confirm-btn" aria-label="Conferma" matTooltip="Conferma"
+                     (click)="salvaMetadato(url)">
+                    <mat-icon>check</mat-icon>
+                  </button>
+
+                  <button type="button" class="cancel-btn" aria-label="Annulla" matTooltip="Annulla"
+                    (click)="annullaAggiunta()">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
               </div>
             </div>
 
