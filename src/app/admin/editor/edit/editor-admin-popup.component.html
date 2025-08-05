@@ -153,17 +153,27 @@
               <div *ngIf="isAddingMetadataFromForm   && currentMetadataTargetUrl === url" class="add-metadata-form" [formGroup]="metadataFormGroup">
                 <mat-form-field appearance="outline" class="inline-edit-form-field">
                   <mat-label>Es. Materiale</mat-label>
-                  <input matInput formControlName="key" placeholder="Es. materiale" cdkFocusInitial>
+                  <input 
+                        matInput 
+                        formControlName="key" 
+                        placeholder="Es. materiale" 
+                        cdkFocusInitial
+                        (keydown.enter)="salvaMetadato(url)"
+                        >
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="inline-edit-form-field">
                   <mat-label>Es. Pelle</mat-label>
-                  <input matInput formControlName="valore" placeholder="Es. pelle">
+                  <input 
+                        matInput 
+                        formControlName="valore" 
+                        placeholder="Es. pelle"
+                        (blur)="salvaMetadato(url)"
+                        (keydown.enter)="salvaMetadato(url)"
+                        >
                 </mat-form-field>
               </div>
             </div>
-
-
 
           </div>
 

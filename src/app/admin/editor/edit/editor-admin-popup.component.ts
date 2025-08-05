@@ -689,8 +689,8 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     if (filesScartati.length > 0) {
       const tipoEstensione = this.tipoAccettato;
       const msg = filesScartati.length === 1
-        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione}`}. Scartato: ${estensioniScartate.join(', ')}`
-        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
       console.warn(msg);
       this.mostraMessaggioSnakBar(msg, true);
     }
@@ -801,7 +801,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     // 2) Se non è valido, mostro solo l’errore di validazione
     if (!control.valid) {
       control.markAsTouched();
-      this.mostraMessaggioSnakBar(`Controlla i dati inseriti in "${label}".`, true);
+      this.mostraMessaggioSnakBar(`Controlla i dati inseriti in "${label.toUpperCase()}".`, true);
       return;
     }
 
@@ -831,7 +831,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
       if (esisteGia) {
         this.mostraMessaggioSnakBar(
-          `"${label}" non aggiornato: esiste già un altro prodotto con lo stesso ${label}.`,
+          `"${label}" non aggiornato: esiste già un altro prodotto con lo stesso ${label.toUpperCase()}.`,
           true
         );
         control.setErrors?.({ duplicate: true });
@@ -854,12 +854,12 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     // 8) Persistenza lato backend
     this.adminService.updateImageMetadata(url, context, true).subscribe({
       next: () => {
-        this.mostraMessaggioSnakBar(`"${label}" è stato aggiornato correttamente.`, false);
+        this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato aggiornato correttamente.`, false);
         this.sharedService.notifyConfigCacheIsChanged();
       },
       error: (err) => {
         console.error("Errore durante l'aggiornamento dei metadati:", err);
-        this.mostraMessaggioSnakBar(`Non è stato possibile aggiornare "${label}". Riprova.`, true);
+        this.mostraMessaggioSnakBar(`Non è stato possibile aggiornare "${label.toUpperCase()}". Riprova.`, true);
       }
     });
   }
@@ -880,7 +880,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     // Campi non rimovibili
     const nonRimovibili = new Set(['display_name', 'type']);
     if (nonRimovibili.has(key)) {
-      this.mostraMessaggioSnakBar(`"${label}" non può essere rimosso.`, true);
+      this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" non può essere rimosso.`, true);
       return;
     }
 
@@ -902,7 +902,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
     // Se il metadato non esiste nel context
     if (!(key in context)) {
-      this.mostraMessaggioSnakBar(`"${label}" non è presente.`, true);
+      this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" non è presente.`, true);
       return;
     }
 
@@ -925,11 +925,11 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     this.adminService.updateImageMetadata(url, updatedContext, true).subscribe({
       next: () => {
         this.sharedService.notifyConfigCacheIsChanged();
-        this.mostraMessaggioSnakBar(`"${label}" è stato rimosso.`, false);
+        this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato rimosso.`, false);
       },
       error: (err) => {
         console.error('Errore durante la rimozione del metadato:', err);
-        this.mostraMessaggioSnakBar(`Non è stato possibile rimuovere "${label}". Riprova.`, true);
+        this.mostraMessaggioSnakBar(`Non è stato possibile rimuovere "${label.toUpperCase()}". Riprova.`, true);
       }
     });
   }
@@ -940,62 +940,118 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
   Creo un form array con un form group con due control key e value in modo da ottenere un json del genere:
       [
 {
-	"key": "materiale":
-	"valore": "pelle"
+  "key": "materiale":
+  "valore": "pelle"
 },
 {
-	"key" :  "prezzo",
-	"valore" : "10.90"
+  "key" :  "prezzo",
+  "valore" : "10.90"
 }
 ]
   */
 
-//oggetto chiave valore corrispondono ai miei metadati
-metadataFormGroup: FormGroup = new FormGroup({
-  key: new FormControl('', Validators.required),
-  valore: new FormControl('', Validators.required)
-});
+  //oggetto chiave valore corrispondono ai miei metadati
+  metadataFormGroup: FormGroup = new FormGroup({
+    key: new FormControl('', Validators.required),
+    valore: new FormControl('', Validators.required)
+  });
 
-//array di form group di metadati dinamici
-metadataFormArray: FormArray = new FormArray([this.metadataFormGroup]);
+  //array di form group di metadati dinamici
+  metadataFormArray: FormArray = new FormArray([this.metadataFormGroup]);
 
-isAddingMetadataFromForm: boolean = false;
+  isAddingMetadataFromForm: boolean = false;
 
-currentMetadataTargetUrl: string = '';
+currentMetadataTargetUrl: string | null | undefined = null;
+//inizializza il gruppo vuoto 
   aggiungiMetadati(url: string) {
     this.currentMetadataTargetUrl = url;
     this.isAddingMetadataFromForm = true;
-    console.log("Url dei metadati da aggiornare: ", this.currentMetadataTargetUrl)
 
-    //recupero il context di quella url da aggiungere i metadati, mi servono le sue chiavi per capire
-    //se la chiave da aggiungere esiste gia
-    const context = this.itemsInput
-      .find(item => item.media?.some(m => m.url === url && m.angolazione === 'frontale'))
-      ?.context;
-
-    console.log('context trovato:', context);
-
-    let keysTrovate: string[] = [];
-
-    //recupero le chiavi di quel context e le metto tutte in lower case
-    if (context) {
-      keysTrovate = Object.keys(context).map(k => k.toLocaleLowerCase());
-    }
-
-    console.log("Chiavi trovate: ", keysTrovate)
 
     //inizio a creare il form group
-      // prepara i campi vuoti (staging) ottentendo la form vuota
-
-      /* non creo una mappa url form group anche perche viene modificata una form per volta */
-  this.metadataFormGroup.reset({
-    key: '',
-    valore: ''
-  });
-
+    /* non creo una mappa url form group anche perche viene modificata una form per volta con  metadataFormByUrl: Record<string, FormGroup> = {}; */
+    this.metadataFormGroup.reset({
+      key: '',
+      valore: ''
+    });
 
   }
 
+  //setta l'array
+ salvaMetadato(url: string) {
+  // valori dal form
+  const keyRaw = (this.metadataFormGroup.get('key')?.value ?? '').toString().toLowerCase();
+  const valueRaw = (this.metadataFormGroup.get('valore')?.value ?? '').toString().toLowerCase();
+
+  const keyInput = keyRaw.trim();
+  const valueInput = valueRaw.trim();
+
+// 1) entrambi i campi devono essere valorizzati (con messaggi specifici)
+const isKeyEmpty = !keyInput;
+const isValueEmpty = !valueInput;
+
+if (isKeyEmpty && isValueEmpty) {
+  this.mostraMessaggioSnakBar('Compila sia entrambe le sezioni.', true);
+  return;
+}
+if (isKeyEmpty) {
+  this.mostraMessaggioSnakBar('Devi inserire una chiave.', true);
+  return;
+}
+if (isValueEmpty) {
+  this.mostraMessaggioSnakBar(`Devi inserire un valore da associare a "${keyInput.toUpperCase()}"`, true);
+  return;
+}
+
+  // 2) normalizzazione chiave
+  let keyNorm = keyInput.toLowerCase();
+  if (keyNorm === 'nome') keyNorm = 'display_name';
+  else if (keyNorm === 'tipo') keyNorm = 'type';
+
+  // 3) trova il context della card target
+  const item = this.itemsInput
+    .find(i => i.media?.some(m => m.url === url && m.angolazione === 'frontale'));
+
+  if (!item) {
+    this.mostraMessaggioSnakBar('Elemento non trovato per l’URL selezionato.', true);
+    return;
+  }
+
+  const context = item.context ?? {};
+  const keysTrovate = Object.keys(context).map(k => k.toLowerCase());
+
+  // 4) check duplicati
+  if (keysTrovate.includes(keyNorm)) {
+    const userEcho = keyNorm === 'display_name' ? 'Nome' : keyNorm === 'type' ? 'Tipo' : keyInput;
+    this.mostraMessaggioSnakBar(`Non puoi inserire "${userEcho.toUpperCase()}": esiste già.`, true);
+    return;
+  }
+
+  // 5) salvataggio per la sola card target aggiornando il context
+  const nuovoContext = item.context = { ...context, [keyNorm]: valueInput };
+  console.log("Nuovo context: ", nuovoContext);
+
+  this.adminService.updateImageMetadata(url,nuovoContext,true).subscribe({
+        next: (data) => {
+      // OK: aggiorna UI/stato locale se serve
+      this.mostraMessaggioSnakBar('Metadato salvato correttamente.', false);
+      this.sharedService.notifyConfigCacheIsChanged(); //notifico l'app component
+      // chiudi form di aggiunta
+      this.isAddingMetadataFromForm = false;
+      this.currentMetadataTargetUrl = null;
+      this.metadataFormGroup.reset({ key: '', valore: '' });
+    },
+    error: (err) => {
+      console.error('Errore updateImageMetadata', err);
+      this.mostraMessaggioSnakBar('Errore nel salvataggio dei metadati.', true);
+    }
+  })
+
+  // 6) chiusura e reset dello staging
+  this.isAddingMetadataFromForm = false;
+  this.currentMetadataTargetUrl = undefined;
+  this.metadataFormGroup.reset({ key: '', valore: '' });
+}
 
 
 }
