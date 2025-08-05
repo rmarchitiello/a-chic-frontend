@@ -781,6 +781,11 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
   */
 
+private resetEditingStates(): void {
+  this.isAddingMetadataFromForm = false;
+  this.editMetadataInline = false;
+  this.campoInlineInEditing = null;
+}
 
   //quando clicco su span devo poter visualizzare quel campo da editare mentre gli altri no
   campoInlineInEditing: string | null = null;
@@ -790,8 +795,15 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
   */
   formControlsInline: { [campoId: string]: FormControl } = {};
 
+  editMetadataInline: boolean = false;
   //e vale campo campoInlineInEditing  https://res.cloudinary.com/dmf1qtmqd/image/upload/v1754085953/Config/Home/Carosello/refbn0oykij41gfewavn.jpg_descrizione
   editMetaDataInline(contextFormatted: { key: string; label: string; value: string }, url: string): void {
+
+
+      this.resetEditingStates(); // 👈 disattiva tutto
+
+  this.editMetadataInline = true;
+
     const campoId = `${url}_${contextFormatted.key}`; //cosi sono sicuro di prendere univocamente quella descrizione di quella url
     this.campoInlineInEditing = `${url}_${contextFormatted.key}`;
     console.log('[Edit Inline] Editing:', JSON.stringify({ url: url, contextFormatted }));
@@ -1000,14 +1012,16 @@ annullaValoreInline(context: MediaContext, key: string, url: string): void {
   //array di form group di metadati dinamici
   metadataFormArray: FormArray = new FormArray([this.metadataFormGroup]);
 
-  isAddingMetadataFromForm: boolean = false;
+ 
 
 currentMetadataTargetUrl: string | null | undefined = null;
+ isAddingMetadataFromForm: boolean = false;
 //inizializza il gruppo vuoto 
   aggiungiMetadati(url: string) {
-    this.currentMetadataTargetUrl = url;
-    this.isAddingMetadataFromForm = true;
+  this.resetEditingStates(); // 👈 disattiva tutto
 
+  this.currentMetadataTargetUrl = url;
+  this.isAddingMetadataFromForm = true;
 
     //inizio a creare il form group
     /* non creo una mappa url form group anche perche viene modificata una form per volta con  metadataFormByUrl: Record<string, FormGroup> = {}; */

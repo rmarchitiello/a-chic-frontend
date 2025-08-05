@@ -28,18 +28,18 @@
                - Frecce: visibili se esistono secondarie
           ========================================================== -->
           <section class="media-gallery">
-              <!-- ===== Frecce (solo se esistono secondarie) ===== -->
-              <ng-container *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
-                <button class="gallery-nav-btn prev" mat-icon-button (click)="prevSecondaryImage(url)"
-                  aria-label="Slide precedente">
-                  <mat-icon>chevron_left</mat-icon>
-                </button>
+            <!-- ===== Frecce (solo se esistono secondarie) ===== -->
+            <ng-container *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
+              <button class="gallery-nav-btn prev" mat-icon-button (click)="prevSecondaryImage(url)"
+                aria-label="Slide precedente">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
 
-                <button class="gallery-nav-btn next" mat-icon-button (click)="nextSecondaryImage(url)"
-                  aria-label="Slide successiva">
-                  <mat-icon>chevron_right</mat-icon>
-                </button>
-              </ng-container>
+              <button class="gallery-nav-btn next" mat-icon-button (click)="nextSecondaryImage(url)"
+                aria-label="Slide successiva">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </ng-container>
             <div class="gallery-viewport" [ngSwitch]="context.type || 'image'">
 
               <!-- identifico il media frontale -->
@@ -110,19 +110,20 @@
             <ng-container
               *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
 
-
               <div class="context-entry" [class.is-editing]="contextFormatted.key !== 'type' &&
-                                    campoInlineInEditing === url + '_' + contextFormatted.key">
+                        campoInlineInEditing === url + '_' + contextFormatted.key &&
+                        !isAddingMetadataFromForm">
 
-                <!-- LABEL (nascosta in editing, eccetto type) -->
+                <!-- LABEL -->
                 <strong class="context-label" *ngIf="contextFormatted.key === 'type' ||
-                         campoInlineInEditing !== url + '_' + contextFormatted.key">
+                 campoInlineInEditing !== url + '_' + contextFormatted.key">
                   {{ contextFormatted.label }}:
                 </strong>
 
                 <!-- VALORE / EDIT -->
                 <div class="context-value" [class.full-row]="contextFormatted.key !== 'type' &&
-                                    campoInlineInEditing === url + '_' + contextFormatted.key">
+                         campoInlineInEditing === url + '_' + contextFormatted.key &&
+                         !isAddingMetadataFromForm">
 
                   <!-- Non modificabile -->
                   <span *ngIf="contextFormatted.key === 'type'" class="preview-text non-editable"
@@ -132,16 +133,15 @@
 
                   <!-- Preview cliccabile -->
                   <span *ngIf="contextFormatted.key !== 'type' &&
-                           campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text"
-                    (click)="editMetaDataInline(contextFormatted, url)" [matTooltip]="contextFormatted?.value"
-                    [matTooltipDisabled]="!isLongText(contextFormatted?.value)" [matTooltipClass]="'tooltip-custom'"
-                    matTooltipShowDelay="300">
+                 campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text" (click)="editMetaDataInline(contextFormatted, url)"
+                    [matTooltip]="contextFormatted?.value" [matTooltipDisabled]="!isLongText(contextFormatted?.value)"
+                    [matTooltipClass]="'tooltip-custom'" matTooltipShowDelay="300">
                     {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
 
                   <!-- Modalità editing -->
                   <ng-container *ngIf="contextFormatted.key !== 'type' &&
-                           campoInlineInEditing === url + '_' + contextFormatted.key">
+                         campoInlineInEditing === url + '_' + contextFormatted.key">
 
                     <mat-form-field appearance="outline" class="inline-edit-form-field">
                       <!-- numero per quantita -->
@@ -194,6 +194,9 @@
                   </ng-container>
                 </div>
               </div>
+
+
+
             </ng-container>
 
             <!-- =========================================================
@@ -205,12 +208,12 @@
               <button type="button" class="add-metadata-button" aria-label="Aggiungi metadato"
                 [matTooltip]="isAddingMetadataFromForm ? 'Completa l’aggiunta in corso prima di aggiungerne altri' : 'Aggiungi un metadato'"
                 [matTooltipClass]="'tooltip-custom'"
-                [disabled]="isAddingMetadataFromForm && currentMetadataTargetUrl === url"
+                [disabled]="isAddingMetadataFromForm && currentMetadataTargetUrl !== url"
                 (click)="aggiungiMetadati(url)">
                 <mat-icon>add</mat-icon>
               </button>
 
-              <!-- Box form -->
+              <!-- Form di aggiunta (solo se attivo per questa card) -->
               <div *ngIf="isAddingMetadataFromForm && currentMetadataTargetUrl === url" class="add-metadata-form"
                 [formGroup]="metadataFormGroup">
 
@@ -230,19 +233,24 @@
 
                 <!-- Azioni -->
                 <div class="add-metadata-actions">
-                  <button type="button" class="confirm-btn" aria-label="Conferma" matTooltip="Conferma"
+                  <button 
+                  type="button" 
+                  class="confirm-btn" 
+                  aria-label="Conferma" 
+                  matTooltip="Conferma" 
+                  [matTooltipClass]="'tooltip-custom'"
                     (click)="salvaMetadato(url)">
                     <mat-icon>check</mat-icon>
                   </button>
 
-
-                  <button type="button" class="cancel-btn" aria-label="Annulla" matTooltip="Annulla"
+                  <button type="button" class="cancel-btn" aria-label="Annulla" matTooltip="Annulla" [matTooltipClass]="'tooltip-custom'"
                     (click)="annullaAggiunta()">
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
               </div>
             </div>
+
           </div>
 
         </ng-container>

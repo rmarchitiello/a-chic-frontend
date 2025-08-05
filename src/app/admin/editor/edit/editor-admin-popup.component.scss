@@ -389,6 +389,7 @@
         .conferma-metadata-btn {
           @extend .icon-action-btn;
           color: #047857;
+          cursor: pointer;
           margin-right: 4px;
           border-color: rgba(4, 120, 87, 0.2);
 
@@ -405,6 +406,7 @@
         .annulla-metadata-btn {
           @extend .icon-action-btn;
           color: #111827;
+          cursor: pointer;
           margin-right: 4px;
           border-color: rgba(44, 53, 50, 0.2);
 
@@ -503,6 +505,7 @@
 
         .confirm-btn {
           color: #047857;
+          cursor: pointer;
           border-color: rgba(4, 120, 87, 0.25);
 
           &:hover {
@@ -517,6 +520,7 @@
 
         .cancel-btn {
           color: #374151;
+          cursor: pointer;
           border-color: rgba(55, 65, 81, 0.25);
 
           &:hover {
