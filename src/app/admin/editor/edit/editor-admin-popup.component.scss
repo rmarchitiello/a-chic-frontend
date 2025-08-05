@@ -246,63 +246,124 @@
     }
   }
 
-/* Pulsante “+” per aggiungere metadati */
-.add-metadata-button {
-  /* dimensioni quadrate e layout */
-  --btn-size: 36px;
-  appearance: none;
-  width: var(--btn-size);
-  height: var(--btn-size);
-  display: inline-flex;
+/* Riga contenitore per bottone + form (opzionale) */
+  .add-metadata-row {
+    display: grid;
+    grid-template-columns: var(--label-width, 110px) 1fr;
+    column-gap: 12px;
+    align-items: start;
+    width: 100%;
+    margin-top: 8px;
+
+    &.full-row { grid-column: 1 / -1; }
+  }
+
+  /* Pulsante “+” per aggiungere metadati */
+  .add-metadata-button {
+    --btn-size: 36px;
+    --btn-color: var(--add-btn-color, #000000); /* primario personalizzabile */
+    --btn-border: #d1d5db;
+
+    appearance: none;
+    width: var(--btn-size);
+    height: var(--btn-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    background: #fff;
+    border: 2px dashed var(--btn-border);
+    border-radius: 8px;
+    color: var(--btn-color);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color .2s ease,
+      border-color .2s ease,
+      box-shadow .2s ease,
+      transform .15s ease;
+
+    mat-icon {
+      font-size: 22px;
+      line-height: 22px;
+      width: 22px;
+      height: 22px;
+      color: inherit; /* usa il colore del bottone */
+    }
+
+    /* hover / focus / active */
+    &:not(:disabled):hover {
+      background-color: #f5f3ff;   /* indigo-50 */
+      border-color: #c7d2fe;       /* indigo-300 */
+      box-shadow: 0 2px 4px rgba(0,0,0,.08);
+    }
+
+    &:not(:disabled):active {
+      transform: scale(.94);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(186, 187, 204, 0.4); /* focus ring accessibile */
+    }
+
+    /* stato disabilitato */
+    &:disabled,
+    &[disabled] {
+      opacity: .45;
+      cursor: not-allowed;
+      background: #f3f4f6;   /* gray-100 */
+      border-color: #e5e7eb; /* gray-200 */
+      color: #9ca3af;        /* gray-400 */
+      box-shadow: none;
+      transform: none;
+    }
+  }
+
+/* Contenitore del form di aggiunta (spaziatura + allineamento) */
+.add-metadata-form {
+  grid-column: 1 / -1;          /* occupa tutta la riga della griglia */
+  padding: 10px 0 0;
+  margin-top: 4px;
+  border-top: 1px dashed #e5e7eb;
+
+  /* layout interno */
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 10px;
-  justify-content: center;
+  gap: 8px;
 
-  /* stile di base */
-  background: #ffffff;                   /* neutro chiaro */
-  border: 2px dashed #d1d5db;            /* tratteggiato per suggerire “slot vuoto” */
-  border-radius: 8px;
-  color: #000000;                        /* primario (indigo-600) */
-  cursor: pointer;
-  transition:
-    background-color .2s ease,
-    border-color .2s ease,
-    box-shadow .2s ease,
-    transform .15s ease;
+  /* campi compatti e flessibili */
+  .inline-edit-form-field {
+    flex: 1 1 220px;            /* cresce, base 220px */
+    min-width: 180px;
+    margin: 0;
 
-  /* icona */
-  mat-icon {
-    font-size: 22px;
-    line-height: 22px;
-    width: 22px;
-    height: 22px;
+    /* compatta i mat-form-field come nel resto */
+    ::ng-deep .mat-mdc-form-field { width: 100%; margin: 0; }
+    ::ng-deep .mat-mdc-form-field-wrapper { padding: 0; }
+    ::ng-deep .mat-mdc-text-field-wrapper { padding: 0; }
+    ::ng-deep .mat-mdc-form-field-infix { padding: 2px 8px; }
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper { height: 0; min-height: 0; }
+    ::ng-deep input.mat-mdc-input-element { height: 32px; line-height: 32px; padding: 0; }
   }
 
-  /* hover / focus / active */
-  &:hover {
-    background-color: #f5f3ff;          /* indigo-50 */
-    border-color: #c7d2fe;              /* indigo-300 */
-    box-shadow: 0 2px 4px rgba(0,0,0,.08);
-  }
+  /* pulsanti azione a destra */
+  .add-metadata-actions {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 6px;
 
-  &:active {
-    transform: scale(.94);
-  }
-
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(99,102,241,.4); /* indigo-500 */
-  }
-
-  /* stato disabilitato, se servisse */
-  &:disabled {
-    opacity: .45;
-    cursor: not-allowed;
-    background: #f3f4f6;                /* gray-100 */
-    border-color: #e5e7eb;              /* gray-200 */
-    color: #9ca3af;                     /* gray-400 */
+    button {
+      height: 32px;
+      line-height: 32px;
+      padding: 0 10px;
+      border-radius: 8px;
+    }
   }
 }
+
 
 
 }

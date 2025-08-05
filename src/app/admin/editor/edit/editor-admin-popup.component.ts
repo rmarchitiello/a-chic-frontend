@@ -98,7 +98,7 @@ import { ViewMetadata } from '../view/view-metadata.component';
 import { EditDataAdminComponent } from '../../common/edit-data-admin/edit-data-admin.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -934,9 +934,38 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     });
   }
 
-  aggiuntiMetadati(url: string) {
-    console.log("Url dei metadati da aggiornare: ", url)
-    console.log("Stai per aggiungere dei metadati . . .", JSON.stringify(this.itemsInput));
+
+  /* metodo per aggiungere dinamicamente dei metadati inline 
+  
+  Creo un form array con un form group con due control key e value in modo da ottenere un json del genere:
+      [
+{
+	"key": "materiale":
+	"valore": "pelle"
+},
+{
+	"key" :  "prezzo",
+	"valore" : "10.90"
+}
+]
+  */
+
+//oggetto chiave valore corrispondono ai miei metadati
+metadataFormGroup: FormGroup = new FormGroup({
+  key: new FormControl('', Validators.required),
+  valore: new FormControl('', Validators.required)
+});
+
+//array di form group di metadati dinamici
+metadataFormArray: FormArray = new FormArray([this.metadataFormGroup]);
+
+isAddingMetadataFromForm: boolean = false;
+
+currentMetadataTargetUrl: string = '';
+  aggiungiMetadati(url: string) {
+    this.currentMetadataTargetUrl = url;
+    this.isAddingMetadataFromForm = true;
+    console.log("Url dei metadati da aggiornare: ", this.currentMetadataTargetUrl)
 
     //recupero il context di quella url da aggiungere i metadati, mi servono le sue chiavi per capire
     //se la chiave da aggiungere esiste gia
@@ -955,6 +984,18 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
     console.log("Chiavi trovate: ", keysTrovate)
 
+    //inizio a creare il form group
+      // prepara i campi vuoti (staging) ottentendo la form vuota
+
+      /* non creo una mappa url form group anche perche viene modificata una form per volta */
+  this.metadataFormGroup.reset({
+    key: '',
+    valore: ''
+  });
+
+
   }
+
+
 
 }
