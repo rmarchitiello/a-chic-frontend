@@ -5,69 +5,96 @@
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
-  <button mat-icon-button class="chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
+  <button mat-icon-button class="chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi"
+    (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
   <!-- Contenitore flessibile di tutte le card -->
+  <!-- =========================================================
+     PREVIEW CONTAINER – mantiene la vecchia logica, ma supporta
+     anche video  e audio (context.type = 'video' | 'audio' | 'image')
+=========================================================-->
   <div class="preview-container">
 
-    <!-- Iterazione su ogni immagine frontale -->
+    <!-- CARD generata per ogni URL frontale -->
     <div class="preview-card" *ngFor="let url of mediasUrlsFrontale" (mouseenter)="hoveredCard = url"
       (mouseleave)="hoveredCard = null">
+
       <div class="card-inner">
 
-        <!-- Recupero metadati dalla mappa per la card corrente -->
+        <!-- Recupero il context relativo alla URL -->
         <ng-container *ngIf="contextMap[url] as context">
 
-          <!-- Immagine frontale principale -->
-          <img [src]="url" [alt]="'Immagine frcontexontale di ' + context.display_name" />
+          <!-- ───── MEDIA PRINCIPALE ─────
+             * image (default) : <img>
+             * video           : <video controls>
+             * audio           : cover + <audio controls>                  -->
+          <ng-container [ngSwitch]="context.type || 'image'">
 
+            <!-- immagine -->
+            <img *ngSwitchCase="'image'" [src]="url" [alt]="'Immagine frontale di ' + context.display_name" />
+
+            <!-- video -->
+            <video *ngSwitchCase="'video'" [src]="url" controls playsinline preload="metadata"
+              style="width:100%;max-height:200px;object-fit:contain;">
+            </video>
+
+            <!-- audio -->
+            <ng-container *ngSwitchCase="'audio'">
+              <!-- cover / icona -->
+              <div class="audio-cover" style="width:100%;height:200px;
+                        display:flex;align-items:center;justify-content:center;
+                        background:#111;border-radius:10px;">
+                <mat-icon style="color:#fff;font-size:64px;">graphic_eq</mat-icon>
+              </div>
+              <!-- player -->
+              <audio class="audio-inline" [src]="url" controls style="width:100%;margin-top:6px;"></audio>
+            </ng-container>
+
+          </ng-container>
+          <!-- ───────────── FINE MEDIA PRINCIPALE ───────────── -->
+
+          <!-- ============  METADATI (stessi contenuti di prima) ============ -->
           <div class="media-display-name">
-            <!-- Itera i metadati ordinati; trackBy evita ricreazioni inutili del DOM e perdita del focus -->
-            <ng-container
-              *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
+            <ng-container *ngFor="let contextFormatted of getOrderedFormattedEntries(context);
+                     trackBy: trackByContextFormatted">
 
               <div class="context-entry" [class.is-editing]="contextFormatted.key !== 'type' &&
-                         campoInlineInEditing === url + '_' + contextFormatted.key">
+                                     campoInlineInEditing === url + '_' + contextFormatted.key">
 
-                <!-- LABEL: mostrata solo quando NON si sta editando (o per 'type' che non è modificabile) -->
-                <strong  class="context-label" *ngIf="contextFormatted.key === 'type' ||
-                 campoInlineInEditing !== url + '_' + contextFormatted.key">
+                <!-- label visibile se non in editing (o se type) -->
+                <strong class="context-label" *ngIf="contextFormatted.key === 'type' ||
+                             campoInlineInEditing !== url + '_' + contextFormatted.key">
                   {{ contextFormatted.label }}:
                 </strong>
 
-                <!-- VALORE + AZIONI -->
+                <!-- valore / input / cestino -->
                 <div class="context-value" [class.full-row]="contextFormatted.key !== 'type' &&
-                         campoInlineInEditing === url + '_' + contextFormatted.key">
+                                      campoInlineInEditing === url + '_' + contextFormatted.key">
 
-                  <!-- 1) Campo NON modificabile: 'type' -->
+                  <!-- campo NON modificabile -->
                   <span *ngIf="contextFormatted.key === 'type'" class="preview-text non-editable"
-                    matTooltip="Campo non modificabile"
-                    [matTooltipClass]="'tooltip-custom'">
+                    matTooltip="Campo non modificabile" [matTooltipClass]="'tooltip-custom'">
                     {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
 
-                  <!-- 2) PREVIEW cliccabile (tutti tranne 'type') -->
-<span
-  *ngIf="contextFormatted.key !== 'type' &&
-         campoInlineInEditing !== url + '_' + contextFormatted.key"
-  class="preview-text"
-  (click)="editMetaDataInline(contextFormatted, url)"
-  [matTooltip]="contextFormatted?.value"
-  [matTooltipDisabled]="!isLongText(contextFormatted?.value)"
-  [matTooltipClass]="'tooltip-custom'"
-  matTooltipShowDelay="300"
->
-  {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
-</span>
-                  <!-- 3) EDIT inline (input + elimina) -->
-                  <ng-container *ngIf="contextFormatted.key !== 'type' &&
-                         campoInlineInEditing === url + '_' + contextFormatted.key">
+                  <!-- preview cliccabile -->
+                  <span *ngIf="contextFormatted.key !== 'type' &&
+                               campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text"
+                    (click)="editMetaDataInline(contextFormatted, url)" [matTooltip]="contextFormatted?.value"
+                    [matTooltipDisabled]="!isLongText(contextFormatted?.value)" [matTooltipClass]="'tooltip-custom'"
+                    matTooltipShowDelay="300">
+                    {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
+                  </span>
 
-                    <!-- Input: number per 'quantita', text per gli altri -->
+                  <!-- modalità editing -->
+                  <ng-container *ngIf="contextFormatted.key !== 'type' &&
+                                       campoInlineInEditing === url + '_' + contextFormatted.key">
+
                     <mat-form-field appearance="outline" class="inline-edit-form-field">
-                      <ng-container *ngIf="contextFormatted.key === 'quantita'; else inputTesto">
+                      <!-- numero per quantita -->
+                      <ng-container *ngIf="contextFormatted.key === 'quantita'; else testoGenerico">
                         <input matInput type="number" min="0" step="1" inputmode="numeric"
                           [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
                           (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
@@ -75,14 +102,15 @@
                           [placeholder]="contextFormatted.label" />
                       </ng-container>
 
-                      <ng-template #inputTesto>
+                      <!-- testo per gli altri campi -->
+                      <ng-template #testoGenerico>
                         <input matInput type="text" [formControl]="formControlsInline[url + '_' + contextFormatted.key]"
                           (blur)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
                           (keydown.enter)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)"
                           [placeholder]="contextFormatted.label" />
                       </ng-template>
 
-                      <!-- Errori di validazione -->
+                      <!-- errori -->
                       <mat-error *ngIf="formControlsInline[url + '_' + contextFormatted.key]?.hasError('required')">
                         Campo obbligatorio
                       </mat-error>
@@ -91,44 +119,57 @@
                       </mat-error>
                     </mat-form-field>
 
-                    <!-- Pulsante elimina metadato (allineato a destra) -->
+                    <!-- cestino -->
                     <button type="button" class="delete-metadata-btn"
                       [attr.aria-label]="'Rimuovi ' + contextFormatted.label"
-                      matTooltip="Rimuovi {{ contextFormatted.label }}"
-                      [matTooltipClass]="'tooltip-custom'"
-                      (click)="rimuoviMetadatoInline(context, contextFormatted.key, contextFormatted.label, url)">
+                      matTooltip="Rimuovi {{ contextFormatted.label }}" [matTooltipClass]="'tooltip-custom'" (click)="rimuoviMetadatoInline(context,
+                                                         contextFormatted.key,
+                                                         contextFormatted.label,
+                                                         url)">
                       <mat-icon>delete</mat-icon>
                     </button>
                   </ng-container>
-
                 </div>
               </div>
 
             </ng-container>
           </div>
 
-
-
-
-
-          <!-- Contenitore delle immagini secondarie -->
+          <!-- MINIATURE SECONDARIE (image | video | audio) -->
           <ng-container *ngIf="mapUrlsNoFrontali[url] as immaginiSecondarie">
+
             <div class="non-frontali-overlay" [class.visible]="hoveredCard === url">
 
-              <!-- Se ci sono immagini secondarie -->
-              <ng-container *ngIf="immaginiSecondarie.length > 0; else noViews">
+              <!-- se esistono file secondari -->
+              <ng-container *ngIf="immaginiSecondarie.length; else noViews">
 
-                <!-- Pulsante prev -->
+                <!-- ◀︎ PREV -->
                 <button class="nav-btn prev-btn" mat-icon-button (click)="prevSecondaryImage(url)"
                   *ngIf="immaginiSecondarie.length > 1">
                   <mat-icon>chevron_left</mat-icon>
                 </button>
 
-                <!-- Immagine secondaria corrente -->
-                <img class="img-secondaria" [src]="immaginiSecondarie[currentSecondaryIndex[url]]"
-                  [alt]="'Altra angolazione di ' + context.display_name" />
+                <!-- ▸ THUMBNAIL DINAMICA -->
+                <ng-container [ngSwitch]="context.type || 'image'">
 
-                <!-- Pulsante next -->
+                  <!-- IMG ------------------------------------------------------------ -->
+                  <img *ngSwitchCase="'image'" class="img-secondaria"
+                    [src]="immaginiSecondarie[currentSecondaryIndex[url]]"
+                    [alt]="'Vista alternativa di ' + context.display_name" />
+
+                  <!-- VIDEO ---------------------------------------------------------- -->
+                  <video *ngSwitchCase="'video'" controls class="img-secondaria"
+                    [src]="immaginiSecondarie[currentSecondaryIndex[url]]" muted loop playsinline controls>
+                  </video>
+
+                  <!-- AUDIO ---------------------------------------------------------- -->
+                  <div *ngSwitchCase="'audio'" controls class="img-secondaria audio-thumb">
+                    <mat-icon style="font-size:32px;">graphic_eq</mat-icon>
+                  </div>
+
+                </ng-container>
+
+                <!-- ▶︎ NEXT -->
                 <button class="nav-btn next-btn" mat-icon-button (click)="nextSecondaryImage(url)"
                   *ngIf="immaginiSecondarie.length > 1">
                   <mat-icon>chevron_right</mat-icon>
@@ -136,34 +177,36 @@
 
               </ng-container>
 
-              <!-- Se non ci sono immagini secondarie -->
+              <!-- messaggio se non ci sono viste secondarie -->
               <ng-template #noViews>
                 <div class="messaggio-nessuna-immagine">
-                  Non sono disponibili altre angolazioni per questo articolo.
+                  Non sono disponibili ulteriori viste per questo elemento.
                 </div>
               </ng-template>
 
             </div>
           </ng-container>
 
+
+
         </ng-container>
       </div>
     </div>
 
-
-
-
-    <!-- ===========================
-     Pulsante singolo "Aggiungi" + drop area
-=========================== -->
-    <div (click)="apriPopUpUploadMedia()" class="preview-card upload-add-card" [class.drag-over]="isDragging"
+    <!-- CARD “Aggiungi” per upload/drag-and-drop -->
+    <div class="preview-card upload-add-card" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
       (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
       (drop)="onDrop($event)">
-      <span [matTooltipClass]="'tooltip-custom'" matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="!isDragging">Aggiungi prodotto</span>
-      <span [matTooltipClass]="'tooltip-custom'" matTooltip="Aggiungi Prodotto" class="add-icon" *ngIf="isDragging">Rilascia prodotto</span>
+
+      <span class="add-icon" matTooltip="Aggiungi Prodotto" [matTooltipClass]="'tooltip-custom'"
+        *ngIf="!isDragging">Aggiungi prodotto</span>
+
+      <span class="add-icon" matTooltip="Aggiungi Prodotto" [matTooltipClass]="'tooltip-custom'"
+        *ngIf="isDragging">Rilascia prodotto</span>
     </div>
 
   </div>
+
 </div>
 
 
