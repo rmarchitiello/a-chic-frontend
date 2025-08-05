@@ -1,4 +1,6 @@
-// Componente Angular per la gestione dell’eliminazione media da Cloudinary
+//Non viene usato piu perche cancello dall editor direttamente che ho tutte le info li (senza aprire il popup)
+
+
 import { Component, OnInit, Inject } from '@angular/core';
 import { AdminService } from '../../../services/admin.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';

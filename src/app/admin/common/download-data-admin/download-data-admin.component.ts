@@ -1,3 +1,4 @@
+//Non viene usato piu perche scarico dall editor direttamente che ho tutte le info li (senza aprire il pop up)
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
