@@ -175,6 +175,7 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
   currentIndex: number = 0;
 
 
+  isConfigFolder: boolean = false;
 
 
 
@@ -200,6 +201,15 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
       // Estrae il percorso della cartella
       this.folderInput = this.inputFromFatherComponent.folder;
       console.log("Folder ricevuta in ingresso: ", this.folderInput);
+      
+      if(this.folderInput.toLocaleLowerCase().includes('config')){
+        this.isConfigFolder = true;
+        console.log("Cartella di config")
+      }else{
+        this.isConfigFolder = false;
+        console.log("Cartella normale")
+      }
+
 
       // Estrae l'array di elementi (ciascuno contenente context e media)
       this.itemsInput = this.inputFromFatherComponent.items;
@@ -862,7 +872,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     delete this.formControlsInline[campoId];
 
     // 8) Persistenza lato backend
-    this.adminService.updateImageMetadata(url, context, true).subscribe({
+    this.adminService.updateImageMetadata(url, context, this.isConfigFolder).subscribe({
       next: () => {
         this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato aggiornato correttamente.`, false);
         this.sharedService.notifyConfigCacheIsChanged();
@@ -953,7 +963,7 @@ annullaValoreInline(context: MediaContext, key: string, url: string): void {
     console.log('Context aggiornato (chiave rimossa):', updatedContext);
 
     // Persisti lato backend
-    this.adminService.updateImageMetadata(url, updatedContext, true).subscribe({
+    this.adminService.updateImageMetadata(url, updatedContext, this.isConfigFolder).subscribe({
       next: () => {
         this.sharedService.notifyConfigCacheIsChanged();
         this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato rimosso.`, false);
@@ -1062,7 +1072,7 @@ if (isValueEmpty) {
   const nuovoContext = item.context = { ...context, [keyNorm]: valueInput };
   console.log("Nuovo context: ", nuovoContext);
 
-  this.adminService.updateImageMetadata(url,nuovoContext,true).subscribe({
+  this.adminService.updateImageMetadata(url,nuovoContext,this.isConfigFolder).subscribe({
         next: (data) => {
       // OK: aggiorna UI/stato locale se serve
       this.mostraMessaggioSnakBar('Metadato salvato correttamente.', false);
