@@ -109,6 +109,7 @@
             <ng-container
               *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
 
+              
               <div class="context-entry" [class.is-editing]="contextFormatted.key !== 'type' &&
                                     campoInlineInEditing === url + '_' + contextFormatted.key">
 
