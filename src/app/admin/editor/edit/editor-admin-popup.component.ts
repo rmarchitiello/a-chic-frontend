@@ -1118,5 +1118,19 @@ annullaAggiunta(): void {
   // this.mostraMessaggioSnakBar('Aggiunta annullata.', false);
 }
 
+//sono sopra i metadata di quella url pero??
+espandiMetaDati: string | null = null;
+onEspandiMetadati(url: string){
+  this.espandiMetaDati = url;
+}
+
+onChiudiMetaDati(){
+  this.espandiMetaDati = null;
+}
+
+
+
+
+
 
 }

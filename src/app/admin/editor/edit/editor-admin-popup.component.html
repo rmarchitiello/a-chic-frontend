@@ -74,6 +74,12 @@
                   </video>
                 </ng-template>
               </ng-container>
+              <!-- ===== Contatore (include il frontale) ===== -->
+              <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
+                {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
+                /
+                {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
+              </div>
 
               <!-- ===== AUDIO ===== -->
               <ng-container *ngSwitchCase="'audio'">
@@ -91,25 +97,34 @@
                 </ng-template>
               </ng-container>
 
+              
 
 
-              <!-- ===== Contatore (include il frontale) ===== -->
-              <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
-                {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
-                /
-                {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
-              </div>
             </div>
+              <div class="metadata-toggle-container">
+                <p class="media-display-name-preview">{{ capitalizeFirstLetter(context.display_name || '') }}</p>
+
+                <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati !== url"
+                  (click)="onEspandiMetadati(url)">
+                  <mat-icon>expand_more</mat-icon>
+                </button>
+
+                <button class="toggle-metadata-btn hide-btn" *ngIf="espandiMetaDati === url"
+                  (click)="onChiudiMetaDati()">
+                  <mat-icon>expand_less</mat-icon>
+                </button>
+              </div>
           </section>
 
 
           <!-- =========================================================
                METADATA (editing inline)
           ========================================================== -->
-          <div class="media-display-name">
+          <div *ngIf="espandiMetaDati === url" class="media-display-name">
+
             <ng-container
               *ngFor="let contextFormatted of getOrderedFormattedEntries(context); trackBy: trackByContextFormatted">
-
+              <!-- mostro i metadati solo di quella card hoverata per la url-->
               <div class="context-entry" [class.is-editing]="contextFormatted.key !== 'type' &&
                         campoInlineInEditing === url + '_' + contextFormatted.key &&
                         !isAddingMetadataFromForm">
@@ -133,9 +148,10 @@
 
                   <!-- Preview cliccabile -->
                   <span *ngIf="contextFormatted.key !== 'type' &&
-                 campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text" (click)="editMetaDataInline(contextFormatted, url)"
-                    [matTooltip]="contextFormatted?.value" [matTooltipDisabled]="!isLongText(contextFormatted?.value)"
-                    [matTooltipClass]="'tooltip-custom'" matTooltipShowDelay="300">
+                 campoInlineInEditing !== url + '_' + contextFormatted.key" class="preview-text"
+                    (click)="editMetaDataInline(contextFormatted, url)" [matTooltip]="contextFormatted?.value"
+                    [matTooltipDisabled]="!isLongText(contextFormatted?.value)" [matTooltipClass]="'tooltip-custom'"
+                    matTooltipShowDelay="300">
                     {{ capitalizeFirstLetter(getPreview(contextFormatted.value)) }}
                   </span>
 
@@ -233,18 +249,13 @@
 
                 <!-- Azioni -->
                 <div class="add-metadata-actions">
-                  <button 
-                  type="button" 
-                  class="confirm-btn" 
-                  aria-label="Conferma" 
-                  matTooltip="Conferma" 
-                  [matTooltipClass]="'tooltip-custom'"
-                    (click)="salvaMetadato(url)">
+                  <button type="button" class="confirm-btn" aria-label="Conferma" matTooltip="Conferma"
+                    [matTooltipClass]="'tooltip-custom'" (click)="salvaMetadato(url)">
                     <mat-icon>check</mat-icon>
                   </button>
 
-                  <button type="button" class="cancel-btn" aria-label="Annulla" matTooltip="Annulla" [matTooltipClass]="'tooltip-custom'"
-                    (click)="annullaAggiunta()">
+                  <button type="button" class="cancel-btn" aria-label="Annulla" matTooltip="Annulla"
+                    [matTooltipClass]="'tooltip-custom'" (click)="annullaAggiunta()">
                     <mat-icon>close</mat-icon>
                   </button>
                 </div>
