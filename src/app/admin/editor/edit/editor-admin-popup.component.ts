@@ -864,6 +864,27 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     });
   }
 
+// Annulla l’editing del singolo metadato (nessuna persistenza)
+annullaValoreInline(context: MediaContext, key: string, url: string): void {
+  const campoId = `${url}_${key}`;
+  const control = this.formControlsInline[campoId];
+
+  if (control) {
+    // ripristina il valore originale mostrato prima dell'editing
+    const originale = context[key] ?? '';
+    control.setValue(originale, { emitEvent: false });
+    control.markAsPristine();
+    control.markAsUntouched();
+    control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+  }
+
+  // esci dalla modalità editing e pulisci il controllo inline
+  this.campoInlineInEditing = null;
+  delete this.formControlsInline[campoId];
+
+  // opzionale: piccolo feedback
+  // this.mostraMessaggioSnakBar(`Modifica di "${key}" annullata.`, false);
+}
 
 
 

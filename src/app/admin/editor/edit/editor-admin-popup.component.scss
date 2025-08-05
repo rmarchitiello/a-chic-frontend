@@ -215,34 +215,76 @@
         ::ng-deep input.mat-input-element { height: 32px; padding: 0 4px; }
       }
 
-      /* Cestino (solo in edit) a filo destro con aria */
-      .delete-metadata-btn {
-        appearance: none;
-        background: none;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        width: 32px; height: 32px;
-        padding: 0;
-        flex: 0 0 32px;
-        margin-left: 4px;
-        margin-right: 2px;
+      /* Base comune per bottoni icona (delete/confirm) */
+.icon-action-btn {
+  --size: 32px;
+  --ring: rgba(25,118,210,.25);
 
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #b00020;
-        transition:
-          background-color .2s ease,
-          border-color .2s ease,
-          color .2s ease,
-          box-shadow .2s ease;
+  appearance: none;
+  background: #fff;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  width: var(--size);
+  height: var(--size);
+  padding: 0;
+  flex: 0 0 var(--size);
+  margin-left: 4px;
+  margin-right: 2px;
 
-        mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }
-        &:hover  { background-color: rgba(176,0,32,.08); border-color: rgba(176,0,32,.2); }
-        &:active { background-color: rgba(176,0,32,.14); }
-        &:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(25,118,210,.25); }
-        &:disabled { opacity: .5; cursor: not-allowed; background: none; border-color: transparent; }
-      }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    color .2s ease,
+    box-shadow .2s ease,
+    transform .12s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    color: inherit; /* eredita dal bottone */
+  }
+
+  &:hover  { box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  &:active { transform: scale(.96); }
+  &:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--ring); }
+  &:disabled { opacity: .5; cursor: not-allowed; background: #f8fafc; border-color: transparent; }
+}
+
+/* Variante: elimina (danger) */
+.delete-metadata-btn {
+  @extend .icon-action-btn;
+  color: #b00020;
+  border-color: rgba(176,0,32,.18);
+
+  &:hover  { background-color: rgba(176,0,32,.08); border-color: rgba(176,0,32,.28); }
+  &:active { background-color: rgba(176,0,32,.14); }
+}
+
+/* Variante: conferma (success) */
+.conferma-metadata-btn {
+  @extend .icon-action-btn;
+  color: #047857; /* emerald-700 */
+  border-color: rgba(4,120,87,.2);
+
+  &:hover  { background-color: rgba(4,120,87,.08); border-color: rgba(4,120,87,.3); }
+  &:active { background-color: rgba(4,120,87,.14); }
+}
+.annulla-metadata-btn {
+  @extend .icon-action-btn;
+  color: #000000; /* emerald-700 */
+  border-color: rgba(44, 53, 50, 0.2);
+
+  &:hover  { background-color: rgba(4,120,87,.08); border-color: rgba(4,120,87,.3); }
+  &:active { background-color: rgba(4,120,87,.14); }
+}
+
     }
   }
 

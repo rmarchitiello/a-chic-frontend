@@ -119,6 +119,19 @@
                       </mat-error>
                     </mat-form-field>
 
+                    <!-- conferma modifica -->
+                    <button type="button" class="conferma-metadata-btn"
+                      [attr.aria-label]="'Conferma modifica ' + contextFormatted.label"
+                      matTooltip="Conferma modifica {{ contextFormatted.label }}" [matTooltipClass]="'tooltip-custom'"
+                      (click)="confermaValoreInline(context, contextFormatted.key, contextFormatted.label, url)">
+                      <mat-icon>check</mat-icon>
+                    </button>
+                  <button type="button" class="annulla-metadata-btn"
+                      [attr.aria-label]="'Annulla modifica ' + contextFormatted.label"
+                      matTooltip="Annulla modifica {{ contextFormatted.label }}" [matTooltipClass]="'tooltip-custom'"
+                      (click)="annullaValoreInline(context, contextFormatted.key, url)">
+                      <mat-icon>close</mat-icon>
+                    </button>
                     <!-- cestino -->
                     <button type="button" class="delete-metadata-btn"
                       [attr.aria-label]="'Rimuovi ' + contextFormatted.label"
@@ -167,7 +180,7 @@
                 <!-- Azioni: Conferma (✓) e Annulla (✕) -->
                 <div class="add-metadata-actions">
                   <button type="button" class="confirm-btn" aria-label="Conferma" matTooltip="Conferma"
-                     (click)="salvaMetadato(url)">
+                    (click)="salvaMetadato(url)">
                     <mat-icon>check</mat-icon>
                   </button>
 
