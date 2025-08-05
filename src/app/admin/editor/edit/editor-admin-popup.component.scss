@@ -319,6 +319,7 @@
         padding: 0;
 
         .preview-text {
+          cursor: pointer;
           display: block;
           font-size: 0.95rem;
           color: #374151;
@@ -327,18 +328,15 @@
           text-overflow: ellipsis;
           padding: 2px 0;
 
-          &:hover {
-            background: rgba(0, 0, 0, 0.05);
-          }
+
 
           &.non-editable {
             cursor: default;
-            background: #0f4780;
-            color: #374151;
-            padding: 2px 10px;
-            border-radius: 999px;
-            border: 1px solid #081530;
+            color: #6b7280; // grigio scuro (testo)
+            padding: 0;
+            font-style: italic; // facoltativo: per enfatizzare lo stato "non modificabile"
           }
+
         }
 
         .inline-edit-form-field {
@@ -589,55 +587,55 @@
 
 
     .add-metadata-button {
-  appearance: none;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-  background: #ffffff;
-  border: 2px dashed #081530;
-  border-radius: 10px;
-  color: #000000;
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.15s ease;
+      appearance: none;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      background: #ffffff;
+      border: 2px dashed #081530;
+      border-radius: 10px;
+      color: #000000;
+      cursor: pointer;
+      transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.15s ease;
 
-  mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
-    line-height: 22px;
-    color: inherit;
-  }
+      mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        line-height: 22px;
+        color: inherit;
+      }
 
-  &:not(:disabled):hover {
-    background: #eef2ff;
-    border-color: #c7d2fe;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-  }
+      &:not(:disabled):hover {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+      }
 
-  &:not(:disabled):active {
-    transform: scale(0.94);
-  }
+      &:not(:disabled):active {
+        transform: scale(0.94);
+      }
 
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25);
-  }
+      &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25);
+      }
 
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-    background: #f3f4f6;
-    border-color: #d1d5db;
-    color: #9ca3af;
-  }
-}
+      &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #9ca3af;
+      }
+    }
 
 
 
