@@ -12,7 +12,7 @@
       <div class="carousel-container-desktop">
 
               <!-- Pulsante modifica visibile sempre all'amministratore -->
-      <button *ngIf="isAdmin" mat-icon-button class="edit-admin-carosello-icon" (click)="apriPopUpEditorAdmin()"
+      <button *ngIf="isAdmin" mat-icon-button class="edit-admin-carosello-icon" (click)="apriPopUpEditorAdmin('carosello')"
         matTooltip="Modifica carosello">
         <mat-icon>edit</mat-icon>
       </button>
@@ -27,6 +27,10 @@
 
     <!-- Modelli in evidenza -->
     <div class="video-modelli-wrapper-desktop scroll-reveal" appScrollReveal>
+      <button *ngIf="isAdmin" mat-icon-button class="edit-admin-carosello-icon" (click)="apriPopUpEditorAdmin('modelliEvidenza')"
+        matTooltip="Modifica carosello">
+        <mat-icon>edit</mat-icon>
+      </button>
       <mat-card *ngFor="let modelloInEvidenza of modelliInEvidenza.items" class="modello-card-desktop">
         <video autoplay muted loop playsinline preload="auto"
                class="video-responsive-desktop" mat-card-image>
@@ -60,6 +64,10 @@
 
     <!-- Recensioni -->
     <div class="scroll-reveal" appScrollReveal>
+            <button *ngIf="isAdmin" mat-icon-button class="edit-admin-carosello-icon" (click)="apriPopUpEditorAdmin('recensioni')"
+        matTooltip="Modifica carosello">
+        <mat-icon>edit</mat-icon>
+      </button>
       <h2 class="titolo-recensioni-desktop">Dicono di noi</h2>
       <div class="carousel-container-recensioni-desktop">
         <img *ngFor="let recensione of recensioni.items; let i = index"

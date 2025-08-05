@@ -199,7 +199,7 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
       console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
 
       // Estrae il percorso della cartella
-      this.folderInput = this.inputFromFatherComponent.folder;
+      this.folderInput = this.inputFromFatherComponent.folder || this.folderSelezionata;
       console.log("Folder ricevuta in ingresso: ", this.folderInput);
       
       if(this.folderInput.toLocaleLowerCase().includes('config')){

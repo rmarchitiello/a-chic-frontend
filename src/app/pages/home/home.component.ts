@@ -606,12 +606,26 @@ e quindi si fa questa cosa:
   }
 */
 
-  apriPopUpEditorAdmin(): void {
+  apriPopUpEditorAdmin(valoreDaEditare: string): void {
+
+    let toEdit: MediaCollection;
+    if(valoreDaEditare === 'carosello'){
+      toEdit = this.carosello;
+    }
+    else if (valoreDaEditare === 'recensioni'){
+      toEdit = this.recensioni;
+    }
+    else if(valoreDaEditare === 'modelliEvidenza'){
+      toEdit = this.modelliInEvidenza;
+    } else{
+      toEdit = this.carosello
+    }
+
 
     //chiamo l'observable per passare la media collection al figlio
     //ovviamente ora è fatta x il carosello ma sarà dinamico
-    this.sharedDataService.setMediaCollectionConfig(this.carosello);
-    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", this.carosello);
+    this.sharedDataService.setMediaCollectionConfig(toEdit);
+    console.log("[HomeComponent] invio subject al component [EditorAdminPopUpComponent] ", toEdit);
     // Apertura del dialog (popup) Angular Material
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,

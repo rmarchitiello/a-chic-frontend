@@ -345,6 +345,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     console.log("Inizio metodo di upload")
     // Verifica che l'utente abbia specificato una cartella
     const folder = this.inputFolder?.trim();
+    console.log("folder input: ", folder);
     const isConfig = folder.toLowerCase().includes('config');
 
     if (!folder) {
