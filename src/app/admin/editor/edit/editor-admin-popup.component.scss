@@ -678,7 +678,7 @@
   border: 2px dashed #4caf50;
   border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, .10);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -699,17 +699,38 @@
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
-  .upload-icon {
-    font-size: 48px;
-    color: #4caf50;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
+.upload-icon {
+  font-family: 'Material Icons' !important;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4caf50;
+  height: 48px;
+  width: 48px;
+  text-align: center;
+  font-feature-settings: 'liga';               // ✅ Standard version
+  -webkit-font-feature-settings: 'liga';       // ✅ WebKit-prefixed version
+  -webkit-font-smoothing: antialiased;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+
 
   .upload-text {
     font-size: 0.95rem;
     line-height: 1.4;
     color: #4caf50;
     transition: color 0.3s ease, opacity 0.3s ease;
+
+    strong {
+      display: block;
+      font-weight: 600;
+      color: inherit;
+    }
   }
 
   &:hover {
@@ -731,8 +752,8 @@
     border-color: #2e7d32;
 
     .upload-icon {
-      color: #2e7d32;
-      transform: scale(1.15);
+      color: #047857;
+      transform: scale(1.1);
     }
 
     .upload-text {
@@ -741,6 +762,7 @@
     }
   }
 }
+
 
 
 /* =======================================
