@@ -232,6 +232,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
       //inizializzo la mappa degli indici delle foto non frontali
       this.inizializzaIndiciSecondari();
+      this.inizializzaIndiceAngolazioni();
 
 
 
@@ -334,25 +335,30 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     }
   }
 
-  // PREV: -1 <- 0 <- 1 <- ... <- n-1 <- -1
-  prevSecondaryImage(url: string): void {
-    const sec = this.mapUrlsNoFrontali[url] || [];
-    if (!sec.length) return;
+prevSecondaryImage(url: string): void {
+  const secondarie = this.mapUrlsNoFrontali[url] || [];
+  if (!secondarie.length) return;
 
-    const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
-    const prev = (curr + sec.length + 1) % (sec.length + 1) - 1;
-    this.currentSecondaryIndex[url] = prev;
-  }
+  const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
+  const prevIndex = (currentIndex + secondarie.length + 1) % (secondarie.length + 1) - 1;
 
-  // NEXT: -1 -> 0 -> 1 -> ... -> n-1 -> -1
-  nextSecondaryImage(url: string): void {
-    const sec = this.mapUrlsNoFrontali[url] || [];
-    if (!sec.length) return;
+  // Aggiorna entrambe le mappe
+  this.currentSecondaryIndex[url] = prevIndex;
+  this.indiciAngolazioniMap[url] = prevIndex;
+}
 
-    const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
-    const next = (curr + 2) % (sec.length + 1) - 1;
-    this.currentSecondaryIndex[url] = next;
-  }
+nextSecondaryImage(url: string): void {
+  const secondarie = this.mapUrlsNoFrontali[url] || [];
+  if (!secondarie.length) return;
+
+  const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
+  const nextIndex = (currentIndex + 2) % (secondarie.length + 1) - 1;
+
+  // Aggiorna entrambe le mappe
+  this.currentSecondaryIndex[url] = nextIndex;
+  this.indiciAngolazioniMap[url] = nextIndex;
+}
+
 
 
   /* ---------------------------   */
@@ -1166,51 +1172,171 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
   //attiva uno spinner di eliminazione spinner solo di quella url
   isDeletingMap: { [url: string]: boolean } = {};
 
-  cancellaMedia(url: string, all: boolean) {
-    //se all è true allora cancella tutto
-    /*dalla url frontale in ingresso recuperiamo le url non frontali, passiamo all adminService.deleteImages(arrayDiurl)
-    e mandiamo la notifica all app component*/
-    this.isDeletingMap[url] = true;
-    let urlOrUrlsDaEliminare: string[] = [];
-    if (all) {
-      const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
-      console.log("Di seguito le url non frontali da eliminare: ", urlsNoFrontali);
-      console.log("Di seguito l'url frontale da eliminare: ", url);
+  /* 
+  
+  Contesto
+Hai una preview card per ogni media "frontale" (quindi una sola card per ogni gruppo di immagini).
+Ogni card può visualizzare una o più immagini, ad esempio:
 
-      urlOrUrlsDaEliminare = [...urlsNoFrontali, url]; //  Crea nuovo array con tutte le URL
-      console.log("Tutte le url da eliminare sono: ", urlOrUrlsDaEliminare);
+1 immagine frontale (quella base)
 
+0 o più immagini secondarie (angolazioni diverse)
 
-    } else {
-      urlOrUrlsDaEliminare = [url]
-      console.log("Cancelliamo solo questa url: ", urlOrUrlsDaEliminare)
+Obiettivo
+Per ogni card, devo sapere quale immagine è attualmente visibile nella galleria.
+Questa immagine può essere:
+
+l’immagine frontale (indice -1)
+
+una delle secondarie (indice 0, 1, ecc.)
+
+Per gestire quale immagine è selezionata in ciascuna card, ti serve una mappa.
+creo la selectedImageIndexMap: { [urlFrontale: string]: number }
+ 
+
+Significato:
+La chiave è l’URL dell’immagine frontale (cioè l’identificatore della card)
+
+Il valore è un numero:
+
+-1 → significa che nella card è visibile l’immagine frontale
+
+0, 1, 2, ... → significa che nella card è visibile una delle immagini secondarie (presa da mapUrlsNoFrontali[urlFrontale])
+
+// selectedImageIndexMap tiene traccia dell'immagine attualmente visibile in ciascuna card.
+// La chiave è l'URL dell'immagine frontale (che identifica la card).
+// Il valore è:
+// -1 se si sta visualizzando l'immagine frontale
+//  0, 1, 2... se si sta visualizzando una delle immagini secondarie
+  */
+
+/* Funzione che a partire da this.mapUrlsNoFrontali crea la mappa con gli indici per capire a quale non frontale corrisponde */
+
+/**
+ * Crea una mappa che tiene traccia dell'indice attivo corrente
+ * per ciascuna URL frontale nella mappa this.mapUrlsNoFrontali.
+ *
+ * Il valore iniziale per ogni voce è 0.
+ * 
+ * chiamo in on init la this.inizializzaIndiceAngolazioni();
+ per creare gli indici
+ */
+indiciAngolazioniMap: { [urlFrontale: string]: number } = {};
+
+inizializzaIndiceAngolazioni(): void {
+  this.indiciAngolazioniMap = {};
+
+  for (const urlFrontale in this.mapUrlsNoFrontali) {
+    if (this.mapUrlsNoFrontali.hasOwnProperty(urlFrontale)) {
+      // Per ogni URL frontale inizializza l'indice corrente a 0
+      this.indiciAngolazioniMap[urlFrontale] = -1; //immagine fronale
     }
-
-    if (urlOrUrlsDaEliminare.length > 0) {
-      console.log("Procedo con la cancellazione");
-      this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
-        next: (response) => {
-          console.log("Cancellazione riuscita:", response);
-          this.mostraMessaggioSnakBar("Cancellazione avvenuta con successo, MEDIA ELIMINATI: " + urlOrUrlsDaEliminare.length , false);
-
-          this.sharedService.notifyConfigCacheIsChanged();
-          this.isDeletingMap[url] = false;
-          // eventuale logica successiva, ad esempio aggiornare la UI
-        },
-        error: (err) => {
-          console.error("Errore durante la cancellazione:", err);
-          this.mostraMessaggioSnakBar("Errore durante l'eliminazione" , true);
-          this.isDeletingMap[url] = false;
-          // mostrare uno snackbar o messaggio di errore
-        }
-      });
-    }else{
-        this.isDeletingMap[url] = false;
-    }
-
-    
-
   }
+
+  console.log('Mappa indici angolazioni inizializzata:', this.indiciAngolazioniMap);
+}
+
+
+  cancellaMedia(url: string, all: boolean): void {
+  // Attiva lo spinner per la card associata a questa URL
+  this.isDeletingMap[url] = true;
+
+  // Inizializza l'elenco delle URL da eliminare
+  let urlOrUrlsDaEliminare: string[] = [];
+
+  if (all) {
+    // Caso "Elimina tutto": elimina sia la URL frontale sia tutte le sue secondarie
+    const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
+
+    console.log("URL non frontali da eliminare:", urlsNoFrontali);
+    console.log("URL frontale da eliminare:", url);
+
+    // Costruisce un array completo delle URL da eliminare
+    urlOrUrlsDaEliminare = [...urlsNoFrontali, url];
+
+    console.log("Tutte le URL da eliminare:", urlOrUrlsDaEliminare);
+
+  } else {
+    // Caso "Elimina il media corrente" (solo una URL)
+
+    let checkIsUrlFrontale: boolean = false;
+
+    // Verifica se l'URL corrisponde a un media frontale con altre angolazioni
+    if (this.mapUrlsNoFrontali[url]) {
+      checkIsUrlFrontale = this.mediasUrlsFrontale.includes(url) && this.mapUrlsNoFrontali[url]?.length > 0;
+    }
+
+    if (checkIsUrlFrontale) {
+      // Non permettere di eliminare una media usata come anteprima
+      console.warn("Tentativo di eliminazione del media frontale bloccato.");
+      this.mostraMessaggioSnakBar("Non puoi eliminare un media utilizzato come anteprima", true);
+    } else {
+      // Elimina solo la URL richiesta
+      urlOrUrlsDaEliminare = [url];
+      console.log("Eliminiamo solo la seguente URL:", urlOrUrlsDaEliminare);
+    }
+  }
+
+  // Se ci sono URL da eliminare, procedi con la chiamata al servizio
+  if (urlOrUrlsDaEliminare.length > 0) {
+    console.log("Avvio procedura di eliminazione...");
+
+    this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
+      next: (response) => {
+        console.log("Cancellazione completata:", response);
+
+        this.mostraMessaggioSnakBar(
+          "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
+          false
+        );
+
+        // Reset degli indici a -1 per la galleria corrispondente alla URL frontale
+        this.currentSecondaryIndex[url] = -1;
+        this.indiciAngolazioniMap[url] = -1;
+
+        // Notifica ad altri componenti che la cache è cambiata
+        this.sharedService.notifyConfigCacheIsChanged();
+
+        // Disattiva lo spinner
+        this.isDeletingMap[url] = false;
+      },
+      error: (err) => {
+        console.error("Errore durante la cancellazione:", err);
+
+        this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
+
+        // Disattiva lo spinner anche in caso di errore
+        this.isDeletingMap[url] = false;
+      }
+    });
+  } else {
+    // Nessuna eliminazione da eseguire
+    this.isDeletingMap[url] = false;
+  }
+}
+
+
+
+getUrlCorrente(urlFrontale: string): string {
+  const index = this.indiciAngolazioniMap[urlFrontale] ?? -1;
+
+  if (index === -1) {
+    return urlFrontale;
+  }
+
+  const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
+  return secondarie[index] || urlFrontale;
+}
+
+trovaUrlFrontaleAssociata(urlSecondaria: string): string {
+  for (const frontale in this.mapUrlsNoFrontali) {
+    const secondarie = this.mapUrlsNoFrontali[frontale] || [];
+    if (secondarie.includes(urlSecondaria)) {
+      return frontale;
+    }
+  }
+  return urlSecondaria; // fallback
+}
 
 
 }
