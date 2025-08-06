@@ -305,6 +305,14 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
         else {
           console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
         }
+      } else{
+
+          console.warn("Nessuna media collection ricevuta.");
+        this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
+
+        //  Anche se non c'è nulla, richiama per resettare l'interfaccia e le variabili
+        this.caricaMediaCollection(this.inputFromFatherComponent);
+
       }
 
 
