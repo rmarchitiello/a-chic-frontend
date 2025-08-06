@@ -1,7 +1,7 @@
 <div class="dialog-content" >
 
   <!-- Spinner caricamento figli -->
-  <div class="spinner-overlay" *ngIf="isDragging">
+  <div class="spinner-overlay" *ngIf="isUploading">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
@@ -271,23 +271,29 @@
     </div>
 
     <!-- CARD upload/drag-and-drop -->
-    <div class="preview-card upload-add-card" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
-      (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-      (drop)="onDrop($event)">
+<div class="upload-dropzone" 
+     (click)="apriPopUpUploadMedia()" 
+     [class.drag-over]="isDragging"
+     (dragenter)="onDragEnter($event)" 
+     (dragover)="onDragOver($event)" 
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
 
-      <span class="add-icon" matTooltip="Aggiungi Prodotto" [matTooltipClass]="'tooltip-custom'" *ngIf="!isDragging">
-        Aggiungi prodotto
-      </span>
-      <span class="add-icon" matTooltip="Aggiungi Prodotto" [matTooltipClass]="'tooltip-custom'" *ngIf="isDragging">
-        Rilascia prodotto
-      </span>
-    </div>
+  <div class="upload-content">
+    <mat-icon class="upload-icon">cloud_upload</mat-icon>
+    
+    <p class="upload-text" *ngIf="!isDragging">Trascina qui i file<br><strong>oppure clicca</strong></p>
+    
+    <p class="upload-text" *ngIf="isDragging">Rilascia i file per caricarli</p>
+  </div>
+</div>
+
 
   </div>
 </div>
 
 <!-- Upload dialog (one-way bindings) -->
-<app-upload-data-admin hidden *ngIf="isDragging" [inputFolderFromEdiorOneWayBinding]="folderInput"
+<app-upload-data-admin hidden *ngIf="showUploadComponent" [inputFolderFromEdiorOneWayBinding]="folderInput"
   [droppedByEditorOneWayBinding]="true" [filesDroppedFromEditorOneWayBinding]="fileArray"
   [typeMediaFromEditorOneWayBinding]="mediaTypeDropped" (eventoChiudiUpload)="gestisciChiusuraUpload($event)">
 </app-upload-data-admin>

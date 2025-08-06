@@ -617,18 +617,21 @@ nextSecondaryImage(url: string): void {
   //mi fa capire se sono sull area di drop
   isDragging: boolean = false;
 
-  onDragEnter(event: DragEvent) {
-    this.isDragging = false;
-    console.log("Sono entrato nel drag");
-  }
+  //gestisco lo spinner con una variabile diversa
+  isUploading: boolean = false;
+  
+  //per attivare l'altro component a ricevere i dati
+  showUploadComponent: boolean = false
+onDragEnter(event: DragEvent): void {
+  this.isDragging = true; // ✅ entri nel dropzone → attiva stile
+  console.log("Sono entrato nel drag");
+}
 
-
-  onDragOver(event: DragEvent) {
-    this.isDragging = false;
-    console.log("Ora mi sto spostando nella drop area");
-    event.preventDefault(); // necessario per permettere il drop altrimenti il browser lo apre normalmente
-
-  }
+onDragOver(event: DragEvent): void {
+  this.isDragging = true; // ✅ continui a passare sopra → resta attivo
+  event.preventDefault(); // ✅ necessario per consentire il drop
+  console.log("Ora mi sto spostando nella drop area");
+}
 
   fileArray!: File[];               // Qui salvo i file validi da caricare
   tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
@@ -642,6 +645,7 @@ nextSecondaryImage(url: string): void {
   onDrop(event: DragEvent) {
     // Attivo il flag visivo per segnalare che un'area di drop è attiva
     this.isDragging = true;
+
     console.log("Ho droppato nell'area");
 
     // Impedisco il comportamento di default del browser (es. apertura file)
@@ -726,7 +730,9 @@ nextSecondaryImage(url: string): void {
 
     // Salvo i file validi in memoria per l’upload
     this.fileArray = filesValidi;
-
+// ✅ Mostro il componente per gestire l’upload
+this.showUploadComponent = true;
+this.isUploading = true;
     // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
   }
 
@@ -739,15 +745,24 @@ nextSecondaryImage(url: string): void {
     this.isDragging = false;
   }
 
-  gestisciChiusuraUpload(valore: boolean) {
-    this.isDragging = false;
+gestisciChiusuraUpload(valore: boolean): void {
+  // Nasconde il componente di upload
+  this.showUploadComponent = false;
 
-    if (valore) {
-      this.mostraMessaggioSnakBar("File caricati correttamente.", false);
-    } else {
-      this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
-    }
+  // Ferma lo spinner
+  this.isUploading = false;
+
+  // Disattiva qualsiasi stato di trascinamento residuo
+  this.isDragging = false;
+
+  // Mostra il messaggio di esito
+  if (valore) {
+    this.mostraMessaggioSnakBar("File caricati correttamente.", false);
+  } else {
+    this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
   }
+}
+
 
   //snackbar
   mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
