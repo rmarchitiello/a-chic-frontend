@@ -104,7 +104,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AdminService } from '../../../services/admin.service';
 import { MatTableModule } from '@angular/material/table';
-
+import { MatMenuModule } from '@angular/material/menu';
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
 
@@ -129,7 +129,8 @@ ovvero l'Editor mediante @Input nel figlio passa i campi in questo caso la folde
     MatInputModule,
     MatFormFieldModule,
     ReactiveFormsModule,
-    MatTableModule
+    MatTableModule,
+    MatMenuModule
   ]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
@@ -765,6 +766,7 @@ gestisciChiusuraUpload(valore: boolean): void {
 
     // Dopo 2 secondi, torna a quella normale
     setTimeout(() => this.uploadSuccess = false, 2000);
+
     this.mostraMessaggioSnakBar("File caricati correttamente.", false);
   } else {
     this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
@@ -1153,7 +1155,13 @@ onChiudiMetaDati(){
 
 
 
+scaricaMedia(a: string){
 
+}
+
+cancellaMedia(a: string){
+  
+}
 
 
 }

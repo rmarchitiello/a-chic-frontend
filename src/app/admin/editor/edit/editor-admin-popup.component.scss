@@ -218,6 +218,45 @@
       }
     }
 
+    //in pratica sono i 3 pallini che compaiono in alto a destra poi per come deve essere fatto il mat menu devo vedere giu a tutto
+.card-actions {
+  // Posiziona il contenitore dei pulsanti nell'angolo in alto a destra della card
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.25rem; // Spazio tra i pulsanti, se ce ne sono più di uno
+  z-index: 10; // Assicura che i pulsanti siano sopra gli altri elementi della card
+
+  .action-button {
+    background: transparent !important; // Rimuove sfondo
+    box-shadow: none !important;        // Rimuove ombra Material
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    min-width: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06); // Effetto hover
+    }
+
+    mat-icon {
+      font-size: 20px;
+      color: #333;
+    }
+  }
+}
+
+
+
+
+
 
   }
 
@@ -699,24 +738,24 @@
     transition: transform 0.3s ease, opacity 0.3s ease;
   }
 
-.upload-icon {
-  font-family: 'Material Icons' !important;
-  font-size: 48px;
-  font-style: normal;
-  font-weight: normal;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #4caf50;
-  height: 48px;
-  width: 48px;
-  text-align: center;
-  font-feature-settings: 'liga';               // ✅ Standard version
-  -webkit-font-feature-settings: 'liga';       // ✅ WebKit-prefixed version
-  -webkit-font-smoothing: antialiased;
-  transition: transform 0.3s ease, color 0.3s ease;
-}
+  .upload-icon {
+    font-family: 'Material Icons' !important;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4caf50;
+    height: 48px;
+    width: 48px;
+    text-align: center;
+    font-feature-settings: 'liga'; // ✅ Standard version
+    -webkit-font-feature-settings: 'liga'; // ✅ WebKit-prefixed version
+    -webkit-font-smoothing: antialiased;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
 
 
 
@@ -808,4 +847,56 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+
+
+//STILE PER IL MAT MENU SEMPRE FUORI
+//fuori da card actions
+// Applica gli stili **solo** al menu generato da .menu-card-actions
+// Stili base del menu principale e dei sottomenu
+::ng-deep .mat-mdc-menu-panel.menu-card-actions {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  min-width: 140px;
+  padding: 0.25rem 0;
+
+  .mat-mdc-menu-item {
+    font-size: 0.875rem;
+    color: #333;
+    padding: 0.5rem 1rem;
+
+    mat-icon {
+      font-size: 20px;
+      color: #4caf50;
+      margin-right: 8px;
+    }
+
+    &:hover {
+      background-color: rgba(76, 175, 80, 0.06);
+    }
+  }
+}
+
+// Variante specifica per il sottomenu "scarica"
+::ng-deep .mat-mdc-menu-panel.menu-card-actions.scarica {
+  .mat-mdc-menu-item mat-icon {
+    color: #2196f3; // blu
+  }
+
+  .mat-mdc-menu-item:hover {
+    background-color: rgba(33, 150, 243, 0.08);
+  }
+}
+
+// Variante specifica per il sottomenu "cancella"
+::ng-deep .mat-mdc-menu-panel.menu-card-actions.cancella {
+  .mat-mdc-menu-item mat-icon {
+    color: #f44336; // rosso
+  }
+
+  .mat-mdc-menu-item:hover {
+    background-color: rgba(244, 67, 54, 0.08);
+  }
 }

@@ -1,4 +1,4 @@
-<div class="dialog-content" >
+<div class="dialog-content">
 
   <!-- Spinner caricamento figli -->
   <div class="spinner-overlay" *ngIf="isUploading">
@@ -12,12 +12,16 @@
   </button>
 
   <!-- Griglia card -->
-  <div class="preview-container"  (click)="onChiudiMetaDati()">
+  <div class="preview-container" (click)="onChiudiMetaDati()">
 
-    <!-- CARD per ogni URL frontale -->
-    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale"
-        [class.expanded]="espandiMetaDati === url"
-         (click)="$event.stopPropagation()">
+    <!-- CARD per ogni URL frontale 
+    Perche stop propagation Perche quando clicco per espandere i metadati vieme abilitata la variabile espandiMetadati con la url corrente che va ad abilitare 
+    la classe expanded che chiude gli altri e visualizza solo quelli correnti alla chiusura la classe viene disabilitata
+    
+    Pero se clicco fuori la card voglio che si chiude tutto pero poi devo stoppare l'evento altrimenti non si aprono piu le card
+    -->
+    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale" [class.expanded]="espandiMetaDati === url"
+      (click)="$event.stopPropagation()">
       <div class="card-inner">
 
         <!-- Context della card -->
@@ -30,6 +34,41 @@
                - Frecce: visibili se esistono secondarie
           ========================================================== -->
           <section class="media-gallery">
+
+            <!-- PULSANTI PER AZIONI SU UNA SINGOLA CARD QUANDO CLICCO ESCONO VARIE OPZIONI CANCELLA E DOWNLOAD CARD-->
+            <!-- Pulsante azioni card -->
+            <div class="card-actions">
+              <!-- Pulsante menu -->
+              <button class="action-button" [matMenuTriggerFor]="menu" mat-icon-button>
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <!-- Menu principale -->
+              <mat-menu #menu="matMenu" class="menu-card-actions">
+                <button mat-menu-item [matMenuTriggerFor]="menuScarica">
+                  <mat-icon>download</mat-icon>
+                  <span>Scarica</span>
+                </button>
+                <button mat-menu-item [matMenuTriggerFor]="menuCancella">
+                  <mat-icon>delete</mat-icon>
+                  <span>Elimina</span>
+                </button>
+              </mat-menu>
+
+              <!-- Sottomenu scarica -->
+              <mat-menu #menuScarica="matMenu" class="menu-card-actions scarica">
+                <button mat-menu-item (click)="scaricaMedia('image')">Scarica immagine</button>
+                <button mat-menu-item (click)="scaricaMedia('video')">Scarica video</button>
+              </mat-menu>
+
+              <!-- Sottomenu cancella -->
+              <mat-menu #menuCancella="matMenu" class="menu-card-actions cancella">
+                    <button mat-menu-item (click)="cancellaMedia('image')">Cancella immagine</button>
+              </mat-menu>
+            </div>
+
+
+
             <!-- ===== Frecce (solo se esistono secondarie) ===== -->
             <ng-container *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
               <button class="gallery-nav-btn prev" mat-icon-button (click)="prevSecondaryImage(url)"
@@ -72,7 +111,7 @@
                   </video>
                 </ng-container>
                 <ng-template #frontaleVideo>
-                  <video class="gallery-media" [src]="url" controls playsinline preload="metadata">
+                  <video class="gallery-media" [src]="url" playsinline preload="metadata">
                   </video>
                 </ng-template>
               </ng-container>
@@ -90,30 +129,30 @@
                 </div>
                 <ng-container
                   *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0 && (currentSecondaryIndex[url] ?? -1) >= 0; else frontaleAudio">
-                  <audio class="audio-inline" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]" controls>
+                  <audio class="audio-inline" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]">
                   </audio>
                 </ng-container>
                 <ng-template #frontaleAudio>
-                  <audio class="audio-inline" [src]="url" controls>
+                  <audio class="audio-inline" [src]="url">
                   </audio>
                 </ng-template>
               </ng-container>
             </div>
 
             <!-- pulsante per espandere i metadata-->
-              <div class="metadata-toggle-container">
-                <p class="media-display-name-preview">{{ capitalizeFirstLetter(context.display_name || '') }}</p>
+            <div class="metadata-toggle-container">
+              <p class="media-display-name-preview">{{ capitalizeFirstLetter(context.display_name || '') }}</p>
 
-                <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati !== url"
-                  (click)="onEspandiMetadati(url)" matTooltip="Espandi Metadata" [matTooltipClass]="'tooltip-custom'">
-                  <mat-icon>expand_more</mat-icon>
-                </button>
+              <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati !== url"
+                (click)="onEspandiMetadati(url)" matTooltip="Espandi Metadata" [matTooltipClass]="'tooltip-custom'">
+                <mat-icon>expand_more</mat-icon>
+              </button>
 
-                <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati === url"
-                  (click)="onChiudiMetaDati()" matTooltip="Riduci Metadata" [matTooltipClass]="'tooltip-custom'">
-                  <mat-icon>expand_less</mat-icon>
-                </button>
-              </div>
+              <button class="toggle-metadata-btn show-btn" *ngIf="espandiMetaDati === url" (click)="onChiudiMetaDati()"
+                matTooltip="Riduci Metadata" [matTooltipClass]="'tooltip-custom'">
+                <mat-icon>expand_less</mat-icon>
+              </button>
+            </div>
 
 
           </section>
@@ -271,23 +310,19 @@
     </div>
 
     <!-- CARD upload/drag-and-drop -->
-<div class="upload-dropzone" 
-     (click)="apriPopUpUploadMedia()" 
-     [class.drag-over]="isDragging"
-     (dragenter)="onDragEnter($event)" 
-     (dragover)="onDragOver($event)" 
-     (dragleave)="onDragLeave($event)"
-     (drop)="onDrop($event)">
-  <div class="upload-content">
-    <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
-    <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
+    <div class="upload-dropzone" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
+      (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      <div class="upload-content">
+        <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
+        <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
 
-    <p class="upload-text" *ngIf="!isDragging">
-      Trascina qui i file<br><strong>oppure clicca</strong>
-    </p>
-    <p class="upload-text" *ngIf="isDragging">Rilascia i file per caricarli</p>
-  </div>
-</div>
+        <p class="upload-text" *ngIf="!isDragging">
+          Trascina qui i file<br><strong>oppure clicca</strong>
+        </p>
+        <p class="upload-text" *ngIf="isDragging">Rilascia i file per caricarli</p>
+      </div>
+    </div>
 
 
   </div>
