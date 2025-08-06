@@ -164,9 +164,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //carico le url frontali dai media input da dare in pasto al template
   mediasUrlsFrontale: string[] = []
 
-  //  Mappa di url no frontali ovvero, per ogni url non frontale associo un array di url non frontali
+  //  Mappa di url no frontali ovvero, per ogni url  frontale associo un array di url non frontali
   //  urlFrontale: [url1_nofrontale, url2_nofrontale, url3_nofrontale]
-mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
+  mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
 
   //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
   //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
@@ -202,11 +202,11 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
       // Estrae il percorso della cartella
       this.folderInput = this.inputFromFatherComponent.folder || this.folderSelezionata;
       console.log("Folder ricevuta in ingresso: ", this.folderInput);
-      
-      if(this.folderInput.toLocaleLowerCase().includes('config')){
+
+      if (this.folderInput.toLocaleLowerCase().includes('config')) {
         this.isConfigFolder = true;
         console.log("Cartella di config")
-      }else{
+      } else {
         this.isConfigFolder = false;
         console.log("Cartella normale")
       }
@@ -236,7 +236,7 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
 
 
       console.log("Url frontali recuperate: ", this.mediasUrlsFrontale.length);
-      console.log("Mappa Url non frontali recuperate: ", this.mapUrlsNoFrontali);
+      console.log("Mappa Url non frontali recuperate: ", JSON.stringify(this.mapUrlsNoFrontali));
 
       //ora ogni url frontale ha un suo context, per intederci ogni url frontale che è un immagine ha i suoi metadati
       //quindi creo una mappa inversa ovvero url frontale e metadati [url1, url2, url3] - [ctx1,ctx2,ctx3]
@@ -274,7 +274,7 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
 
     //primo caricamento quando home apre il pop up
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-
+          console.log("[EditorComponent] sto ricevendo i dati")
       if (data) {
         this.caricaMediaCollection(data);
       }
@@ -315,39 +315,39 @@ mapUrlsNoFrontali: { [urlFrontale: string]: string[] | undefined } = {};
   }
 
 
-/* PER GLI INDICI SECONDARI */
-currentSecondaryIndex: { [urlFrontale: string]: number | undefined } = {};
+  /* PER GLI INDICI SECONDARI */
+  currentSecondaryIndex: { [urlFrontale: string]: number | undefined } = {};
 
 
-private inizializzaIndiciSecondari(): void {
-  for (const url of this.mediasUrlsFrontale) {
-    // metti sempre un valore: -1 = frontale
-    this.currentSecondaryIndex[url] = -1;
+  private inizializzaIndiciSecondari(): void {
+    for (const url of this.mediasUrlsFrontale) {
+      // metti sempre un valore: -1 = frontale
+      this.currentSecondaryIndex[url] = -1;
+    }
   }
-}
 
-// PREV: -1 <- 0 <- 1 <- ... <- n-1 <- -1
-prevSecondaryImage(url: string): void {
-  const sec = this.mapUrlsNoFrontali[url] || [];
-  if (!sec.length) return;
+  // PREV: -1 <- 0 <- 1 <- ... <- n-1 <- -1
+  prevSecondaryImage(url: string): void {
+    const sec = this.mapUrlsNoFrontali[url] || [];
+    if (!sec.length) return;
 
-  const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
-  const prev = (curr + sec.length + 1) % (sec.length + 1) - 1;
-  this.currentSecondaryIndex[url] = prev;
-}
+    const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
+    const prev = (curr + sec.length + 1) % (sec.length + 1) - 1;
+    this.currentSecondaryIndex[url] = prev;
+  }
 
-// NEXT: -1 -> 0 -> 1 -> ... -> n-1 -> -1
-nextSecondaryImage(url: string): void {
-  const sec = this.mapUrlsNoFrontali[url] || [];
-  if (!sec.length) return;
+  // NEXT: -1 -> 0 -> 1 -> ... -> n-1 -> -1
+  nextSecondaryImage(url: string): void {
+    const sec = this.mapUrlsNoFrontali[url] || [];
+    if (!sec.length) return;
 
-  const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
-  const next = (curr + 2) % (sec.length + 1) - 1;
-  this.currentSecondaryIndex[url] = next;
-}
+    const curr = this.currentSecondaryIndex[url] ?? -1; // default frontale
+    const next = (curr + 2) % (sec.length + 1) - 1;
+    this.currentSecondaryIndex[url] = next;
+  }
 
 
-/* ---------------------------   */
+  /* ---------------------------   */
 
 
 
@@ -361,7 +361,7 @@ nextSecondaryImage(url: string): void {
   //restituisco array di urls no fronale entrano gli items ed esce una mappa urlFrontale - urlNoFrontali
   getMediaUrlsNoFrontale(items: MediaItems[]): { [urlFrontale: string]: string[] } {
     const mappa: { [urlFrontale: string]: string[] } = {};
-
+    console.log("Items miei: ", items)
     // Itero ogni oggetto MediaItem
     items.forEach(item => {
 
@@ -384,7 +384,6 @@ nextSecondaryImage(url: string): void {
 
 
     });
-
     return mappa;
   }
 
@@ -520,7 +519,7 @@ nextSecondaryImage(url: string): void {
     });
   }
 
-  //pop up per eliminare un media
+  //pop up per eliminare un media non serve piu al momento
   apriPopUpEliminaMedia(): void {
     // Recupero l'URL dell'immagine attualmente selezionata
     const mediaDaEliminare = this.inputFromFatherComponent;
@@ -620,19 +619,19 @@ nextSecondaryImage(url: string): void {
 
   //gestisco lo spinner con una variabile diversa
   isUploading: boolean = false;
-  
+
   //per attivare l'altro component a ricevere i dati
   showUploadComponent: boolean = false
-onDragEnter(event: DragEvent): void {
-  this.isDragging = true; // ✅ entri nel dropzone → attiva stile
-  console.log("Sono entrato nel drag");
-}
+  onDragEnter(event: DragEvent): void {
+    this.isDragging = true; // ✅ entri nel dropzone → attiva stile
+    console.log("Sono entrato nel drag");
+  }
 
-onDragOver(event: DragEvent): void {
-  this.isDragging = true; // ✅ continui a passare sopra → resta attivo
-  event.preventDefault(); // ✅ necessario per consentire il drop
-  console.log("Ora mi sto spostando nella drop area");
-}
+  onDragOver(event: DragEvent): void {
+    this.isDragging = true; // ✅ continui a passare sopra → resta attivo
+    event.preventDefault(); // ✅ necessario per consentire il drop
+    console.log("Ora mi sto spostando nella drop area");
+  }
 
   fileArray!: File[];               // Qui salvo i file validi da caricare
   tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
@@ -731,9 +730,9 @@ onDragOver(event: DragEvent): void {
 
     // Salvo i file validi in memoria per l’upload
     this.fileArray = filesValidi;
-// ✅ Mostro il componente per gestire l’upload
-this.showUploadComponent = true;
-this.isUploading = true;
+    // ✅ Mostro il componente per gestire l’upload
+    this.showUploadComponent = true;
+    this.isUploading = true;
     // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
   }
 
@@ -750,28 +749,28 @@ this.isUploading = true;
   uploadSuccess: boolean = false;
 
 
-gestisciChiusuraUpload(valore: boolean): void {
-  // Nasconde il componente di upload
-  this.showUploadComponent = false;
+  gestisciChiusuraUpload(valore: boolean): void {
+    // Nasconde il componente di upload
+    this.showUploadComponent = false;
 
-  // Ferma lo spinner
-  this.isUploading = false;
+    // Ferma lo spinner
+    this.isUploading = false;
 
-  // Disattiva qualsiasi stato di trascinamento residuo
-  this.isDragging = false;
+    // Disattiva qualsiasi stato di trascinamento residuo
+    this.isDragging = false;
 
-  // Mostra il messaggio di esito
-  if (valore) {
-    this.uploadSuccess = true; // ✅ Mostra icona success
+    // Mostra il messaggio di esito
+    if (valore) {
+      this.uploadSuccess = true; // ✅ Mostra icona success
 
-    // Dopo 2 secondi, torna a quella normale
-    setTimeout(() => this.uploadSuccess = false, 2000);
+      // Dopo 2 secondi, torna a quella normale
+      setTimeout(() => this.uploadSuccess = false, 2000);
 
-    this.mostraMessaggioSnakBar("File caricati correttamente.", false);
-  } else {
-    this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
+      this.mostraMessaggioSnakBar("File caricati correttamente.", false);
+    } else {
+      this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
+    }
   }
-}
 
 
   //snackbar
@@ -806,11 +805,11 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
   */
 
-private resetEditingStates(): void {
-  this.isAddingMetadataFromForm = false;
-  this.editMetadataInline = false;
-  this.campoInlineInEditing = null;
-}
+  private resetEditingStates(): void {
+    this.isAddingMetadataFromForm = false;
+    this.editMetadataInline = false;
+    this.campoInlineInEditing = null;
+  }
 
   //quando clicco su span devo poter visualizzare quel campo da editare mentre gli altri no
   campoInlineInEditing: string | null = null;
@@ -825,9 +824,9 @@ private resetEditingStates(): void {
   editMetaDataInline(contextFormatted: { key: string; label: string; value: string }, url: string): void {
 
 
-      this.resetEditingStates(); // 👈 disattiva tutto
+    this.resetEditingStates(); // 👈 disattiva tutto
 
-  this.editMetadataInline = true;
+    this.editMetadataInline = true;
 
     const campoId = `${url}_${contextFormatted.key}`; //cosi sono sicuro di prendere univocamente quella descrizione di quella url
     this.campoInlineInEditing = `${url}_${contextFormatted.key}`;
@@ -921,27 +920,27 @@ private resetEditingStates(): void {
     });
   }
 
-// Annulla l’editing del singolo metadato (nessuna persistenza)
-annullaValoreInline(context: MediaContext, key: string, url: string): void {
-  const campoId = `${url}_${key}`;
-  const control = this.formControlsInline[campoId];
+  // Annulla l’editing del singolo metadato (nessuna persistenza)
+  annullaValoreInline(context: MediaContext, key: string, url: string): void {
+    const campoId = `${url}_${key}`;
+    const control = this.formControlsInline[campoId];
 
-  if (control) {
-    // ripristina il valore originale mostrato prima dell'editing
-    const originale = context[key] ?? '';
-    control.setValue(originale, { emitEvent: false });
-    control.markAsPristine();
-    control.markAsUntouched();
-    control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    if (control) {
+      // ripristina il valore originale mostrato prima dell'editing
+      const originale = context[key] ?? '';
+      control.setValue(originale, { emitEvent: false });
+      control.markAsPristine();
+      control.markAsUntouched();
+      control.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+    }
+
+    // esci dalla modalità editing e pulisci il controllo inline
+    this.campoInlineInEditing = null;
+    delete this.formControlsInline[campoId];
+
+    // opzionale: piccolo feedback
+    // this.mostraMessaggioSnakBar(`Modifica di "${key}" annullata.`, false);
   }
-
-  // esci dalla modalità editing e pulisci il controllo inline
-  this.campoInlineInEditing = null;
-  delete this.formControlsInline[campoId];
-
-  // opzionale: piccolo feedback
-  // this.mostraMessaggioSnakBar(`Modifica di "${key}" annullata.`, false);
-}
 
 
 
@@ -1037,16 +1036,16 @@ annullaValoreInline(context: MediaContext, key: string, url: string): void {
   //array di form group di metadati dinamici
   metadataFormArray: FormArray = new FormArray([this.metadataFormGroup]);
 
- 
 
-currentMetadataTargetUrl: string | null | undefined = null;
- isAddingMetadataFromForm: boolean = false;
-//inizializza il gruppo vuoto 
+
+  currentMetadataTargetUrl: string | null | undefined = null;
+  isAddingMetadataFromForm: boolean = false;
+  //inizializza il gruppo vuoto 
   aggiungiMetadati(url: string) {
-  this.resetEditingStates(); // 👈 disattiva tutto
+    this.resetEditingStates(); // 👈 disattiva tutto
 
-  this.currentMetadataTargetUrl = url;
-  this.isAddingMetadataFromForm = true;
+    this.currentMetadataTargetUrl = url;
+    this.isAddingMetadataFromForm = true;
 
     //inizio a creare il form group
     /* non creo una mappa url form group anche perche viene modificata una form per volta con  metadataFormByUrl: Record<string, FormGroup> = {}; */
@@ -1058,110 +1057,146 @@ currentMetadataTargetUrl: string | null | undefined = null;
   }
 
   //setta l'array
- salvaMetadato(url: string) {
-  // valori dal form
-  const keyRaw = (this.metadataFormGroup.get('key')?.value ?? '').toString().toLowerCase();
-  const valueRaw = (this.metadataFormGroup.get('valore')?.value ?? '').toString().toLowerCase();
+  salvaMetadato(url: string) {
+    // valori dal form
+    const keyRaw = (this.metadataFormGroup.get('key')?.value ?? '').toString().toLowerCase();
+    const valueRaw = (this.metadataFormGroup.get('valore')?.value ?? '').toString().toLowerCase();
 
-  const keyInput = keyRaw.trim();
-  const valueInput = valueRaw.trim();
+    const keyInput = keyRaw.trim();
+    const valueInput = valueRaw.trim();
 
-// 1) entrambi i campi devono essere valorizzati (con messaggi specifici)
-const isKeyEmpty = !keyInput;
-const isValueEmpty = !valueInput;
+    // 1) entrambi i campi devono essere valorizzati (con messaggi specifici)
+    const isKeyEmpty = !keyInput;
+    const isValueEmpty = !valueInput;
 
-if (isKeyEmpty && isValueEmpty) {
-  this.mostraMessaggioSnakBar('Compila sia entrambe le sezioni.', true);
-  return;
-}
-if (isKeyEmpty) {
-  this.mostraMessaggioSnakBar('Devi inserire una chiave.', true);
-  return;
-}
-if (isValueEmpty) {
-  this.mostraMessaggioSnakBar(`Devi inserire un valore da associare a "${keyInput.toUpperCase()}"`, true);
-  return;
-}
-
-  // 2) normalizzazione chiave
-  let keyNorm = keyInput.toLowerCase();
-  if (keyNorm === 'nome') keyNorm = 'display_name';
-  else if (keyNorm === 'tipo') keyNorm = 'type';
-
-  // 3) trova il context della card target
-  const item = this.itemsInput
-    .find(i => i.media?.some(m => m.url === url && m.angolazione === 'frontale'));
-
-  if (!item) {
-    this.mostraMessaggioSnakBar('Elemento non trovato per l’URL selezionato.', true);
-    return;
-  }
-
-  const context = item.context ?? {};
-  const keysTrovate = Object.keys(context).map(k => k.toLowerCase());
-
-  // 4) check duplicati
-  if (keysTrovate.includes(keyNorm)) {
-    const userEcho = keyNorm === 'display_name' ? 'Nome' : keyNorm === 'type' ? 'Tipo' : keyInput;
-    this.mostraMessaggioSnakBar(`Non puoi inserire "${userEcho.toUpperCase()}": esiste già.`, true);
-    return;
-  }
-
-  // 5) salvataggio per la sola card target aggiornando il context
-  const nuovoContext = item.context = { ...context, [keyNorm]: valueInput };
-  console.log("Nuovo context: ", nuovoContext);
-
-  this.adminService.updateImageMetadata(url,nuovoContext,this.isConfigFolder).subscribe({
-        next: (data) => {
-      // OK: aggiorna UI/stato locale se serve
-      this.mostraMessaggioSnakBar('Metadato salvato correttamente.', false);
-      this.sharedService.notifyConfigCacheIsChanged(); //notifico l'app component
-      // chiudi form di aggiunta
-      this.isAddingMetadataFromForm = false;
-      this.currentMetadataTargetUrl = null;
-      this.metadataFormGroup.reset({ key: '', valore: '' });
-    },
-    error: (err) => {
-      console.error('Errore updateImageMetadata', err);
-      this.mostraMessaggioSnakBar('Errore nel salvataggio dei metadati.', true);
+    if (isKeyEmpty && isValueEmpty) {
+      this.mostraMessaggioSnakBar('Compila sia entrambe le sezioni.', true);
+      return;
     }
-  })
+    if (isKeyEmpty) {
+      this.mostraMessaggioSnakBar('Devi inserire una chiave.', true);
+      return;
+    }
+    if (isValueEmpty) {
+      this.mostraMessaggioSnakBar(`Devi inserire un valore da associare a "${keyInput.toUpperCase()}"`, true);
+      return;
+    }
 
-  // 6) chiusura e reset dello staging
-  this.isAddingMetadataFromForm = false;
-  this.currentMetadataTargetUrl = undefined;
-  this.metadataFormGroup.reset({ key: '', valore: '' });
-}
+    // 2) normalizzazione chiave
+    let keyNorm = keyInput.toLowerCase();
+    if (keyNorm === 'nome') keyNorm = 'display_name';
+    else if (keyNorm === 'tipo') keyNorm = 'type';
 
-annullaAggiunta(): void {
-  // chiudi la mini-form e pulisci lo stato
-  this.isAddingMetadataFromForm = false;
-  this.currentMetadataTargetUrl = null;           // se tipizzata string | null
-  this.metadataFormGroup.reset({ key: '', valore: '' });
+    // 3) trova il context della card target
+    const item = this.itemsInput
+      .find(i => i.media?.some(m => m.url === url && m.angolazione === 'frontale'));
 
-  // opzionale: feedback UI
-  // this.mostraMessaggioSnakBar('Aggiunta annullata.', false);
-}
+    if (!item) {
+      this.mostraMessaggioSnakBar('Elemento non trovato per l’URL selezionato.', true);
+      return;
+    }
 
-//sono sopra i metadata di quella url pero??
-espandiMetaDati: string | null = null;
-onEspandiMetadati(url: string){
-  this.espandiMetaDati = url;
-}
+    const context = item.context ?? {};
+    const keysTrovate = Object.keys(context).map(k => k.toLowerCase());
 
-onChiudiMetaDati(){
-  this.espandiMetaDati = null;
-}
+    // 4) check duplicati
+    if (keysTrovate.includes(keyNorm)) {
+      const userEcho = keyNorm === 'display_name' ? 'Nome' : keyNorm === 'type' ? 'Tipo' : keyInput;
+      this.mostraMessaggioSnakBar(`Non puoi inserire "${userEcho.toUpperCase()}": esiste già.`, true);
+      return;
+    }
+
+    // 5) salvataggio per la sola card target aggiornando il context
+    const nuovoContext = item.context = { ...context, [keyNorm]: valueInput };
+    console.log("Nuovo context: ", nuovoContext);
+
+    this.adminService.updateImageMetadata(url, nuovoContext, this.isConfigFolder).subscribe({
+      next: (data) => {
+        // OK: aggiorna UI/stato locale se serve
+        this.mostraMessaggioSnakBar('Metadato salvato correttamente.', false);
+        this.sharedService.notifyConfigCacheIsChanged(); //notifico l'app component
+        // chiudi form di aggiunta
+        this.isAddingMetadataFromForm = false;
+        this.currentMetadataTargetUrl = null;
+        this.metadataFormGroup.reset({ key: '', valore: '' });
+      },
+      error: (err) => {
+        console.error('Errore updateImageMetadata', err);
+        this.mostraMessaggioSnakBar('Errore nel salvataggio dei metadati.', true);
+      }
+    })
+
+    // 6) chiusura e reset dello staging
+    this.isAddingMetadataFromForm = false;
+    this.currentMetadataTargetUrl = undefined;
+    this.metadataFormGroup.reset({ key: '', valore: '' });
+  }
+
+  annullaAggiunta(): void {
+    // chiudi la mini-form e pulisci lo stato
+    this.isAddingMetadataFromForm = false;
+    this.currentMetadataTargetUrl = null;           // se tipizzata string | null
+    this.metadataFormGroup.reset({ key: '', valore: '' });
+
+    // opzionale: feedback UI
+    // this.mostraMessaggioSnakBar('Aggiunta annullata.', false);
+  }
+
+  //sono sopra i metadata di quella url pero??
+  espandiMetaDati: string | null = null;
+  onEspandiMetadati(url: string) {
+    this.espandiMetaDati = url;
+  }
+
+  onChiudiMetaDati() {
+    this.espandiMetaDati = null;
+  }
 
 
 
-scaricaMedia(a: string){
+  scaricaMedia(a: string) {
 
-}
+  }
 
-cancellaMedia(a: string){
-  
-}
+  cancellaMedia(url: string, all: boolean) {
+    //se all è true allora cancella tutto
+    /*dalla url frontale in ingresso recuperiamo le url non frontali, passiamo all adminService.deleteImages(arrayDiurl)
+    e mandiamo la notifica all app component*/
+
+    let urlOrUrlsDaEliminare: string[] = [];
+    if (all) {
+      const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
+      console.log("Di seguito le url non frontali da eliminare: ", urlsNoFrontali);
+      console.log("Di seguito l'url frontale da eliminare: ", url);
+
+      urlOrUrlsDaEliminare = [...urlsNoFrontali, url]; //  Crea nuovo array con tutte le URL
+      console.log("Tutte le url da eliminare sono: ", urlOrUrlsDaEliminare);
+
+
+    } else {
+      urlOrUrlsDaEliminare = [url]
+      console.log("Cancelliamo solo questa url: ", urlOrUrlsDaEliminare)
+    }
+
+    if (urlOrUrlsDaEliminare.length > 0) {
+      console.log("Procedo con la cancellazione");
+      this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
+        next: (response) => {
+          console.log("Cancellazione riuscita:", response);
+          this.mostraMessaggioSnakBar("Cancellazione avvenuta con successo, MEDIA ELIMINATI: " + urlOrUrlsDaEliminare.length , false);
+
+          this.sharedService.notifyConfigCacheIsChanged();
+          // eventuale logica successiva, ad esempio aggiornare la UI
+        },
+        error: (err) => {
+          console.error("Errore durante la cancellazione:", err);
+          this.mostraMessaggioSnakBar("Errore durante l'eliminazione" , true);
+          // mostrare uno snackbar o messaggio di errore
+        }
+      });
+    }
+
+  }
 
 
 }
