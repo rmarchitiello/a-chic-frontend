@@ -55,15 +55,17 @@
                 </button>
               </mat-menu>
 
-              <!-- Sottomenu scarica -->
+              <!-- Sottomenu scarica
+               fa comparire il tasto di scaricare tutti i media solo se ci sono anche altre angolazioni -->
               <mat-menu #menuScarica="matMenu" class="menu-card-actions scarica">
-                <button mat-menu-item (click)="scaricaMedia('image')">Scarica immagine</button>
-                <button mat-menu-item (click)="scaricaMedia('video')">Scarica video</button>
+                <button mat-menu-item (click)="scaricaMedia('image')">Scarica il media corrente</button>
+                <button mat-menu-item *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0" (click)="scaricaMedia('image')">Scarica tutti i media</button>
               </mat-menu>
 
               <!-- Sottomenu cancella -->
               <mat-menu #menuCancella="matMenu" class="menu-card-actions cancella">
-                    <button mat-menu-item (click)="cancellaMedia('image')">Cancella immagine</button>
+                    <button mat-menu-item (click)="cancellaMedia('image')">Cancella il media corrente</button>
+                    <button mat-menu-item *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0" (click)="cancellaMedia('image')">Cancella il media corrente</button>
               </mat-menu>
             </div>
 
