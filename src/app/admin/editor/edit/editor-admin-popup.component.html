@@ -15,7 +15,8 @@
   <div class="preview-container">
 
     <!-- CARD per ogni URL frontale -->
-    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale">
+    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale"
+        [class.expanded]="espandiMetaDati === url">
       <div class="card-inner">
 
         <!-- Context della card -->
