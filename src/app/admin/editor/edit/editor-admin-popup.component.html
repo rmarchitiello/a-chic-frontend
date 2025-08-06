@@ -279,7 +279,9 @@
      (dragleave)="onDragLeave($event)"
      (drop)="onDrop($event)">
   <div class="upload-content">
-    <mat-icon class="upload-icon">cloud_upload</mat-icon>
+    <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
+    <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
+
     <p class="upload-text" *ngIf="!isDragging">
       Trascina qui i file<br><strong>oppure clicca</strong>
     </p>

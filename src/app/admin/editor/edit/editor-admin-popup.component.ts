@@ -745,6 +745,10 @@ this.isUploading = true;
     this.isDragging = false;
   }
 
+  //serve per cambiare l'icone da cloud_upload a cloud_upload_done per poi ritornare dopo 2 secondi a quella normale
+  uploadSuccess: boolean = false;
+
+
 gestisciChiusuraUpload(valore: boolean): void {
   // Nasconde il componente di upload
   this.showUploadComponent = false;
@@ -757,6 +761,10 @@ gestisciChiusuraUpload(valore: boolean): void {
 
   // Mostra il messaggio di esito
   if (valore) {
+    this.uploadSuccess = true; // ✅ Mostra icona success
+
+    // Dopo 2 secondi, torna a quella normale
+    setTimeout(() => this.uploadSuccess = false, 2000);
     this.mostraMessaggioSnakBar("File caricati correttamente.", false);
   } else {
     this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
