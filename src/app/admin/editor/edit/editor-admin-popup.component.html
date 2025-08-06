@@ -1,4 +1,4 @@
-<div class="dialog-content">
+<div class="dialog-content" >
 
   <!-- Spinner caricamento figli -->
   <div class="spinner-overlay" *ngIf="isDragging">
@@ -12,11 +12,12 @@
   </button>
 
   <!-- Griglia card -->
-  <div class="preview-container">
+  <div class="preview-container"  (click)="onChiudiMetaDati()">
 
     <!-- CARD per ogni URL frontale -->
     <div class="preview-card" *ngFor="let url of mediasUrlsFrontale"
-        [class.expanded]="espandiMetaDati === url">
+        [class.expanded]="espandiMetaDati === url"
+         (click)="$event.stopPropagation()">
       <div class="card-inner">
 
         <!-- Context della card -->
