@@ -38,6 +38,7 @@
             <!-- PULSANTI PER AZIONI SU UNA SINGOLA CARD QUANDO CLICCO ESCONO VARIE OPZIONI CANCELLA E DOWNLOAD CARD-->
             <!-- Pulsante azioni card -->
             <div class="card-actions">
+              <mat-spinner *ngIf="isDeletingMap[url]" diameter="24"></mat-spinner>
               <!-- Pulsante menu -->
               <button class="action-button" [matMenuTriggerFor]="menu" mat-icon-button>
                 <mat-icon>more_vert</mat-icon>

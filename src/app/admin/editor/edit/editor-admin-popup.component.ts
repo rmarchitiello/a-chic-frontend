@@ -528,7 +528,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
   //pop up per eliminare un media non serve piu al momento
-  apriPopUpEliminaMedia(): void {
+  /* apriPopUpEliminaMedia(): void {
     // Recupero l'URL dell'immagine attualmente selezionata
     const mediaDaEliminare = this.inputFromFatherComponent;
     console.log("Media da eliminare: ", mediaDaEliminare)
@@ -538,9 +538,6 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       disableClose: false,
       data: mediaDaEliminare
     });
-
-
-
 
     // Dopo la chiusura del dialog (conferma o annulla)
     dialogRef.afterClosed().subscribe((eliminatoConSuccesso: boolean) => {
@@ -578,7 +575,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
-
+*/
 
 
 
@@ -1166,11 +1163,14 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
   }
 
+  //attiva uno spinner di eliminazione spinner solo di quella url
+  isDeletingMap: { [url: string]: boolean } = {};
+
   cancellaMedia(url: string, all: boolean) {
     //se all è true allora cancella tutto
     /*dalla url frontale in ingresso recuperiamo le url non frontali, passiamo all adminService.deleteImages(arrayDiurl)
     e mandiamo la notifica all app component*/
-
+    this.isDeletingMap[url] = true;
     let urlOrUrlsDaEliminare: string[] = [];
     if (all) {
       const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
@@ -1194,15 +1194,21 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
           this.mostraMessaggioSnakBar("Cancellazione avvenuta con successo, MEDIA ELIMINATI: " + urlOrUrlsDaEliminare.length , false);
 
           this.sharedService.notifyConfigCacheIsChanged();
+          this.isDeletingMap[url] = false;
           // eventuale logica successiva, ad esempio aggiornare la UI
         },
         error: (err) => {
           console.error("Errore durante la cancellazione:", err);
           this.mostraMessaggioSnakBar("Errore durante l'eliminazione" , true);
+          this.isDeletingMap[url] = false;
           // mostrare uno snackbar o messaggio di errore
         }
       });
+    }else{
+        this.isDeletingMap[url] = false;
     }
+
+    
 
   }
 
