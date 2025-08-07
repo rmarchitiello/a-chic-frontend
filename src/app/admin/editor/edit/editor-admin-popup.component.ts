@@ -803,7 +803,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       panelClassCustom = 'snackbar-ok';
     }
     this.snackBar.open(messaggio, 'Chiudi', {
-      duration: 4000, // durata in ms
+      duration: 2000, // durata in ms
       panelClass: panelClassCustom, // classe CSS personalizzata
       horizontalPosition: 'center',
       verticalPosition: 'top'
