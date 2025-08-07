@@ -1395,5 +1395,10 @@ private getEstensione(url: string): string {
   return parts.length > 1 ? parts.pop()! : '';
 }
 
+//metodo che consente di trasformare un media da altra angolazione a frontale e quella frontale diventa altra
+//questo perche devo avere una sola angolazione
+rendiMediaFrontale(){
+
+}
 
 }

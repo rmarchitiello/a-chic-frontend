@@ -97,6 +97,69 @@
       background: transparent; // Nessun colore di sfondo
       overflow: hidden;
       border: none; // ✅ Rimuove il bordo
+
+
+      /* ──────────────────────────────────────────────────────────────
+   Contenitore in alto a sinistra dell’immagine
+   ──────────────────────────────────────────────────────────── */
+.contenitore-anteprima-altre-angolazioni {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 3;
+
+  /* stesse dimensioni per badge e bottone, affiancati se servisse */
+  display: inline-flex;
+  gap: 6px;
+
+  max-width: 100%;
+  pointer-events: none;   /* clic solo sugli elementi interni */
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Stile pill semi-trasparente condiviso
+   ──────────────────────────────────────────────────────────── */
+.anteprima-badge,
+.button-rendi-anteprima {
+  pointer-events: auto;        /* ri-abilita il clic su pulsante */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2px 8px;            /* più compatto e meno invasivo */
+  font-size: 0.6875rem;        /* ~11 px */
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+
+  color: #1f2937;
+  background: rgba(255, 255, 255, 0.65);   /* translucido */
+  backdrop-filter: blur(4px);               /* leggera sfocatura sotto */
+  border: 1px solid rgba(0, 0, 0, 0.12);    /* bordo discreto */
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ──────────────────────────────────────────────────────────────
+   Interattività del pulsante
+   ──────────────────────────────────────────────────────────── */
+.button-rendi-anteprima {
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.15);
+  }
+}
+
+
+
     }
 
 
@@ -292,39 +355,6 @@
     margin-top: 6px;
   }
 
-
-
-
-
-  .front-badge {
-    position: absolute;
-    left: 8px;
-    top: 8px;
-    z-index: 3;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    font-size: .75rem;
-    font-weight: 600;
-    color: #1f2937;
-    background: linear-gradient(180deg, rgba(255, 255, 255, .96), rgba(255, 255, 255, .86));
-    border: 1px solid #081530;
-    border-radius: 999px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #4f46e5;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, .2);
-    }
-  }
-
-  .frontale-badge {
-    @extend .front-badge;
-  }
 
 
   /* ====== METADATA ====== */

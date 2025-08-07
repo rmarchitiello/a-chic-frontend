@@ -59,7 +59,8 @@
               <!-- Sottomenu scarica
                fa comparire il tasto di scaricare tutti i media solo se ci sono anche altre angolazioni -->
               <mat-menu #menuScarica="matMenu" class="menu-card-actions scarica">
-                <button mat-menu-item (click)="scaricaMedia(getUrlCorrente(url),false,  context.display_name )">Scarica il media corrente</button>
+                <button mat-menu-item (click)="scaricaMedia(getUrlCorrente(url),false,  context.display_name )">Scarica
+                  il media corrente</button>
                 <button mat-menu-item *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0"
                   (click)="scaricaMedia(url,true, context.display_name)">Scarica tutto</button>
               </mat-menu>
@@ -95,11 +96,24 @@
             </ng-container>
             <div class="gallery-viewport" [ngSwitch]="context.type || 'image'">
 
-              <!-- identifico il media frontale -->
-              <span class="front-badge"
-                *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
-                <span class="dot"></span> Frontale
-              </span>
+              <!-- identifico il media frontale l indice frontale ha come indice -1  
+               Cosi posso scegliere quale media rendere fronale-->
+              <!-- Identifico il media frontale – l’indice frontale è -1 -->
+              <div class="contenitore-anteprima-altre-angolazioni" >
+                <span class="anteprima-badge" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
+                  Anteprima
+                </span>
+
+                <button *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
+                  type="button" class="button-rendi-anteprima" (click)="rendiMediaFrontale()">
+                  Imposta come anteprima
+                </button>
+              </div>
+
+
+
+
+
               <!-- ===== IMMAGINE ===== -->
               <ng-container *ngSwitchCase="'image'">
                 <!-- Se esiste almeno una secondaria e l'indice è valido (>= 0) uso la secondaria -->
