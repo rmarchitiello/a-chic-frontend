@@ -105,7 +105,7 @@
                 </span>
 
                 <button *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
-                  type="button" class="button-rendi-anteprima" (click)="rendiMediaFrontale()">
+                  type="button" class="button-rendi-anteprima" (click)="rendiMediaFrontale(url,getUrlCorrente(url))">
                   Imposta come anteprima
                 </button>
               </div>

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { MediaContext } from '../pages/home/home.component';
-
+import { UpdateAngolazioneMedia } from '../admin/editor/edit/editor-admin-popup.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,6 +14,7 @@ export class AdminService {
   private media = '/media-folder';
   private mediaImages = '/media-images'
   private mediaUpload = '/media-upload'
+  private mediaUploadAngolazione = '/media-update-angolazione'
   constructor(private http: HttpClient) {}
 
 
@@ -168,6 +169,19 @@ uploadMedia(formData: FormData, config?: boolean): Observable<any> {
   });
 }
 
+//da cambiare in obbligatorio config per capire se e cartella config o no
+updateAngolazioneMedia(request: UpdateAngolazioneMedia, config: boolean): Observable<any> {
+  const url = `${this.baseUrl}${this.mediaUploadAngolazione}`;
+  let params = new HttpParams();
+  if(config){
+         params = new HttpParams().set('config', config);
+
+  }
+const body = request;
+
+  console.log("Request inviata per aggiornare l'angolazione", JSON.stringify(body));
+  return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
+}
 
 
 

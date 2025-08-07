@@ -116,6 +116,15 @@ Ora, per utilizzare le funzionalità del component di upload utilizzo l'approcci
 ovvero l'Editor mediante @Input nel figlio passa i campi in questo caso la folder e i file.
 */
 
+export interface UpdateAngolazioneMedia {
+  /** URL che deve diventare il nuovo frontale */
+  urlDaRendereFrontale: string;
+
+  /** Elenco completo di tutti gli URL (frontale attuale + secondari) */
+  urlsTotali: string[];
+}
+
+
 @Component({
   selector: 'app-carosello-edit',
   standalone: true,
@@ -1315,6 +1324,7 @@ Il valore è un numero:
 
 
 
+  //prende l url frontale e recupera in base all indice quella di altra angolazione
   getUrlCorrente(urlFrontale: string): string {
     const index = this.indiciAngolazioniMap[urlFrontale] ?? -1;
 
@@ -1343,62 +1353,95 @@ Il valore è un numero:
  * • Se all === false  ⇒ scarica solo l’URL passato (già frontale o secondario).
  * Il nome file può essere personalizzato con displayName.
  */
-scaricaMedia(url: string, all: boolean, displayName?: string): void {
-  let urlsDaScaricare: string[] = [];
+  scaricaMedia(url: string, all: boolean, displayName?: string): void {
+    let urlsDaScaricare: string[] = [];
 
-  if (all) {
-    // Recupera le angolazioni secondarie legate alla stessa card
-    const secondarie: string[] = this.mapUrlsNoFrontali?.[url] || [];
-    // Includi anche l’immagine (o video/audio) frontale
-    urlsDaScaricare = [...secondarie, url];
-  } else {
-    // Scarica solo l’asset corrente
-    urlsDaScaricare = [url];
+    if (all) {
+      // Recupera le angolazioni secondarie legate alla stessa card
+      const secondarie: string[] = this.mapUrlsNoFrontali?.[url] || [];
+      // Includi anche l’immagine (o video/audio) frontale
+      urlsDaScaricare = [...secondarie, url];
+    } else {
+      // Scarica solo l’asset corrente
+      urlsDaScaricare = [url];
+    }
+
+    // Avvio download per ciascun URL
+    urlsDaScaricare.forEach((currentUrl, index) => {
+      // Se ti serve costruire un nome file con l’indice:
+      const nomeFile = `${displayName}_${index}`;
+      this.scaricaAsset(currentUrl, nomeFile);
+    });
   }
 
-  // Avvio download per ciascun URL
-urlsDaScaricare.forEach((currentUrl, index) => {
-  // Se ti serve costruire un nome file con l’indice:
-  const nomeFile = `${displayName}_${index}`;
-  this.scaricaAsset(currentUrl, nomeFile);
-});
-}
+  /* ------------------------------------------------------------------ */
+  /* Funzioni di supporto                                               */
+  /* ------------------------------------------------------------------ */
 
-/* ------------------------------------------------------------------ */
-/* Funzioni di supporto                                               */
-/* ------------------------------------------------------------------ */
+  /** Scarica il singolo asset tramite fetch + link simulato */
+  private scaricaAsset(url: string, displayName?: string): void {
+    const estensione = this.getEstensione(url);
+    // Usa displayName se presente, altrimenti “File”
+    const nomeFile = displayName ? `${displayName}.${estensione}` : `File.${estensione}`;
 
-/** Scarica il singolo asset tramite fetch + link simulato */
-private scaricaAsset(url: string, displayName?: string): void {
-  const estensione = this.getEstensione(url);
-  // Usa displayName se presente, altrimenti “File”
-  const nomeFile = displayName ? `${displayName}.${estensione}` : `File.${estensione}`;
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.blob();
+      })
+      .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = nomeFile;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      })
+      .catch(err => console.error(`Download fallito per ${url}`, err));
+  }
 
-  fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.blob();
-    })
-    .then(blob => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = nomeFile;
-      link.click();
-      URL.revokeObjectURL(link.href);
-    })
-    .catch(err => console.error(`Download fallito per ${url}`, err));
-}
+  /** Estrae l’estensione (jpg, mp4, ecc.) dall’URL Cloudinary */
+  private getEstensione(url: string): string {
+    const parts = url.split('?')[0].split('.');
+    return parts.length > 1 ? parts.pop()! : '';
+  }
 
-/** Estrae l’estensione (jpg, mp4, ecc.) dall’URL Cloudinary */
-private getEstensione(url: string): string {
-  const parts = url.split('?')[0].split('.');
-  return parts.length > 1 ? parts.pop()! : '';
-}
+  //metodo che consente di trasformare un media da altra angolazione a frontale e quella frontale diventa altra
+  //questo perche devo avere una sola angolazione
+  /**
+   * Promuove un media da secondario a frontale.
+   */
+  rendiMediaFrontale(url: string, urlDaRendereFrontale: string): void {
+    console.log('Metodo invocato per trasformare un media in un frontale');
 
-//metodo che consente di trasformare un media da altra angolazione a frontale e quella frontale diventa altra
-//questo perche devo avere una sola angolazione
-rendiMediaFrontale(){
+    // Recupera l’array di URL secondari; se la chiave non esiste, usa un array vuoto.
+    const urlsNoFrontali = this.mapUrlsNoFrontali[url] ?? [];
+    console.log('urls no frontali recuperate', JSON.stringify(urlsNoFrontali));
 
-}
+    const obj: UpdateAngolazioneMedia = {
+      urlDaRendereFrontale,
+      // L’array completo deve contenere prima l’URL frontale attuale
+      // seguito dagli URL secondari, evitando duplicati.
+      urlsTotali: [url, ...urlsNoFrontali.filter(u => u !== url)]
+    };
+
+    console.log('JSON da inviare al backend', JSON.stringify(obj));
+
+    this.adminService.updateAngolazioneMedia(obj, this.isConfigFolder).subscribe({
+      next: (data) => {
+        console.log('Aggiornamento completato con successo:', data);
+        this.mostraMessaggioSnakBar('Anteprima impostata correttamente', false);
+      },
+      error: (error) => {
+        console.error('Si è verificato un errore durante l’aggiornamento:', error);
+        this.mostraMessaggioSnakBar('Errore durante l’impostazione dell’anteprima', true);
+      }
+    });
+
+
+    // Esempio di chiamata al servizio:
+    // this.mediaService.setFrontale(obj).subscribe(...);
+  }
+
+
 
 }
