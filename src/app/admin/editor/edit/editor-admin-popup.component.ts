@@ -275,7 +275,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
     //primo caricamento quando home apre il pop up
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-          console.log("[EditorComponent] sto ricevendo i dati")
+      console.log("[EditorComponent] sto ricevendo i dati")
       if (data) {
         this.caricaMediaCollection(data);
       }
@@ -306,9 +306,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
         else {
           console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
         }
-      } else{
+      } else {
 
-          console.warn("Nessuna media collection ricevuta.");
+        console.warn("Nessuna media collection ricevuta.");
         this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
 
         //  Anche se non c'è nulla, richiama per resettare l'interfaccia e le variabili
@@ -335,29 +335,29 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     }
   }
 
-prevSecondaryImage(url: string): void {
-  const secondarie = this.mapUrlsNoFrontali[url] || [];
-  if (!secondarie.length) return;
+  prevSecondaryImage(url: string): void {
+    const secondarie = this.mapUrlsNoFrontali[url] || [];
+    if (!secondarie.length) return;
 
-  const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
-  const prevIndex = (currentIndex + secondarie.length + 1) % (secondarie.length + 1) - 1;
+    const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
+    const prevIndex = (currentIndex + secondarie.length + 1) % (secondarie.length + 1) - 1;
 
-  // Aggiorna entrambe le mappe
-  this.currentSecondaryIndex[url] = prevIndex;
-  this.indiciAngolazioniMap[url] = prevIndex;
-}
+    // Aggiorna entrambe le mappe
+    this.currentSecondaryIndex[url] = prevIndex;
+    this.indiciAngolazioniMap[url] = prevIndex;
+  }
 
-nextSecondaryImage(url: string): void {
-  const secondarie = this.mapUrlsNoFrontali[url] || [];
-  if (!secondarie.length) return;
+  nextSecondaryImage(url: string): void {
+    const secondarie = this.mapUrlsNoFrontali[url] || [];
+    if (!secondarie.length) return;
 
-  const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
-  const nextIndex = (currentIndex + 2) % (secondarie.length + 1) - 1;
+    const currentIndex = this.currentSecondaryIndex[url] ?? -1; // -1 = frontale
+    const nextIndex = (currentIndex + 2) % (secondarie.length + 1) - 1;
 
-  // Aggiorna entrambe le mappe
-  this.currentSecondaryIndex[url] = nextIndex;
-  this.indiciAngolazioniMap[url] = nextIndex;
-}
+    // Aggiorna entrambe le mappe
+    this.currentSecondaryIndex[url] = nextIndex;
+    this.indiciAngolazioniMap[url] = nextIndex;
+  }
 
 
 
@@ -1165,9 +1165,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
 
 
-  scaricaMedia(a: string) {
 
-  }
 
   //attiva uno spinner di eliminazione spinner solo di quella url
   isDeletingMap: { [url: string]: boolean } = {};
@@ -1210,132 +1208,191 @@ Il valore è un numero:
 //  0, 1, 2... se si sta visualizzando una delle immagini secondarie
   */
 
-/* Funzione che a partire da this.mapUrlsNoFrontali crea la mappa con gli indici per capire a quale non frontale corrisponde */
+  /* Funzione che a partire da this.mapUrlsNoFrontali crea la mappa con gli indici per capire a quale non frontale corrisponde */
 
-/**
- * Crea una mappa che tiene traccia dell'indice attivo corrente
- * per ciascuna URL frontale nella mappa this.mapUrlsNoFrontali.
- *
- * Il valore iniziale per ogni voce è 0.
- * 
- * chiamo in on init la this.inizializzaIndiceAngolazioni();
- per creare gli indici
- */
-indiciAngolazioniMap: { [urlFrontale: string]: number } = {};
+  /**
+   * Crea una mappa che tiene traccia dell'indice attivo corrente
+   * per ciascuna URL frontale nella mappa this.mapUrlsNoFrontali.
+   *
+   * Il valore iniziale per ogni voce è 0.
+   * 
+   * chiamo in on init la this.inizializzaIndiceAngolazioni();
+   per creare gli indici
+   */
+  indiciAngolazioniMap: { [urlFrontale: string]: number } = {};
 
-inizializzaIndiceAngolazioni(): void {
-  this.indiciAngolazioniMap = {};
+  inizializzaIndiceAngolazioni(): void {
+    this.indiciAngolazioniMap = {};
 
-  for (const urlFrontale in this.mapUrlsNoFrontali) {
-    if (this.mapUrlsNoFrontali.hasOwnProperty(urlFrontale)) {
-      // Per ogni URL frontale inizializza l'indice corrente a 0
-      this.indiciAngolazioniMap[urlFrontale] = -1; //immagine fronale
+    for (const urlFrontale in this.mapUrlsNoFrontali) {
+      if (this.mapUrlsNoFrontali.hasOwnProperty(urlFrontale)) {
+        // Per ogni URL frontale inizializza l'indice corrente a 0
+        this.indiciAngolazioniMap[urlFrontale] = -1; //immagine fronale
+      }
     }
-  }
 
-  console.log('Mappa indici angolazioni inizializzata:', this.indiciAngolazioniMap);
-}
+    console.log('Mappa indici angolazioni inizializzata:', this.indiciAngolazioniMap);
+  }
 
 
   cancellaMedia(url: string, all: boolean): void {
-  // Attiva lo spinner per la card associata a questa URL
-  this.isDeletingMap[url] = true;
+    // Attiva lo spinner per la card associata a questa URL
+    this.isDeletingMap[url] = true;
 
-  // Inizializza l'elenco delle URL da eliminare
-  let urlOrUrlsDaEliminare: string[] = [];
+    // Inizializza l'elenco delle URL da eliminare
+    let urlOrUrlsDaEliminare: string[] = [];
+
+    if (all) {
+      // Caso "Elimina tutto": elimina sia la URL frontale sia tutte le sue secondarie
+      const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
+
+      console.log("URL non frontali da eliminare:", urlsNoFrontali);
+      console.log("URL frontale da eliminare:", url);
+
+      // Costruisce un array completo delle URL da eliminare
+      urlOrUrlsDaEliminare = [...urlsNoFrontali, url];
+
+      console.log("Tutte le URL da eliminare:", urlOrUrlsDaEliminare);
+
+    } else {
+      // Caso "Elimina il media corrente" (solo una URL)
+
+      let checkIsUrlFrontale: boolean = false;
+
+      // Verifica se l'URL corrisponde a un media frontale con altre angolazioni
+      if (this.mapUrlsNoFrontali[url]) {
+        checkIsUrlFrontale = this.mediasUrlsFrontale.includes(url) && this.mapUrlsNoFrontali[url]?.length > 0;
+      }
+
+      if (checkIsUrlFrontale) {
+        // Non permettere di eliminare una media usata come anteprima
+        console.warn("Tentativo di eliminazione del media frontale bloccato.");
+        this.mostraMessaggioSnakBar("Non puoi eliminare un media utilizzato come anteprima", true);
+      } else {
+        // Elimina solo la URL richiesta
+        urlOrUrlsDaEliminare = [url];
+        console.log("Eliminiamo solo la seguente URL:", urlOrUrlsDaEliminare);
+      }
+    }
+
+    // Se ci sono URL da eliminare, procedi con la chiamata al servizio
+    if (urlOrUrlsDaEliminare.length > 0) {
+      console.log("Avvio procedura di eliminazione...");
+
+      this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
+        next: (response) => {
+          console.log("Cancellazione completata:", response);
+
+          this.mostraMessaggioSnakBar(
+            "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
+            false
+          );
+
+          // Reset degli indici a -1 per la galleria corrispondente alla URL frontale
+          this.currentSecondaryIndex[url] = -1;
+          this.indiciAngolazioniMap[url] = -1;
+
+          // Notifica ad altri componenti che la cache è cambiata
+          this.sharedService.notifyConfigCacheIsChanged();
+
+          // Disattiva lo spinner
+          this.isDeletingMap[url] = false;
+        },
+        error: (err) => {
+          console.error("Errore durante la cancellazione:", err);
+
+          this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
+
+          // Disattiva lo spinner anche in caso di errore
+          this.isDeletingMap[url] = false;
+        }
+      });
+    } else {
+      // Nessuna eliminazione da eseguire
+      this.isDeletingMap[url] = false;
+    }
+  }
+
+
+
+  getUrlCorrente(urlFrontale: string): string {
+    const index = this.indiciAngolazioniMap[urlFrontale] ?? -1;
+
+    if (index === -1) {
+      return urlFrontale;
+    }
+
+    const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
+    return secondarie[index] || urlFrontale;
+  }
+
+  trovaUrlFrontaleAssociata(urlSecondaria: string): string {
+    for (const frontale in this.mapUrlsNoFrontali) {
+      const secondarie = this.mapUrlsNoFrontali[frontale] || [];
+      if (secondarie.includes(urlSecondaria)) {
+        return frontale;
+      }
+    }
+    return urlSecondaria; // fallback
+  }
+
+
+  /**
+ * Avvia il download di uno o più asset della card.
+ * • Se all === true   ⇒ scarica l’URL frontale più tutte le secondarie.
+ * • Se all === false  ⇒ scarica solo l’URL passato (già frontale o secondario).
+ * Il nome file può essere personalizzato con displayName.
+ */
+scaricaMedia(url: string, all: boolean, displayName?: string): void {
+  let urlsDaScaricare: string[] = [];
 
   if (all) {
-    // Caso "Elimina tutto": elimina sia la URL frontale sia tutte le sue secondarie
-    const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
-
-    console.log("URL non frontali da eliminare:", urlsNoFrontali);
-    console.log("URL frontale da eliminare:", url);
-
-    // Costruisce un array completo delle URL da eliminare
-    urlOrUrlsDaEliminare = [...urlsNoFrontali, url];
-
-    console.log("Tutte le URL da eliminare:", urlOrUrlsDaEliminare);
-
+    // Recupera le angolazioni secondarie legate alla stessa card
+    const secondarie: string[] = this.mapUrlsNoFrontali?.[url] || [];
+    // Includi anche l’immagine (o video/audio) frontale
+    urlsDaScaricare = [...secondarie, url];
   } else {
-    // Caso "Elimina il media corrente" (solo una URL)
-
-    let checkIsUrlFrontale: boolean = false;
-
-    // Verifica se l'URL corrisponde a un media frontale con altre angolazioni
-    if (this.mapUrlsNoFrontali[url]) {
-      checkIsUrlFrontale = this.mediasUrlsFrontale.includes(url) && this.mapUrlsNoFrontali[url]?.length > 0;
-    }
-
-    if (checkIsUrlFrontale) {
-      // Non permettere di eliminare una media usata come anteprima
-      console.warn("Tentativo di eliminazione del media frontale bloccato.");
-      this.mostraMessaggioSnakBar("Non puoi eliminare un media utilizzato come anteprima", true);
-    } else {
-      // Elimina solo la URL richiesta
-      urlOrUrlsDaEliminare = [url];
-      console.log("Eliminiamo solo la seguente URL:", urlOrUrlsDaEliminare);
-    }
+    // Scarica solo l’asset corrente
+    urlsDaScaricare = [url];
   }
 
-  // Se ci sono URL da eliminare, procedi con la chiamata al servizio
-  if (urlOrUrlsDaEliminare.length > 0) {
-    console.log("Avvio procedura di eliminazione...");
-
-    this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
-      next: (response) => {
-        console.log("Cancellazione completata:", response);
-
-        this.mostraMessaggioSnakBar(
-          "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
-          false
-        );
-
-        // Reset degli indici a -1 per la galleria corrispondente alla URL frontale
-        this.currentSecondaryIndex[url] = -1;
-        this.indiciAngolazioniMap[url] = -1;
-
-        // Notifica ad altri componenti che la cache è cambiata
-        this.sharedService.notifyConfigCacheIsChanged();
-
-        // Disattiva lo spinner
-        this.isDeletingMap[url] = false;
-      },
-      error: (err) => {
-        console.error("Errore durante la cancellazione:", err);
-
-        this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
-
-        // Disattiva lo spinner anche in caso di errore
-        this.isDeletingMap[url] = false;
-      }
-    });
-  } else {
-    // Nessuna eliminazione da eseguire
-    this.isDeletingMap[url] = false;
-  }
+  // Avvio download per ciascun URL
+urlsDaScaricare.forEach((currentUrl, index) => {
+  // Se ti serve costruire un nome file con l’indice:
+  const nomeFile = `${displayName}_${index}`;
+  this.scaricaAsset(currentUrl, nomeFile);
+});
 }
 
+/* ------------------------------------------------------------------ */
+/* Funzioni di supporto                                               */
+/* ------------------------------------------------------------------ */
 
+/** Scarica il singolo asset tramite fetch + link simulato */
+private scaricaAsset(url: string, displayName?: string): void {
+  const estensione = this.getEstensione(url);
+  // Usa displayName se presente, altrimenti “File”
+  const nomeFile = displayName ? `${displayName}.${estensione}` : `File.${estensione}`;
 
-getUrlCorrente(urlFrontale: string): string {
-  const index = this.indiciAngolazioniMap[urlFrontale] ?? -1;
-
-  if (index === -1) {
-    return urlFrontale;
-  }
-
-  const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
-  return secondarie[index] || urlFrontale;
+  fetch(url)
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.blob();
+    })
+    .then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = nomeFile;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    })
+    .catch(err => console.error(`Download fallito per ${url}`, err));
 }
 
-trovaUrlFrontaleAssociata(urlSecondaria: string): string {
-  for (const frontale in this.mapUrlsNoFrontali) {
-    const secondarie = this.mapUrlsNoFrontali[frontale] || [];
-    if (secondarie.includes(urlSecondaria)) {
-      return frontale;
-    }
-  }
-  return urlSecondaria; // fallback
+/** Estrae l’estensione (jpg, mp4, ecc.) dall’URL Cloudinary */
+private getEstensione(url: string): string {
+  const parts = url.split('?')[0].split('.');
+  return parts.length > 1 ? parts.pop()! : '';
 }
 
 
