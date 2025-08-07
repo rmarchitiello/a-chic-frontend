@@ -796,14 +796,17 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //snackbar
   mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
     let panelClassCustom;
+    let duration;
     if (isError) {
       panelClassCustom = 'snackbar-errore';
+      duration = 1000;
     }
     else {
       panelClassCustom = 'snackbar-ok';
+      duration = 500;
     }
     this.snackBar.open(messaggio, 'Chiudi', {
-      duration: 2000, // durata in ms
+      duration: duration, // durata in ms
       panelClass: panelClassCustom, // classe CSS personalizzata
       horizontalPosition: 'center',
       verticalPosition: 'top'

@@ -354,15 +354,6 @@ o cosi
     &:active  { transform: scale(.92);  opacity: .8; }
   }
 
-  /* progress bar (auto-dismiss 6 s) */
-  &::after {
-    content:"";
-    position: absolute;
-    left: 0; bottom: 0;
-    height: 4px;
-    background: currentColor;
-    animation: barDrain 2s linear forwards; //secondi dell animazione
-  }
 }
 
 /*──────────────────────────────────────────────────────────────
@@ -386,6 +377,15 @@ o cosi
     width:6px;
     background: linear-gradient(to bottom,#ff9d9f,#ff4d4f 60%,#c4171a 100%);
   }
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    background: currentColor;
+    animation: barDrain 1s linear forwards;
+  }
 }
 
 /*──────────────────────────────────────────────────────────────
@@ -406,5 +406,15 @@ o cosi
     left:0; top:0; bottom:0;
     width:6px;
     background: linear-gradient(to bottom,#b7f7ba,#4caf50 60%,#388e3c 100%);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    background: currentColor;
+    animation: barDrain 0.5s linear forwards;
   }
 }
