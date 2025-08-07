@@ -1430,6 +1430,7 @@ Il valore è un numero:
       next: (data) => {
         console.log('Aggiornamento completato con successo:', data);
         this.mostraMessaggioSnakBar('Anteprima impostata correttamente', false);
+        this.sharedService.notifyConfigCacheIsChanged();
       },
       error: (error) => {
         console.error('Si è verificato un errore durante l’aggiornamento:', error);
