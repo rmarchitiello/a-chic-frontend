@@ -1611,4 +1611,55 @@ Il valore è un numero:
     }
   }
 
+  /* Nuovo metodo che serve per individuare il tipo di tag da utilizzare in base alla url corrente. Questo perche 
+  Supponiamo in una card ho 5 media di cui 1 media un jpg (di cui frontale) e 2 media mp3 2 media mp4
+  cosa succede, che vedremo solo il media con url frontale quindi vederemo solo jpeg perche lo switch case lo 
+  facciamo sulla url dei media frontali
+  
+  Nel template avevamo
+   <!-- ===== IMMAGINE ===== -->
+              <ng-container *ngSwitchCase="'image'">
+                <!-- Se esiste almeno una secondaria e l'indice è valido (>= 0) uso la secondaria -->
+                <ng-container
+                  *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0 && (currentSecondaryIndex[url] ?? -1) >= 0; else frontaleImg">
+                  <img class="gallery-media" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]"
+                    [alt]="'Vista alternativa di ' + context.display_name" />
+                </ng-container>
+                <!-- Fallback: frontale -->
+                <ng-template #frontaleImg>
+                  <img class="gallery-media" [src]="url" [alt]="'Immagine frontale di ' + context.display_name" />
+                </ng-template>
+              </ng-container>
+
+  */
+/**
+ * Determina il tipo del media attualmente visibile in una card,
+ * tenendo conto del fatto che potrebbe essere selezionato un media secondario.
+ *
+ * Se esiste una secondaria con indice valido, si analizza quella.
+ * Altrimenti si usa il media frontale come riferimento.
+ *
+ * Il tipo viene dedotto dal suffisso del file (estensione).
+ * Sono supportati i principali formati:
+ * - Immagini: .jpg, .jpeg, .png, .webp, .gif, .bmp, .tiff, .svg
+ * - Video: .mp4, .webm, .mov, .avi, .mkv, .mpeg, .ogv
+ * - Audio: .mp3, .wav, .ogg, .aac, .flac, .m4a
+ *
+ * Restituisce 'image' se nessuna estensione nota è trovata.
+ */
+getTipoMediaCorrente(urlFrontale: string): 'image' | 'video' | 'audio' {
+  const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
+  const indiceSecondaria = this.currentSecondaryIndex[urlFrontale] ?? -1;
+
+  const urlCorrente = (secondarie.length > 0 && indiceSecondaria >= 0)
+    ? secondarie[indiceSecondaria]
+    : urlFrontale;
+
+  if (urlCorrente.match(/\.(mp4|webm|mov|avi|mkv|mpeg|ogv)$/i)) return 'video';
+  if (urlCorrente.match(/\.(mp3|wav|ogg|aac|flac|m4a)$/i)) return 'audio';
+  if (urlCorrente.match(/\.(jpg|jpeg|png|webp|gif|bmp|tiff|svg)$/i)) return 'image';
+
+  return 'image';
+}
+
 }

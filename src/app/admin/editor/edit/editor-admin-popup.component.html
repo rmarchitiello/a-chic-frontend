@@ -100,76 +100,65 @@
                 <mat-icon>chevron_right</mat-icon>
               </button>
             </ng-container>
-            <div class="gallery-viewport" [ngSwitch]="context.type || 'image'">
-
-              <!-- identifico il media frontale l indice frontale ha come indice -1  
-               Cosi posso scegliere quale media rendere fronale-->
-              <!-- Identifico il media frontale – l’indice frontale è -1 -->
-              <div class="contenitore-anteprima-altre-angolazioni" >
-                <span class="anteprima-badge" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
-                  Anteprima
-                </span>
-
-                <button *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
-                  type="button" class="button-rendi-anteprima" (click)="rendiMediaFrontale(url,getUrlCorrente(url))">
-                  Imposta come anteprima
-                </button>
-              </div>
 
 
+            <!-- Determina il tipo effettivo del media attualmente visibile (image, video, audio) -->
+<div class="gallery-viewport" [ngSwitch]="getTipoMediaCorrente(getUrlCorrente(url))">
 
+  <!-- Identifica il media frontale – l’indice frontale è -1 -->
+  <div class="contenitore-anteprima-altre-angolazioni">
+    <span
+      class="anteprima-badge"
+      *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
+      Anteprima
+    </span>
 
+    <button
+      *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
+      type="button"
+      class="button-rendi-anteprima"
+      (click)="rendiMediaFrontale(url, getUrlCorrente(url))">
+      Imposta come anteprima
+    </button>
+  </div>
 
-              <!-- ===== IMMAGINE ===== -->
-              <ng-container *ngSwitchCase="'image'">
-                <!-- Se esiste almeno una secondaria e l'indice è valido (>= 0) uso la secondaria -->
-                <ng-container
-                  *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0 && (currentSecondaryIndex[url] ?? -1) >= 0; else frontaleImg">
-                  <img class="gallery-media" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]"
-                    [alt]="'Vista alternativa di ' + context.display_name" />
-                </ng-container>
-                <!-- Fallback: frontale -->
-                <ng-template #frontaleImg>
-                  <img class="gallery-media" [src]="url" [alt]="'Immagine frontale di ' + context.display_name" />
-                </ng-template>
-              </ng-container>
+  <!-- ===== IMMAGINE ===== -->
+  <ng-container *ngSwitchCase="'image'">
+    <img
+      class="gallery-media"
+      [src]="getUrlCorrente(url)"
+      [alt]="'Vista immagine di ' + context.display_name" />
+  </ng-container>
 
-              <!-- ===== VIDEO ===== -->
-              <ng-container *ngSwitchCase="'video'">
-                <ng-container
-                  *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0 && (currentSecondaryIndex[url] ?? -1) >= 0; else frontaleVideo">
-                  <video class="gallery-media" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]" controls
-                    playsinline preload="metadata">
-                  </video>
-                </ng-container>
-                <ng-template #frontaleVideo>
-                  <video class="gallery-media" [src]="url" playsinline preload="metadata">
-                  </video>
-                </ng-template>
-              </ng-container>
-              <!-- ===== Contatore (include il frontale) ===== -->
-              <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
-                {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
-                /
-                {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
-              </div>
+  <!-- ===== VIDEO ===== -->
+  <ng-container *ngSwitchCase="'video'">
+    <video
+      class="gallery-media"
+      [src]="getUrlCorrente(url)"
+      controls
+      playsinline
+      preload="metadata">
+    </video>
+  </ng-container>
 
-              <!-- ===== AUDIO ===== -->
-              <ng-container *ngSwitchCase="'audio'">
-                <div class="audio-cover">
-                  <mat-icon>graphic_eq</mat-icon>
-                </div>
-                <ng-container
-                  *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0 && (currentSecondaryIndex[url] ?? -1) >= 0; else frontaleAudio">
-                  <audio class="audio-inline" [src]="mapUrlsNoFrontali[url]![currentSecondaryIndex[url]!]">
-                  </audio>
-                </ng-container>
-                <ng-template #frontaleAudio>
-                  <audio class="audio-inline" [src]="url">
-                  </audio>
-                </ng-template>
-              </ng-container>
-            </div>
+  <!-- ===== AUDIO ===== -->
+  <ng-container *ngSwitchCase="'audio'">
+    <div class="audio-cover">
+      <mat-icon>graphic_eq</mat-icon>
+    </div>
+    <audio class="audio-inline" [src]="getUrlCorrente(url)" controls>
+    </audio>
+  </ng-container>
+
+  <!-- ===== CONTATORE (include anche il frontale come primo) ===== -->
+  <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
+    {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
+    /
+    {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
+  </div>
+
+</div>
+
 
             <!-- pulsante per espandere i metadata-->
             <div class="metadata-toggle-container">
