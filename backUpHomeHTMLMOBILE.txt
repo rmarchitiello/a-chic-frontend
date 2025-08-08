@@ -83,3 +83,62 @@
   </div>
 </section>
 
+<!-- MOBILE -->
+<section *ngIf="isMobile" class="modelli-evidenza-mobile">
+  <div class="mobile-container">
+
+    <!-- Carosello immagini principale (si vede subito, senza effetto) -->
+    <div class="carousel-wrapper-mobile">
+      <div class="carousel-container-mobile">
+        <img *ngFor="let c of carosello.items; let i = index" [src]="getMediaFrontale(c.media)"
+          [class.active]="i === currentIndex" class="carousel-image-mobile" alt="Immagine carosello mobile" />
+      </div>
+    </div>
+
+    <!-- Modelli in evidenza -->
+    <div class="video-modelli-wrapper-mobile scroll-reveal" appScrollReveal>
+      <mat-card *ngFor="let modelloInEvidenza of modelliInEvidenza.items" class="modello-card-mobile">
+        <video autoplay muted loop playsinline preload="auto" class="video-responsive-mobile" mat-card-image>
+          <source [src]="getMediaFrontale(modelloInEvidenza.media)" type="video/mp4" />
+        </video>
+        <mat-card-title class="card-title-mobile">{{ modelloInEvidenza.context.display_name }}</mat-card-title>
+      </mat-card>
+    </div>
+
+    <!-- Le mie creazioni artigianali -->
+    <div class="scroll-reveal creazioni-mobile" appScrollReveal>
+      <h2 class="titolo-creazioni-mobile">Le mie creazioni</h2>
+      <p class="testo-creazioni-mobile">
+        Ogni borsa e ogni accessorio è unico. Realizzato a mano, con passione e uno stile senza tempo.
+      </p>
+      <div class="creazioni-gallery-mobile">
+        <img *ngFor="let creazione of creazioni.items" [src]="getMediaFrontale(creazione.media)"
+          alt="Creazione artigianale" />
+      </div>
+    </div>
+
+    <!-- Perché scegliere A-Chic -->
+    <div class="scroll-reveal valori-mobile" appScrollReveal>
+      <h2 class="titolo-valori-mobile">Perché scegliere A-Chic</h2>
+      <ul class="lista-valori-mobile">
+        <li> Realizzato a mano con amore</li>
+        <li> Personalizzazioni uniche</li>
+        <li> Materiali di qualità</li>
+        <li> Assistenza diretta </li>
+      </ul>
+    </div>
+
+    <!-- Recensioni -->
+    <div class="scroll-reveal" appScrollReveal>
+      <h2 class="titolo-recensioni-mobile">Dicono di noi</h2>
+      <div class="carousel-container-recensioni-mobile">
+        <img *ngFor="let recensione of recensioni.items; let i = index" [src]="getMediaFrontale(recensione.media)"
+          [class.active]="i === currentRecensioneIndex" class="carousel-image-recensioni-mobile"
+          alt="Recensione cliente" />
+      </div>
+    </div>
+
+
+
+  </div>
+</section>
