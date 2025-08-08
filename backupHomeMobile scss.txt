@@ -1,3 +1,252 @@
+// --- DESKTOP ---
+@media (min-width: 769px) {
+/* Banner admin visibile solo in modalità amministratore */
+  .admin-banner {
+    background-color: #ffeeba; // Giallo chiaro
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 1rem 1.5rem;
+    margin: 1rem auto;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    max-width: 800px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Icona modifica carosello */
+  .edit-admin-carosello-icon {
+    position: absolute;
+    top: 2rem;
+    right: 20rem;
+    background-color: #ffffff;
+    color: #1976d2;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background-color: #e3f2fd;
+    }
+
+    mat-icon {
+      font-size: 24px;
+    }
+  }
+
+  .modelli-evidenza-desktop {
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .carousel-wrapper-desktop {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .carousel-container-desktop {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .carousel-image-desktop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+    background-color: #f8f8f8;
+  }
+
+  .carousel-image-desktop.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
+  }
+
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .video-modelli-wrapper-desktop {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 2rem 0;
+    gap: 1rem;
+  }
+
+  .modello-card-desktop {
+    width: 30%;
+    min-width: 280px;
+    max-width: 400px;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    position: relative;
+    background: transparent;
+  }
+
+  .video-responsive-desktop {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: center;
+    background-color: transparent;
+    display: block;
+  }
+
+  .card-title-desktop {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 0;
+    right: 0;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+
+  .titolo-recensioni-desktop {
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    margin: 2rem 0 1rem;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .carousel-container-recensioni-desktop {
+    position: relative;
+    width: 100%;
+    max-width: 100vw;
+    padding: 3rem 0;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+    overflow: hidden;
+  }
+
+  .carousel-image-recensioni-desktop {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    max-width: 80vw;
+    max-height: 70vh;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+    background-color: transparent;
+    z-index: 0;
+  }
+
+  .carousel-image-recensioni-desktop.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+  }
+
+  .creazioni-desktop {
+    background-color: #fafafa;
+    padding: 4rem 2rem;
+    text-align: center;
+  }
+
+  .titolo-creazioni-desktop {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .testo-creazioni-desktop {
+    font-size: 1.1rem;
+    color: #444;
+    max-width: 800px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .creazioni-gallery-desktop {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .creazioni-gallery-desktop img {
+    width: 280px;
+    height: auto;
+    object-fit: cover;
+    border-radius: 8px;
+  }
+
+  .valori-desktop {
+    padding: 4rem 2rem;
+    background-color: #fff;
+    text-align: center;
+  }
+
+  .titolo-valori-desktop {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #222;
+  }
+
+  .lista-valori-desktop {
+    list-style: none;
+    padding: 0;
+    font-size: 1.1rem;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .lista-valori-desktop li::before {
+    content: '✓ ';
+    color: #27ae60;
+    font-weight: bold;
+  }
+  
+}
+
+
+
+
+
 // --- MOBILE ---
 @media (max-width: 768px) {
   .modelli-evidenza-mobile {
