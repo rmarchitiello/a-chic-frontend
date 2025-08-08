@@ -436,7 +436,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   //mostro una preview sul sito
   // Mostra i primi N caratteri e aggiunge "…" se la stringa è più lunga
   descrizioneLunga: boolean = false;
-  maxLength: number = 50;
+  maxLength: number = 30;
   getPreview(value: string, max = this.maxLength): string {
     this.descrizioneLunga = value.length > max //se la descrizione è grande ritorna true;
     if (typeof value !== 'string') return value as any;
