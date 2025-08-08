@@ -1457,34 +1457,34 @@ Il valore è un numero:
    is dragging a null
     */
 
-isDraggingOnCard: string | null = null;
-private dragOverTimeout: any = null; // per controllare l'uscita dalla card
+  isDraggingOnCard: string | null = null;
+  private dragOverTimeout: any = null; // per controllare l'uscita dalla card
 
-onDragEnterOnCard(event: DragEvent, url: string) {
-  // Non serve fare nulla qui, ma puoi loggare se vuoi
-  console.log("Sono entrato");
-}
-
-onDragOverOnCard(event: DragEvent, url: string) {
-  event.preventDefault(); // necessario per abilitare il drop
-  console.log("Sono sopra la card");
-
-  // Imposta lo stato attivo per questa card
-  this.isDraggingOnCard = url;
-
-  // Cancella il timeout precedente (se esiste)
-  if (this.dragOverTimeout) {
-    clearTimeout(this.dragOverTimeout);
+  onDragEnterOnCard(event: DragEvent, url: string) {
+    // Non serve fare nulla qui, ma puoi loggare se vuoi
+    console.log("Sono entrato");
   }
 
-  // Imposta un nuovo timeout: se non riceve altri dragover in 100ms, resetta lo stato
-  this.dragOverTimeout = setTimeout(() => {
-    this.isDraggingOnCard = null;
-  }, 100);
-}
+  onDragOverOnCard(event: DragEvent, url: string) {
+    event.preventDefault(); // necessario per abilitare il drop
+    console.log("Sono sopra la card");
 
-arrayFilesDroppatiOnCard: File[] =  [];
-onDropOnCard(event: DragEvent, url: string){
+    // Imposta lo stato attivo per questa card
+    this.isDraggingOnCard = url;
+
+    // Cancella il timeout precedente (se esiste)
+    if (this.dragOverTimeout) {
+      clearTimeout(this.dragOverTimeout);
+    }
+
+    // Imposta un nuovo timeout: se non riceve altri dragover in 100ms, resetta lo stato
+    this.dragOverTimeout = setTimeout(() => {
+      this.isDraggingOnCard = null;
+    }, 100);
+  }
+
+  arrayFilesDroppatiOnCard: File[] = [];
+  onDropOnCard(event: DragEvent, url: string) {
     this.isDraggingOnCard = null;
 
     const files = event.dataTransfer?.files;
@@ -1493,7 +1493,7 @@ onDropOnCard(event: DragEvent, url: string){
     this.arrayFilesDroppatiOnCard = Array.from(files);
 
 
-      // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
     const filesSupportati = this.arrayFilesDroppatiOnCard.filter(file => {
       const tipo = file.type.split('/')[0];
       return this.tipiSupportati.includes(tipo);
@@ -1553,6 +1553,7 @@ onDropOnCard(event: DragEvent, url: string){
         : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
       console.warn(msg);
       this.mostraMessaggioSnakBar(msg, true);
+      
     }
 
     // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
@@ -1567,6 +1568,45 @@ onDropOnCard(event: DragEvent, url: string){
     // Salvo i file validi in memoria per l’upload
     this.arrayFilesDroppatiOnCard = filesValidi;
     console.log("Totale dei file da caricare: ", this.arrayFilesDroppatiOnCard);
-}
+
+    //inizio a costruire il form data in base a quanti file devo caricare e la folder di input
+    //non do un context iniziale perche il backend cosa dovra fare
+    /* 1 effettuare una chiamata sul cloud per verificare se quel public id esiste a sistema
+       2 se esiste recuperare il context
+       3 effettuare l'upload delle altre angolazioni con il context recuperato
+       4 aggiornare la cache */
+    if (this.arrayFilesDroppatiOnCard.length > 0) {
+      const formData: FormData = new FormData();
+
+      //appendo tutti i file
+      console.log("File da appendere", this.arrayFilesDroppatiOnCard);
+      this.arrayFilesDroppatiOnCard.forEach(file => {
+        formData.append('file', file);
+      })
+      //appendo la folder
+      console.log("Folder da appendere: ", this.folderInput);
+      formData.append('folder', this.folderInput);
+
+      //appendo anche la url da fornire al backend
+      console.log("Url frontale da appendere: ", url);
+      formData.append('urlFrontaleDiInput', url);
+
+      console.log("Form Data finale da inviare all'upload exist frontale nuovo metodo: ", JSON.stringify(formData));
+      this.adminService.uploadMediaExistFrontale(formData, this.isConfigFolder).subscribe({
+        next: (response) => {
+          console.log('Upload riuscito:', response);
+          this.sharedService.notifyConfigCacheIsChanged();
+          this.mostraMessaggioSnakBar('File caricati correttamente', false);
+        },
+        error: (err) => {
+          console.error('Errore durante l\'upload:', err);
+          this.mostraMessaggioSnakBar('Errore durante il caricamento dei file', true);
+        }
+      });
+    }
+    else {
+      this.mostraMessaggioSnakBar('Errore nel caricamento di altri file', true);
+    }
+  }
 
 }

@@ -188,9 +188,9 @@ const body = request;
 /* 
   Metodo che chiama un backend che carica una media non frontale se esiste il frontale
   Praticamente abbiamo un area di drop sui media che se carico li, posso andare a caricare altre angolazioni 
-  Tranne quella frontale
+  Tranne quella frontale. Gli do in pasto anche la url per recuperare ovviamente il public id dal cloud
 */
-uploadMediaExistFrontale(formData: FormData, config?: boolean): Observable<any> {
+uploadMediaExistFrontale(formData: FormData,   config?: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaUploadOnExistFrontale}`;
   let params = new HttpParams();
 
