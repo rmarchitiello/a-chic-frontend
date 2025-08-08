@@ -327,7 +327,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Trovo la chiave corrispondente alla cartella "mie creazioni" oppure uso un fallback statico
-        const creazioniKey = this.matchFolderName('mie creazioni', this.foldersKey) || 'Config/Home/Mie Creazioni';
+        const creazioniKey = this.matchFolderName('creazioni', this.foldersKey) || 'Config/Home/Mie Creazioni';
 
         if (creazioniKey) {
           console.log("Creazioni Key: ", creazioniKey);
@@ -611,6 +611,9 @@ e quindi si fa questa cosa:
     let toEdit: MediaCollection;
     if(valoreDaEditare === 'carosello'){
       toEdit = this.carosello;
+    }
+    if(valoreDaEditare === 'creazioni'){
+      toEdit = this.creazioni;
     }
     else if (valoreDaEditare === 'recensioni'){
       toEdit = this.recensioni;
