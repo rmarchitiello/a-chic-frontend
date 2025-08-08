@@ -22,7 +22,7 @@ import { Router } from '@angular/router';
 import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditorAdminPopUpComponent } from '../../admin/editor/edit/editor-admin-popup.component';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -122,7 +122,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     MatIconModule,
     MatButtonModule,
     MatCardModule,
-    ScrollRevealDirective
+    ScrollRevealDirective,
+    MatTooltipModule
   ],
   animations: [
     trigger('fadeInOut', [
@@ -249,7 +250,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         // Quando app component mi da la lista delle chiavi, vado a vedere quali folder hanno carosello e la recupero e la utilizzo
         //come chiave per input file per tutta l'app al massimo proprio se durante la get app component non mi da valori la cablo a mano
         // Trovo la chiave corrispondente alla cartella "carosello" oppure uso un fallback statico
-        const caroselloKey = this.matchFolderName('carosello', this.foldersKey) || 'Config/Home/Carosello';
+        const caroselloKey = this.matchFolderName('carosello', this.foldersKey) || 'Config/Home/Carosello'; //se e vuota sara sempre questa la cartella
 
         if (caroselloKey) {
           console.log("Carosello Key: ", caroselloKey);
