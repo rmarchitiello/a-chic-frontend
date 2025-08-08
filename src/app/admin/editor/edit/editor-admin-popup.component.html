@@ -20,7 +20,13 @@
     
     Pero se clicco fuori la card voglio che si chiude tutto pero poi devo stoppare l'evento altrimenti non si aprono piu le card
     -->
-    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale" [class.expanded]="espandiMetaDati === url"
+    <div class="preview-card" 
+    *ngFor="let url of mediasUrlsFrontale" 
+    [class.expanded]="espandiMetaDati === url"
+    (dragenter)="onDragEnterOnCard($event, url)"
+    (dragover)="onDragOverOnCard($event, url)"
+    (drop)="onDropOnCard($event,url)"
+    [class.drag-drop-event]="isDraggingOnCard === url"
       (click)="$event.stopPropagation()">
       <div class="card-inner">
 

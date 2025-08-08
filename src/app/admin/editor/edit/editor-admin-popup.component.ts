@@ -1447,5 +1447,126 @@ Il valore è un numero:
   }
 
 
+  /*Nuova funzionalità di upload
+    Le card sono droppabili in modo tale da aggiungere un media andando a droppare direttamente su quel media
+   Qui la drag leave non la usiamo perche, se inserissi la drag leave su preview card, se mi muovo nella card
+   e quindi vado poi su media gallery, viene chiamata la drag leave perche sono uscito dal dom anche se 
+   media gallery è figlio quindi creo una sorta di on drag leave con un timeout
+   quindi non ho bisogno piu di onDragLeave, ma uso onDragOver cosi quando sono sulla card si attiva 
+   quando esco on drag over non viene piu chiamato e quindi con un timeout (perche sa che sono uscito) mette la variabile
+   is dragging a null
+    */
+
+isDraggingOnCard: string | null = null;
+private dragOverTimeout: any = null; // per controllare l'uscita dalla card
+
+onDragEnterOnCard(event: DragEvent, url: string) {
+  // Non serve fare nulla qui, ma puoi loggare se vuoi
+  console.log("Sono entrato");
+}
+
+onDragOverOnCard(event: DragEvent, url: string) {
+  event.preventDefault(); // necessario per abilitare il drop
+  console.log("Sono sopra la card");
+
+  // Imposta lo stato attivo per questa card
+  this.isDraggingOnCard = url;
+
+  // Cancella il timeout precedente (se esiste)
+  if (this.dragOverTimeout) {
+    clearTimeout(this.dragOverTimeout);
+  }
+
+  // Imposta un nuovo timeout: se non riceve altri dragover in 100ms, resetta lo stato
+  this.dragOverTimeout = setTimeout(() => {
+    this.isDraggingOnCard = null;
+  }, 100);
+}
+
+arrayFilesDroppatiOnCard: File[] =  [];
+onDropOnCard(event: DragEvent, url: string){
+    this.isDraggingOnCard = null;
+
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) return;
+
+    this.arrayFilesDroppatiOnCard = Array.from(files);
+
+
+      // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+    const filesSupportati = this.arrayFilesDroppatiOnCard.filter(file => {
+      const tipo = file.type.split('/')[0];
+      return this.tipiSupportati.includes(tipo);
+    });
+
+    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
+    if (filesSupportati.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+
+    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
+    const tipiContati: { [tipo: string]: number } = {};
+    filesSupportati.forEach(file => {
+      const tipoGenerico = file.type.split('/')[0];
+      tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
+    });
+
+    // Determino il tipo prevalente: quello con il maggior numero di file presenti
+    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
+      return tipiContati[a] > tipiContati[b] ? a : b;
+    });
+
+    // Verifico che il tipo prevalente sia uno di quelli accettati
+    if (!this.tipiSupportati.includes(tipoPrevalente)) {
+      this.mostraMessaggioSnakBar(
+        "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+    // Imposto il tipo accettato e lo comunico anche al componente figlio
+    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
+    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+
+    // Seleziono solo i file che appartengono al tipo prevalente
+    const filesValidi = filesSupportati.filter(file => {
+      return file.type.split('/')[0] === this.tipoAccettato;
+    });
+
+    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
+    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
+    const estensioniScartate = Array.from(new Set(
+      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+    ));
+
+    // Se ci sono file scartati, mostro un messaggio di errore informativo
+    if (filesScartati.length > 0) {
+      const tipoEstensione = this.tipoAccettato;
+      const msg = filesScartati.length === 1
+        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+      console.warn(msg);
+      this.mostraMessaggioSnakBar(msg, true);
+    }
+
+    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
+    if (filesValidi.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+        true
+      );
+      return;
+    }
+
+    // Salvo i file validi in memoria per l’upload
+    this.arrayFilesDroppatiOnCard = filesValidi;
+    console.log("Totale dei file da caricare: ", this.arrayFilesDroppatiOnCard);
+}
 
 }

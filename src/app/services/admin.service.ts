@@ -14,7 +14,9 @@ export class AdminService {
   private media = '/media-folder';
   private mediaImages = '/media-images'
   private mediaUpload = '/media-upload'
-  private mediaUploadAngolazione = '/media-update-angolazione'
+  private mediaUpdateAngolazione = '/media-update-angolazione'
+  private mediaUploadOnExistFrontale = '/media-upload-exist-frontale'
+
   constructor(private http: HttpClient) {}
 
 
@@ -171,7 +173,7 @@ uploadMedia(formData: FormData, config?: boolean): Observable<any> {
 
 //da cambiare in obbligatorio config per capire se e cartella config o no
 updateAngolazioneMedia(request: UpdateAngolazioneMedia, config: boolean): Observable<any> {
-  const url = `${this.baseUrl}${this.mediaUploadAngolazione}`;
+  const url = `${this.baseUrl}${this.mediaUpdateAngolazione}`;
   let params = new HttpParams();
   if(config){
          params = new HttpParams().set('config', config);
@@ -181,6 +183,40 @@ const body = request;
 
   console.log("Request inviata per aggiornare l'angolazione", JSON.stringify(body));
   return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
+}
+
+/* 
+  Metodo che chiama un backend che carica una media non frontale se esiste il frontale
+  Praticamente abbiamo un area di drop sui media che se carico li, posso andare a caricare altre angolazioni 
+  Tranne quella frontale
+*/
+uploadMediaExistFrontale(formData: FormData, config?: boolean): Observable<any> {
+  const url = `${this.baseUrl}${this.mediaUploadOnExistFrontale}`;
+  let params = new HttpParams();
+
+  // Se richiesto, aggiungo il flag "config=true" per indicare al backend che si tratta di una configurazione speciale
+  if (config) {
+    params = params.set('config', 'true');
+  }
+
+  // Log dettagliato del contenuto del FormData
+  console.log("📤 Avvio uploadMediaExistFrontale() con il seguente contenuto:");
+  for (const [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(`📎 ${key}: FILE - ${value.name} (${value.type}, ${value.size} bytes)`);
+    } else {
+      console.log(`📝 ${key}:`, value);
+    }
+  }
+
+  // Uso i miei headers con token recuperato da sessionStorage
+  const headers = this.getAuthHeaders(); // ✅ Metodo già esistente nella classe
+
+  // Invio la richiesta POST con FormData e parametri eventuali
+  return this.http.post<any>(url, formData, {
+    params,
+    headers
+  });
 }
 
 
