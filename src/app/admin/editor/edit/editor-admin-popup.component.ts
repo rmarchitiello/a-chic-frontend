@@ -253,6 +253,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
       //assegno la mappa
       this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale);
+      console.log("Context recuperatooo: ", this.getContextFromMediaUrlsFrontali(this.mediasUrlsFrontale));
       /*
         La mappa sara
         urlFrontale1: {
@@ -284,7 +285,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
     //primo caricamento quando home apre il pop up
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-      console.log("[EditorComponent] sto ricevendo i dati")
+      console.log("[EditorComponent] sto ricevendo i dati: ", data);
       if (data) {
         this.caricaMediaCollection(data);
       }
@@ -868,6 +869,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
 
   // Conferma la modifica inline del singolo metadato
   confermaValoreInline(context: MediaContext, key: string, label: string, url: string): void {
+    console.log("Context in ingresso: ", JSON.stringify(context));
     const campoId = `${url}_${key}`;
     const control = this.formControlsInline[campoId];
 
