@@ -450,16 +450,11 @@ apriAdminFolderPopUp(): void {
   if (!this.isAdmin) return;
 
   // Normalizzo un minimo (trim, rimozione slash doppi, dedup, sort)
-  const allFolders = (this.foldersEstratte ?? [])
-    .map(f => (f ?? '').trim().replace(/\/+/g, '/').replace(/^\/|\/$/g, ''))
-    .filter(Boolean)
-    .filter((v, i, arr) => arr.indexOf(v) === i)
-    .sort((a, b) => a.localeCompare(b));
-
+  
   this.dialog.open(AdminFolderPopUpComponent, {
     disableClose: false,
     panelClass: 'popup-admin-folder', // o una tua classe dedicata
-    data: allFolders
+    data: this.foldersEstratte
   });
 }
 

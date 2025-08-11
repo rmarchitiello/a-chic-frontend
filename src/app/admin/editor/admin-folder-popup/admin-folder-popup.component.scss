@@ -1,24 +1,20 @@
-/* ===========================
-   HEADER (sticky) + CHIUDI
-   =========================== */
+/* HEADER (sticky) + CHIUDI */
 .popup-header {
   position: sticky;
   top: 0;
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;      /* prima era space-between */
   gap: .75rem;
-  /* più spazio a destra per non sovrapporre la X ai pulsanti */
-  padding: 1rem 3rem 1rem 1.25rem;
+  padding: 1rem 3rem 1rem 1.25rem;  /* spazio a destra per la X */
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
   background: #fff;
 
-  /* pulsante X senza cerchio/ripple, spostato più in alto */
   .chiudi-btn {
     position: absolute;
-    top: .35rem;      /* alzato */
-    right: .5rem;     /* più vicino al bordo */
+    top: .35rem;
+    right: .5rem;
     z-index: 10;
     background: transparent;
     border: none;
@@ -35,16 +31,6 @@
       height: 26px;
       line-height: 26px;
     }
-
-    &:hover mat-icon {
-      color: #000;
-    }
-
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.25);
-      border-radius: 12px;
-    }
   }
 }
 
@@ -52,42 +38,34 @@
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+  /* un po’ di respiro dal gruppo bottoni */
+  margin-right: 1rem;
 }
 
+/* Gruppo pulsanti centrato nell’header */
 .header-actions {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
-
+  margin-left: auto;     /* spinge il gruppo verso il centro */
+  margin-right: auto;    /* centra tra titolo e X */
   .mat-mdc-button-base { height: 36px; }
 
-  /* Rende davvero "rosso" il pulsante Cancella (outlined + warn) */
+  /* stile rosso per Cancella (resta invariato) */
   .mat-mdc-outlined-button.mat-warn {
-    /* colori di base */
-    --warn-text: #b91c1c;  /* rosso scuro testo */
-    --warn-brd:  #f87171;  /* rosso medio bordo */
-    --warn-bg:   #fee2e2;  /* rosso chiarissimo bg */
-
+    --warn-text: #b91c1c;
+    --warn-brd:  #f87171;
+    --warn-bg:   #fee2e2;
     color: var(--warn-text);
     background: var(--warn-bg);
     border-color: var(--warn-brd);
-
-    /* bordi degli outlined MDC */
-    .mdc-button__ripple { border-radius: 9999px; }
   }
-
   .mat-mdc-outlined-button.mat-warn:hover:not(.mdc-button--disabled) {
     color: #991b1b;
     background: #fecaca;
     border-color: #ef4444;
   }
-
-  /* icona interna coerente con il testo */
-  .mat-mdc-outlined-button.mat-warn mat-icon {
-    color: inherit;
-  }
-
-  /* stato disabilitato più tenue */
+  .mat-mdc-outlined-button.mat-warn mat-icon { color: inherit; }
   .mat-mdc-outlined-button.mat-warn.mdc-button--disabled {
     color: rgba(185, 28, 28, 0.45);
     border-color: rgba(248, 113, 113, 0.45);
@@ -95,64 +73,7 @@
   }
 }
 
-/* ===========================
-   CORPO: SOLO ALBERO
-   =========================== */
-.popup-body.solo-albero {
-  display: flex;
-  flex-direction: column;
-  flex: 1 1 auto;
-  padding: 1rem 1.25rem;
-  overflow: hidden; /* lo scroll è dentro .folder-tree */
-}
-
-/* Contenitore con scrollbar interna */
-.folder-tree {
-  flex: 1 1 auto;
-  min-height: 0; /* necessario con flex per abilitare lo scroll interno */
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  padding: .75rem;
-  background: #fafafa;
-  overflow: auto;
-}
-
-/* Riga cartella (indentazione via [style.paddingLeft.px]) */
-.tree-node {
-  display: block;
-  padding: .35rem .5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-  transition: background .15s ease;
-
-  &:hover {
-    background: rgba(25, 118, 210, 0.08);
-  }
-
-  &.active {
-    background: rgba(25, 118, 210, 0.12);
-    color: #0b5ab3;
-    font-weight: 600;
-  }
-}
-
-/* Messaggio “nessuna cartella” */
-.alert {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  padding: .5rem .75rem;
-  border-radius: 10px;
-}
-
-/* ===========================
-   RESPONSIVE
-   =========================== */
+/* responsive fine-tuning */
 @media (max-width: 980px) {
   .popup-header { padding-right: 2.5rem; }
-  .popup-body.solo-albero { padding: .75rem 1rem; }
 }
