@@ -1,41 +1,47 @@
-/**
- * Interceptor globale:
- *  • intercetta tutte le risposte HTTP
- *  • se il backend restituisce 401 (token scaduto / assente / non valido)
- *    - rimuove il token dal localStorage
- *    - reindirizza alla pagina di login
- * lo importo nel main
- */
-
 import { Injectable } from '@angular/core';
 import {
   HttpInterceptor,
   HttpHandler,
   HttpRequest,
   HttpEvent,
-  HttpErrorResponse,
-  HTTP_INTERCEPTORS                // << serve per la registrazione nel main
+  HttpErrorResponse
 } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { SharedDataService } from '../services/shared-data.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private dialog: MatDialog,
+    private sharedDataService: SharedDataService
+  ) {}
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
       catchError((error: HttpErrorResponse) => {
 
-        //  Se il backend risponde 401 -> token scaduto / assente
-        if (error.status === 403) {
-          localStorage.removeItem('admin');   // pulisco il token
-          this.router.navigate(['/admin']);   // redirect alla login
+        // Se ricevo 401 (non autorizzato) o 403 (vietato)
+        if (error.status === 401 || error.status === 403) {
+          
+          // Chiudo eventuali pop-up aperti
+          this.dialog.closeAll();
+
+          // Rimuovo il token dalla sessione
+          this.sharedDataService.setAdminToken(null);
+
+          // Reindirizzo prima alla login admin
+          this.router.navigate(['/admin']).then(() => {
+            // Poi, se serve, torno anche alla home
+            this.router.navigate(['/home']);
+          });
         }
 
-        // Rilancio comunque l'errore al chiamante
+        // Propago comunque l'errore
         return throwError(() => error);
       })
     );
