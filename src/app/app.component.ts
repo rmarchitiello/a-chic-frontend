@@ -459,10 +459,7 @@ apriAdminFolderPopUp(): void {
   this.dialog.open(AdminFolderPopUpComponent, {
     disableClose: false,
     panelClass: 'popup-admin-folder', // o una tua classe dedicata
-    data: {
-      allFolders,   // lista piatta già pronta
-      maxLevels: 3  // regola per la validazione nel popup
-    }
+    data: allFolders
   });
 }
 

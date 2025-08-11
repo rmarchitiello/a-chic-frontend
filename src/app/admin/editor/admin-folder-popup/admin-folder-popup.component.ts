@@ -1,22 +1,14 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
-interface AdminFolderDialogData {
-  allFolders: string[];
-  maxLevels?: number; // default 3
-}
-
-interface FolderNode {
-  name: string;
-  fullPath: string;
-  children: FolderNode[];
+import { MatTooltipModule } from '@angular/material/tooltip';
+interface FlatNode {
+  fullPath: string;  // es: "borse/conchiglia/perlata"
+  name: string;      // ultimo segmento: "perlata"
+  depth: number;     // 0 per root, 1 per figli, 2 per nipoti
 }
 
 @Component({
@@ -24,102 +16,49 @@ interface FolderNode {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    MatDialogModule,
     MatButtonModule,
     MatIconModule,
-    MatListModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatTooltipModule
   ],
   templateUrl: './admin-folder-popup.component.html',
   styleUrls: ['./admin-folder-popup.component.scss']
 })
-export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
+export class AdminFolderPopUpComponent implements OnInit {
 
+  /** Limite massimo livelli consentiti: es. "a/b/c" => 3 */
+  readonly MAX_LEVELS = 3;
+
+  /** Elenco piatto delle cartelle normalizzato e ordinato */
   allFolders: string[] = [];
-  tree: FolderNode[] = [];
+
+  /** Struttura piatta per la UI: ogni riga porta nome e profondità per l'indentazione */
+  flatNodes: FlatNode[] = [];
+
+  /** Percorso selezionato (serve per rinomina/cancella) */
   selectedPath: string | null = null;
 
-  maxLevels = 3;
-
   constructor(
-    private dialogRef: MatDialogRef<AdminFolderPopUpComponent, { folders: string[] }>,
-    @Inject(MAT_DIALOG_DATA) public data: AdminFolderDialogData,
+    private dialogRef: MatDialogRef<AdminFolderPopUpComponent, string[]>,
+    @Inject(MAT_DIALOG_DATA) public data: string[],  // ricevo direttamente le folder
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.maxLevels = Number(this.data?.maxLevels ?? 3);
-    this.allFolders = this.normalizeFolders(this.data?.allFolders ?? []);
-    this.rebuildTree();
+    console.log('[AdminFolderPopUp] input folders:', this.data);
+    this.allFolders = this.normalizeFolders(this.data ?? []);
+    this.rebuildFlatNodes();
   }
 
-  ngOnDestroy(): void {}
-
-  /** Snackbar centralizzata: uso classi diverse per errore / ok */
-  mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
-    const panelClassCustom = isError ? 'snackbar-errore' : 'snackbar-ok';
-    const duration = isError ? 1000 : 500;
-
-    this.snackBar.open(messaggio, 'Chiudi', {
-      duration,
-      panelClass: panelClassCustom,
-      horizontalPosition: 'center',
-      verticalPosition: 'top'
-    });
-  }
-
-  private normalizeFolders(paths: string[]): string[] {
-    const clean = paths
-      .map((p: string) => (p ?? '').trim().replace(/\/+/g, '/').replace(/^\/|\/$/g, ''))
-      .filter((p: string) => !!p);
-
-    const unique = Array.from(new Set(clean));
-    unique.sort((a, b) => a.localeCompare(b));
-    return unique;
-  }
-
-  private rebuildTree(): void {
-    this.tree = this.buildFolderTree(this.allFolders);
-  }
-
-  private buildFolderTree(paths: string[]): FolderNode[] {
-    const root: FolderNode[] = [];
-    const index = new Map<string, FolderNode>();
-
-    for (const full of paths) {
-      const segments: string[] = full.split('/').filter(Boolean);
-      let acc = '';
-      let parentChildren = root;
-
-      for (const seg of segments) {
-        acc = acc ? `${acc}/${seg}` : seg;
-
-        let node = index.get(acc);
-        if (!node) {
-          node = { name: seg, fullPath: acc, children: [] };
-          index.set(acc, node);
-          parentChildren.push(node);
-          parentChildren.sort((a, b) => a.name.localeCompare(b.name));
-        }
-        parentChildren = node.children;
-      }
-    }
-    return root;
-  }
-
-  onSelectNode(node: FolderNode): void {
-    this.selectedPath = node.fullPath;
-  }
-
-  onSelectFlat(path: string): void {
-    this.selectedPath = path;
-  }
+  // =====================================================================
+  // Azioni: Aggiungi / Rinomina / Cancella
+  // =====================================================================
 
   onAdd(): void {
     const raw = window.prompt(
-      `Inserisci la nuova cartella (max ${this.maxLevels} livelli)\n` +
-      `Es: borse\nborse/conchiglia\nborse/conchiglia/perlata`
+      `Inserisci la nuova cartella (max ${this.MAX_LEVELS} livelli)\n` +
+      `Esempi:\n- borse\n- borse/conchiglia\n- borse/conchiglia/perlata`
     );
     if (raw === null) return;
 
@@ -128,23 +67,20 @@ export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
       this.mostraMessaggioSnakBar('Percorso non valido.', true);
       return;
     }
-
     const levels = path.split('/').length;
-    if (levels === 0 || levels > this.maxLevels) {
-      this.mostraMessaggioSnakBar(`Puoi creare da 1 a ${this.maxLevels} livelli.`, true);
+    if (levels === 0 || levels > this.MAX_LEVELS) {
+      this.mostraMessaggioSnakBar(`Puoi usare da 1 a ${this.MAX_LEVELS} livelli.`, true);
       return;
     }
-
-    if (this.allFolders.some(f => f.toLowerCase() === path.toLowerCase())) {
+    if (this.exists(path)) {
       this.mostraMessaggioSnakBar('Questa cartella esiste già.', true);
       return;
     }
 
-    this.allFolders.push(path);
-    this.allFolders = this.normalizeFolders(this.allFolders);
-    this.rebuildTree();
+    this.allFolders = this.normalizeFolders([...this.allFolders, path]);
+    this.rebuildFlatNodes();
     this.selectedPath = path;
-
+    console.log('[AdminFolderPopUp] aggiunta cartella:', path);
     this.mostraMessaggioSnakBar('Cartella aggiunta.', false);
   }
 
@@ -155,10 +91,7 @@ export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
     }
 
     const current = this.selectedPath;
-    const nuovo = window.prompt(
-      `Nuovo nome percorso completo per:\n${current}`,
-      current
-    );
+    const nuovo = window.prompt('Nuovo percorso completo:', current);
     if (nuovo === null) return;
 
     const newPath = this.normalizeSingle(nuovo);
@@ -166,32 +99,29 @@ export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
       this.mostraMessaggioSnakBar('Percorso non valido.', true);
       return;
     }
-
     const levels = newPath.split('/').length;
-    if (levels === 0 || levels > this.maxLevels) {
-      this.mostraMessaggioSnakBar(`Puoi usare da 1 a ${this.maxLevels} livelli.`, true);
+    if (levels === 0 || levels > this.MAX_LEVELS) {
+      this.mostraMessaggioSnakBar(`Puoi usare da 1 a ${this.MAX_LEVELS} livelli.`, true);
       return;
     }
-
-    if (current.toLowerCase() !== newPath.toLowerCase() &&
-        this.allFolders.some(f => f.toLowerCase() === newPath.toLowerCase())) {
+    if (current.toLowerCase() !== newPath.toLowerCase() && this.exists(newPath)) {
       this.mostraMessaggioSnakBar('Esiste già una cartella con questo percorso.', true);
       return;
     }
 
+    // Rinomino anche le eventuali sottocartelle
     const prefix = current + '/';
-    const updated: string[] = this.allFolders.map(f => {
+    const updated = this.allFolders.map((f: string) => {
       if (f === current) return newPath;
-      if (f.startsWith(prefix)) {
-        return newPath + f.substring(prefix.length);
-      }
+      if (f.startsWith(prefix)) return newPath + f.substring(prefix.length);
       return f;
     });
 
     this.allFolders = this.normalizeFolders(updated);
-    this.rebuildTree();
+    this.rebuildFlatNodes();
     this.selectedPath = newPath;
 
+    console.log('[AdminFolderPopUp] rinominata cartella:', current, '->', newPath);
     this.mostraMessaggioSnakBar('Cartella rinominata.', false);
   }
 
@@ -200,7 +130,6 @@ export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
       this.mostraMessaggioSnakBar('Seleziona una cartella da cancellare.', true);
       return;
     }
-
     const conferma = window.confirm(
       `Vuoi cancellare la cartella:\n${this.selectedPath}\n` +
       `e tutte le sue sottocartelle?`
@@ -208,23 +137,103 @@ export class AdminFolderPopUpComponent implements OnInit, OnDestroy {
     if (!conferma) return;
 
     const prefix = this.selectedPath + '/';
-    const filtered = this.allFolders.filter(f => f !== this.selectedPath && !f.startsWith(prefix));
-
-    this.allFolders = this.normalizeFolders(filtered);
-    this.rebuildTree();
+    this.allFolders = this.normalizeFolders(
+      this.allFolders.filter((f: string) => f !== this.selectedPath && !f.startsWith(prefix))
+    );
+    this.rebuildFlatNodes();
+    console.log('[AdminFolderPopUp] cancellata cartella:', this.selectedPath);
     this.selectedPath = null;
 
     this.mostraMessaggioSnakBar('Cartella cancellata.', false);
   }
 
   onClose(): void {
-    this.dialogRef.close({ folders: this.allFolders });
+    console.log('[AdminFolderPopUp] chiusura, ritorno folders:', this.allFolders);
+    this.dialogRef.close(this.allFolders);
   }
 
-  private normalizeSingle(input: string): string {
-    return (input ?? '')
+  // =====================================================================
+  // Interazione UI
+  // =====================================================================
+
+  onSelectPath(path: string): void {
+    this.selectedPath = path;
+    console.log('[AdminFolderPopUp] selezionata cartella:', path);
+  }
+
+  // =====================================================================
+  // Snackbar (tua utility)
+  // =====================================================================
+
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
+    let panelClassCustom: string;
+    let duration: number;
+
+    if (isError) {
+      panelClassCustom = 'snackbar-errore';
+      duration = 1000;
+    } else {
+      panelClassCustom = 'snackbar-ok';
+      duration = 500;
+    }
+
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration,
+      panelClass: panelClassCustom,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+  }
+
+  // =====================================================================
+  // Utility: normalizzazione, dedup, lookup, lista piatta
+  // =====================================================================
+
+  /** Normalizza una singola cartella: trim, unifica slash, rimuove slash ai bordi */
+  private normalizeSingle(s: string): string {
+    return (s || '')
       .trim()
-      .replace(/\/+/g, '/')
-      .replace(/^\/|\/$/g, '');
+      .replace(/\/+/g, '/')      // unisco slash multipli
+      .replace(/^\/|\/$/g, '');  // tolgo slash iniziale/finale
+  }
+
+  /** Normalizza lista: pulizia, dedup case-insensitive, ordinamento */
+  private normalizeFolders(folders: string[]): string[] {
+    const seen = new Set<string>();
+    const out: string[] = [];
+
+    for (const raw of folders || []) {
+      const n = this.normalizeSingle(raw);
+      if (!n) continue;
+
+      const key = n.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      out.push(n);
+    }
+
+    out.sort((a: string, b: string) => a.localeCompare(b, 'it', { sensitivity: 'base' }));
+    return out;
+  }
+
+  /** Verifica se esiste già la cartella (case-insensitive) */
+  private exists(path: string): boolean {
+    const target = path.toLowerCase();
+    return this.allFolders.some((f: string) => f.toLowerCase() === target);
+  }
+
+  /** Ricostruisce la lista piatta con nome e profondità per l'indentazione */
+  private rebuildFlatNodes(): void {
+    this.flatNodes = (this.allFolders || []).map((full: string) => {
+      const parts = full.split('/').filter(Boolean);
+      const name = parts[parts.length - 1] ?? full;
+      const depth = Math.max(0, parts.length - 1);
+      return { fullPath: full, name, depth };
+    });
+  }
+
+  chiudiDialog(){
+    this.dialogRef.close()
   }
 }
