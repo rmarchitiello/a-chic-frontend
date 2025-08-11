@@ -197,9 +197,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     // Sottoscrizione allo stato admin
-    this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
-      this.isAdmin = !!token;
-    });
+    this.sharedDataService.isAdmin$.subscribe((isAdmin: boolean) => {
+  this.isAdmin = isAdmin;
+});
 
     // Rilevamento modalità mobile in base alla larghezza dello schermo
     this.breakpointObserver
@@ -439,7 +439,7 @@ goToAndCloseSideNav(pathOrCategoria: string, sottoCategoria?: string): void {
 
   // Logout modalità admin
   logoutAdmin(): void {
-    sessionStorage.removeItem('admin');
-    window.location.reload();
+    this.sharedDataService.setAdminToken(null);
+    this.isAdmin = false;
   }
 }

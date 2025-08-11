@@ -187,7 +187,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  
+  this.sharedDataService.isAdmin$.subscribe((isAdmin: boolean) => {
+  this.isAdmin = isAdmin;
+});
 
     
 
@@ -231,7 +233,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         // Quando app component mi da la lista delle chiavi, vado a vedere quali folder hanno carosello e la recupero e la utilizzo
         //come chiave per input file per tutta l'app al massimo proprio se durante la get app component non mi da valori la cablo a mano
         // Trovo la chiave corrispondente alla cartella "carosello" oppure uso un fallback statico
-        const caroselloKey =  'Config/Home/Carosello'; //se e vuota sara sempre questa la cartella
+        const caroselloKey =  'config/home/carosello'; //se e vuota sara sempre questa la cartella
 
         if (caroselloKey) {
           console.log("Carosello Key: ", caroselloKey);
@@ -257,7 +259,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Trovo la chiave corrispondente alla cartella "recensioni" oppure uso un fallback statico
-        const recensioniKey = 'Config/Home/Recensioni';
+        const recensioniKey = 'config/home/recensioni';
 
         if (recensioniKey) {
           console.log("Recensioni Key: ", recensioniKey);
@@ -283,7 +285,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Trovo la chiave corrispondente alla cartella "modelli in evidenza" oppure uso un fallback statico
-        const modelliEvidenzaKey = 'Config/Home/Modelli In Evidenza';
+        const modelliEvidenzaKey = 'config/home/modelli in evidenza';
 
         if (modelliEvidenzaKey) {
           console.log("Modelli in evidenza Key: ", modelliEvidenzaKey);
@@ -309,7 +311,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         // Trovo la chiave corrispondente alla cartella "mie creazioni" oppure uso un fallback statico
-        const creazioniKey = 'Config/Home/Mie Creazioni';
+        const creazioniKey = 'config/home/mie creazioni';
 
         if (creazioniKey) {
           console.log("Creazioni Key: ", creazioniKey);

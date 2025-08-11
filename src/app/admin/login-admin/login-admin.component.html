@@ -1,46 +1,71 @@
-<!-- ===============================================
-     SEZIONE MOBILE - Accesso disabilitato
-     =============================================== -->
+<!-- MOBILE: accesso disabilitato -->
 <div *ngIf="isMobile" class="mobile-blocked">
   <h2>Accesso ADMIN non disponibile su mobile</h2>
   <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
 </div>
 
-<!-- ===============================================
-     SEZIONE DESKTOP - Login Admin
-     =============================================== -->
+<!-- DESKTOP: login admin -->
 <div *ngIf="!isMobile" class="admin-login-wrapper">
-
   <h1 class="admin-title">Accedi in modalità admin</h1>
 
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
 
-    <!-- Campo Email -->
+    <!-- Email -->
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Email</mat-label>
-      <input matInput formControlName="email" type="email" required />
-      <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+      <input
+        matInput
+        formControlName="email"
+        type="email"
+        inputmode="email"
+        autocomplete="username"
+        required
+        aria-required="true"
+      />
+      <mat-error *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')">
         L'email è obbligatoria
       </mat-error>
-      <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+      <mat-error *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')">
         Inserisci un indirizzo email valido
       </mat-error>
     </mat-form-field>
 
-    <!-- Campo Password -->
+    <!-- Password -->
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Password</mat-label>
-      <input matInput formControlName="password" type="password" required />
-      <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+      <input
+        matInput
+        formControlName="password"
+        [type]="hide ? 'password' : 'text'"
+        autocomplete="current-password"
+        required
+        aria-required="true"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        (click)="hide = !hide"
+        [attr.aria-label]="hide ? 'Mostra password' : 'Nascondi password'"
+      >
+        <mat-icon>{{ hide ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+      <mat-error *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')">
         La password è obbligatoria
       </mat-error>
-      <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+      <mat-error *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')">
         La password deve contenere almeno 6 caratteri
       </mat-error>
     </mat-form-field>
 
-    <!-- Bottone di login -->
-    <button mat-raised-button color="primary" type="submit">
+    <!-- Azioni -->
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="loginForm.invalid || loading"
+    >
+      <mat-icon *ngIf="loading" class="mr-2">hourglass_top</mat-icon>
       Accedi
     </button>
 
