@@ -35,10 +35,7 @@ export class AuthInterceptor implements HttpInterceptor {
           this.sharedDataService.setAdminToken(null);
 
           // Reindirizzo prima alla login admin
-          this.router.navigate(['/admin']).then(() => {
-            // Poi, se serve, torno anche alla home
-            this.router.navigate(['/home']);
-          });
+          this.router.navigate(['/admin']);
         }
 
         // Propago comunque l'errore
