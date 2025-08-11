@@ -333,7 +333,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
       console.warn("❌ dialogRef non disponibile: popup non può essere chiuso");
     }
 
-    this.sharedService.notifyConfigCacheIsChanged(); // anche se la notifichi, il dialog non si chiude
+    this.sharedService.notifyCacheIsChanged(); // anche se la notifichi, il dialog non si chiude
   }
 
 
@@ -515,7 +515,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
         if(this.isDroppedByEditor){
           console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
           //notifico al padre
-          this.sharedService.notifyConfigCacheIsChanged();
+          this.sharedService.notifyCacheIsChanged();
           this.eventoChiudiUpload.emit(true); //emetto l'evento al padre per dire guarda è finito l'upload mostra una snackbar ok
         }
         else{
@@ -529,7 +529,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
       if(this.isDroppedByEditor){
                       console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
           //notifico al padre
-          this.sharedService.notifyConfigCacheIsChanged();
+          this.sharedService.notifyCacheIsChanged();
           this.eventoChiudiUpload.emit(false);
       }else{
 

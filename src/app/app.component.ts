@@ -213,7 +213,7 @@ export class AppComponent implements OnInit {
     this.caricaMediaFromCache(false);
 
     // Ricarico media ogni volta che il servizio segnala un cambio
-    this.sharedDataService.configCacheChanged$.subscribe(() => {
+    this.sharedDataService.allCacheChanged$.subscribe(() => {
       this.caricaMediaFromCache(true);
       this.caricaMediaFromCache(false);
     });

@@ -933,7 +933,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     this.adminService.updateImageMetadata(url, context, this.isConfigFolder).subscribe({
       next: () => {
         this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato aggiornato correttamente.`, false);
-        this.sharedService.notifyConfigCacheIsChanged();
+        this.sharedService.notifyCacheIsChanged();
       },
       error: (err) => {
         console.error("Errore durante l'aggiornamento dei metadati:", err);
@@ -1023,7 +1023,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
     // Persisti lato backend
     this.adminService.updateImageMetadata(url, updatedContext, this.isConfigFolder).subscribe({
       next: () => {
-        this.sharedService.notifyConfigCacheIsChanged();
+        this.sharedService.notifyCacheIsChanged();
         this.mostraMessaggioSnakBar(`"${label.toUpperCase()}" è stato rimosso.`, false);
       },
       error: (err) => {
@@ -1136,7 +1136,7 @@ Creo un singolo form control per ogni key, non ha senso creare un form group per
       next: (data) => {
         // OK: aggiorna UI/stato locale se serve
         this.mostraMessaggioSnakBar('Metadato salvato correttamente.', false);
-        this.sharedService.notifyConfigCacheIsChanged(); //notifico l'app component
+        this.sharedService.notifyCacheIsChanged(); //notifico l'app component
         // chiudi form di aggiunta
         this.isAddingMetadataFromForm = false;
         this.currentMetadataTargetUrl = null;
@@ -1304,7 +1304,7 @@ Il valore è un numero:
           this.indiciAngolazioniMap[url] = -1;
 
           // Notifica ad altri componenti che la cache è cambiata
-          this.sharedService.notifyConfigCacheIsChanged();
+          this.sharedService.notifyCacheIsChanged();
 
           // Disattiva lo spinner
           this.isDeletingMap[url] = false;
@@ -1432,7 +1432,7 @@ Il valore è un numero:
       next: (data) => {
         console.log('Aggiornamento completato con successo:', data);
         this.mostraMessaggioSnakBar('Anteprima impostata correttamente', false);
-        this.sharedService.notifyConfigCacheIsChanged();
+        this.sharedService.notifyCacheIsChanged();
       },
       error: (error) => {
         console.error('Si è verificato un errore durante l’aggiornamento:', error);
@@ -1594,7 +1594,7 @@ Il valore è un numero:
       this.adminService.uploadMediaExistFrontale(formData, this.isConfigFolder).subscribe({
         next: (response) => {
           console.log('Upload riuscito:', response);
-          this.sharedService.notifyConfigCacheIsChanged();
+          this.sharedService.notifyCacheIsChanged();
           this.mostraMessaggioSnakBar('File caricati correttamente', false);
         },
         error: (err) => {

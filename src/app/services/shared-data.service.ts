@@ -100,15 +100,13 @@ getMediasCollectionsNonConfig(): MediaCollection[] {
 }
 
 
-  //Metodo generico usato per scaturire la lettura dalla cache direttamente a chi sottoscrive in questo caso
-  //viene usato da app component per fare la sottoscrizione dell evento e quindi rileggere dalla cache e passare i dati a tutti
-//uso subject cosi non si aspetta niente in ingresso
-private configCacheChangedSubject = new Subject<void>();
-configCacheChanged$ = this.configCacheChangedSubject.asObservable();
+//notifica ad app component che e cambiata la cache
+private allCacheChangedSubject = new Subject<void>();
+allCacheChanged$ = this.allCacheChangedSubject.asObservable();
 
-notifyConfigCacheIsChanged(): void {
+notifyCacheIsChanged(): void {
   console.log("Sto notificando  . . .")
-  this.configCacheChangedSubject.next();
+  this.allCacheChangedSubject.next();
 }
 
 
