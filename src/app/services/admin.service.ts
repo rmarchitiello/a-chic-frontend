@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { MediaContext } from '../pages/home/home.component';
 import { UpdateAngolazioneMedia } from '../admin/editor/edit/editor-admin-popup.component';
+import { MediaContext } from '../app.component';
 @Injectable({
   providedIn: 'root'
 })

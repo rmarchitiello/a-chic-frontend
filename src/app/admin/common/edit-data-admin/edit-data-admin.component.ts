@@ -330,8 +330,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 
 // Interfaccia context usata nel componente padre
-import { MediaContext, MediaCollection } from '../../../pages/home/home.component';
-
+import { MediaContext, MediaCollection } from '../../../app.component';
 //Reactive Form
 import { FormArray, ReactiveFormsModule } from '@angular/forms';
 import { FormControl } from '@angular/forms';

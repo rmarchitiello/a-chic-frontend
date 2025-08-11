@@ -26,7 +26,93 @@ import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 import { SharedDataService } from './services/shared-data.service';
-import { MediaCollection } from './pages/home/home.component';
+
+/* DEFINISCO LE INTERFACCE */
+/**
+ * Descrive un singolo asset (immagine, video o audio) associato a un media.
+ * Include l'URL e l'angolazione dell'asset.
+ */
+export interface MediaMeta {
+  url: string;              // URL diretto al file su Cloudinary
+  angolazione: string;      // Es. 'frontale', 'laterale', 'retro'
+}
+
+
+/* Sono gli attributi ovvero i metadata su cloudinary*/
+export interface MediaContext {
+  display_name?: string;
+  type?: 'image' | 'video' | 'audio' | '';
+  descrizione?: string;
+  quantita?: string;
+  // altri metadati dinamici: prezzo, materiale, colore, ecc.
+  [key: string]: string | undefined;
+}
+
+
+export interface MediaItems {
+  context: MediaContext
+  media: MediaMeta[]
+}
+
+
+/**
+ * Collezione di media appartenenti a una determinata cartella Cloudinary.
+ * Oggetto principale per ogni sezione (es. Carosello, Recensioni, Video in evidenza).
+ */
+export interface MediaCollection {
+  folder: string;
+  items: {
+    context: MediaContext;
+    media: MediaMeta[];
+  }[];
+}
+
+
+
+/*
+ * ESEMPIO JSON corrispondente:
+Quindi per ogni folder (chiave) ho piu items ovvero piu metadata e media di quell immagine i media rappresentano le angolazioni mentre context i metadati
+Gli items contengono tutti i media con i metadati e poi in media ci sono le avrie angolazioni
+{
+  "folder": "Config/Home/Recensioni",
+  "items": [
+    {
+      "context": {
+        "display_name": "Recensione 1",
+        "descrizione": "Una recensione positiva",
+        "quantita": "0",
+        "autore": "Cliente A"
+      },
+      "media": [
+        {
+          "url": "https://res.cloudinary.com/demo/image/upload/v1/recensione1.jpg",
+          "angolazione": "frontale"
+        }
+      ]
+    },
+    {
+      "context": {
+        "display_name": "Recensione 2",
+        "descrizione": "Altra testimonianza",
+        "quantita": "0",
+        "autore": "Cliente B"
+      },
+      "media": [
+        {
+          "url": "https://res.cloudinary.com/demo/image/upload/v1/recensione2.jpg",
+          "angolazione": "frontale"
+        }
+      ]
+    }
+  ]
+}
+
+
+
+*/
+
+
+
 
 @Component({
   selector: 'app-root',

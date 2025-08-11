@@ -87,15 +87,12 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialog } from '@angular/material/dialog';
-import { DeleteDataAdminComponent } from '../../common/delete-data-admin/delete-data-admin.component';
-import { DownloadDataAdminComponent } from '../../common/download-data-admin/download-data-admin.component';
 import { UploadDataAdminComponent } from '../../common/upload-data-admin/upload-data-admin.component';
-import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../../pages/home/home.component';
+import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../../app.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedDataService } from '../../../services/shared-data.service';
 import { ViewMetadata } from '../view/view-metadata.component';
 //importato per modificare i metadati (come nella fase di upload)
-import { EditDataAdminComponent } from '../../common/edit-data-admin/edit-data-admin.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormControl, FormGroup, FormArray, Validators } from '@angular/forms';

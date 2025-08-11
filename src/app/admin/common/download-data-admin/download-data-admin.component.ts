@@ -9,8 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Interfacce condivise dal componente home
-import { MediaCollection,  MediaMeta, MediaContext } from '../../../pages/home/home.component';
-
+import { MediaCollection,  MediaMeta, MediaContext } from '../../../app.component';
 @Component({
   selector: 'app-download-data-admin',
   standalone: true,

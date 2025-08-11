@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaContext } from '../../../pages/home/home.component';
+import { MediaContext } from '../../../app.component';
 import { MatDialog } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { EditDataAdminComponent } from '../edit-data-admin/edit-data-admin.component';

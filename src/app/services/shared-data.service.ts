@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { MediaCollection } from '../pages/home/home.component';
+import { MediaCollection } from '../app.component';
 @Injectable({
   providedIn: 'root'
 })

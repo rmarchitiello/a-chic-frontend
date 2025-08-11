@@ -8,8 +8,7 @@ import { CommonModule } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MediaCollection, MediaContext, MediaMeta } from '../../../pages/home/home.component';
-
+import { MediaCollection, MediaContext, MediaMeta } from '../../../app.component';
 // Estensione dell’interfaccia MediaItem per gestire errori, spinner e stato locale
 
 
