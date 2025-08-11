@@ -10,13 +10,13 @@ import { HttpParams } from '@angular/common/http';
 })
 export class CloudinaryService {
 
-  private baseUrl = environment.apiBaseUrl + 'cloudinary';
-  private images = '/images';
+  private baseUrl = environment.apiBaseUrl + 'api/cache';
+  private images = '/medias';
 
   constructor(private http: HttpClient) {}
 
   // Recupera tutte le immagini
-getImmagini(pathImages?: string, config?: boolean): Observable<any> {
+getMediaFromCache(pathImages?: string, config?: boolean): Observable<any> {
   console.log("Start chiamata a get media dalla cache: . . . ");
   const url = `${this.baseUrl}${this.images}`;
 

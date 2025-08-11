@@ -1,8 +1,8 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from './services/cloudinary.service';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule, MatSidenav } from '@angular/material/sidenav';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,8 +20,6 @@ import {
   animate,
   transition
 } from '@angular/animations';
-import { ViewChild } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
 import { FooterComponent } from './pages/footer/footer.component';
 import { HeaderComponent } from './pages/header/header.component';
 import { filter } from 'rxjs/operators';
@@ -29,6 +27,7 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 import { SharedDataService } from './services/shared-data.service';
 import { MediaCollection } from './pages/home/home.component';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -62,41 +61,13 @@ import { MediaCollection } from './pages/home/home.component';
   ]
 })
 export class AppComponent implements OnInit {
+
+  // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
 
+  // Stato modalità admin
   isAdmin: boolean = false;
-
-
-  title = 'a-chic';
-  // Mappa per collegare categoria → nome riferimento mat-menu
-  menuMap: { [categoria: string]: string } = {};
-
-  // Tutte le combinazioni categoria/sottocategoria (es. "Borse/Clutch")
-  categorieSottoCategorie: string[] = [];
-
-  // Lista categorie principali (es. "Borse", "Accessori")
-  categorie: string[] = [];
-
-  // Sottocategorie uniche (es. "Clutch", "Conchiglia")
-  sottoCategorie: string[] = [];
-
-  // Filtri associati alle sottocategorie (es. Clutch: ["Paillettes"])
-  filtriSottoCategorie: Record<string, string[]> = {};
-
-  // Mappa categoria → sottocategorie
-  strutturaCategorie: { [key: string]: string[] | undefined } = {};
-
-
-  // Mappa sottocategorie → sottoSottoCategorie(filtri)
-  strutturaSottoCategorie: { [key: string]: string[] | undefined } = {};
-
-
-  // Controllo barra di ricerca
-  searchControl = new FormControl('');
-
-  // Suggerimenti per autocomplete
-  filteredOpzioni: string[] = [];
 
   // True se siamo su un dispositivo mobile
   isMobile = false;
@@ -104,25 +75,22 @@ export class AppComponent implements OnInit {
   // Stato apertura menu mobile
   mobileMenuOpen = false;
 
-  // traccio quale categoria è espansa 
-  categoriaEspansa: string | null = null;
+  // Stato apertura menu desktop
+  desktopSidenavOpen = false;
 
-  desktopSidenavOpen = false; // chiusa all'inizio
+  // Path della categoria attualmente espansa (gestisce tutti i livelli)
+  categoriaEspansaPath: string = '';
 
+  // Array delle cartelle trovate nel caricamento (path completi)
+  foldersEstratte: string[] = [];
 
-  //i filtri delle sottocategorie
-  sottoCategoriaEspansa: string | null = null;
+  // Mappa cartella → array segmenti (es. "borse/conchiglia/perlata" → ["borse","conchiglia","perlata"])
+  mapFolderWithCategorieESottoCategorie: { [folderKey: string]: string[] } = {};
 
+  // Lista categorie di primo livello (padri)
+  categorieNew: string[] = [];
 
-  toggleCategoria(cat: string): void {
-    this.categoriaEspansa = this.categoriaEspansa === cat ? null : cat;
-    this.sottoCategoriaEspansa = null; // reset quando cambio categoria
-  }
-
-  toggleSottoCategoria(sotto: string): void {
-    this.sottoCategoriaEspansa = this.sottoCategoriaEspansa === sotto ? null : sotto;
-  }
-
+  // Flag per verificare se siamo nella homepage
   isHomeRoute = false;
 
   constructor(
@@ -132,330 +100,260 @@ export class AppComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private breakpointObserver: BreakpointObserver,
     private sharedDataService: SharedDataService
-
   ) {
-
+    // Monitoraggio della route per sapere se siamo in /home
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.isHomeRoute = event.urlAfterRedirects === '/home';
     });
-
   }
-
-  ngAfterViewInit() {
-    console.log('[APP] ViewChild sidenav:', this.sidenav);
-    console.log('[APP] ViewChild sidenavDesktop:', this.sidenavDesktop);
-  }
-
-
-  //per chiudere la sidenav dal figlio ovvero dettagli e cloudinary component, ovvero dettagli emette l evento al figlio cloudinry che emetto l evento a app component 
-  chiudiSidenavDaFiglio(): void {
-    if (this.sidenav) this.sidenav.close();
-    if (this.sidenavDesktop) this.sidenavDesktop.close();
-  }
-
-
-
-
-
-  menuRefs: { [categoria: string]: any } = {};
-
-  goToContatti(contatti: string) {
-    this.router.navigate([contatti]);
-
-  }
-
-  //dato che se ho la categoria e la sottoCategoria e devo fare questo controllo         (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goTo(categoria, sotto)"
-  //html non mi permette di aggiungere sindav.close quindi per chiuderla ho creato un metodo se c e categoria e sottocategoria vai e chiudi sidenav
-  goToAndCloseSideNav(categoria: string, sottoCategoria?: string) {
-
-
-    if (categoria && sottoCategoria) {
-      this.goTo(categoria, sottoCategoria);
-    }
-    else {
-      this.goTo(categoria);
-    }
-
-
-    if (this.sidenavDesktop) this.sidenavDesktop.close(); // questo attiverà (closed)
-    if (this.sidenav) this.sidenav.close(); // per mobile
-    this.desktopSidenavOpen = false;
-
-
-  }
-
-  goToCookie(cookies: string) {
-    this.router.navigate([cookies]);
-  }
-
-  goToPrivacy(privacyes: string) {
-    this.router.navigate([privacyes]);
-  }
-
-  setMenuRef(categoria: string, ref: any): boolean {
-    this.menuRefs[categoria] = ref;
-    return true;
-  }
-
-  isPaginaCloudinaryAttiva = false;
-  Array = Array;
-
-  logoutAdmin(): void {
-    // Rimuove il flag di login admin dal localStorage
-    sessionStorage.removeItem('admin');
-
-    // Forza il ricaricamento della pagina per uscire dalla modalità admin
-    window.location.reload();
-  }
-
 
   ngOnInit(): void {
-
+    // Sottoscrizione allo stato admin
     this.sharedDataService.isAdmin$.subscribe((token: string | null) => {
-      this.isAdmin = !!token; // true se c'è un token, false se null
-
-      if (this.isAdmin) {
-      }
+      this.isAdmin = !!token;
     });
 
-
-    // Osserva la larghezza dello schermo per determinare se siamo su mobile
+    // Rilevamento modalità mobile in base alla larghezza dello schermo
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
       .subscribe(result => {
         this.isMobile = result.matches;
       });
 
-    // Rileva dimensioni iniziali della finestra (fallback)
-    this.isMobile = window.innerWidth <= 768;
+    // Primo caricamento media (config + no config)
+    this.caricaMediaFromCache(true);
+    this.caricaMediaFromCache(false);
 
-    // Aggiungi un listener per aggiornare `isMobile` in tempo reale al resize
-    window.addEventListener('resize', () => {
-      this.zone.run(() => {
-        this.isMobile = window.innerWidth <= 768;
-        this.cdr.detectChanges(); // forza aggiornamento del binding
-      });
+    // Ricarico media ogni volta che il servizio segnala un cambio
+    this.sharedDataService.configCacheChanged$.subscribe(() => {
+      this.caricaMediaFromCache(true);
+      this.caricaMediaFromCache(false);
     });
+  }
 
+  // Chiude entrambe le sidenav (richiamabile dai figli)
+  chiudiSidenavDaFiglio(): void {
+    if (this.sidenav) this.sidenav.close();
+    if (this.sidenavDesktop) this.sidenavDesktop.close();
+  }
 
-    // Ascolta i cambi di rotta per aggiornare dinamicamente  e `isPaginaCloudinaryAttiva`
-    this.router.events
-      .pipe(filter(event => event instanceof NavigationEnd))
-      .subscribe((event: NavigationEnd) => {
-        const url = event.urlAfterRedirects.toLowerCase();
-
-
-        // Verifica se siamo su una pagina Cloudinary (cioè una route che contiene una categoria)
-        const matchCategoria = this.categorie.some(cat =>
-          url.includes(`/${cat.toLowerCase()}`)
-        );
-        this.isPaginaCloudinaryAttiva = matchCategoria;
-
-        // Verifica se siamo in home per eventuali personalizzazioni
-        this.isHomeRoute = url === '/home';
-
-      });
-
-    //carico la config cache infatti cache e true e la passo via subject alla home ed a altri component
-    console.log("Sto chiamando la cache config")
-this.cloudinaryService.getImmagini('', true).subscribe({
-  next: (data: MediaCollection[]) => {
-    if ( data.length > 0) {
-      console.log("[AppComponent] Carico le configurazioni e invio al subscribe perché ci sono i dati: ", data);
-
-      // Inoltro i dati al servizio condiviso
-      this.sharedDataService.setAllMediasCollectionsConfig(data);
-    } else {
-      console.warn("[AppComponent] Nessun dato disponibile dalla cache");
-    }
-  },
-  error: err => console.error('Errore durante il caricamento media:', err)
-});
-
-
-    //riceve la notifica da altri component e re invia la cache config
-this.sharedDataService.configCacheChanged$.subscribe(() => {
-  console.log("Ho ricevuto la notifica ricarico i media")
-  // Quando ricevo la notifica, rileggo la cache aggiornata
-      this.cloudinaryService.getImmagini('', true).subscribe({
+  // Caricamento media dalla cache
+  caricaMediaFromCache(config: boolean) {
+    this.cloudinaryService.getMediaFromCache('', config).subscribe({
       next: (data: MediaCollection[]) => {
-          console.log("I dati sono: ",data);
-        console.log("[AppComponent] Carico le configurazioni e invio al subscribe: ", data);
-        this.sharedDataService.setAllMediasCollectionsConfig(data);
-
-
-
+        if (config) {
+          this.sharedDataService.setAllMediasCollectionsConfig(data);
+        } else {
+          this.sharedDataService.setAllMediasCollectionsNonConfig(data);
+          this.calcolaCategoriePiuSottoCategorieEAltre(data);
+        }
       },
       error: err => console.error('Errore caricamento media', err)
     });
-});
+  }
 
+  // Calcola la mappa e i padri
+  calcolaCategoriePiuSottoCategorieEAltre(entryMedias: MediaCollection[]) {
+    this.foldersEstratte = [];
+    this.mapFolderWithCategorieESottoCategorie = {};
 
-    // Richiama il servizio per ottenere le immagini e costruire la struttura dinamica
-    this.cloudinaryService.getImmagini().subscribe({
-      next: (data: Record<string, any[]>) => {
-        console.log("[AppComponent] Carico i media non config", data);
-
-        // Ottieni tutte le combinazioni categoria/sottocategoria
-        this.categorieSottoCategorie = Object.keys(data);
-
-        // Estrai categorie principali (escludendo 'recensioni' e 'carosello')
-        this.categorie = [
-          ...new Set(
-            this.categorieSottoCategorie
-              .map(k => k.split('/')[0])
-              .filter(c => {
-                const lower = c.toLowerCase();
-                return lower !== 'recensioni' && lower !== 'carosello';
-              })
-          )
-        ];
-
-        // Estrai tutte le sottocategorie uniche
-        this.sottoCategorie = [
-          ...new Set(
-            this.categorieSottoCategorie
-              .map(k => k.split('/'))
-              .filter(parts => parts.length > 1 && parts[1].trim() !== '' && parts[1].toLowerCase() !== 'recensioni')
-              .map(parts => parts[1])
-          )
-        ];
-
-        // Costruisci la mappa dei filtri per ogni sottocategoria
-        const tempFiltri: Record<string, Set<string>> = {};
-        this.categorieSottoCategorie.forEach(item => {
-          const parts = item.split('/');
-          if (parts.length === 3 && parts[1].toLowerCase() !== 'recensioni') {
-            const sotto = parts[1];
-            const dettaglio = parts[2];
-            if (!tempFiltri[sotto]) {
-              tempFiltri[sotto] = new Set();
-            }
-            tempFiltri[sotto].add(dettaglio);
-          }
-        });
-        // Converti ogni set in array
-        Object.keys(tempFiltri).forEach(key => {
-          this.filtriSottoCategorie[key] = Array.from(tempFiltri[key]);
-        });
-
-
-        // Costruisci la struttura categoria → sottocategorie
-        const struttura: Record<string, Set<string>> = {};
-        this.categorieSottoCategorie.forEach(item => {
-          const [cat, sotto] = item.split('/');
-          if (cat.toLowerCase() === 'recensioni') return;
-          if (!struttura[cat]) struttura[cat] = new Set();
-          if (sotto) struttura[cat].add(sotto);
-        });
-
-        // Trasforma i Set in array
-        for (const cat in struttura) {
-          this.strutturaCategorie[cat] = Array.from(struttura[cat]);
-        }
-
-
-        // Inizializza l'autocomplete per la barra di ricerca
-        this.searchControl.valueChanges.subscribe(val => {
-          const valore = val?.toLowerCase() || '';
-          this.filteredOpzioni = this.categorieSottoCategorie.filter(opt =>
-            opt.toLowerCase().includes(valore)
-          );
-        });
-
-        //passo i dati condivisi cosi l'altro component fa il subscribe e legge queste variabili
-        this.sharedDataService.setStrutturaCategorie(this.strutturaCategorie);
-        this.sharedDataService.setCategorieSottoCategorie(this.categorieSottoCategorie);
-        this.sharedDataService.setFiltriSottoCategorie(this.filtriSottoCategorie);
-
-
-        // Costruisci dinamicamente la mappa per i mat-menu (menuMap)
-        this.menuMap = {};
-        this.categorie.forEach(categoria => {
-          this.menuMap[categoria] = `menu_${categoria}`;
-        });
-      },
-      error: (err) => {
-        console.error('Errore nel caricamento delle immagini', err);
+    // Estraggo tutti i path cartella
+    entryMedias.forEach(media => {
+      if (media?.folder) {
+        this.foldersEstratte.push(media.folder.toLocaleLowerCase());
       }
     });
 
+    // Costruisco la mappa
+    this.foldersEstratte.forEach(currentFolder => {
+      const splitBySlash: string[] = currentFolder.split('/');
+      this.mapFolderWithCategorieESottoCategorie[currentFolder] = splitBySlash;
+    });
 
-
-
-
-
-
+    // Ricavo le categorie di primo livello
+    this.categorieNew = this.getRootParents(this.mapFolderWithCategorieESottoCategorie);
   }
 
+  // Estrae tutti i padri (primo segmento) unici
+  getRootParents(map: { [folderKey: string]: string[] }): string[] {
+    const out: string[] = [];
+    for (const segs of Object.values(map)) {
+      const first = segs[0];
+      if (first && !out.includes(first)) out.push(first);
+    }
+    return out;
+  }
+
+  // Ritorna tutti i figli diretti di un certo path
+  getChildrenPaths(
+    map: { [folderKey: string]: string[] },
+    currentPath: string
+  ): string[] {
+    const parts = currentPath ? currentPath.split("/") : [];
+    const depth = parts.length;
+    const out: string[] = [];
+
+    for (const segs of Object.values(map)) {
+      if (segs.length <= depth) continue;
+
+      let ok = true;
+      for (let i = 0; i < depth; i++) {
+        if (segs[i] !== parts[i]) {
+          ok = false;
+          break;
+        }
+      }
+      if (!ok) continue;
+
+      const childSegment = segs[depth];
+      const childPath = depth === 0 ? childSegment : currentPath + "/" + childSegment;
+      if (!out.includes(childPath)) out.push(childPath);
+    }
+    return out;
+  }
+
+  // Salva la categoria cliccata e gestisce espansione/chiusura
+  saveCategoriaAndToggle(categoriaCorrente: string) {
+    console.log("Categoria cliccata: ", categoriaCorrente);
+    if (this.categoriaEspansaPath === categoriaCorrente) {
+      this.categoriaEspansaPath = "";
+      return;
+    }
+    const figli = this.getChildrenPaths(this.mapFolderWithCategorieESottoCategorie, categoriaCorrente);
+    if (figli.length > 0) {
+      this.categoriaEspansaPath = categoriaCorrente;
+    } else {
+            console.log("Navigo")
+
+      // È una foglia: qui puoi decidere se navigare
+      this.goToAndCloseSideNav(categoriaCorrente);
+    }
+  }
+
+  // Aperto se path è esattamente quello espanso oppure un suo antenato
+isPathOpen(path: string): boolean {
+  if (!path) return false;
+  return this.categoriaEspansaPath === path
+      || this.categoriaEspansaPath.startsWith(path + '/');
+}
+
+
+  // Apre/chiude la sidenav desktop
   desktopSidenavOpenFun() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    if (!this.desktopSidenavOpen) {
-      this.desktopSidenavOpen = true;
-    }
-    else {
-      this.desktopSidenavOpen = false;
-    }
+    this.desktopSidenavOpen = !this.desktopSidenavOpen;
   }
 
-  // Navigazione generica (sia link statici che dinamici)
-  goTo(categoria: string, sottoCategoria?: string, filtri?: Record<string, string[]>): void {
-    let path: string;
+/** Normalizza un path o un segmento:
+ *  - trim, minuscole
+ *  - comprime slash doppi
+ *  - rimuove slash iniziale/finale
+ */
+private normalizePath(input: string): string {
+  return (input ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/\/+/g, '/')
+    .replace(/^\/|\/$/g, '');
+}
 
-    if (
-      categoria === '/home' ||
-      categoria === '/recensioni' ||
-      categoria === '/contatti' ||
-      categoria === '/chi-siamo'
-    ) {
-      path = categoria;
-    } else {
-      path = sottoCategoria
-        ? `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`
-        : `/${categoria.toLowerCase()}`;
-
-
-    }
-
-    const filtriAttivi = sottoCategoria && filtri ? filtri[sottoCategoria] : undefined;
-    const queryParams = filtriAttivi?.length
-      ? { filtri: ['Tutte', ...filtriAttivi] }
-      : { filtri: ['Tutte'] };
-
-    this.router.navigate([path], { queryParams });
+/** Navigazione generica.
+ *  NOTA DI PROGETTO: la configurazione delle route Angular supporta fino al SECONDO livello:
+ *    /:categoria
+ *    /:categoria/:sottoCategoria
+ *  Dal TERZO livello in poi, i segmenti vengono passati come query param "filtri".
+ *
+ *  Accetta:
+ *   - path completo:          goTo('borse/conchiglia/perlata/estiva')
+ *   - categoria sola:         goTo('borse')
+ *   - categoria+sottocat:     goTo('borse', 'conchiglia')
+ *   - rotte statiche:         goTo('/home')
+ *
+ *  Il parametro "filtri" (opzionale) può aggiungere altri filtri mappati per chiave.
+ *  Gli eventuali segmenti oltre il secondo vengono SEMPRE aggiunti a query param "filtri".
+ */
+goTo(pathOrCategoria: string, sottoCategoria?: string, filtri?: Record<string, string[]>): void {
+  // 1) Rotte statiche: navigazione diretta
+  const staticRoutes = ['/home', '/recensioni', '/contatti', '/chi-siamo'];
+  const firstArgTrim = (pathOrCategoria ?? '').trim();
+  if (staticRoutes.includes(firstArgTrim)) {
+    this.router.navigate([firstArgTrim], { queryParams: { filtri: ['Tutte'] } });
+    return;
   }
 
-  goToMobileQueryParamFilter(categoria: string, sottoCategoria?: string, filtro?: string) {
-    let path: string;
-
-    path = sottoCategoria
-      ? `/${categoria.toLowerCase()}/${sottoCategoria.toLowerCase()}`
-      : `/${categoria.toLowerCase()}`;
-
-    const queryParams = filtro?.length ? { filtri: filtro } : {};
-
-    this.router.navigate([path], { queryParams });
-
-    if (this.sidenavDesktop) this.sidenavDesktop.close(); // questo attiverà (closed)
-    if (this.sidenav) this.sidenav.close(); // per mobile
-    this.desktopSidenavOpen = false;
-
+  // 2) Normalizzazione input: costruisco l'elenco segmenti
+  //    - Se passo un path completo (con '/'), lo parso in segmenti
+  //    - Altrimenti uso categoria (+ opzionale sottocategoria)
+  let segments: string[];
+  if (!sottoCategoria && firstArgTrim.includes('/')) {
+    const pathNudo = this.normalizePath(firstArgTrim);
+    segments = pathNudo.split('/').filter(Boolean);
+  } else {
+    const cat = this.normalizePath(firstArgTrim);
+    const sub = this.normalizePath(sottoCategoria ?? '');
+    segments = sub ? [cat, sub] : [cat];
   }
 
+  // 3) Rispetto le route: prendo al massimo i primi due segmenti per il path
+  const pathSegments = segments.slice(0, 2);
+  //    Dal terzo segmento in poi diventano filtri
+  const extraFilterSegments = segments.slice(2);
+
+  // 4) Costruzione dei query param "filtri"
+  //    Base: "Tutte" sempre presente
+  //    Aggiungo i segmenti extra come filtri
+// 4) Costruzione dei query param "filtri"
+// Se ci sono segmenti extra (dal terzo in poi), NON aggiungo "Tutte", uso solo quelli
+const filtriBase = extraFilterSegments.length > 0
+  ? extraFilterSegments
+  : ['Tutte'];
+
+  //    Se mi passano anche "filtri" (Record<chiave, string[]>), aggiungo quelli della chiave
+  //    identificata dall'ultimo segmento "reale" del path (categoria o sottocategoria se presente)
+  const lastRealSegment = pathSegments[pathSegments.length - 1] ?? '';
+  const filtriDaRecord = filtri?.[lastRealSegment] ?? [];
+
+  //    Query params finali, evitando duplicati e vuoti
+  const filtriFinali = Array.from(new Set([...filtriBase.filter(Boolean), ...filtriDaRecord.filter(Boolean)]));
+
+  // 5) Navigazione: uso i segmenti (1 o 2) come path, filtri come query param
+  //    Esempi:
+  //    - ["borse"]                           -> /borse?filtri=Tutte
+  //    - ["borse","conchiglia"]              -> /borse/conchiglia?filtri=Tutte
+  //    - ["borse","conchiglia"], extra "perlata" -> /borse/conchiglia?filtri=Tutte&filtri=perlata
+  this.router.navigate(['/', ...pathSegments], {
+    queryParams: { filtri: filtriFinali.length ? filtriFinali : ['Tutte'] }
+  });
+}
+
+/** Naviga e chiude le sidenav.
+ *  NOTA: accetta sia un path completo (un solo argomento) sia coppia categoria/sottocategoria.
+ *  Ricorda: le route supportano fino al secondo livello; tutto oltre va nei query param "filtri".
+ */
+goToAndCloseSideNav(pathOrCategoria: string, sottoCategoria?: string): void {
+  // Esegue la navigazione rispettando la regola dei 2 livelli + filtri
+  this.goTo(pathOrCategoria, sottoCategoria);
+
+  // Chiude entrambe le sidenav (desktop e mobile) se presenti
+  this.sidenavDesktop?.close();
+  this.sidenav?.close();
+
+  // Allinea lo stato del toggle desktop
+  this.desktopSidenavOpen = false;
+}
 
 
-
-  // Selezione autocomplete
-  vaiAllaCategoria(percorso: string): void {
-    const [categoria, sotto] = percorso.split('/');
-    this.goTo(categoria, sotto);
+  // Utility per capitalizzare testo
+  capitalizeFirstLetter(text: string): string {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
   }
 
-  // Toggle menu mobile (in caso di implementazione futura con sidenav)
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
+  // Logout modalità admin
+  logoutAdmin(): void {
+    sessionStorage.removeItem('admin');
+    window.location.reload();
   }
 }

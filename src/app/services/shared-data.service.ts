@@ -82,24 +82,49 @@ private mediaCollectionConfig = new BehaviorSubject<MediaCollection | null>(null
   }
 
   // =====================================================================================
-  // 6. Tutte le MediaCollections disponibili nella configurazione completa
-  // Questa lista viene aggiornata dopo l'upload o modifica massiva da parte dell’admin.
-  // =====================================================================================
+// 6. Tutte le MediaCollections di tipo "configurazione"
+// Questa lista rappresenta i media legati alla configurazione completa.
+// Viene aggiornata ad esempio dopo un upload o una modifica massiva da parte dell’admin.
+// =====================================================================================
 
-  private mediasCollectionsConfigSubject = new BehaviorSubject<MediaCollection[] >([]);
-  mediasCollectionsConfig$ = this.mediasCollectionsConfigSubject.asObservable();
+private mediasCollectionsConfigSubject = new BehaviorSubject<MediaCollection[]>([]);
+mediasCollectionsConfig$ = this.mediasCollectionsConfigSubject.asObservable();
 
-  // Metodo per aggiornare tutte le MediaCollections della configurazione
-  setAllMediasCollectionsConfig(mediaCollection: MediaCollection[]): void {
-    console.trace();
-    console.log("Shared service ricevuto:", mediaCollection);
-    this.mediasCollectionsConfigSubject.next(mediaCollection);
-  }
+// Aggiorna l'intera lista delle MediaCollections di configurazione
+setAllMediasCollectionsConfig(mediaCollection: MediaCollection[]): void {
+  console.trace();
+  console.log("SharedDataService - aggiornamento config:", mediaCollection);
+  this.mediasCollectionsConfigSubject.next(mediaCollection);
+}
 
-  // Metodo per ottenere tutte le MediaCollections senza sottoscrizione
-  getMediasCollectionsConfig(): MediaCollection[] {
-    return this.mediasCollectionsConfigSubject.getValue();
-  }
+// Restituisce l'ultimo valore della lista di MediaCollections di configurazione
+// senza richiedere la sottoscrizione all'osservabile
+getMediasCollectionsConfig(): MediaCollection[] {
+  return this.mediasCollectionsConfigSubject.getValue();
+}
+
+// =====================================================================================
+// 7. Tutte le MediaCollections di tipo "non configurazione"
+// Questa lista contiene i media generici, non legati alla configurazione.
+// Viene aggiornata quando vengono caricati o modificati media di questo tipo.
+// =====================================================================================
+
+private mediasCollectionsNonConfigSubject = new BehaviorSubject<MediaCollection[]>([]);
+mediasCollectionsNonConfig$ = this.mediasCollectionsNonConfigSubject.asObservable();
+
+// Aggiorna l'intera lista delle MediaCollections non di configurazione
+setAllMediasCollectionsNonConfig(mediaCollection: MediaCollection[]): void {
+  console.trace();
+  console.log("SharedDataService - aggiornamento non config:", mediaCollection);
+  this.mediasCollectionsNonConfigSubject.next(mediaCollection);
+}
+
+// Restituisce l'ultimo valore della lista di MediaCollections non di configurazione
+// senza richiedere la sottoscrizione all'osservabile
+getMediasCollectionsNonConfig(): MediaCollection[] {
+  return this.mediasCollectionsNonConfigSubject.getValue();
+}
+
 
   //Metodo generico usato per scaturire la lettura dalla cache direttamente a chi sottoscrive in questo caso
   //viene usato da app component per fare la sottoscrizione dell evento e quindi rileggere dalla cache e passare i dati a tutti
@@ -111,6 +136,7 @@ notifyConfigCacheIsChanged(): void {
   console.log("Sto notificando  . . .")
   this.configCacheChangedSubject.next();
 }
+
 
 
 }

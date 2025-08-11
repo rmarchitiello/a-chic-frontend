@@ -1,183 +1,159 @@
-
-
-
+<!-- ============================= -->
+<!-- BLOCCO MOBILE PER ADMIN -->
+<!-- ============================= -->
 <div *ngIf="isMobile && isAdmin" class="mobile-blocked">
   <h2>Accesso ADMIN non disponibile su mobile</h2>
   <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
 </div>
 
-  <!-- Pulsante logout admin visibile solo se loggati come admin -->
-
-<!-- DESKTOP: solo se non mobile -->
+<!-- ============================= -->
+<!-- DESKTOP -->
+<!-- ============================= -->
 <ng-container *ngIf="!isMobile">
-<div *ngIf="isAdmin" class="admin-logout">
-  <button mat-stroked-button color="warn" (click)="logoutAdmin()">
-    Esci da modalità admin
-  </button>
-</div>
 
-
-
-  <!-- HEADER -->
-  <app-header></app-header>
-
-  <!-- BOTTONCINO PER APRIRE/CHIUDERE LA SIDENAV -->
-  <div
-    class="sidenav-handler"
-    (click)="desktopSidenavOpenFun()"
-    [class.aperta]="desktopSidenavOpen">
-    <mat-icon>
-      {{ desktopSidenavOpen ? 'chevron_left' : 'chevron_right' }}
-    </mat-icon>
+  <!-- Logout admin -->
+  <div *ngIf="isAdmin" class="admin-logout">
+    <button mat-stroked-button color="warn" (click)="logoutAdmin()">
+      Esci da modalità admin
+    </button>
   </div>
 
-  <!-- CONTAINER CON SIDENAV + CONTENUTO -->
+  <!-- Header -->
+  <app-header></app-header>
+
+  <!-- Pulsante apertura/chiusura sidenav -->
+  <div class="sidenav-handler" (click)="desktopSidenavOpenFun()" [class.aperta]="desktopSidenavOpen">
+    <mat-icon>{{ desktopSidenavOpen ? 'chevron_left' : 'chevron_right' }}</mat-icon>
+  </div>
+
+  <!-- Layout principale -->
   <mat-sidenav-container class="desktop-sidenav-container">
 
-    <!-- SIDENAV -->
-    <mat-sidenav
-      #sidenavDesktop
-      mode="side"
-      [(opened)]="desktopSidenavOpen"
-      class="desktop-sidenav">
+    <!-- ====================== -->
+    <!-- SIDENAV DESKTOP -->
+    <!-- ====================== -->
+    <mat-sidenav #sidenavDesktop mode="side" [(opened)]="desktopSidenavOpen" class="desktop-sidenav">
       <div class="sidenav-content">
 
-        <ng-container *ngFor="let categoria of categorie">
-          <!-- Categoria principale -->
-          <div
-            class="sidenav-categoria-desktop"
-            [class.attiva]="categoriaEspansa === categoria"
-            (click)="strutturaCategorie[categoria] && strutturaCategorie[categoria]!.length > 0
-            ? toggleCategoria(categoria)
-            : goToAndCloseSideNav(categoria)"
->
-            {{ categoria }}
+        <!-- Livello 1: categorie root -->
+        <ng-container *ngFor="let categoriaNew of categorieNew">
+
+          <!-- Nodo L1: click = apri/chiudi ramo 'categoriaNew' -->
+          <div class="sidenav-categoria-desktop"
+               (click)="saveCategoriaAndToggle(categoriaNew)">
+            {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
-          <!-- Sottocategorie -->
-          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container-desktop">
-            <div *ngFor="let sotto of strutturaCategorie[categoria] || []">
-              <button
-                class="sotto-categoria-desktop"
-                (click)="filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto]!.length > 0
-            ? toggleSottoCategoria(sotto)
-            : goToAndCloseSideNav(categoria, sotto)"
->
-                {{ sotto | titlecase }}
-              </button>
+          <!-- Livello 2: figli diretti di L1 -->
+          <!-- Rimane aperto se L1 è selezionato o se l'espanso è un suo discendente -->
+          <div class="sidenav-sottocategorie livello-2" *ngIf="isPathOpen(categoriaNew)">
 
-              <!-- Filtri -->
-              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container-desktop">
-                <button
-                  class="filtro-categoria-desktop"
-                  *ngFor="let filtro of filtriSottoCategorie[sotto] || []"
-                  (click)="goToMobileQueryParamFilter(categoria, sotto, filtro)">
-                  {{ filtro | titlecase }}
-                </button>
+            <!-- Ogni 'childPath' è un path completo tipo 'borse/conchiglia' -->
+            <div class="sidenav-sottocategoria"
+                 *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
+                 (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
+
+              <!-- etichetta = ultimo segmento leggibile -->
+              {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
+
+              <!-- Livello 3: figli diretti di L2 -->
+              <div class="sidenav-sottocategorie livello-3" *ngIf="isPathOpen(childPath)">
+
+                <!-- Ogni 'grandChildPath' è un path completo tipo 'borse/conchiglia/perlata' -->
+                <!-- click = NAVIGA passando il path completo (un solo argomento) -->
+                <div class="sidenav-sottocategoria"
+                     *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
+                     (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
+                  {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
+                </div>
+
               </div>
             </div>
           </div>
         </ng-container>
-
       </div>
     </mat-sidenav>
 
-    <!-- CONTENUTO PRINCIPALE -->
+    <!-- ====================== -->
+    <!-- CONTENUTO DESKTOP -->
+    <!-- ====================== -->
     <mat-sidenav-content>
       <div class="main-layout">
-
-
-
-
-        <!-- Contenuto dinamico della pagina -->
         <div class="desktop-page-container" [ngClass]="{ 'home-page': isHomeRoute }">
           <router-outlet></router-outlet>
         </div>
-
-        <!-- Footer desktop -->
         <app-footer *ngIf="!isMobile"></app-footer>
-
       </div>
     </mat-sidenav-content>
-
   </mat-sidenav-container>
 
-  <!-- CHAT desktop -->
+  <!-- Chat desktop -->
   <app-live-chat></app-live-chat>
 </ng-container>
 
-
-
-
-
-
-
-
-
-<!-- PARTE MOBILE-->
-<!-- Test scroll su mobile -->
+<!-- ============================= -->
+<!-- MOBILE (solo se non admin) -->
+<!-- ============================= -->
 <ng-container *ngIf="isMobile && !isAdmin">
 
-  <!-- HEADER SEMPRE VISIBILE (dove menuToggle e l evento del componente figli che quando viene premuto in mobile header component scaturisce sidenav.toggle)-->
+  <!-- Header mobile: apre/chiude la sidenav mobile -->
   <app-header (menuToggle)="sidenav.toggle()"></app-header>
 
-  <!-- SIDENAV + CONTENUTO -->
   <mat-sidenav-container class="sidenav-container">
 
+    <!-- ====================== -->
     <!-- SIDENAV MOBILE -->
+    <!-- ====================== -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
-        <ng-container *ngFor="let categoria of categorie">
-          <div
-            class="sidenav-categoria"
-            [class.attiva]="categoriaEspansa === categoria"
-            (click)="strutturaCategorie[categoria] && strutturaCategorie[categoria]!.length > 0 
-          ? toggleCategoria(categoria) 
-          : goToAndCloseSideNav(categoria)"
->
-            {{ categoria }}
+
+        <!-- Livello 1: categorie root -->
+        <ng-container *ngFor="let categoriaNew of categorieNew">
+
+          <!-- Nodo L1 mobile: evidenzia se il ramo è aperto -->
+          <div class="sidenav-categoria"
+               [class.attiva]="isPathOpen(categoriaNew)"
+               (click)="saveCategoriaAndToggle(categoriaNew)">
+            {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
-          <div *ngIf="categoriaEspansa === categoria" [@expandCollapse] class="sotto-container">
-            <div *ngFor="let sotto of strutturaCategorie[categoria]">
-              <button class="sotto-categoria"
-                      (click)="(filtriSottoCategorie[sotto] && filtriSottoCategorie[sotto].length > 0) ? toggleSottoCategoria(sotto) : goToAndCloseSideNav(categoria, sotto)">
-                {{ sotto | titlecase }}
-              </button>
+          <!-- Livello 2 mobile -->
+          <div class="sotto-container" *ngIf="isPathOpen(categoriaNew)" [@expandCollapse]>
 
-              <div *ngIf="sottoCategoriaEspansa === sotto" [@expandCollapse] class="filtro-container">
-                <button
-                  class="filtro-categoria"
-                  *ngFor="let filtro of filtriSottoCategorie[sotto]"
-                  (click)="goToMobileQueryParamFilter(categoria, sotto, filtro); sidenav.close()">
-                  {{ filtro | titlecase }}
+            <!-- Ogni 'childPath' è un path completo tipo 'borse/conchiglia' -->
+            <div class="sotto-categoria"
+                 *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
+                 (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
+              {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
+
+              <!-- Livello 3 mobile: foglie -->
+              <div class="filtro-container" *ngIf="isPathOpen(childPath)" [@expandCollapse]>
+
+                <!-- click = NAVIGA passando il path completo (un solo argomento) -->
+                <button class="filtro-categoria"
+                        *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
+                        (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
+                  {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
                 </button>
+
               </div>
             </div>
           </div>
         </ng-container>
-
-
-
-
       </div>
     </mat-sidenav>
 
-    <!-- CONTENUTO PRINCIPALE -->
+    <!-- ====================== -->
+    <!-- CONTENUTO MOBILE -->
+    <!-- ====================== -->
     <mat-sidenav-content>
       <div class="mobile-page-container">
         <router-outlet></router-outlet>
       </div>
     </mat-sidenav-content>
-
   </mat-sidenav-container>
 
-  <!-- FOOTER SEMPRE VISIBILE -->
+  <!-- Footer + Chat mobile -->
   <app-footer></app-footer>
-
-  <!-- chat sempre visibile -->
-     <app-live-chat></app-live-chat>
+  <app-live-chat></app-live-chat>
 </ng-container>
-
-
-
