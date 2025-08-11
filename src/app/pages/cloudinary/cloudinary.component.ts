@@ -460,5 +460,35 @@ apriPopUpEditorAdmin(): void {
   console.log('[CloudinaryComponent] apriPopUpEditorAdmin(): dialog aperto.');
 }
 
+apriPopUpEditorAdminCarillonAudio(): void {
+  console.log('[CloudinaryComponent] apriPopUpEditorAdminCarillonAudio(): avvio…');
 
+  const configList: MediaCollection[] = this.sharedData.getMediasCollectionsConfig() ?? [];
+  console.log('[CloudinaryComponent] snapshot CONFIG:', configList);
+
+  // Cerco la folder config/carillon/audio (match case-insensitive, anche se cambia il path esatto)
+  const target = configList.find(c =>
+    (c.folder ?? '').toLowerCase().includes('config/carillon/audio')
+  );
+
+  const toEdit: MediaCollection = target ?? { folder: 'config/carillon/audio', items: [] };
+
+  if (target) {
+    console.log('[CloudinaryComponent] collezione audio carillon trovata:', target.folder, target);
+  } else {
+    console.warn('[CloudinaryComponent] nessuna collezione audio trovata. Creo collezione vuota per: config/carillon/audio');
+  }
+
+  // Passo la collezione all’editor tramite il BehaviorSubject condiviso
+  this.sharedData.setMediaCollectionConfig(toEdit);
+  console.log('[CloudinaryComponent] MediaCollection (carillon audio) inviata al popup:', toEdit);
+
+  // Apro il dialog (full screen tramite .popup-admin-editor nel tuo SCSS)
+  this.dialog.open(EditorAdminPopUpComponent, {
+    disableClose: false,
+    panelClass: 'popup-admin-editor'
+  });
+
+  console.log('[CloudinaryComponent] apriPopUpEditorAdminCarillonAudio(): dialog aperto.');
+}
 }

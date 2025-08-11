@@ -1,11 +1,31 @@
 <!-- ========================
      ADMIN (comune)
 ========================= -->
+<!-- ========================
+     ADMIN (comune)
+========================= -->
 <div *ngIf="isAdmin" class="admin-banner">
   Modalità amministratore attiva
-  <button mat-stroked-button class="admin-action" (click)="apriPopUpEditorAdmin()" matTooltip="Aggiungi o modifica media">
+
+  <!-- Gestione della cartella corrente del catalogo -->
+  <button
+    mat-stroked-button
+    class="admin-action"
+    (click)="apriPopUpEditorAdmin()"
+    matTooltip="Aggiungi o modifica media nella cartella corrente">
     <mat-icon>edit</mat-icon>
     Gestisci media
+  </button>
+
+  <!-- Se sono nella sezione Carillon, mostro anche la gestione audio CONFIG -->
+  <button
+    *ngIf="isAudioIconVisible"
+    mat-stroked-button
+    class="admin-action"
+    (click)="apriPopUpEditorAdminCarillonAudio()"
+    matTooltip="Gestisci tracce audio del carillon (config)">
+    <mat-icon>library_music</mat-icon>
+    Gestisci audio
   </button>
 </div>
 
