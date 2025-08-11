@@ -35,6 +35,17 @@
     <mat-sidenav #sidenavDesktop mode="side" [(opened)]="desktopSidenavOpen" class="desktop-sidenav">
       <div class="sidenav-content">
 
+<!-- Azioni admin: visibili solo su desktop e solo se admin -->
+<div *ngIf="isAdmin" class="admin-sidenav-actions">
+  <button mat-stroked-button color="primary"
+          (click)="apriAdminFolderPopUp()"
+          matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
+    <mat-icon>create_new_folder</mat-icon>
+    Gestisci cartelle
+  </button>
+  <small class="hint">Formato: livello1[/livello2[/livello3]]</small>
+</div>
+
         <!-- Livello 1: categorie root -->
         <ng-container *ngFor="let categoriaNew of categorieNew">
 

@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { AdminFolderPopUpComponent } from './admin/editor/admin-folder-popup/admin-folder-popup.component';
 import {
   trigger,
   state,
@@ -26,7 +27,7 @@ import { filter } from 'rxjs/operators';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 import { SharedDataService } from './services/shared-data.service';
-
+import { MatDialog } from '@angular/material/dialog';
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -185,7 +186,8 @@ export class AppComponent implements OnInit {
     private zone: NgZone,
     private cdr: ChangeDetectorRef,
     private breakpointObserver: BreakpointObserver,
-    private sharedDataService: SharedDataService
+    private sharedDataService: SharedDataService,
+    private dialog: MatDialog
   ) {
     // Monitoraggio della route per sapere se siamo in /home
     this.router.events.pipe(
@@ -442,4 +444,27 @@ goToAndCloseSideNav(pathOrCategoria: string, sottoCategoria?: string): void {
     this.sharedDataService.setAdminToken(null);
     this.isAdmin = false;
   }
+
+apriAdminFolderPopUp(): void {
+  if (this.isMobile) return;        // admin disabilitato su mobile
+  if (!this.isAdmin) return;
+
+  // Normalizzo un minimo (trim, rimozione slash doppi, dedup, sort)
+  const allFolders = (this.foldersEstratte ?? [])
+    .map(f => (f ?? '').trim().replace(/\/+/g, '/').replace(/^\/|\/$/g, ''))
+    .filter(Boolean)
+    .filter((v, i, arr) => arr.indexOf(v) === i)
+    .sort((a, b) => a.localeCompare(b));
+
+  this.dialog.open(AdminFolderPopUpComponent, {
+    disableClose: false,
+    panelClass: 'popup-admin-folder', // o una tua classe dedicata
+    data: {
+      allFolders,   // lista piatta già pronta
+      maxLevels: 3  // regola per la validazione nel popup
+    }
+  });
+}
+
+
 }

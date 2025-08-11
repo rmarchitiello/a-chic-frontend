@@ -1,0 +1,168 @@
+
+
+/* ===========================
+   STRUTTURA INTERNA DEL POPUP
+   =========================== */
+
+.popup-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+}
+
+.popup-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+
+  .mat-mdc-button-base {
+    height: 36px;
+  }
+}
+
+/* Corpo: griglia a due colonne (albero + lista) */
+.popup-body {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+}
+
+/* Colonna sinistra: albero cartelle */
+.folder-tree {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: .75rem;
+  background: #fafafa;
+  overflow: auto;
+  max-height: calc(70vh - 120px);
+}
+
+.tree-node {
+  display: block;
+  padding: .35rem .5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: background .15s ease;
+
+  &:hover {
+    background: rgba(25, 118, 210, 0.08);
+  }
+
+  &.active {
+    background: rgba(25, 118, 210, 0.12);
+    color: #0b5ab3;
+    font-weight: 600;
+  }
+}
+
+.tree-children {
+  margin-left: .75rem;
+  border-left: 2px dashed rgba(0, 0, 0, 0.08);
+  padding-left: .5rem;
+}
+
+/* Colonna destra: elenco flat */
+.folders-flat {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: .75rem;
+  background: #fff;
+
+  .list {
+    margin: .5rem 0 0;
+    padding: 0;
+    list-style: none;
+    max-height: 48vh;
+    overflow: auto;
+
+    li {
+      padding: .4rem .5rem;
+      border-radius: 8px;
+      transition: background .15s ease;
+
+      &:nth-child(odd) {
+        background: rgba(0, 0, 0, 0.02);
+      }
+
+      &.active {
+        background: rgba(25, 118, 210, 0.12);
+        color: #0b5ab3;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* Hint per il form (se usato) */
+.new-folder-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .5rem;
+  margin-top: .75rem;
+
+  .hint {
+    grid-column: 1 / -1;
+    font-size: .85rem;
+    color: #666;
+  }
+}
+
+/* Footer */
+.popup-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  background: #fff;
+  padding: .75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+/* Alert generica */
+.alert {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: .5rem .75rem;
+  border-radius: 10px;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 980px) {
+  ::ng-deep .popup-admin-folder .mat-mdc-dialog-surface {
+    width: 94vw !important;
+    height: 88vh !important;
+  }
+
+  .popup-body {
+    grid-template-columns: 1fr;
+  }
+
+  .folder-tree {
+    max-height: 28vh;
+  }
+}
+
+

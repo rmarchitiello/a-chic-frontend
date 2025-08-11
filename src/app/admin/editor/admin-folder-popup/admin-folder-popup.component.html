@@ -1,0 +1,100 @@
+<!-- Header con azioni -->
+<div class="popup-header">
+  <h2 class="popup-title">Gestione cartelle</h2>
+
+  <div class="header-actions">
+    <button mat-stroked-button color="primary" (click)="onAdd()">
+      <mat-icon>create_new_folder</mat-icon>
+      Aggiungi
+    </button>
+
+    <button mat-stroked-button color="accent" (click)="onRename()" [disabled]="!selectedPath">
+      <mat-icon>drive_file_rename_outline</mat-icon>
+      Rinomina
+    </button>
+
+    <button mat-stroked-button color="warn" (click)="onDelete()" [disabled]="!selectedPath">
+      <mat-icon>delete</mat-icon>
+      Cancella
+    </button>
+  </div>
+</div>
+
+<!-- Contenuto scrollabile -->
+<mat-dialog-content>
+  <div class="popup-body">
+    <!-- Colonna sinistra: albero -->
+    <div class="folder-tree">
+      <ng-container *ngIf="tree?.length; else noFoldersTree">
+        <ng-container *ngFor="let node of tree">
+          <ng-container
+            [ngTemplateOutlet]="treeNodeTpl"
+            [ngTemplateOutletContext]="{ $implicit: node, depth: 0 }">
+          </ng-container>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #noFoldersTree>
+        <div class="alert">Nessuna cartella presente. Usa “Aggiungi” per crearne una.</div>
+      </ng-template>
+    </div>
+
+    <!-- Colonna destra: elenco piatto -->
+    <div class="folders-flat">
+      <div class="title-row" style="display:flex;align-items:center;justify-content:space-between;">
+        <h3 style="margin:0;font-size:1rem;font-weight:600;">
+          Elenco cartelle ({{ allFolders.length }})
+        </h3>
+        <span *ngIf="selectedPath">Selezionata: <strong>{{ selectedPath }}</strong></span>
+      </div>
+
+      <ul class="list" *ngIf="allFolders?.length; else noFoldersFlat">
+        <li
+          *ngFor="let f of allFolders"
+          (click)="onSelectFlat(f)"
+          [class.active]="selectedPath === f"
+          style="cursor: pointer;">
+          {{ f }}
+        </li>
+      </ul>
+
+      <ng-template #noFoldersFlat>
+        <div class="alert">Nessuna cartella in elenco.</div>
+      </ng-template>
+
+      <div class="new-folder-form">
+        <span class="hint">
+          Massimo {{ maxLevels }} livelli. Formato: livello1[/livello2[/livello3]]
+        </span>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<!-- Footer -->
+<div class="popup-footer">
+  <button mat-stroked-button (click)="onClose()">
+    <mat-icon>close</mat-icon>
+    Chiudi
+  </button>
+</div>
+
+<!-- Template ricorsivo per l’albero -->
+<ng-template #treeNodeTpl let-node let-depth="depth">
+  <div
+    class="tree-node"
+    [class.active]="selectedPath === node.fullPath"
+    [style.paddingLeft.px]="depth * 14"
+    (click)="onSelectNode(node)">
+    {{ node.name }}
+  </div>
+
+  <div class="tree-children" *ngIf="node.children?.length">
+    <ng-container *ngFor="let child of node.children">
+      <ng-container
+        [ngTemplateOutlet]="treeNodeTpl"
+        [ngTemplateOutletContext]="{ $implicit: child, depth: depth + 1 }">
+      </ng-container>
+    </ng-container>
+  </div>
+</ng-template>
