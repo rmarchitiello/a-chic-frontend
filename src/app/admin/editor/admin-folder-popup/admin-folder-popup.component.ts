@@ -114,6 +114,8 @@ export class AdminFolderPopUpComponent implements OnInit {
   */
   cartellePrincipali: string[] = [];
 
+  cartellaDaAggiungere: string = '';
+
   ngOnInit(): void {
     console.log('[AdminFolderPopUp] input folders:', this.data);
     this.treeInitialization(this.data);
@@ -182,24 +184,7 @@ export class AdminFolderPopUpComponent implements OnInit {
   chiudiDialog() {
     this.dialogRef.close();
   }
-  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
-    let panelClassCustom;
-    let duration;
-    if (isError) {
-      panelClassCustom = 'snackbar-errore';
-      duration = 1000;
-    }
-    else {
-      panelClassCustom = 'snackbar-ok';
-      duration = 500;
-    }
-    this.snackBar.open(messaggio, 'Chiudi', {
-      duration: duration, // durata in ms
-      panelClass: panelClassCustom, // classe CSS personalizzata
-      horizontalPosition: 'center',
-      verticalPosition: 'top'
-    });
-  }
+  
 
 
   onModifica(nodo: string) {
@@ -222,14 +207,22 @@ export class AdminFolderPopUpComponent implements OnInit {
   onAggiungiCartellaPrincipale() {
 
     const dialogRef = this.dialog.open(ManageFolderDataComponent, {
-      panelClass: 'popup-manage-folder'
+      panelClass: 'popup-manage-folder',
+      data: {operation: 'aggiungi',
+             cartellePrincipali: this.cartellePrincipali
+      }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-
+        console.log("Nome cartella ricevuta e controllata: ", result);
+        this.cartellaDaAggiungere = result;
+        //procedo ad aggiungere la categoria nella cache
+        //la validazione la faccio nel pop up cosi se non e valida non esco infatti al pop up passo le cartelle principali
+        
     });
 
 
 
   }
+  
 }

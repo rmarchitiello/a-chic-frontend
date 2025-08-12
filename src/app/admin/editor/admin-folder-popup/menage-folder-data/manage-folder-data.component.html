@@ -1,12 +1,14 @@
-<form class="folder-form" (ngSubmit)="onSubmit()">
+<form class="folder-form" [formGroup]="form" (ngSubmit)="onSubmit()">
   <mat-form-field class="folder-form__field" appearance="outline">
-    <mat-label class="folder-form__label">Nome cartella</mat-label>
-    <input 
-      matInput 
+    <mat-label class="folder-form__label">{{label}}</mat-label>
+    <input
+      matInput
+      noFocus
       class="folder-form__input"
-      [formControl]="setInputFolder" 
-      placeholder="Inserisci il nome" 
-      (keyup.enter)="onSubmit()" 
+      formControlName="setInputFolder"
+      placeholder="Inserisci il nome"
     />
   </mat-form-field>
 </form>
+
+

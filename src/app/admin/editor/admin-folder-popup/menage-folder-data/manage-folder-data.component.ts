@@ -3,81 +3,147 @@ In pratica, quando creo o rinomino una folder faccio uscire un piccolo pop up ch
 aprire questo component. Quando viene chiuso o premo invia, si chiude il pop up e sottocriviamo 
 l'output all AdminFolderComponent
 */
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject  } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormControl } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input'; 
-import { Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-menage-folder-data',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     MatInputModule
-    
   ],
   templateUrl: './manage-folder-data.component.html',
   styleUrl: './manage-folder-data.component.scss'
 })
 export class ManageFolderDataComponent implements OnInit {
 
-  setInputFolder!: FormControl;
+  /**
+   * FormGroup “contenitore” per il singolo controllo.
+   * Avere un FormGroup permette ad Angular di gestire
+   * correttamente (ngSubmit) ed evitare il submit nativo del browser.
+   */
+  form!: FormGroup;
 
+  /**
+   * Controllo reattivo usato dal template con [formControl].
+   * Viene anche registrato dentro al FormGroup, così non devi
+   * cambiare il template attuale.
+   */
+  setInputFolder!: FormControl<string>;
+
+  label: string = '';
   constructor(
-      private dialogRef: MatDialogRef<ManageFolderDataComponent>,
-      private snackBar: MatSnackBar
-  ){
-
-  }
+    @Inject(MAT_DIALOG_DATA) public data: {operation: string, cartellePrincipali: string[]},
+    private dialogRef: MatDialogRef<ManageFolderDataComponent>,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
-        //istanzio la form
-        this.setInputFolder = new FormControl('',  [
-    Validators.required,
-    Validators.pattern(/^[a-zA-Z0-9\s]+$/) // consente solo lettere, numeri e spazi
-  ])
+    
+    if(this.data.operation.toLocaleLowerCase() === 'aggiungi'){
+      this.label = "Aggiungi Cartella";
+    }else if(this.data.operation === 'rinomina'){
+      this.label = "Rinomina Cartella";
+    }
+    else {
+      this.label = "Inserisci"
+    }
+    
+    console.log("Operazione ricevuta: ", this.label);
+    // Istanzia il FormControl con i validator richiesti.
+    // - required: non consente stringhe vuote
+    // - pattern: consente solo lettere, numeri, underscore e trattino (niente spazi o caratteri speciali)
+    this.setInputFolder = new FormControl<string>('', {
+      nonNullable: true,
+      validators: [
+        Validators.required,
+        Validators.pattern(/^[a-zA-Z0-9_-]+$/) // Nessuno spazio o carattere speciale
+      ]
+    });
 
+    // Registra il controllo dentro a un FormGroup.
+    // In questo modo puoi aggiungere altri campi in futuro senza cambiare struttura.
+    this.form = new FormGroup({
+      setInputFolder: this.setInputFolder
+    });
   }
 
-onSubmit(): void {
-  if (this.setInputFolder.value.trim() > 0 && this.setInputFolder.valid) {
-    // Chiude il dialog passando il valore del campo
-    this.dialogRef.close(this.setInputFolder.value);
+  /**
+   * Gestisce il submit del form.
+   * Viene chiamato da (ngSubmit) nel template.
+   * Chiude il dialog SOLO se:
+   * - il valore trim-mato ha lunghezza > 0
+   * - il controllo è valido rispetto ai validator (required + pattern)
+   * In caso contrario mostra messaggi specifici e NON chiude.
+   */
+  onSubmit(): void {
+  // 1) Normalizzazione del valore
+  const raw = this.setInputFolder.value ?? '';
+  const value = raw.toString().trim();
+  console.log('Folder inserita:', value);
+
+  // 2) Blocco invio se vuoto (dopo trim)
+  if (value.length === 0) {
+    this.mostraMessaggioSnakBar('Il campo è obbligatorio', true);
     return;
   }
 
-  // Mostra messaggi di errore specifici
-  if (this.setInputFolder.hasError('pattern')) {
-    this.mostraMessaggioSnakBar('Non sono consentiti caratteri speciali', true);
-  } else if (this.setInputFolder.hasError('required')) {
-    this.mostraMessaggioSnakBar('Il campo è obbligatorio', true);
+  // 3) Blocco invio se non passa i validator (pattern, ecc.)
+  if (this.setInputFolder.invalid) {
+    // Mostra il messaggio specifico più utile
+    if (this.setInputFolder.hasError('pattern')) {
+      this.mostraMessaggioSnakBar('Non sono consentiti caratteri speciali', true);
+    } else if (this.setInputFolder.hasError('required')) {
+      // In teoria non ci arrivi qui perché abbiamo già gestito value.length === 0
+      this.mostraMessaggioSnakBar('Il campo è obbligatorio', true);
+    } else {
+      this.mostraMessaggioSnakBar('Controlla i dati inseriti', true);
+    }
+    return;
   }
+
+  /* SEZIONE AGGIUNTA CATEGORIE PRINCIPALI */
+  // 4) Controllo duplicati sulle cartelle principali (normalizzato: trim + lowercase)
+  const elenco = Array.isArray(this.data?.cartellePrincipali)
+    ? this.data.cartellePrincipali
+    : [];
+
+  const esistentiNormalizzati = elenco
+    .filter(v => v != null)
+    .map(v => String(v).trim().toLowerCase());
+
+  if (esistentiNormalizzati.includes(value.toLowerCase())) {
+    this.mostraMessaggioSnakBar('Attenzione: esiste già questa categoria', true);
+    return; // IMPORTANTE: fermarsi qui
+  }
+  /* FINE SEZIONE AGGIUNTA CATEGORIE PRINCIPALI */
+
+  // 5) Tutto ok: feedback e chiusura con il valore
+  this.mostraMessaggioSnakBar('Categoria aggiunta con successo', false);
+  this.dialogRef.close(value);
 }
 
 
-  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
-    let panelClassCustom;
-    let duration;
-    if (isError) {
-      panelClassCustom = 'snackbar-errore';
-      duration = 1000;
-    }
-    else {
-      panelClassCustom = 'snackbar-ok';
-      duration = 500;
-    }
+  /**
+   * Wrapper centralizzato per mostrare messaggi in snackbar.
+   * Usa due classi pannello differenti per ok/errore e durata diversa.
+   */
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
+    const panelClassCustom = isError ? 'snackbar-errore' : 'snackbar-ok';
+    const duration = isError ? 1000 : 500;
+
     this.snackBar.open(messaggio, 'Chiudi', {
-      duration: duration, // durata in ms
-      panelClass: panelClassCustom, // classe CSS personalizzata
+      duration,
+      panelClass: panelClassCustom,
       horizontalPosition: 'center',
       verticalPosition: 'top'
     });
   }
-
-
-
 }
