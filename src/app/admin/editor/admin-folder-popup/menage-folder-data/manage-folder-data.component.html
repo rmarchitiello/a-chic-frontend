@@ -1,0 +1,12 @@
+<form class="folder-form" (ngSubmit)="onSubmit()">
+  <mat-form-field class="folder-form__field" appearance="outline">
+    <mat-label class="folder-form__label">Nome cartella</mat-label>
+    <input 
+      matInput 
+      class="folder-form__input"
+      [formControl]="setInputFolder" 
+      placeholder="Inserisci il nome" 
+      (keyup.enter)="onSubmit()" 
+    />
+  </mat-form-field>
+</form>
