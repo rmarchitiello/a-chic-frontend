@@ -1,79 +1,198 @@
-/* HEADER (sticky) + CHIUDI */
-.popup-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;      /* prima era space-between */
-  gap: .75rem;
-  padding: 1rem 3rem 1rem 1.25rem;  /* spazio a destra per la X */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  background: #fff;
+/* =========================================
+   TREE VIEW — SCSS pulito e coerente
+   ========================================= */
 
+/* Contenitore principale */
+.folder-tree {
+  position: relative;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;   /* gray-200 */
+  border-radius: 12px;
+  max-height: 70vh;
+  overflow: auto;
+
+  /* Pulsante chiudi (senza cerchio/ombra) */
   .chiudi-btn {
     position: absolute;
-    top: .35rem;
-    right: .5rem;
+    top: 8px;
+    right: 8px;
     z-index: 10;
     background: transparent;
     border: none;
+    box-shadow: none;
+    padding: 2px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: .25rem;
 
     mat-icon {
-      color: #111;
-      font-size: 26px;
-      width: 26px;
-      height: 26px;
-      line-height: 26px;
+      color: #111111;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 6px;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #2563eb;  /* blue-600 */
+      outline-offset: 2px;
     }
   }
 }
 
-.popup-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  /* un po’ di respiro dal gruppo bottoni */
-  margin-right: 1rem;
+/* Nodo */
+.folder-node {
+  position: relative;
+  margin-left: 14px;             /* indentazione base */
+  padding-left: 10px;
+  border-left: 1px solid #e5e7eb; /* guida verticale sottile */
+  transition: background-color 120ms ease;
+
+  /* connettore orizzontale */
+  &::before {
+    content: "";
+    position: absolute;
+    top: 18px;
+    left: -14px;
+    width: 14px;
+    height: 1px;
+    background: #e5e7eb;
+  }
+
+  /* accento leggero al passaggio */
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  /* focus accessibile se un controllo interno riceve focus */
+  &:focus-within {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+    border-left-color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.06);
+  }
 }
 
-/* Gruppo pulsanti centrato nell’header */
-.header-actions {
+/* Header nodo: etichetta + azioni */
+.folder-node__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+/* Percorso (pill sobria) */
+.folder-node__path {
+  flex: 1 1 auto;
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 14px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #111827;                 /* gray-900 */
+  background: #f3f4f6;            /* gray-100 */
+  border: 1px solid #e5e7eb;      /* gray-200 */
+  border-radius: 999px;           /* pill */
+  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Azioni: pulite, poco invadenti (appaiono al passaggio) */
+.folder-node__actions {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
-  margin-left: auto;     /* spinge il gruppo verso il centro */
-  margin-right: auto;    /* centra tra titolo e X */
-  .mat-mdc-button-base { height: 36px; }
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
 
-  /* stile rosso per Cancella (resta invariato) */
-  .mat-mdc-outlined-button.mat-warn {
-    --warn-text: #b91c1c;
-    --warn-brd:  #f87171;
-    --warn-bg:   #fee2e2;
-    color: var(--warn-text);
-    background: var(--warn-bg);
-    border-color: var(--warn-brd);
+.folder-node:hover > .folder-node__header .folder-node__actions,
+.folder-node:focus-within > .folder-node__header .folder-node__actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.folder-node__actions button[mat-icon-button] {
+  width: 28px;
+  height: 28px;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  mat-icon {
+    font-size: 18px;
+    color: #6b7280;               /* gray-500/600 */
   }
-  .mat-mdc-outlined-button.mat-warn:hover:not(.mdc-button--disabled) {
-    color: #991b1b;
-    background: #fecaca;
-    border-color: #ef4444;
+
+  &:hover mat-icon {
+    color: #111827;               /* gray-900 */
   }
-  .mat-mdc-outlined-button.mat-warn mat-icon { color: inherit; }
-  .mat-mdc-outlined-button.mat-warn.mdc-button--disabled {
-    color: rgba(185, 28, 28, 0.45);
-    border-color: rgba(248, 113, 113, 0.45);
-    background: rgba(254, 226, 226, 0.45);
+
+  &[color="warn"] mat-icon {
+    color: #b91c1c;               /* red-700 */
+  }
+
+  &[color="warn"]:hover mat-icon {
+    color: #991b1b;               /* red-800 */
   }
 }
 
-/* responsive fine-tuning */
-@media (max-width: 980px) {
-  .popup-header { padding-right: 2.5rem; }
+/* Figli */
+.folder-node__children {
+  margin-top: 6px;
+  margin-left: 14px;
+}
+
+.folder-node__child {
+  margin: 4px 0;
+}
+
+/* Top-level: più netto, senza connettori iniziali */
+.folder-tree > div > .folder-node {
+  border-left-color: transparent;
+  margin-left: 0;
+  padding-left: 0;
+}
+.folder-tree > div > .folder-node::before {
+  display: none;
+}
+.folder-tree > div > .folder-node .folder-node__path {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 680px) {
+  .folder-tree {
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .folder-node {
+    margin-left: 12px;
+    padding-left: 8px;
+
+    &::before {
+      left: -12px;
+      width: 12px;
+    }
+  }
+
+  .folder-node__path {
+    font-size: 13px;
+    padding: 5px 8px;
+  }
+
+  .folder-node__children {
+    margin-left: 12px;
+  }
 }

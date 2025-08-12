@@ -1,51 +1,69 @@
-<!-- Header con azioni principali -->
-<div class="popup-header">
-  <!-- Pulsante Chiudi (senza mat-icon-button per evitare il cerchio) -->
-  <button
-    class="chiudi-btn"
-    type="button"
-    matTooltip="Chiudi"
-    [matTooltipClass]="'tooltip-custom'"
-    (click)="chiudiDialog()">
+<!-- Se notiamo bene, 
+  ogni path ha sempre nodoCorrente e fullPath anche il campo child, quindi creo un template ricorsivo
+
+-->
+
+<!-- in pratica sto creando una variabile locale al template
+ con let-nodoInput e per usarla faccio nodoInput.qualcosa
+ 
+ let-nodoInput="nodoDiInputAlTemplate e il context cioe ci sara un div un ng container
+ da qualche parte del codice che fara context: { nodoDiInputAlTemplate: node }
+ e quindi vuol dire che nodoInput vale il context passato in quel momento"
+ -->
+<!--
+  Template ricorsivo per rappresentare un nodo TreeNode.
+  - let-nodoInput="nodoDiInputAlTemplate": crea la variabile locale "nodoInput"
+    mappandola dalla proprietà passata nel context da ngTemplateOutlet.
+-->
+<ng-template #rappresentaTree let-nodoInput="nodoDiInputAlTemplate">
+  <div class="folder-node">
+    <div class="folder-node__header">
+      <span class="folder-node__label">{{ nodoInput.nodoCorrente }}</span>
+
+      <!-- Menu azioni compatto -->
+      <button mat-icon-button class="node-menu-btn" [matMenuTriggerFor]="menuNodo">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menuNodo="matMenu" class="node-menu">
+        <button mat-menu-item (click)="onModifica(nodoInput)">
+          <mat-icon>edit</mat-icon> 
+          <span>Modifica</span>
+        </button>
+        <button mat-menu-item (click)="onRinomina(nodoInput)">
+          <mat-icon>drive_file_rename_outline</mat-icon>
+          <span>Rinomina</span>
+        </button>
+        <button mat-menu-item (click)="onAggiungiFiglio(nodoInput)">
+          <mat-icon>add</mat-icon>
+          <span>Aggiungi sottocartella</span>
+        </button>
+        <button mat-menu-item (click)="onCancella(nodoInput)">
+          <mat-icon class="warn">delete</mat-icon>
+          <span class="warn">Elimina</span>
+        </button>
+      </mat-menu>
+    </div>
+
+    <div class="folder-node__children" *ngIf="nodoInput.child?.length > 0">
+      <div class="folder-node__child" *ngFor="let n of nodoInput.child">
+        <ng-container
+          [ngTemplateOutlet]="rappresentaTree"
+          [ngTemplateOutletContext]="{ nodoDiInputAlTemplate: n }"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<div class="folder-tree">
+  <button mat-icon-button class="chiudi-btn"  matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
     <mat-icon>close</mat-icon>
   </button>
 
-  <div class="header-actions">
-    <button mat-stroked-button color="primary" (click)="onAdd()">
-      <mat-icon>create_new_folder</mat-icon>
-      Aggiungi
-    </button>
-
-    <button mat-stroked-button color="accent" (click)="onRename()" [disabled]="!selectedPath">
-      <mat-icon>drive_file_rename_outline</mat-icon>
-      Rinomina
-    </button>
-
-    <button mat-stroked-button color="warn" (click)="onDelete()" [disabled]="!selectedPath">
-      <mat-icon>delete</mat-icon>
-      Cancella
-    </button>
+  <div *ngFor="let rootNode of tree">
+    <ng-container
+      [ngTemplateOutlet]="rappresentaTree"
+      [ngTemplateOutletContext]="{ nodoDiInputAlTemplate: rootNode }"
+    ></ng-container>
   </div>
 </div>
-
-<!-- Corpo dialog: SOLO lista piatta con indentazione visiva in base alla profondità -->
-<mat-dialog-content>
-  <div class="popup-body solo-albero">
-    <div class="folder-tree">
-      <ng-container *ngIf="flatNodes?.length; else noFolders">
-        <div
-          class="tree-node"
-          *ngFor="let f of flatNodes"
-          [class.active]="selectedPath === f.fullPath"
-          [style.paddingLeft.px]="f.depth * 14"
-          (click)="onSelectPath(f.fullPath)">
-          {{ f.name }}
-        </div>
-      </ng-container>
-
-      <ng-template #noFolders>
-        <div class="alert">Nessuna cartella presente. Usa “Aggiungi” per crearne una.</div>
-      </ng-template>
-    </div>
-  </div>
-</mat-dialog-content>
