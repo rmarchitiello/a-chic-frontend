@@ -68,8 +68,17 @@
 <div class="folder-container">
   <!-- HEADER POPUP -->
   <div class="folder-header">
+    <!-- Pulsante Chiudi -->
     <button class="chiudi-btn" matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Pulsante Aggiungi cartella principale -->
+  <div class="add-root-btn-wrapper">
+    <button mat-raised-button color="primary" (click)="onAggiungiCartellaPrincipale()">
+      <mat-icon>create_new_folder</mat-icon>
+      Aggiungi cartella principale
     </button>
   </div>
 

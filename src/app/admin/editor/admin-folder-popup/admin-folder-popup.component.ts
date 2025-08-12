@@ -107,11 +107,13 @@ export class AdminFolderPopUpComponent implements OnInit {
 
 tree: TreeNode[] = [];
 
+cartellePrincipali: string[] = [];
 
 ngOnInit(): void {
   console.log('[AdminFolderPopUp] input folders:', this.data);
   this.treeInitialization(this.data);
-  console.log("Tree inizializzato di seguito l'oggetto ottenuto: ", JSON.stringify(this.tree))
+  console.log("Tree inizializzato di seguito l'oggetto ottenuto: ", JSON.stringify(this.tree));
+  console.log("Cartelle principali: ", this.cartellePrincipali);
 }
 
 // Normalizza un path per sicurezza:
@@ -134,10 +136,14 @@ treeInitialization(inputPathString: string[]): void {
     .map(p => this.normalizzaPath(p))
     .filter(Boolean);
 
+    //creo anche l'array di cartelle principali
+    let cartellePrincipaliTemp: string[] = [];
   for (const path of pathsNormalizzati) {
     const segments = path.split("/").filter(Boolean);
     let accumPath = "";
     let currentLevel = this.tree; // parte dall'array top-level
+    
+    cartellePrincipaliTemp.push(segments[0]); //carico tutte le cartelle principali
 
     for (const segment of segments) {
       accumPath = accumPath ? `${accumPath}/${segment}` : segment;
@@ -157,6 +163,9 @@ treeInitialization(inputPathString: string[]): void {
       // scende di un livello
       currentLevel = existingNode.child;
     }
+
+    //carico le cartelle principali in modo che quando aggiungo quella padre mi lancia un errore 
+    this.cartellePrincipali = [...new Set(cartellePrincipaliTemp)]; //elimino i duplicati
   }
 
 }
@@ -202,6 +211,9 @@ treeInitialization(inputPathString: string[]): void {
 
   onAggiungiFiglio(nodo: string){
       console.log("Nodo cliccato: ", nodo);
+  }
+  onAggiungiCartellaPrincipale(){
+      
   }
 
 }

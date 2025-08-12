@@ -1,29 +1,16 @@
 /* ========================
-   RIMOZIONE LIMITI MATERIAL
-   ======================== */
-
-/* Forza il dialog Material a non avere max-height e scroll interni */
-::ng-deep .mat-mdc-dialog-surface {
-  max-height: none !important; /* Nessun limite di altezza */
-  overflow: visible !important; /* Contenuto visibile oltre i limiti */
-}
-
-/* ========================
    CONTENITORE PRINCIPALE
    ======================== */
 .folder-container {
   position: relative;
   background: #fff;
   border-radius: 12px;
-  overflow: visible; /* Evita scroll interno */
   display: flex;
   flex-direction: column;
-  padding: 0; /* Pulizia margini interni */
+  overflow: visible; // niente scroll forzato
 }
 
-/* ========================
-   HEADER POPUP
-   ======================== */
+/* HEADER POPUP */
 .folder-header {
   position: sticky;
   top: 0;
@@ -42,7 +29,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: none !important; /* Rimuove l’ombra grigia */
 
     mat-icon {
       color: #111;
@@ -61,12 +47,36 @@
 }
 
 /* ========================
+   NUOVO PULSANTE "AGGIUNGI CARTELLA PRINCIPALE"
+   ======================== */
+.add-root-btn-wrapper {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-start;
+  background: #fff;
+
+  button[mat-raised-button] {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+
+    mat-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+/* ========================
    LISTA RADICE
    ======================== */
 .folder-tree {
   padding: 10px;
-  overflow: visible; /* Nessuno scroll interno */
-  max-height: none; /* Nessun limite di altezza */
+  overflow: visible; // nessuno scroll interno
 }
 
 /* ========================
@@ -94,9 +104,7 @@
   }
 }
 
-/* ========================
-   HEADER NODO
-   ======================== */
+/* HEADER NODO */
 .folder-node__header {
   display: flex;
   align-items: center;
@@ -104,23 +112,19 @@
   gap: 0.25rem;
 }
 
-/* ========================
-   ETICHETTA NODO
-   ======================== */
+/* ETICHETTA NODO */
 .folder-node__label {
   flex: 1;
   font-size: 14px;
   font-weight: 600;
   padding: 6px 10px;
-  border-radius: 999px; /* Stile pillola */
+  border-radius: 999px; /* pillola */
   background: #f3f4f6;
   color: #1f2937;
   word-break: break-word;
 }
 
-/* ========================
-   MENU TRE PUNTINI
-   ======================== */
+/* MENU TRE PUNTINI */
 .node-menu-btn {
   width: 28px;
   height: 28px;
@@ -138,9 +142,7 @@
   }
 }
 
-/* ========================
-   FIGLI
-   ======================== */
+/* FIGLI */
 .folder-node__children {
   margin-top: 4px;
   margin-left: 12px;
@@ -151,7 +153,7 @@
 }
 
 /* ========================
-   MENU PERSONALIZZATO
+   MAT-MENU PERSONALIZZATO
    ======================== */
 ::ng-deep .mat-mdc-menu-panel.menu-card-actions.node-menu {
   background: #ffffff;
@@ -200,5 +202,13 @@
   .folder-node__label {
     font-size: 13px;
     padding: 5px 8px;
+  }
+
+  .add-root-btn-wrapper {
+    padding: 0.5rem;
+    button[mat-raised-button] {
+      font-size: 13px;
+      padding: 0.35rem 0.6rem;
+    }
   }
 }
