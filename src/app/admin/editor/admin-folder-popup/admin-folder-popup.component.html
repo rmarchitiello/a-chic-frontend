@@ -15,35 +15,42 @@
   - let-nodoInput="nodoDiInputAlTemplate": crea la variabile locale "nodoInput"
     mappandola dalla proprietà passata nel context da ngTemplateOutlet.
 -->
+<!-- Template ricorsivo -->
+<!-- =========================
+     TEMPLATE RICORSIVO ALBERO CARTELLE
+     ========================= -->
+
+<!-- Template ricorsivo per singolo nodo -->
 <ng-template #rappresentaTree let-nodoInput="nodoDiInputAlTemplate">
   <div class="folder-node">
+    <!-- HEADER NODO -->
     <div class="folder-node__header">
+      <!-- Nome cartella -->
       <span class="folder-node__label">{{ nodoInput.nodoCorrente }}</span>
 
-      <!-- Menu azioni compatto -->
+      <!-- Menu azioni (tre puntini) -->
       <button mat-icon-button class="node-menu-btn" [matMenuTriggerFor]="menuNodo">
         <mat-icon>more_vert</mat-icon>
       </button>
-      <mat-menu #menuNodo="matMenu" class="node-menu">
-        <button mat-menu-item (click)="onModifica(nodoInput)">
-          <mat-icon>edit</mat-icon> 
-          <span>Modifica</span>
+
+      <!-- Menu Material -->
+      <mat-menu #menuNodo="matMenu" class="menu-card-actions node-menu">
+        <button mat-menu-item (click)="onModifica(nodoInput.fullPath)">
+          <mat-icon>edit</mat-icon><span>Modifica</span>
         </button>
-        <button mat-menu-item (click)="onRinomina(nodoInput)">
-          <mat-icon>drive_file_rename_outline</mat-icon>
-          <span>Rinomina</span>
+        <button mat-menu-item (click)="onRinomina(nodoInput.fullPath)">
+          <mat-icon>drive_file_rename_outline</mat-icon><span>Rinomina</span>
         </button>
-        <button mat-menu-item (click)="onAggiungiFiglio(nodoInput)">
-          <mat-icon>add</mat-icon>
-          <span>Aggiungi sottocartella</span>
+        <button mat-menu-item (click)="onAggiungiFiglio(nodoInput.fullPath)">
+          <mat-icon>add</mat-icon><span>Aggiungi sottocartella</span>
         </button>
-        <button mat-menu-item (click)="onCancella(nodoInput)">
-          <mat-icon class="warn">delete</mat-icon>
-          <span class="warn">Elimina</span>
+        <button mat-menu-item class="cancella" (click)="onCancella(nodoInput)">
+          <mat-icon>delete</mat-icon><span>Elimina</span>
         </button>
       </mat-menu>
     </div>
 
+    <!-- FIGLI -->
     <div class="folder-node__children" *ngIf="nodoInput.child?.length > 0">
       <div class="folder-node__child" *ngFor="let n of nodoInput.child">
         <ng-container
@@ -55,15 +62,24 @@
   </div>
 </ng-template>
 
-<div class="folder-tree">
-  <button mat-icon-button class="chiudi-btn"  matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
-    <mat-icon>close</mat-icon>
-  </button>
+<!-- =========================
+     RADICE ALBERO
+     ========================= -->
+<div class="folder-container">
+  <!-- HEADER POPUP -->
+  <div class="folder-header">
+    <button class="chiudi-btn" matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
 
-  <div *ngFor="let rootNode of tree">
-    <ng-container
-      [ngTemplateOutlet]="rappresentaTree"
-      [ngTemplateOutletContext]="{ nodoDiInputAlTemplate: rootNode }"
-    ></ng-container>
+  <!-- LISTA NODI RADICE -->
+  <div class="folder-tree">
+    <div *ngFor="let rootNode of tree">
+      <ng-container
+        [ngTemplateOutlet]="rappresentaTree"
+        [ngTemplateOutletContext]="{ nodoDiInputAlTemplate: rootNode }"
+      ></ng-container>
+    </div>
   </div>
 </div>

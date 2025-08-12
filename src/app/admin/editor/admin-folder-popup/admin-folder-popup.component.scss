@@ -1,198 +1,204 @@
-/* =========================================
-   TREE VIEW — SCSS pulito e coerente
-   ========================================= */
+/* ========================
+   RIMOZIONE LIMITI MATERIAL
+   ======================== */
 
-/* Contenitore principale */
-.folder-tree {
+/* Forza il dialog Material a non avere max-height e scroll interni */
+::ng-deep .mat-mdc-dialog-surface {
+  max-height: none !important; /* Nessun limite di altezza */
+  overflow: visible !important; /* Contenuto visibile oltre i limiti */
+}
+
+/* ========================
+   CONTENITORE PRINCIPALE
+   ======================== */
+.folder-container {
   position: relative;
-  padding: 12px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;   /* gray-200 */
+  background: #fff;
   border-radius: 12px;
-  max-height: 70vh;
-  overflow: auto;
+  overflow: visible; /* Evita scroll interno */
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Pulizia margini interni */
+}
 
-  /* Pulsante chiudi (senza cerchio/ombra) */
+/* ========================
+   HEADER POPUP
+   ======================== */
+.folder-header {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
+
   .chiudi-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    z-index: 10;
     background: transparent;
     border: none;
-    box-shadow: none;
-    padding: 2px;
+    padding: 0;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: none !important; /* Rimuove l’ombra grigia */
 
     mat-icon {
-      color: #111111;
+      color: #111;
       font-size: 24px;
-      width: 24px;
-      height: 24px;
-      line-height: 24px;
     }
 
     &:hover {
-      background: rgba(0, 0, 0, 0.06);
+      background-color: rgba(0, 0, 0, 0.05);
       border-radius: 6px;
     }
 
     &:focus-visible {
-      outline: 2px solid #2563eb;  /* blue-600 */
-      outline-offset: 2px;
+      outline: none;
     }
   }
 }
 
-/* Nodo */
+/* ========================
+   LISTA RADICE
+   ======================== */
+.folder-tree {
+  padding: 10px;
+  overflow: visible; /* Nessuno scroll interno */
+  max-height: none; /* Nessun limite di altezza */
+}
+
+/* ========================
+   NODO
+   ======================== */
 .folder-node {
   position: relative;
-  margin-left: 14px;             /* indentazione base */
-  padding-left: 10px;
-  border-left: 1px solid #e5e7eb; /* guida verticale sottile */
-  transition: background-color 120ms ease;
+  padding-left: 14px;
+  margin-bottom: 6px;
+  border-left: 2px solid #e5e7eb;
 
-  /* connettore orizzontale */
   &::before {
     content: "";
     position: absolute;
-    top: 18px;
+    top: 16px;
     left: -14px;
     width: 14px;
     height: 1px;
     background: #e5e7eb;
   }
 
-  /* accento leggero al passaggio */
   &:hover {
-    background-color: rgba(0, 0, 0, 0.02);
-  }
-
-  /* focus accessibile se un controllo interno riceve focus */
-  &:focus-within {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-    border-left-color: #2563eb;
-    background-color: rgba(37, 99, 235, 0.06);
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
   }
 }
 
-/* Header nodo: etichetta + azioni */
+/* ========================
+   HEADER NODO
+   ======================== */
 .folder-node__header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 2px 0;
+  justify-content: space-between;
+  gap: 0.25rem;
 }
 
-/* Percorso (pill sobria) */
-.folder-node__path {
-  flex: 1 1 auto;
-  margin: 0;
-  padding: 6px 10px;
+/* ========================
+   ETICHETTA NODO
+   ======================== */
+.folder-node__label {
+  flex: 1;
   font-size: 14px;
-  line-height: 1.25;
   font-weight: 600;
-  color: #111827;                 /* gray-900 */
-  background: #f3f4f6;            /* gray-100 */
-  border: 1px solid #e5e7eb;      /* gray-200 */
-  border-radius: 999px;           /* pill */
+  padding: 6px 10px;
+  border-radius: 999px; /* Stile pillola */
+  background: #f3f4f6;
+  color: #1f2937;
   word-break: break-word;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-/* Azioni: pulite, poco invadenti (appaiono al passaggio) */
-.folder-node__actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-}
-
-.folder-node:hover > .folder-node__header .folder-node__actions,
-.folder-node:focus-within > .folder-node__header .folder-node__actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.folder-node__actions button[mat-icon-button] {
+/* ========================
+   MENU TRE PUNTINI
+   ======================== */
+.node-menu-btn {
   width: 28px;
   height: 28px;
-  background: transparent !important;
-  box-shadow: none !important;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
 
   mat-icon {
-    font-size: 18px;
-    color: #6b7280;               /* gray-500/600 */
+    font-size: 20px;
+    color: #6b7280;
   }
 
   &:hover mat-icon {
-    color: #111827;               /* gray-900 */
-  }
-
-  &[color="warn"] mat-icon {
-    color: #b91c1c;               /* red-700 */
-  }
-
-  &[color="warn"]:hover mat-icon {
-    color: #991b1b;               /* red-800 */
+    color: #111827;
   }
 }
 
-/* Figli */
+/* ========================
+   FIGLI
+   ======================== */
 .folder-node__children {
-  margin-top: 6px;
-  margin-left: 14px;
+  margin-top: 4px;
+  margin-left: 12px;
 }
 
 .folder-node__child {
-  margin: 4px 0;
+  margin-top: 4px;
 }
 
-/* Top-level: più netto, senza connettori iniziali */
-.folder-tree > div > .folder-node {
-  border-left-color: transparent;
-  margin-left: 0;
-  padding-left: 0;
-}
-.folder-tree > div > .folder-node::before {
-  display: none;
-}
-.folder-tree > div > .folder-node .folder-node__path {
-  font-size: 15px;
-  font-weight: 700;
-}
+/* ========================
+   MENU PERSONALIZZATO
+   ======================== */
+::ng-deep .mat-mdc-menu-panel.menu-card-actions.node-menu {
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  min-width: 180px;
+  padding: 0.25rem 0;
 
-/* Responsive */
-@media (max-width: 680px) {
-  .folder-tree {
-    padding: 10px;
-    border-radius: 10px;
-  }
+  .mat-mdc-menu-item {
+    font-size: 0.85rem;
+    color: #333;
+    padding: 0.45rem 1rem;
 
-  .folder-node {
-    margin-left: 12px;
-    padding-left: 8px;
+    mat-icon {
+      font-size: 20px;
+      color: #4b5563;
+      margin-right: 8px;
+    }
 
-    &::before {
-      left: -12px;
-      width: 12px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &.cancella mat-icon {
+      color: #b91c1c;
+    }
+
+    &.cancella:hover {
+      background-color: rgba(185, 28, 28, 0.08);
     }
   }
+}
 
-  .folder-node__path {
-    font-size: 13px;
-    padding: 5px 8px;
+/* ========================
+   RESPONSIVE
+   ======================== */
+@media (max-width: 680px) {
+  .folder-container {
+    border-radius: 8px;
   }
 
-  .folder-node__children {
-    margin-left: 12px;
+  .folder-tree {
+    padding: 6px;
+  }
+
+  .folder-node__label {
+    font-size: 13px;
+    padding: 5px 8px;
   }
 }

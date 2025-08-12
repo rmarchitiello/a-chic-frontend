@@ -89,7 +89,7 @@ interface TreeNode  {
 export class AdminFolderPopUpComponent implements OnInit {
 
   
-
+  readonly MAX_TREE = 3;
   
 
   constructor(
@@ -160,17 +160,7 @@ treeInitialization(inputPathString: string[]): void {
   }
 
 }
-  onAdd(){
 
-  }
-
-  onRename(){
-
-  }
-
-  onDelete(){
-
-  }
 
   onSelectPath(fullPath: string){
     
@@ -211,7 +201,7 @@ treeInitialization(inputPathString: string[]): void {
   }
 
   onAggiungiFiglio(nodo: string){
-    
+      console.log("Nodo cliccato: ", nodo);
   }
 
 }
