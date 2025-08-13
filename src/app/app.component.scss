@@ -331,199 +331,27 @@
    ========================================================= */
 
 /* Contenitore esterno del dialog (cdk-overlay-pane) */
+/* 1) Pane dell’overlay: solo padding ai bordi finestra */
 ::ng-deep .cdk-overlay-pane.popup-admin-folder {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  padding: 1rem;                 /* evita che la superficie tocchi i bordi finestra */
+  padding: 16px;          /* margine dal bordo finestra */
   box-sizing: border-box;
-  z-index: 1200 !important;      /* sopra ad altri overlay */
 }
 
-/* Superficie del dialog */
+/* 2) Superficie del dialog: larghezza + ALTEZZA MASSIMA (non height fissa) */
 ::ng-deep .popup-admin-folder .mat-mdc-dialog-surface {
-  width: min(980px, 92vw) !important;
-  height: min(86vh, 860px) !important;
-  border-radius: 16px !important;
+  width: min(980px, 92vw);
+  max-height: min(86vh, 860px);  /* cresce fino a qui, poi scrollerà il contenuto */
+  border-radius: 16px;
   background: #fff;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.18) !important;
-  padding: 0 !important;         /* gestito da header/body/footer */
-  display: flex;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+  padding: 0;
+  display: flex;                 /* serve per far lavorare bene lo scroll interno */
   flex-direction: column;
-  overflow: hidden;              /* taglia eventuali overflow */
+  overflow: hidden;              /* taglia eventuali bordi tondi */
 }
 
-/* Header sticky con titolo e azioni */
-::ng-deep .popup-admin-folder .popup-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: .75rem;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
-  background: linear-gradient(#fff, #fff);
-}
-
-::ng-deep .popup-admin-folder .popup-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-::ng-deep .popup-admin-folder .header-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-
-  .mat-mdc-button-base {
-    height: 36px;
-  }
-}
-
-/* Contenuto scrollabile */
+/* (facoltativo ma consigliato per evitare “tagli a metà” in layout flex) */
 ::ng-deep .popup-admin-folder .mat-mdc-dialog-content {
   flex: 1 1 auto;
-  padding: 1rem 1.25rem;
-  overflow-y: auto;
-  max-height: 100%;
-}
-
-/* Layout interno: albero a sinistra, dettaglio/azioni a destra */
-::ng-deep .popup-admin-folder .popup-body {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 1rem;
-}
-
-/* Colonna sinistra: albero/cartelle */
-::ng-deep .popup-admin-folder .folder-tree {
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 12px;
-  padding: .75rem;
-  background: #fafafa;
-  overflow: auto;
-  max-height: calc(70vh - 120px);
-}
-
-::ng-deep .popup-admin-folder .tree-node {
-  display: block;
-  padding: .35rem .5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  user-select: none;
-
-  &:hover {
-    background: rgba(25, 118, 210, 0.08);
-  }
-
-  &.active {
-    background: rgba(25, 118, 210, 0.12);
-    color: #0b5ab3;
-    font-weight: 600;
-  }
-}
-
-::ng-deep .popup-admin-folder .tree-children {
-  margin-left: .75rem;
-  border-left: 2px dashed rgba(0,0,0,0.08);
-  padding-left: .5rem;
-}
-
-/* Colonna destra: elenco flat + form nuova cartella */
-::ng-deep .popup-admin-folder .folders-flat {
-  border: 1px solid rgba(0,0,0,0.08);
-  border-radius: 12px;
-  padding: .75rem;
-}
-
-::ng-deep .popup-admin-folder .folders-flat .list {
-  margin: .5rem 0 0;
-  padding: 0;
-  list-style: none;
-  max-height: 48vh;
-  overflow: auto;
-}
-
-::ng-deep .popup-admin-folder .folders-flat .list li {
-  padding: .4rem .5rem;
-  border-radius: 8px;
-
-  &:nth-child(odd) {
-    background: rgba(0,0,0,0.02);
-  }
-}
-
-::ng-deep .popup-admin-folder .new-folder-form {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: .5rem;
-  margin-top: .75rem;
-
-  input[type="text"] {
-    height: 40px;
-    padding: 0 .75rem;
-    border-radius: 10px;
-    border: 1px solid rgba(0,0,0,0.14);
-    outline: none;
-
-    &:focus {
-      border-color: #1976d2;
-      box-shadow: 0 0 0 3px rgba(25,118,210,0.12);
-    }
-  }
-
-  .mat-mdc-button-base {
-    height: 40px;
-  }
-
-  .hint {
-    grid-column: 1 / -1;
-    font-size: .85rem;
-    color: #666;
-  }
-}
-
-/* Footer sticky con azioni */
-::ng-deep .popup-admin-folder .popup-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 2;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  background: linear-gradient(#fff, #fff);
-  padding: .75rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: .5rem;
-}
-
-/* Stato di validazione/avvisi */
-::ng-deep .popup-admin-folder .alert {
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  background: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-  padding: .5rem .75rem;
-  border-radius: 10px;
-}
-
-/* Responsive: sotto 980px la griglia diventa singola colonna */
-@media (max-width: 980px) {
-  ::ng-deep .popup-admin-folder .mat-mdc-dialog-surface {
-    width: 94vw !important;
-    height: 88vh !important;
-  }
-
-  ::ng-deep .popup-admin-folder .popup-body {
-    grid-template-columns: 1fr;
-  }
-
-  ::ng-deep .popup-admin-folder .folder-tree {
-    max-height: 28vh;
-  }
+  min-height: 0;                 /* evita che il contenuto impedisca lo scroll */
 }

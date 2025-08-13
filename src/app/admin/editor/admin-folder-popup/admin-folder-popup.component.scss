@@ -2,12 +2,10 @@
    CONTENITORE PRINCIPALE
    ======================== */
 .folder-container {
-  position: relative;
-  background: #fff;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  overflow: visible; // niente scroll forzato
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100%;
+  min-height: 0;
 }
 
 /* HEADER POPUP */
@@ -221,11 +219,15 @@
   border-radius: 14px;
   background: #fff;
   box-shadow: 0 20px 50px rgba(0,0,0,.22), 0 6px 20px rgba(0,0,0,.12);
-  padding: 12px;                 /* compatto ma presente */
+  padding: 12px;
   max-width: 320px;
   min-width: 260px;
   width: auto;
-  overflow: visible;
+
+  /* NUOVO: il popup ha un limite e lascia scorrere il contenuto interno */
+  display: flex;      /* così i figli possono usare flex/min-height:0 */
+  max-height: 80vh;   /* o 85vh / calc(100dvh - 32px) */
+  overflow: hidden;   /* niente scroll esterno: scrollerà il contenitore interno */
 }
 
 /* Rendi form e mat-form-field larghi al 100% dentro il pannello */

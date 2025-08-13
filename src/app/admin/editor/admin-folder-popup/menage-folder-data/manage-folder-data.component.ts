@@ -45,6 +45,8 @@ export class ManageFolderDataComponent implements OnInit {
     private snackBar: MatSnackBar
   ) {}
 
+
+
   ngOnInit(): void {
     
     if(this.data.operation.toLocaleLowerCase() === 'aggiungi'){

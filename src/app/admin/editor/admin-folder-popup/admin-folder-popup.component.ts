@@ -143,13 +143,13 @@ export class AdminFolderPopUpComponent implements OnInit {
       .subscribe((collections) => {
         // ) ricalcolo le nuove folder
         const folderEstratte = (collections || []) // array di folder ['borse/conchiglia/perlata, borsa/conchiglia/naturale]
-          .map(c => c?.folder)
+          .map(c => c?.folder.toLowerCase())
           .filter(Boolean);
 
         // 2) reset stato locale per evitare duplicazioni
         this.tree = [];
         this.cartellePrincipali = [];
-
+        console.log("Folder estratte: ", folderEstratte);
         // 3) ricostruisco l’albero
         this.treeInitialization(folderEstratte);
       });
@@ -205,6 +205,7 @@ export class AdminFolderPopUpComponent implements OnInit {
 
       //carico le cartelle principali in modo che quando aggiungo quella padre mi lancia un errore 
       this.cartellePrincipali = [...new Set(cartellePrincipaliTemp)]; //elimino i duplicati
+      console.log("Cartelle principali estratte: ", this.cartellePrincipali);
     }
 
   }
@@ -248,7 +249,12 @@ export class AdminFolderPopUpComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      console.log("Nome cartella ricevuta e controllata: ", result);
+            console.log("Categoria inserita: ", result);
+
+      if (!((result ?? '').toString().trim())) {
+          console.warn("Non e stato inserito nulla");
+      }else{
+        console.log("Nome cartella ricevuta e controllata: ", result);
       this.cartellaDaAggiungere = result;
       //procedo ad aggiungere la categoria nella cache
       //la validazione la faccio nel pop up cosi se non e valida non esco infatti al pop up passo le cartelle principali
@@ -267,6 +273,8 @@ export class AdminFolderPopUpComponent implements OnInit {
       }
 
       )
+      }
+      
     });
 
 
