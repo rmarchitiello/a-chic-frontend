@@ -10,6 +10,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { ManageFolderDataComponent } from './menage-folder-data/manage-folder-data.component';
 import { AdminService } from '../../../services/admin.service';
 import { SharedDataService } from '../../../services/shared-data.service';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+
 /* Interfaccia per gestire i path
   Voglio ottenre da borse/conchiglia/perlata borse/conchiglia/naturale, accessori/charm questo json
 
@@ -91,13 +94,14 @@ interface TreeNode {
 })
 export class AdminFolderPopUpComponent implements OnInit {
 
+  private destroy$ = new Subject<void>();
 
   readonly MAX_TREE = 3;
 
 
   constructor(
     private dialogRef: MatDialogRef<AdminFolderPopUpComponent, string[]>,
-    @Inject(MAT_DIALOG_DATA) public data: { folderEstratte: string[], isConfig: boolean },
+    @Inject(MAT_DIALOG_DATA) public data: { isConfig: boolean },
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
     private adminService: AdminService,
@@ -116,16 +120,39 @@ export class AdminFolderPopUpComponent implements OnInit {
   /* questa variabile serve per prendere tutte le cartelle principali
   in modo tale che quando vado a creare una folder padre vado a checkare se gia esiste
   */
-  cartellePrincipali: string[] = [];
+  cartellePrincipali: string[] = []; // [borse, accessori, baby, ] categorie principali
 
   cartellaDaAggiungere: string = '';
 
   isConfig: boolean = false;
   ngOnInit(): void {
-    console.log('[AdminFolderPopUp] input folders:', this.data);
-    this.treeInitialization(this.data.folderEstratte);
-    console.log("Tree inizializzato di seguito l'oggetto ottenuto: ", JSON.stringify(this.tree));
-    console.log("Cartelle principali: ", this.cartellePrincipali);
+
+    /* 
+      Qui, devo poter leggere da due subject diversi mediasCollectionConfig o mediasCollectionNonConfig
+      In base al valore passato dal padre cosi rendo il component riutilizzabile, cioe se il padre gli passa
+      isConfig true allora leggo dal subscribe delle config altrimenti da quello normale:
+    */
+     const collections$ = this.data.isConfig
+    ? this.sharedDataService.mediasCollectionsConfig$
+    : this.sharedDataService.mediasCollectionsNonConfig$;
+
+    //uso take until cosi si distrugge questo subscribe se esco 
+    //carico direttamente dal subscribe
+    collections$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((collections) => {
+        // ) ricalcolo le nuove folder
+        const folderEstratte = (collections || []) // array di folder ['borse/conchiglia/perlata, borsa/conchiglia/naturale]
+          .map(c => c?.folder)
+          .filter(Boolean);
+
+        // 2) reset stato locale per evitare duplicazioni
+        this.tree = [];
+        this.cartellePrincipali = [];
+
+        // 3) ricostruisco l’albero
+        this.treeInitialization(folderEstratte);
+      });
   }
 
   // Normalizza un path per sicurezza:
@@ -246,7 +273,7 @@ export class AdminFolderPopUpComponent implements OnInit {
 
   }
 
-    mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
     const panelClassCustom = isError ? 'snackbar-errore' : 'snackbar-ok';
     const duration = isError ? 1000 : 500;
 
