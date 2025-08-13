@@ -13,6 +13,10 @@ import { SharedDataService } from '../../../services/shared-data.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
+interface NodiCorrispondentiFigliPiuFullPath {
+  fullPath: string,
+  nodiFigli: string[]
+}
 /* Interfaccia per gestire i path
   Voglio ottenre da borse/conchiglia/perlata borse/conchiglia/naturale, accessori/charm questo json
 
@@ -206,6 +210,7 @@ export class AdminFolderPopUpComponent implements OnInit {
       //carico le cartelle principali in modo che quando aggiungo quella padre mi lancia un errore 
       this.cartellePrincipali = [...new Set(cartellePrincipaliTemp)]; //elimino i duplicati
       console.log("Cartelle principali estratte: ", this.cartellePrincipali);
+      console.log("Tree inizializzato: ", this.tree);
     }
 
   }
@@ -232,54 +237,164 @@ export class AdminFolderPopUpComponent implements OnInit {
 
   }
 
-  onAggiungiFiglio(nodo: string) {
-    console.log("Nodo cliccato: ", nodo);
-  }
 
 
-
-  onAggiungiCartellaPrincipale() {
-
-    const dialogRef = this.dialog.open(ManageFolderDataComponent, {
-      panelClass: 'popup-manage-folder',
-      data: {
-        operation: 'aggiungi',
-        cartellePrincipali: this.cartellePrincipali
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-            console.log("Categoria inserita: ", result);
-
-      if (!((result ?? '').toString().trim())) {
-          console.warn("Non e stato inserito nulla");
-      }else{
-        console.log("Nome cartella ricevuta e controllata: ", result);
-      this.cartellaDaAggiungere = result;
-      //procedo ad aggiungere la categoria nella cache
-      //la validazione la faccio nel pop up cosi se non e valida non esco infatti al pop up passo le cartelle principali
-
-      //tutto è valido procediamo con l'aggiunta della cartella
-      this.adminService.createFolder(this.cartellaDaAggiungere, this.data.isConfig).subscribe({
-        next: (res) => {
-          console.log("Cartella aggiunta sul cloud");
-          this.mostraMessaggioSnakBar("Caterogia aggiunta con successo", false);
-          this.sharedDataService.notifyCacheIsChanged();
+/**
+ * Cerca nel tree (qualsiasi profondità) il nodo con fullPath corrispondente.
+ * Confronto case-insensitive tramite toLowerCase().
+ * Ritorna il nodo trovato oppure undefined se non esiste.
+ * Ritorna l'array dei nodi corrispondenti esempio supponiamo di avere questo json
+ * [
+  {
+    "folder": "Borse/Conchiglia/Perlata",
+    "items": [
+      {
+        "context": {
+          "display_name": "Nome_1754661682779_0",
+          "descrizione": "Da inserire",
+          "quantita": "0",
+          "type": "image"
         },
-        error: (err) => {
-          this.mostraMessaggioSnakBar("Errore generico durante l'aggiunta della categoria", true);
-          console.error(err);
-        }
+        "media": [
+          {
+            "url": "https://res.cloudinary.com/dmf1qtmqd/image/upload/v1754661682/Config/Home/Carosello/onahqzydigelhllaqu5i.jpg",
+            "angolazione": "frontale"
+          }
+        ]
       }
-
-      )
+	 },
+   {
+    "folder": "Borse/Cono/Perlata",
+    "items": [
+      {
+        "context": {
+          "display_name": "Nome_1754661682779_0",
+          "descrizione": "Da inserire",
+          "quantita": "0",
+          "type": "image"
+        },
+        "media": [
+          {
+            "url": "https://res.cloudinary.com/dmf1qtmqd/image/upload/v1754661682/Config/Home/Carosello/onahqzydigelhllaqu5i.jpg",
+            "angolazione": "frontale"
+          }
+        ]
       }
-      
-    });
+	 }
+	}
+]
+  se clicco su borse lui mi da conchiglia e cono e cosi via 
+ */
 
+  
+getNodiCorrispondenteFromFullPathRicevuto(fullPath: string): NodiCorrispondentiFigliPiuFullPath | undefined{
+  console.log("Full Path Ricevuto: ", fullPath);
+  // 1) Normalizza il target
+  const target = (fullPath ?? '').toLowerCase().trim();
+  if (!target) return undefined;
 
+  // 2) DFS iterativa nel tree
+  const stack = [...(this.tree ?? [])];
 
+  while (stack.length) {
+    const node = stack.pop()!; //elimina ultimo oggetto dall array
+    const nodePath = String(node?.fullPath ?? '').toLowerCase();
+
+    // 3) Se è il nodo cercato, ritorna i SUOI FIGLI come array di stringhe
+    if (nodePath === target) {
+      const children = Array.isArray(node?.child) ? node.child : [];
+      const endMethod = {
+        fullPath: fullPath,
+        nodiFigli: children.map(c => String(c?.nodoCorrente ?? ''))
+      } 
+      console.log("End metodo get nodi figli piu fullPath: ",endMethod )
+      return endMethod;
+    }
+
+    // 4) Continua a scendere
+    const children = Array.isArray(node?.child) ? node.child : [];
+    if (children.length) stack.push(...children);
   }
+
+  // 5) Non trovato
+  return undefined;
+}
+
+
+ 
+//se viene passato mainFolder a true allora sto aggiungendo una cartella main altrimenti sotto cartella
+/* Ovviamente se non passo la fullPath vuol dire che sto creando una cartella main
+altrimenti e una sottocartella */ 
+onAggiungi(mainFolder: boolean, fullPath?: string) {
+  if(fullPath){
+    const checkMaxTree = fullPath.split('/').length === this.MAX_TREE;
+    console.log("Max tree current: ", checkMaxTree)
+    if(checkMaxTree){
+        this.mostraMessaggioSnakBar("Non puoi aggiungere altri filtri", true);
+        return;
+    }
+  }
+  let nodiGiaEsistenti: string[] | undefined;
+  let initialPath: string | undefined; // path base del nodo selezionato (se non mainFolder)
+
+  if (mainFolder) {
+    // Aggiunta di una cartella di primo livello: confronta contro le principali
+    nodiGiaEsistenti = this.cartellePrincipali;
+  } else {
+    if (fullPath) {
+      // ATTENZIONE: questa funzione deve restituire un oggetto { nodiFigli: string[], fullPath: string }
+      // Se invece restituisce un array, qui non funzionerebbe: adegua la funzione o questo accesso.
+      const info = this.getNodiCorrispondenteFromFullPathRicevuto(fullPath);
+      nodiGiaEsistenti = info?.nodiFigli;
+      initialPath = info?.fullPath;
+    } else {
+      this.mostraMessaggioSnakBar('Devi inserire un valore', true);
+      return;
+    }
+  }
+
+  console.log('Nodi estratti: ', nodiGiaEsistenti);
+
+  const dialogRef = this.dialog.open(ManageFolderDataComponent, {
+    panelClass: 'popup-manage-folder',
+    data: {
+      operation: 'aggiungi',
+      nodiGiaEsistenti: nodiGiaEsistenti
+    }
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+    console.log('Categoria inserita: ', result);
+
+    // Normalizzo l’input del dialog: evita errori se undefined/null e rimuove spazi
+    const nomeInserito = (result ?? '').toString().trim();
+    if (!nomeInserito) {
+      console.warn('Non è stato inserito nulla');
+      return; // IMPORTANTE: esci qui se vuoto
+    }
+
+    console.log('Nome cartella ricevuta e controllata: ', nomeInserito);
+    this.cartellaDaAggiungere = nomeInserito;
+
+    // Costruzione del path:
+    // - initialPath può essere undefined (es. mainFolder === true) → usa stringa vuota
+    const base = (initialPath ?? '').trim();
+    const path = base ? `${base}/${nomeInserito}` : nomeInserito;
+
+    this.adminService.createFolder(path, this.data.isConfig).subscribe({
+      next: () => {
+        console.log('Cartella aggiunta sul cloud');
+        this.mostraMessaggioSnakBar('Caterogia aggiunta con successo', false);
+        this.sharedDataService.notifyCacheIsChanged();
+      },
+      error: (err) => {
+        this.mostraMessaggioSnakBar('Errore generico durante l\'aggiunta della categoria', true);
+        console.error(err);
+      }
+    });
+  });
+}
+
 
   mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
     const panelClassCustom = isError ? 'snackbar-errore' : 'snackbar-ok';

@@ -40,7 +40,7 @@ export class ManageFolderDataComponent implements OnInit {
 
   label: string = '';
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: {operation: string, cartellePrincipali: string[]},
+    @Inject(MAT_DIALOG_DATA) public data: {operation: string, nodiGiaEsistenti: string[]},
     private dialogRef: MatDialogRef<ManageFolderDataComponent>,
     private snackBar: MatSnackBar
   ) {}
@@ -113,8 +113,8 @@ export class ManageFolderDataComponent implements OnInit {
 
   /* SEZIONE AGGIUNTA CATEGORIE PRINCIPALI */
   // 4) Controllo duplicati sulle cartelle principali (normalizzato: trim + lowercase)
-  const elenco = Array.isArray(this.data?.cartellePrincipali)
-    ? this.data.cartellePrincipali
+  const elenco = Array.isArray(this.data?.nodiGiaEsistenti)
+    ? this.data.nodiGiaEsistenti
     : [];
 
   const esistentiNormalizzati = elenco
