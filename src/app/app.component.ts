@@ -454,7 +454,7 @@ apriAdminFolderPopUp(): void {
   this.dialog.open(AdminFolderPopUpComponent, {
     disableClose: false,
     panelClass: 'popup-admin-folder', // o una tua classe dedicata
-    data: this.foldersEstratte
+    data: {folderEstratte: this.foldersEstratte, isConfig: false}
   });
 }
 

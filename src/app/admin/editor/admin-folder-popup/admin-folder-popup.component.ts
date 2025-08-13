@@ -8,6 +8,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { ManageFolderDataComponent } from './menage-folder-data/manage-folder-data.component';
+import { AdminService } from '../../../services/admin.service';
+import { SharedDataService } from '../../../services/shared-data.service';
 /* Interfaccia per gestire i path
   Voglio ottenre da borse/conchiglia/perlata borse/conchiglia/naturale, accessori/charm questo json
 
@@ -95,9 +97,11 @@ export class AdminFolderPopUpComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<AdminFolderPopUpComponent, string[]>,
-    @Inject(MAT_DIALOG_DATA) public data: string[],
+    @Inject(MAT_DIALOG_DATA) public data: { folderEstratte: string[], isConfig: boolean },
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private adminService: AdminService,
+    private sharedDataService: SharedDataService
   ) { }
 
   // Definizione d'esempio dell'interfaccia, per contesto.
@@ -116,9 +120,10 @@ export class AdminFolderPopUpComponent implements OnInit {
 
   cartellaDaAggiungere: string = '';
 
+  isConfig: boolean = false;
   ngOnInit(): void {
     console.log('[AdminFolderPopUp] input folders:', this.data);
-    this.treeInitialization(this.data);
+    this.treeInitialization(this.data.folderEstratte);
     console.log("Tree inizializzato di seguito l'oggetto ottenuto: ", JSON.stringify(this.tree));
     console.log("Cartelle principali: ", this.cartellePrincipali);
   }
@@ -184,7 +189,7 @@ export class AdminFolderPopUpComponent implements OnInit {
   chiudiDialog() {
     this.dialogRef.close();
   }
-  
+
 
 
   onModifica(nodo: string) {
@@ -203,26 +208,54 @@ export class AdminFolderPopUpComponent implements OnInit {
     console.log("Nodo cliccato: ", nodo);
   }
 
-  
+
+
   onAggiungiCartellaPrincipale() {
 
     const dialogRef = this.dialog.open(ManageFolderDataComponent, {
       panelClass: 'popup-manage-folder',
-      data: {operation: 'aggiungi',
-             cartellePrincipali: this.cartellePrincipali
+      data: {
+        operation: 'aggiungi',
+        cartellePrincipali: this.cartellePrincipali
       }
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-        console.log("Nome cartella ricevuta e controllata: ", result);
-        this.cartellaDaAggiungere = result;
-        //procedo ad aggiungere la categoria nella cache
-        //la validazione la faccio nel pop up cosi se non e valida non esco infatti al pop up passo le cartelle principali
-        
+      console.log("Nome cartella ricevuta e controllata: ", result);
+      this.cartellaDaAggiungere = result;
+      //procedo ad aggiungere la categoria nella cache
+      //la validazione la faccio nel pop up cosi se non e valida non esco infatti al pop up passo le cartelle principali
+
+      //tutto è valido procediamo con l'aggiunta della cartella
+      this.adminService.createFolder(this.cartellaDaAggiungere, this.data.isConfig).subscribe({
+        next: (res) => {
+          console.log("Cartella aggiunta sul cloud");
+          this.mostraMessaggioSnakBar("Caterogia aggiunta con successo", false);
+          this.sharedDataService.notifyCacheIsChanged();
+        },
+        error: (err) => {
+          this.mostraMessaggioSnakBar("Errore generico durante l'aggiunta della categoria", true);
+          console.error(err);
+        }
+      }
+
+      )
     });
 
 
 
   }
-  
+
+    mostraMessaggioSnakBar(messaggio: string, isError: boolean): void {
+    const panelClassCustom = isError ? 'snackbar-errore' : 'snackbar-ok';
+    const duration = isError ? 1000 : 500;
+
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration,
+      panelClass: panelClassCustom,
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
+  }
+
 }

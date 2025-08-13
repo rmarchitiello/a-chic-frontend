@@ -43,23 +43,6 @@ export class AdminService {
 }
 
 
-
-  /**
-   * Recupera tutte le folder dal admin.
-   * Se `refresh` è true, forza l’aggiornamento bypassando la cache.
-   */
-  getFolders(config?: boolean): Observable<any> {
-    const url = `${this.baseUrl}${this.media}`;
-
-    let params = new HttpParams();
-    if (config) {
-      params = params.set('config', config); //se config, carico la cache delle config altrimenti la cache folder normale
-    }
-
-    return this.http.get<any>(url, { params, headers: this.getAuthHeaders() }); //invio query poaram e header
-  }
-
-
   //rename folder
    renameFolder(request: any, config?: boolean): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
@@ -83,7 +66,7 @@ export class AdminService {
         return this.http.delete<any>(url, { params, headers: this.getAuthHeaders()  });
 }
 
-createFolder(fullPath: string, config?: boolean): Observable<any> {
+createFolder(fullPath: string, config: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.media}`; 
   const body = { fullPath }; // Invio come JSON: { "fullPath": "/ciao/prova" }
 

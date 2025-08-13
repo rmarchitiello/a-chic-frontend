@@ -126,7 +126,6 @@ export class ManageFolderDataComponent implements OnInit {
   /* FINE SEZIONE AGGIUNTA CATEGORIE PRINCIPALI */
 
   // 5) Tutto ok: feedback e chiusura con il valore
-  this.mostraMessaggioSnakBar('Categoria aggiunta con successo', false);
   this.dialogRef.close(value);
 }
 
