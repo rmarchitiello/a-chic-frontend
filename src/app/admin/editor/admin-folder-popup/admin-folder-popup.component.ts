@@ -216,25 +216,29 @@ export class AdminFolderPopUpComponent implements OnInit {
   }
 
 
-  onSelectPath(fullPath: string) {
 
-  }
   chiudiDialog() {
     this.dialogRef.close();
   }
 
 
-
-  onModifica(nodo: string) {
-
-  }
-
-  onRinomina(nodo: string) {
+  onRinomina(fullPath: string) {
 
   }
 
-  onCancella(nodo: string) {
-
+  onCancella(fullPath: string) {
+    console.log("Nodo richiesto da eliminare ", fullPath);
+    this.adminService.deleteFolder(fullPath, this.data.isConfig).subscribe({
+      next: () => {
+        console.log('Cartella eliminata sul cloud');
+        this.mostraMessaggioSnakBar('Caterogia elimintata con successo', false);
+        this.sharedDataService.notifyCacheIsChanged();
+      },
+      error: (err) => {
+        this.mostraMessaggioSnakBar('Errore generico durante l\'eliminazione della categoria', true);
+        console.error(err);
+      }
+    });
   }
 
 

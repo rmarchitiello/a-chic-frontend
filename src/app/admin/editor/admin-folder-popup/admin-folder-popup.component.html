@@ -35,16 +35,13 @@
 
       <!-- Menu Material -->
       <mat-menu #menuNodo="matMenu" class="menu-card-actions node-menu">
-        <button mat-menu-item (click)="onModifica(nodoInput.fullPath)">
-          <mat-icon>edit</mat-icon><span>Modifica</span>
-        </button>
         <button mat-menu-item (click)="onRinomina(nodoInput.fullPath)">
           <mat-icon>drive_file_rename_outline</mat-icon><span>Rinomina</span>
         </button>
         <button mat-menu-item (click)="onAggiungi(false,nodoInput.fullPath)">
           <mat-icon>add</mat-icon><span>Aggiungi sottocartella</span>
         </button>
-        <button mat-menu-item class="cancella" (click)="onCancella(nodoInput)">
+        <button mat-menu-item class="cancella" (click)="onCancella(nodoInput.fullPath)">
           <mat-icon>delete</mat-icon><span>Elimina</span>
         </button>
       </mat-menu>

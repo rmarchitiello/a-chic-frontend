@@ -56,7 +56,7 @@ export class AdminService {
     return this.http.put<any>(url, request, {params, headers: this.getAuthHeaders()});
   }
 
-    deleteFolder(folderName: string, config?: boolean): Observable<any> {
+    deleteFolder(folderName: string, config: boolean): Observable<any> {
         const url = `${this.baseUrl}${this.media}`;
           let params = new HttpParams().set('folderName', folderName);
 
