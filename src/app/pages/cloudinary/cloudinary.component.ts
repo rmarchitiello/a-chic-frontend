@@ -405,21 +405,24 @@ export class CloudinaryComponent implements OnInit, OnDestroy {
 apriPopUpEditorAdmin(): void {
   console.log('[CloudinaryComponent] apriPopUpEditorAdmin(): avvio…');
 
-  // 1) Ricostruisco la folder dai params + query (?filtri=a/b/…)
+  // 1) Ricostruisco la folder dai params + query (?filtri=...)
   const categoria: string = (this.route.snapshot.params['categoria'] ?? '').toString().trim();
   const sottoCategoria: string = (this.route.snapshot.params['sottoCategoria'] ?? '').toString().trim();
   const filtriPath: string = (this.route.snapshot.queryParams['filtri'] ?? '').toString().trim();
 
   const segments: string[] = [];
+
   if (categoria) segments.push(categoria);
   if (sottoCategoria) segments.push(sottoCategoria);
+
+  // Escludo "Tutte" dai filtri
   if (filtriPath) {
-    segments.push(
-      ...filtriPath
-        .split('/')
-        .map((s: string) => s.trim())
-        .filter((v: string) => !!v)
-    );
+    const extra = filtriPath
+      .split('/')
+      .map((s: string) => s.trim())
+      .filter((s: string) => s && s.toLowerCase() !== 'tutte');
+
+    segments.push(...extra);
   }
 
   if (segments.length === 0) {
@@ -427,16 +430,17 @@ apriPopUpEditorAdmin(): void {
     return;
   }
 
-  const folderKey: string = segments.join('/');
+  // FolderKey in lowercase
+  const folderKey: string = segments.join('/').toLowerCase();
   console.log('[CloudinaryComponent] apriPopUpEditorAdmin(): folderKey ricavata =', folderKey);
 
   // 2) Snapshot della cache NON-CONFIG
   const nonConfigList: MediaCollection[] = this.sharedData.getMediasCollectionsNonConfig() ?? [];
   console.log('[CloudinaryComponent] snapshot NON-CONFIG:', nonConfigList);
 
-  // 3) Cerco la collezione; se non c’è, ne creo una vuota per quella folder
+  // 3) Cerca la collezione; se non c'è, creane una vuota per quella folder
   const existing: MediaCollection | undefined = nonConfigList.find(
-    (c: MediaCollection) => (c.folder ?? '').toLowerCase() === folderKey.toLowerCase()
+    (c: MediaCollection) => (c.folder ?? '').toLowerCase() === folderKey
   );
 
   const toEdit: MediaCollection = existing ?? { folder: folderKey, items: [] };
@@ -447,13 +451,14 @@ apriPopUpEditorAdmin(): void {
     console.warn('[CloudinaryComponent] nessuna collezione trovata. Creo collezione vuota per folder:', folderKey);
   }
 
-  // 4) Passo la collezione all’editor tramite il BehaviorSubject condiviso
-  this.sharedData.setMediaCollectionConfig(toEdit);
-  console.log('[CloudinaryComponent] MediaCollection inviata al popup tramite SharedDataService:', toEdit);
+  // 4) Passa la collezione all’editor NON-CONFIG
+  this.sharedData.setMediaCollectionNonConfig(toEdit);
+  console.log('[CloudinaryComponent] MediaCollection NON-CONFIG inviata al popup:', toEdit);
 
-  // 5) Apro il dialog (full screen gestito da .popup-admin-editor nel tuo SCSS)
+  // 5) Apri il dialog
   this.dialog.open(EditorAdminPopUpComponent, {
     disableClose: false,
+      data: { isConfigMode: false },
     panelClass: 'popup-admin-editor'
   });
 

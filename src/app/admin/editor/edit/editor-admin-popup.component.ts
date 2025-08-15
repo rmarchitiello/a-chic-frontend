@@ -102,6 +102,8 @@ import { MatInputModule } from '@angular/material/input';
 import { AdminService } from '../../../services/admin.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
+import { Inject } from '@angular/core';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
 
@@ -194,7 +196,8 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     private sharedService: SharedDataService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private adminService: AdminService
+    private adminService: AdminService,
+    @Inject(MAT_DIALOG_DATA) public data: { isConfigMode: boolean}
   ) { }
 
 
@@ -274,61 +277,61 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-    // Previene l'apertura del file nel browser se droppato fuori dalla zona consentita
-    // Impedisci il comportamento di default per il drag/drop a livello globale
-    //non fa uploadre cose all esterno del drop
-    window.addEventListener('dragover', this.preventBrowserDefault, false);
-    window.addEventListener('drop', this.preventBrowserDefault, false);
+  // Previene l'apertura del file nel browser se droppato fuori dalla zona consentita
+  window.addEventListener('dragover', this.preventBrowserDefault, false);
+  window.addEventListener('drop', this.preventBrowserDefault, false);
 
-    //primo caricamento quando home apre il pop up
+  if (this.data.isConfigMode) {
+    // Primo caricamento (Home apre pop up in modalità config)
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-      console.log("[EditorComponent] sto ricevendo i dati: ", data);
+      console.log("[EditorComponent] sto ricevendo i dati (config): ", data);
       if (data) {
         this.caricaMediaCollection(data);
       }
-
     });
 
-    //SECONDO CARICAMENTO quando l'editor e ancora aperto e quindi è app component a inviare tutta la collezione
-    //sono in ascolto di tutta la mediasCollections filtrando per folderSelezionata
-    //questo metodo viene invocato successivamente quando l'upload invia la notifica
-    //controllo se la folder selezionata è vuota perche se lo è vuol dire che stiamo a HomeComponent apre pop up e passa i dati qui
-    //se invece la folder e piena vuol dire che l'upload ha notificato a home che c e stato un cambiamento e parte quest evento
+    // Secondo caricamento (upload notifica AppComponent → aggiorna lista config)
     this.sharedService.mediasCollectionsConfig$.subscribe(data => {
-      if (data.length > 0) {
-
-
-        this.folderSelezionata = this.folderInput;
-        if (this.folderSelezionata) {
-          console.log("Folder selezionata: ", this.folderSelezionata);
-          const mediasCollection: MediaCollection[] = data;
-          this.inputFromFatherComponent = mediasCollection.find(
-            mediaColl => mediaColl.folder === this.folderSelezionata
-          ) || { folder: '', items: [] };
-          console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
-          console.log("Re invio i nuovi media collection: ")
-          //chiamo la carica media collection per risettare input from father piu gli array delle no frontali ecc..
-          this.caricaMediaCollection(this.inputFromFatherComponent);
-        }
-        else {
-          console.log("La folder selezionata è vuota, quindi i dati li ha passati HomeComponent -> EditorComponent tramite pop up")
-        }
-      } else {
-
-        console.warn("Nessuna media collection ricevuta.");
-        this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
-
-        //  Anche se non c'è nulla, richiama per resettare l'interfaccia e le variabili
-        this.caricaMediaCollection(this.inputFromFatherComponent);
-
-      }
-
-
-
+      this.gestisciAggiornamentoLista(data);
     });
 
+  } else {
+    // Primo caricamento (Cloudinary apre pop up in modalità non-config)
+    this.sharedService.mediaCollectionNonConfig$.subscribe(data => {
+      console.log("[EditorComponent] sto ricevendo i dati (non-config): ", data);
+      if (data) {
+        this.caricaMediaCollection(data);
+      }
+    });
 
+    // Secondo caricamento (upload notifica AppComponent → aggiorna lista non-config)
+    this.sharedService.mediasCollectionsNonConfig$.subscribe(data => {
+      this.gestisciAggiornamentoLista(data);
+    });
   }
+}
+
+private gestisciAggiornamentoLista(data: MediaCollection[]): void {
+  if (data.length > 0) {
+    this.folderSelezionata = this.folderInput;
+    if (this.folderSelezionata) {
+      console.log("Folder selezionata: ", this.folderSelezionata);
+      this.inputFromFatherComponent = data.find(
+        mediaColl => mediaColl.folder === this.folderSelezionata
+      ) || { folder: '', items: [] };
+      console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
+      console.log("Re invio i nuovi media collection: ");
+      this.caricaMediaCollection(this.inputFromFatherComponent);
+    } else {
+      console.log("La folder selezionata è vuota, quindi i dati li ha passati tramite pop up");
+    }
+  } else {
+    console.warn("Nessuna media collection ricevuta.");
+    this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
+    this.caricaMediaCollection(this.inputFromFatherComponent);
+  }
+}
+
 
 
   /* PER GLI INDICI SECONDARI */

@@ -365,6 +365,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.sharedDataService.setMediaCollectionConfig(toEdit);
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,
+      data: { isConfigMode: true },
+
       panelClass: 'popup-admin-editor'
     });
   }

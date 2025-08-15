@@ -111,4 +111,12 @@ notifyCacheIsChanged(): void {
 
 
 
+// === NON CONFIG ===
+private mediaCollectionNonConfig = new BehaviorSubject<MediaCollection | null>(null);
+mediaCollectionNonConfig$ = this.mediaCollectionNonConfig.asObservable();
+
+setMediaCollectionNonConfig(mediaCollection: MediaCollection): void {
+  this.mediaCollectionNonConfig.next(mediaCollection);
+}
+
 }
