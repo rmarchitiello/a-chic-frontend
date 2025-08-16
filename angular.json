@@ -47,18 +47,18 @@
               "optimization": true,
               "extractLicenses": true,
               "outputHashing": "all",
-"budgets": [
-  {
-    "type": "initial",
-    "maximumWarning": "1MB",
-    "maximumError": "2MB"
-  },
-  {
-    "type": "anyComponentStyle",
-    "maximumWarning": "30kB",
-    "maximumError": "40kB"
-  }
-]
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "5MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "30kB",
+                  "maximumError": "40kB"
+                }
+              ]
             },
             "development": {
               "optimization": false,

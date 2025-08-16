@@ -8,7 +8,6 @@ import { ContattiComponent } from './pages/contatti/contatti.component';
 import { CookiePolicyComponent } from './pages/cookie-policy/cookie-policy.component';
 import { PrivacyPolicyComponent } from './pages/privacy-policy/privacy-policy.component';
 
-import { AuthGuard  } from './auth.guard'; //serve per bloccare tutte le chiamate se non ci siamo prima loggati
 import { LoginAdminComponent } from './admin/login-admin/login-admin.component';
 
 export const routes: Routes = [
