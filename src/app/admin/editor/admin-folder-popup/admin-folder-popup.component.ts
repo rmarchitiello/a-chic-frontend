@@ -13,7 +13,7 @@ import { SharedDataService } from '../../../services/shared-data.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { MediaCollection } from '../../../app.component';
-
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 export interface RenameFolderRequest {
   oldPath: string,
   newPath: string
@@ -98,7 +98,8 @@ interface TreeNode {
     MatIconModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatMenuModule],
+    MatMenuModule,
+    MatProgressBarModule],
   templateUrl: './admin-folder-popup.component.html',
   styleUrls: ['./admin-folder-popup.component.scss']
 })
@@ -115,6 +116,8 @@ constructor(
   private adminService: AdminService,
   private sharedDataService: SharedDataService
 ) { }
+
+isLoading: boolean = false;
 
 // Stato albero (tree) e cartelle root (principali)
 tree: TreeNode[] = [];
@@ -314,12 +317,15 @@ onAggiungi(mainFolder: boolean, fullPath?: string) {
     const path = base ? `${base}/${nomeInserito}` : nomeInserito;
 
     // 8) Chiamata backend: creazione su Cloudinary; al successo notifico reload cache
+    this.isLoading = true;
     this.adminService.createFolder(path, this.data.isConfig).subscribe({
       next: () => {
+        this.isLoading = false; // disattivo loading
         this.mostraMessaggioSnakBar('Categoria aggiunta con successo', false);
         this.sharedDataService.notifyCacheIsChanged();
       },
       error: (err) => {
+        this.isLoading = false; // disattivo loading
         this.mostraMessaggioSnakBar('Errore generico durante l\'aggiunta della categoria', true);
         console.error(err);
       }
@@ -403,13 +409,16 @@ onAggiungi(mainFolder: boolean, fullPath?: string) {
         oldPath: fullPath,
         newPath: nomeInserito
       }
+      this.isLoading = true; // disattivo loading
       this.adminService.renameFolder(requestForRename, this.data.isConfig).subscribe({
         next: () => {
+          this.isLoading = false; // disattivo loading
           console.log('Cartella rinominata sul cloud');
           this.mostraMessaggioSnakBar('Caterogia rinominata con successo', false);
           this.sharedDataService.notifyCacheIsChanged();
         },
         error: (err) => {
+          this.isLoading = false; // disattivo loading
           this.mostraMessaggioSnakBar('Errore generico durante l\'aggiunta della categoria', true);
           console.error(err);
         }
@@ -419,13 +428,16 @@ onAggiungi(mainFolder: boolean, fullPath?: string) {
 
   onCancella(fullPath: string) {
     console.log("Nodo richiesto da eliminare ", fullPath);
+    this.isLoading = true; 
     this.adminService.deleteFolder(fullPath, this.data.isConfig).subscribe({
       next: () => {
+        this.isLoading = false;
         console.log('Cartella eliminata sul cloud');
         this.mostraMessaggioSnakBar('Caterogia elimintata con successo', false);
         this.sharedDataService.notifyCacheIsChanged();
       },
       error: (err) => {
+        this.isLoading = false;
         this.mostraMessaggioSnakBar('Errore generico durante l\'eliminazione della categoria', true);
         console.error(err);
       }

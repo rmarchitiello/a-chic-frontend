@@ -29,7 +29,7 @@
       <span class="folder-node__label">{{ nodoInput.nodoCorrente }}</span>
 
       <!-- Menu azioni (tre puntini) -->
-      <button mat-icon-button class="node-menu-btn" [matMenuTriggerFor]="menuNodo">
+      <button mat-icon-button class="node-menu-btn" [disabled]="isLoading" [matMenuTriggerFor]="menuNodo">
         <mat-icon>more_vert</mat-icon>
       </button>
 
@@ -71,9 +71,12 @@
     </button>
   </div>
 
+  <mat-progress-bar *ngIf="isLoading" mode="indeterminate" color="primary"></mat-progress-bar>
+
+
   <!-- Pulsante Aggiungi cartella principale -->
   <div class="add-root-btn-wrapper">
-    <button mat-raised-button color="primary" (click)="onAggiungi(true)">
+    <button mat-raised-button color="primary" (click)="onAggiungi(true)" [disabled]="isLoading">
       <mat-icon>create_new_folder</mat-icon>
       Aggiungi cartella principale
     </button>
