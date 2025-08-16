@@ -66,7 +66,7 @@ export class ManageFolderDataComponent implements OnInit {
       nonNullable: true,
       validators: [
         Validators.required,
-        Validators.pattern(/^[a-zA-Z0-9_-]+$/) // Nessuno spazio o carattere speciale
+    Validators.pattern(/^(?!\s+$)[a-zA-Z0-9 _-]+$/)
       ]
     });
 

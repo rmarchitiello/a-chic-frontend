@@ -491,6 +491,7 @@ apriPopUpEditorAdminCarillonAudio(): void {
   // Apro il dialog (full screen tramite .popup-admin-editor nel tuo SCSS)
   this.dialog.open(EditorAdminPopUpComponent, {
     disableClose: false,
+          data: { isConfigMode: true },
     panelClass: 'popup-admin-editor'
   });
 
