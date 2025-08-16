@@ -16,6 +16,18 @@
     <button mat-stroked-button color="warn" (click)="logoutAdmin()">
       Esci da modalità admin
     </button>
+    <button mat-stroked-button color="warn" (click)="refreshCache()">
+      Refresh della cache
+    </button>
+        <!-- Spinner visibile solo durante il refresh -->
+    <mat-progress-spinner
+      *ngIf="isRefreshing"
+      mode="indeterminate"
+      diameter="24"
+      strokeWidth="4"
+      color="primary"
+      style="margin-left: 10px;">
+    </mat-progress-spinner>
   </div>
 
   <!-- Header -->

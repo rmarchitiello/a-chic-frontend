@@ -28,6 +28,9 @@ import { BreakpointObserver } from '@angular/cdk/layout';
 import { LiveChatComponent } from './pages/live-chat/live-chat.component';
 import { SharedDataService } from './services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
+import { AdminService } from './services/admin.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -135,7 +138,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     MatSidenavModule,
     FooterComponent,
     HeaderComponent,
-    LiveChatComponent
+    LiveChatComponent,
+    MatProgressSpinnerModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -187,7 +191,9 @@ export class AppComponent implements OnInit {
     private cdr: ChangeDetectorRef,
     private breakpointObserver: BreakpointObserver,
     private sharedDataService: SharedDataService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private adminService: AdminService,
+    private snackBar: MatSnackBar
   ) {
     // Monitoraggio della route per sapere se siamo in /home
     this.router.events.pipe(
@@ -441,6 +447,43 @@ goToAndCloseSideNav(pathOrCategoria: string, sottoCategoria?: string): void {
   logoutAdmin(): void {
     this.sharedDataService.setAdminToken(null);
     this.isAdmin = false;
+  }
+isRefreshing: boolean = false;
+refreshCache() {
+  this.isRefreshing = true;
+  this.adminService.refreshCache().subscribe({
+    next: (data) => {
+      this.isRefreshing = false;
+      console.log('Cache aggiornata:', data);
+      this.mostraMessaggioSnakBar('Cache aggiornata con successo', false);
+      this.sharedDataService.notifyCacheIsChanged();
+    },
+    error: (err) => {
+      this.isRefreshing = false;
+      console.error('Errore durante il refresh della cache:', err);
+      this.mostraMessaggioSnakBar('Errore durante il refresh della cache ', true);
+    }
+  });
+}
+
+
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
+    let panelClassCustom;
+    let duration;
+    if (isError) {
+      panelClassCustom = 'snackbar-errore';
+      duration = 1000;
+    }
+    else {
+      panelClassCustom = 'snackbar-ok';
+      duration = 500;
+    }
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration: duration, // durata in ms
+      panelClass: panelClassCustom, // classe CSS personalizzata
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
   }
 
 apriAdminFolderPopUp(): void {

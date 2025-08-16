@@ -17,6 +17,7 @@ export class AdminService {
   private mediaUpload = '/media-upload'
   private mediaUpdateAngolazione = '/media-update-angolazione'
   private mediaUploadOnExistFrontale = '/media-upload-exist-frontale'
+  private refreshCachePath = '/refresh-cache'
 
   constructor(private http: HttpClient) {}
 
@@ -203,6 +204,15 @@ uploadMediaExistFrontale(formData: FormData,   config?: boolean): Observable<any
   });
 }
 
+
+//metodo per refreshare la cache con il cloud
+refreshCache(): Observable<any> {
+  const url = `${this.baseUrl}${this.refreshCachePath}`;
+
+
+
+  return this.http.get<any>(url, {headers: this.getAuthHeaders()});
+}
 
 
 
