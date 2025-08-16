@@ -390,13 +390,11 @@ goTo(pathOrCategoria: string, sottoCategoria?: string, filtri?: Record<string, s
   const extraFilterSegments = segments.slice(2);
 
   // 4) Costruzione dei query param "filtri"
-  //    Base: "Tutte" sempre presente
-  //    Aggiungo i segmenti extra come filtri
-// 4) Costruzione dei query param "filtri"
-// Se ci sono segmenti extra (dal terzo in poi), NON aggiungo "Tutte", uso solo quelli
+// Se ci sono segmenti extra (dal terzo in poi), uso solo quelli
+// Altrimenti nessun filtro
 const filtriBase = extraFilterSegments.length > 0
   ? extraFilterSegments
-  : ['Tutte'];
+  : [];
 
   //    Se mi passano anche "filtri" (Record<chiave, string[]>), aggiungo quelli della chiave
   //    identificata dall'ultimo segmento "reale" del path (categoria o sottocategoria se presente)
@@ -411,9 +409,9 @@ const filtriBase = extraFilterSegments.length > 0
   //    - ["borse"]                           -> /borse?filtri=Tutte
   //    - ["borse","conchiglia"]              -> /borse/conchiglia?filtri=Tutte
   //    - ["borse","conchiglia"], extra "perlata" -> /borse/conchiglia?filtri=Tutte&filtri=perlata
-  this.router.navigate(['/', ...pathSegments], {
-    queryParams: { filtri: filtriFinali.length ? filtriFinali : ['Tutte'] }
-  });
+this.router.navigate(['/', ...pathSegments], {
+  queryParams: filtriFinali.length ? { filtri: filtriFinali } : {}
+});
 }
 
 /** Naviga e chiude le sidenav.

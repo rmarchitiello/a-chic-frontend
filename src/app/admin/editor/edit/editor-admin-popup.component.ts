@@ -306,6 +306,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
     // Secondo caricamento (upload notifica AppComponent → aggiorna lista non-config)
     this.sharedService.mediasCollectionsNonConfig$.subscribe(data => {
+      console.log("Secondo caricamento da app component a editor", this.data.isConfigMode);
       this.gestisciAggiornamentoLista(data);
     });
   }
