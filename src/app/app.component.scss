@@ -133,6 +133,20 @@
    ========================================================================== */
 @media (min-width: 769px) {
 
+  .spinner-overlay {
+  position: fixed; /* copre tutta la finestra */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.6); // opzionale per effetto overlay
+  z-index: 1000; // sopra gli altri elementi
+}
+
+
   /* Pulsante logout admin */
   .admin-logout {
     position: fixed;

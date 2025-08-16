@@ -10,7 +10,14 @@
 <!-- DESKTOP -->
 <!-- ============================= -->
 <ng-container *ngIf="!isMobile">
-
+  <div class="spinner-overlay" *ngIf="isRefreshing">
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="48"
+      strokeWidth="4"
+      color="primary">
+    </mat-progress-spinner>
+  </div>
   <!-- Logout admin -->
   <div *ngIf="isAdmin" class="admin-logout">
     <button mat-stroked-button color="warn" (click)="logoutAdmin()">
@@ -20,14 +27,7 @@
       Refresh della cache
     </button>
         <!-- Spinner visibile solo durante il refresh -->
-    <mat-progress-spinner
-      *ngIf="isRefreshing"
-      mode="indeterminate"
-      diameter="24"
-      strokeWidth="4"
-      color="primary"
-      style="margin-left: 10px;">
-    </mat-progress-spinner>
+
   </div>
 
   <!-- Header -->
