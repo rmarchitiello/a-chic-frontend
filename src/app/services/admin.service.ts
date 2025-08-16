@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { UpdateAngolazioneMedia } from '../admin/editor/edit/editor-admin-popup.component';
 import { MediaContext } from '../app.component';
+import { RenameFolderRequest } from '../admin/editor/admin-folder-popup/admin-folder-popup.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -44,7 +45,7 @@ export class AdminService {
 
 
   //rename folder
-   renameFolder(request: any, config?: boolean): Observable<any> {
+   renameFolder(request: RenameFolderRequest, config?: boolean): Observable<any> {
     const url = `${this.baseUrl}${this.media}`;
 
         let params = new HttpParams();
@@ -53,7 +54,7 @@ export class AdminService {
     }
 
 
-    return this.http.put<any>(url, request, {params, headers: this.getAuthHeaders()});
+    return this.http.put<RenameFolderRequest>(url, request, {params, headers: this.getAuthHeaders()});
   }
 
     deleteFolder(folderName: string, config: boolean): Observable<any> {

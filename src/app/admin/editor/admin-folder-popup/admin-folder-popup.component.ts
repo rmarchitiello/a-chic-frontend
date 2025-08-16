@@ -13,6 +13,12 @@ import { SharedDataService } from '../../../services/shared-data.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 
+
+export interface RenameFolderRequest {
+  oldPath: string,
+  newPath: string
+}
+
 interface NodiCorrispondentiFigliPiuFullPath {
   fullPath: string,
   nodiFigli: string[]
@@ -223,7 +229,56 @@ export class AdminFolderPopUpComponent implements OnInit {
 
 
   onRinomina(fullPath: string) {
+      console.log("Path ricevuto da rinominare: ", fullPath);
 
+    // se il fullPath ricevuto da uno split length = 1 allora vuol dire che stiamo rinominando
+    //una categoria principale quindi al pop up di manage folder data passiamo i nodi gia esitenti 
+    // uguale alle categorie principali caricate precedentemente.
+    let nodiGiaEsistenti: string[]  = []
+    if(fullPath.split('/').length === 1 ){
+        console.log("Stai tentando di rinominare una categoria principlale");
+        console.log("Di seguito le categorie principali esistenti: ", this.cartellePrincipali);
+        nodiGiaEsistenti = this.cartellePrincipali;
+    }
+
+
+      const dialogRef = this.dialog.open(ManageFolderDataComponent, {
+          panelClass: 'popup-manage-folder',
+          data: {
+          operation: 'rinomina',
+              nodiGiaEsistenti: nodiGiaEsistenti
+    }
+  });
+
+  
+  dialogRef.afterClosed().subscribe((result) => {
+    console.log('Nome nuova cartella: ', result);
+
+    // Normalizzo l’input del dialog: evita errori se undefined/null e rimuove spazi
+    const nomeInserito = (result ?? '').toString().trim();
+    if (!nomeInserito) {
+      console.warn('Non è stato inserito nulla');
+      return; // IMPORTANTE: esci qui se vuoto
+    }
+
+    console.log('Nome cartella ricevuta e controllata: ', nomeInserito);
+    let requestForRename: RenameFolderRequest = {
+      oldPath: fullPath,
+      newPath: nomeInserito
+    }
+  this.adminService.renameFolder(requestForRename, this.data.isConfig).subscribe({
+      next: () => {
+        console.log('Cartella rinominata sul cloud');
+        this.mostraMessaggioSnakBar('Caterogia rinominata con successo', false);
+        this.sharedDataService.notifyCacheIsChanged();
+      },
+      error: (err) => {
+        this.mostraMessaggioSnakBar('Errore generico durante l\'aggiunta della categoria', true);
+        console.error(err);
+      }
+    });
+  });
+    
   }
 
   onCancella(fullPath: string) {
