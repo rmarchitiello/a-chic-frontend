@@ -228,7 +228,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           const tailCarosello = '/carosello';
           const tailRecensioni = '/recensioni';
           const tailModelli = '/modelli in evidenza';
-          const tailCreazioni = '/mie creazioni';
+          const tailCreazioni = '/le mie creazioni';
 
           // Carosello
           const cCarosello = findByTail(tailCarosello);
