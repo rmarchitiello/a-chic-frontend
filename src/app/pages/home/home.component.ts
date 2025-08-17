@@ -233,28 +233,28 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
           // Carosello
           const cCarosello = findByTail(tailCarosello);
           this.carosello = {
-            folder: cCarosello?.folder ?? '',
+            folder: cCarosello?.folder ?? 'config/home/carosello',
             items: cCarosello?.items ?? []
           };
 
           // Recensioni
           const cRecensioni = findByTail(tailRecensioni);
           this.recensioni = {
-            folder: cRecensioni?.folder ?? '',
+            folder: cRecensioni?.folder ?? 'config/home/recensioni',
             items: cRecensioni?.items ?? []
           };
 
           // Modelli in evidenza
           const cModelli = findByTail(tailModelli);
           this.modelliInEvidenza = {
-            folder: cModelli?.folder ?? '',
+            folder: cModelli?.folder ?? 'config/home/modelli in evidenza',
             items: cModelli?.items ?? []
           };
 
           // Mie creazioni
           const cCreazioni = findByTail(tailCreazioni);
           this.creazioni = {
-            folder: cCreazioni?.folder ?? '',
+            folder: cCreazioni?.folder ?? 'config/home/le mie creazioni',
             items: cCreazioni?.items ?? []
           };
 
@@ -362,6 +362,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       toEdit = this.carosello;
     }
 
+    console.log("Invio i dati all editor, ",JSON.stringify(toEdit));
     this.sharedDataService.setMediaCollectionConfig(toEdit);
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,

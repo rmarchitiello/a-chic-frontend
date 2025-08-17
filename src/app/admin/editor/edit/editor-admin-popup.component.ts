@@ -284,7 +284,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   if (this.data.isConfigMode) {
     // Primo caricamento (Home apre pop up in modalità config)
     this.sharedService.mediaCollectionConfig$.subscribe(data => {
-      console.log("[EditorComponent] sto ricevendo i dati (config): ", data);
+      console.log("[EditorComponent] sto ricevendo i dati (config): ", JSON.stringify(data));
       if (data) {
         this.caricaMediaCollection(data);
       }
