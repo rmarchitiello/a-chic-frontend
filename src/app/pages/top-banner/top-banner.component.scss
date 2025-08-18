@@ -1,30 +1,61 @@
 /* ==========================================================================
+   MARQUEE BASE (valido per desktop e mobile)
+   - Il <p> contiene DUE <span class="marquee-segment"> identici.
+   - Animiamo l'intero <p>: lo trasliamo da 0 a -50% della sua larghezza.
+   - A -50% la seconda copia è perfettamente allineata all’inizio → loop continuo.
+   ========================================================================== */
+.top-banner-desktop p,
+.top-banner-mobile p {
+  display: inline-flex;        /* i due segmenti stanno in fila, senza andare a capo */
+  align-items: center;
+  gap: 2rem;                   /* spazio tra le due copie (regolabile) */
+  white-space: nowrap;         /* nessun a capo */
+  will-change: transform;      /* micro-ottimizzazione per la GPU */
+  margin: 0;                   /* rimuove i margini default del <p> */
+  padding: 0;                  /* niente padding qui (gestito dal contenitore) */
+  animation: marquee-loop 45s linear infinite; /* durata di base: DESKTOP (regola qui la velocità) */
+}
+
+/* I segmenti non devono comprimersi: restano della loro larghezza naturale */
+.marquee-segment {
+  flex: 0 0 auto;              /* nessuna crescita/contrazione */
+}
+
+/* ==========================================================================
+   ANIMAZIONE CONTINUA
+   - Sposta l’intero <p> della metà esatta (-50%) della sua larghezza totale.
+   - Funziona perché i due segmenti sono IDENTICI e separati dallo stesso gap.
+   - Allo scadere, il ciclo ricomincia senza alcun “vuoto”.
+   ========================================================================== */
+@keyframes marquee-loop {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
    TOP BANNER - DESKTOP (>= 769px)
    ========================================================================== */
 @media (min-width: 769px) {
   .top-banner-desktop {
-    position: sticky;          /* resta sempre in cima allo scroll */
+    position: sticky;          /* resta appiccicato in cima durante lo scroll */
     top: 0;                    /* agganciato al bordo superiore */
-    z-index: 1002;             /* sopra l’header (se header ha z-index più basso) */
+    z-index: 1002;             /* sopra l’header (che deve avere z-index più basso) */
 
     background-color: #000;    /* sfondo nero */
     color: #fff;               /* testo bianco */
-    overflow: hidden;          /* nasconde il testo che esce dai bordi */
-    white-space: nowrap;       /* impedisce al testo di andare a capo */
-    border-bottom: 1px solid #222; /* linea sottile sotto */
-    height: 2.2rem;            /* altezza fissa sottile */
-    display: flex;             /* per centrare verticalmente il contenuto */
-    align-items: center;       /* centra verticalmente il testo */
+    overflow: hidden;          /* nasconde ciò che esce dal box */
+    border-bottom: 1px solid #222;
+    height: 2.2rem;            /* altezza del banner */
+    display: flex;             /* centra verticalmente il contenuto */
+    align-items: center;
+    padding-inline: 0.75rem;   /* un filo di respiro a dx/sx */
 
-    /* Testo all’interno del banner */
+    /* Testo (marquee) desktop */
     p {
-      display: inline-block;          /* necessario per animazione */
-      padding-left: 100%;             /* parte fuori dallo schermo a destra */
-      animation: scroll-left 25s linear infinite; /* più lento su desktop */
-      font-size: 0.95rem;             /* grandezza testo */
-      font-weight: 500;               /* peso medio */
-      letter-spacing: 0.5px;          /* leggera spaziatura */
-      margin: 0;                      /* rimuove margini */
+      font-size: 0.95rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      animation-duration: 50s; /* <-- DESKTOP: AUMENTA questo valore per rallentare */
     }
   }
 }
@@ -34,38 +65,23 @@
    ========================================================================== */
 @media (max-width: 768px) {
   .top-banner-mobile {
-    position: sticky;          /* resta agganciato al top */
-    top: 0;                    /* bordo superiore */
-    z-index: 1002;             /* sopra l’header */
+    position: sticky;          /* sempre in cima anche su mobile */
+    top: 0;
+    z-index: 1002;
 
-    background-color: #000;    /* sfondo nero */
-    color: #fff;               /* testo bianco */
-    overflow: hidden;          /* nasconde il testo in eccesso */
-    white-space: nowrap;       /* impedisce ritorni a capo */
-    height: 2.5rem;            /* leggermente più alto per leggibilità */
-    display: flex;             /* allineamento verticale */
-    align-items: center;       /* centra il testo verticalmente */
+    background-color: #000;
+    color: #fff;
+    overflow: hidden;
+    height: 2.5rem;            /* un po’ più alto per la leggibilità */
+    display: flex;
+    align-items: center;
+    padding-inline: 0.6rem;
 
-    /* Testo all’interno del banner */
+    /* Testo (marquee) mobile */
     p {
-      display: inline-block;          /* per l’animazione */
-      padding-left: 100%;             /* parte fuori schermo a destra */
-      animation: scroll-left 20s linear infinite; /* un po’ più veloce del desktop */
-      font-size: 0.85rem;             /* testo più piccolo */
+      font-size: 0.85rem;
       font-weight: 500;
-      margin: 0;
+      animation-duration: 60s; /* <-- MOBILE: AUMENTA per rallentare, DIMINUISCI per velocizzare */
     }
-  }
-}
-
-/* ==========================================================================
-   ANIMAZIONE - Testo che scorre da destra verso sinistra
-   ========================================================================== */
-@keyframes scroll-left {
-  0% {
-    transform: translateX(0);        /* posizione iniziale */
-  }
-  100% {
-    transform: translateX(-100%);    /* esce a sinistra */
   }
 }

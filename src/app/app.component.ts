@@ -156,6 +156,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
 })
 export class AppComponent implements OnInit {
 
+  title: string = 'a-chic-console-frontend';
+
   // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
