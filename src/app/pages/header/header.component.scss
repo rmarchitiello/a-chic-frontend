@@ -3,7 +3,7 @@
    ========================================================================== */
 @media (max-width: 768px) {
   .mobile-header {
-    position: fixed;           /* fisso in alto */
+    position: sticky;           /* fisso in alto */
     top: 2.5rem;               /* spostato sotto al top-banner (alto 2.5rem) */
     left: 0;
     right: 0;
