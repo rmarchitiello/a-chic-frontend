@@ -30,9 +30,6 @@
 
   </div>
 
-  <!--Top Banner-->
-  <app-top-banner></app-top-banner>
-
   <!-- Header -->
   <app-header></app-header>
 
@@ -121,8 +118,6 @@
 <!-- MOBILE (solo se non admin) -->
 <!-- ============================= -->
 <ng-container *ngIf="isMobile && !isAdmin">
-
-  <app-top-banner></app-top-banner>
 
   <!-- Header mobile: apre/chiude la sidenav mobile -->
   <app-header (menuToggle)="sidenav.toggle()"></app-header>

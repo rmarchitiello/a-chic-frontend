@@ -1,26 +1,23 @@
-/* ==========================================================================
-   HEADER MOBILE (<= 768px)
-   ========================================================================== */
+// *** MOBILE HEADER ***
 @media (max-width: 768px) {
   .mobile-header {
-    position: sticky;           /* fisso in alto */
-    top: 2.5rem;               /* spostato sotto al top-banner (alto 2.5rem) */
+    position: fixed;
+    top: 0;
     left: 0;
     right: 0;
-    width: 100vw;              /* occupa tutta la larghezza */
-    z-index: 1001;             /* sta sopra ai contenuti, ma sotto al banner */
-    height: 40px;              /* altezza fissa compatta */
-    background-color: white;   /* sfondo bianco */
+    width: 100vw;
+    z-index: 1000;
+    height: 40px;
+    background-color: white;
     border-bottom: 1px solid #ddd;
-    display: flex;             /* layout flessibile */
-    align-items: center;       /* centra verticalmente gli elementi */
-    justify-content: space-between; /* menu a sx, logo centrato, spazio a dx */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     padding: 0 0.5rem;
 
-    /* Bottone menu (hamburger) */
     button {
-      background: none;          /* niente sfondo */
-      border: none;              /* senza bordo */
+      background: none;
+      border: none;
       cursor: pointer;
       color: black;
       font-weight: bold;
@@ -29,49 +26,42 @@
       transition: background-color 0.3s ease;
 
       &:hover {
-        background-color: #e0e0e0; /* effetto hover */
+        background-color: #e0e0e0;
       }
     }
 
-    /* Icona menu (hamburger) */
     mat-icon {
       font-size: 24px;
     }
 
-    /* Logo centrato orizzontalmente */
     .logo {
       height: 38px;
-      position: absolute;        /* lo posiziono indipendentemente dal flex */
-      left: 50%;                 /* a metà schermo */
-      transform: translateX(-50%); /* correzione per centrarlo davvero */
-      cursor: pointer;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
     }
 
-    /* Spazio a destra per bilanciare visivamente il menu */
     .right-space {
-      width: 40px;
+      width: 40px; // bilanciamento visuale per il bottone menu
     }
   }
 }
 
-/* ==========================================================================
-   HEADER DESKTOP (>= 769px)
-   ========================================================================== */
+// *** DESKTOP HEADER ***
 @media (min-width: 769px) {
   .desktop-header {
-    height: 64px;               /* header più alto */
+    height: 64px;
     background-color: white;
     border-bottom: 1px solid #ddd;
-    position: relative;         /* serve per centrare il logo con absolute */
+    position: relative; // necessario per centrare assolutamente il logo
     display: flex;
     align-items: center;
     justify-content: center;
 
-    /* Logo centrato assolutamente */
     .logo-desktop-center {
       height: 50px;
-      position: absolute;        /* rispetto al toolbar */
-      left: 50%;                 /* metà esatta */
+      position: absolute;
+      left: 50%;
       transform: translateX(-50%);
       cursor: pointer;
     }

@@ -31,7 +31,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AdminService } from './services/admin.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TopBannerComponent } from './pages/top-banner/top-banner.component';
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -140,10 +139,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     FooterComponent,
     HeaderComponent,
     LiveChatComponent,
-    MatProgressSpinnerModule,
-    TopBannerComponent,
-    TopBannerComponent
-],
+    MatProgressSpinnerModule
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [
@@ -155,8 +152,6 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
   ]
 })
 export class AppComponent implements OnInit {
-
-  title: string = 'a-chic-console-frontend';
 
   // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -230,8 +225,6 @@ export class AppComponent implements OnInit {
       this.caricaMediaFromCache(true);
       this.caricaMediaFromCache(false);
     });
-      console.log("IsAdmin?: ", this.isAdmin);
-      console.log("IsMobile?: ", this.isMobile);
   }
 
   // Chiude entrambe le sidenav (richiamabile dai figli)
