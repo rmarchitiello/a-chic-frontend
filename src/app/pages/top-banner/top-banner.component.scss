@@ -1,0 +1,71 @@
+/* ==========================================================================
+   TOP BANNER - DESKTOP (>= 769px)
+   ========================================================================== */
+@media (min-width: 769px) {
+  .top-banner-desktop {
+    position: sticky;          /* resta sempre in cima allo scroll */
+    top: 0;                    /* agganciato al bordo superiore */
+    z-index: 1002;             /* sopra l’header (se header ha z-index più basso) */
+
+    background-color: #000;    /* sfondo nero */
+    color: #fff;               /* testo bianco */
+    overflow: hidden;          /* nasconde il testo che esce dai bordi */
+    white-space: nowrap;       /* impedisce al testo di andare a capo */
+    border-bottom: 1px solid #222; /* linea sottile sotto */
+    height: 2.2rem;            /* altezza fissa sottile */
+    display: flex;             /* per centrare verticalmente il contenuto */
+    align-items: center;       /* centra verticalmente il testo */
+
+    /* Testo all’interno del banner */
+    p {
+      display: inline-block;          /* necessario per animazione */
+      padding-left: 100%;             /* parte fuori dallo schermo a destra */
+      animation: scroll-left 25s linear infinite; /* più lento su desktop */
+      font-size: 0.95rem;             /* grandezza testo */
+      font-weight: 500;               /* peso medio */
+      letter-spacing: 0.5px;          /* leggera spaziatura */
+      margin: 0;                      /* rimuove margini */
+    }
+  }
+}
+
+/* ==========================================================================
+   TOP BANNER - MOBILE (<= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .top-banner-mobile {
+    position: sticky;          /* resta agganciato al top */
+    top: 0;                    /* bordo superiore */
+    z-index: 1002;             /* sopra l’header */
+
+    background-color: #000;    /* sfondo nero */
+    color: #fff;               /* testo bianco */
+    overflow: hidden;          /* nasconde il testo in eccesso */
+    white-space: nowrap;       /* impedisce ritorni a capo */
+    height: 2.5rem;            /* leggermente più alto per leggibilità */
+    display: flex;             /* allineamento verticale */
+    align-items: center;       /* centra il testo verticalmente */
+
+    /* Testo all’interno del banner */
+    p {
+      display: inline-block;          /* per l’animazione */
+      padding-left: 100%;             /* parte fuori schermo a destra */
+      animation: scroll-left 20s linear infinite; /* un po’ più veloce del desktop */
+      font-size: 0.85rem;             /* testo più piccolo */
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+}
+
+/* ==========================================================================
+   ANIMAZIONE - Testo che scorre da destra verso sinistra
+   ========================================================================== */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);        /* posizione iniziale */
+  }
+  100% {
+    transform: translateX(-100%);    /* esce a sinistra */
+  }
+}
