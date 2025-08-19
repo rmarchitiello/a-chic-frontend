@@ -1,27 +1,53 @@
+
+
+/* =========================================
+   HEADER COMPONENT (app-header)
+   - Sticky dentro lo scroller Material
+   - Safe-area iOS gestita sull'header
+   - Stili mobile e desktop
+   ========================================= */
+
 :host {
   display: block;
-  width: 100%; /* opzionale ma sicuro con sticky */
+  width: 100%;
 }
 
-/* Mobile: sticky quando tocca la safe-area (che è il padding del body) */
+/* =========================
+   MOBILE (≤ 768px)
+   ========================= */
 @media (max-width: 768px) {
+  /* L’host è la “barra” vera e propria */
   :host {
+    /* Sticky funziona perché l’header è dentro .mat-sidenav-content */
     position: sticky;
-    top: 0;                 /* safe-area già nel body */
-    z-index: 1001;
-    background: #fff;       /* barra bianca */
+    top: 0;
+    z-index: 1100;
+
+    /* Aggancio alla safe-area: il contenuto dell’header inizia sotto la tacca */
+    padding-top: env(safe-area-inset-top);
+    padding-top: constant(safe-area-inset-top); /* iOS legacy */
+
+    /* Altezza totale della barra: 40px + safe-area */
+    height: calc(40px + env(safe-area-inset-top));
+    height: calc(40px + constant(safe-area-inset-top)); /* iOS legacy */
+    min-height: calc(40px + env(safe-area-inset-top));
+    min-height: calc(40px + constant(safe-area-inset-top)); /* iOS legacy */
+
+    background: #fff; /* sfondo pieno per coprire il contenuto sotto */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* elevazione leggera */
   }
 
-  /* Toolbar interna */
+  /* Toolbar interna (Material). Manteniamo trasparente per usare lo sfondo dell’host */
   .mobile-header {
     background: transparent !important;
     color: #000;
     box-shadow: none;
-    height: 40px;           /* tua altezza */
-    min-height: 40px !important;  /* 👈 override della min-height di Material */
-    display: flex;
+    height: 40px;
+    min-height: 40px !important; /* override min-height Material */
+    display: grid;
+    grid-template-columns: 40px 1fr 40px; /* [menu] [logo centrato] [spazio dx] */
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
   }
 
   /* Copertura sia mat-toolbar che mat-mdc-toolbar */
@@ -36,34 +62,68 @@
     background: transparent;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    width: 40px; height: 40px;
+    padding: 0;
   }
 
   .mobile-header .mat-icon,
   .mobile-header mat-icon {
     color: inherit;
+    line-height: 1;
   }
 
-  .logo { height: 26px; cursor: pointer; }
-  .right-space { flex: 1 1 auto; }
+  .logo {
+    height: 26px; /* 24–28px consigliato su 40px di barra */
+    width: auto;
+    justify-self: center;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .right-space {
+    width: 40px; height: 1px;
+    justify-self: end;
+  }
 }
 
-/* Desktop */
+/* =========================
+   DESKTOP (≥ 769px)
+   ========================= */
 @media (min-width: 769px) {
-  .desktop-header {
-    position: static;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  :host {
+    position: sticky; /* resta in vista in cima anche su desktop */
+    top: 0;
+    z-index: 1100;
     background: #fff;
-    color: #000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
 
-  .desktop-header.mat-toolbar.mat-primary,
-  .desktop-header.mat-mdc-toolbar.mat-primary {
-    background: #fff !important;
+  .desktop-header {
+    background: transparent !important; /* usa lo sfondo dell’host */
     color: #000 !important;
+    height: 72px;
+    min-height: 72px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
   }
 
-  .logo-desktop-center { height: 36px; cursor: pointer; }
+  .desktop-header .logo-desktop-center {
+    height: 48px;
+    width: auto;
+    display: block;
+    cursor: pointer;
+    user-select: none;
+  }
 }
+
+/* =========================
+   NOTE TECNICHE:
+   - Richiede in index.html: <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+   - Non applicare padding-top di safe-area al body o al contenitore che scorre (.mat-sidenav-content),
+     per evitare “gradini” o header che scompare sotto la tacca.
+   - Per ancore interne, imposta scroll-padding-top sul contenitore che scorre nel foglio globale:
+       .mat-drawer-content, .mat-sidenav-content { scroll-padding-top: calc(40px + env(safe-area-inset-top)); }
+   ========================= */
