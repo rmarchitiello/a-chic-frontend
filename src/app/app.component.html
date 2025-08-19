@@ -117,7 +117,14 @@
     <!-- ====================== -->
     <!-- SIDENAV MOBILE -->
     <!-- ====================== -->
-    <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
+    <mat-sidenav
+      #sidenav
+      mode="over"
+      [(opened)]="mobileMenuOpen"
+      (openedChange)="onDrawerState($event)"
+      (backdropClick)="sidenav.close()"
+      (keydown.escape)="sidenav.close()">
+
       <div class="sidenav-content">
         <ng-container *ngFor="let categoriaNew of categorieNew">
           <div class="sidenav-categoria"
@@ -150,7 +157,9 @@
     <!-- ====================== -->
     <mat-sidenav-content>
       <app-top-banner></app-top-banner>
+
       <!-- Header mobile: apre/chiude la sidenav mobile -->
+      <!-- Il lock/unlock dello scroll è gestito da (openedChange) sul mat-sidenav -->
       <app-header (menuToggle)="sidenav.toggle()"></app-header>
 
       <div class="mobile-page-container">

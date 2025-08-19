@@ -187,13 +187,72 @@ export class AppComponent implements OnInit,AfterViewInit {
   isHomeRoute = false;
 
   ngAfterViewInit() {
-      console.log("ahaaha,", document.scrollingElement)
+        this.onDrawerState(false);
 
-  const el = document.querySelector('.prova') as HTMLElement;
-  const styles = getComputedStyle(el);
-  console.log('Margin-top di .prova:', styles.marginTop);
-  console.log("ahaaha,", document.scrollingElement)
 }
+
+  /**
+   * Memorizza la posizione di scroll corrente dello scroller reale (mat-sidenav-content/mat-drawer-content)
+   * quando blocchiamo lo sfondo. Serve per ripristinare la posizione alla chiusura.
+   */
+  private _lockedScrollTop = 0;
+
+  /**
+   * Ritorna il contenitore che scorre realmente in Angular Material.
+   * A seconda della versione di Material la classe può essere .mat-drawer-content o .mat-sidenav-content.
+   * Se non esiste (ad esempio non siamo nel ramo mobile), restituisce null.
+   */
+  private getScrollerElement(): HTMLElement | null {
+    return document.querySelector('.mat-drawer-content, .mat-sidenav-content') as HTMLElement | null;
+  }
+
+  /**
+   * Gestore chiamato dal template con (openedChange) della sidenav.
+   * Quando opened === true:
+   *  - salva lo scroll attuale del contenitore che scorre
+   *  - rende "fisso" il contenitore impostando position:fixed e top negativo
+   *  - in questo modo lo sfondo resta immobile mentre la sidenav è aperta
+   *
+   * Quando opened === false:
+   *  - rimuove gli stili inline usati per il lock
+   *  - ripristina la posizione di scroll salvata
+   */
+  onDrawerState(opened: boolean): void {
+    const scroller = this.getScrollerElement();
+    if (!scroller) {
+      // Nessun contenitore di scroll trovato: niente da fare
+      return;
+    }
+
+    if (opened) {
+      // Salva la posizione di scroll corrente
+      this._lockedScrollTop = scroller.scrollTop || 0;
+
+      // Blocca lo sfondo:
+      // - position: fixed impedisce allo scroller di muoversi
+      // - top negativo compensa la posizione così il contenuto non "salta"
+      // - width: 100% evita micro shift orizzontali
+      scroller.style.position = 'fixed';
+      scroller.style.top = `-${this._lockedScrollTop}px`;
+      scroller.style.left = '0';
+      scroller.style.right = '0';
+      scroller.style.width = '100%';
+
+      // Nota: non modifichiamo overflow del body; blocchiamo solo lo scroller reale di Material.
+    } else {
+      // Sblocca lo sfondo, ripristinando gli stili
+      scroller.style.position = '';
+      scroller.style.top = '';
+      scroller.style.left = '';
+      scroller.style.right = '';
+      scroller.style.width = '';
+
+      // Ripristina lo scroll esattamente dove era prima dell’apertura
+      // scrollTo per compatibilità, poi assegno scrollTop come fallback
+      scroller.scrollTo({ top: this._lockedScrollTop });
+      scroller.scrollTop = this._lockedScrollTop;
+    }
+  }
 
 
   constructor(
