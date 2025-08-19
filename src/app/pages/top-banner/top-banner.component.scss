@@ -1,0 +1,72 @@
+/* Contenitore del componente */
+:host {
+  display: block;
+  background: #000;
+  color: #fff;
+  overflow: hidden;   /* nasconde lo scorrimento del testo */
+}
+
+/* ===== Mobile: NON sticky, scorre via ===== */
+@media (max-width: 768px) {
+  :host {               /* niente sticky su mobile */
+    position: sticky;
+    height: 2.5rem;
+    padding-inline: .6rem;
+    z-index: 1002;
+  }
+
+  .top-banner-mobile p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    white-space: nowrap;
+    width: max-content;
+    will-change: transform;
+    animation: marquee-mobile 20s linear infinite;
+  }
+
+  .marquee-segment { display: inline-block; }
+}
+
+/* ===== Desktop: sticky in alto ===== */
+@media (min-width: 769px) {
+  :host {
+    position: sticky;
+    top: 0;            /* resta agganciato al top */
+    height: 2.2rem;
+    padding-inline: .75rem;
+    z-index: 1002;
+  }
+
+  .top-banner-desktop p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    white-space: nowrap;
+    width: max-content;
+    will-change: transform;
+    animation: marquee-desktop 28s linear infinite;
+  }
+
+  .marquee-segment { display: inline-block; }
+}
+
+/* Animazioni (due copie del testo → -50% = loop continuo) */
+@keyframes marquee-mobile {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes marquee-desktop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Accessibilità: riduci animazioni se richiesto */
+@media (prefers-reduced-motion: reduce) {
+  .top-banner-mobile p,
+  .top-banner-desktop p {
+    animation-duration: 999s;
+  }
+}

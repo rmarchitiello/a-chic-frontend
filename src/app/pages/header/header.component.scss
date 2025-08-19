@@ -1,69 +1,69 @@
-// *** MOBILE HEADER ***
-@media (max-width: 768px) {
-  .mobile-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100vw;
-    z-index: 1000;
-    height: 40px;
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0.5rem;
-
-    button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: black;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-
-      &:hover {
-        background-color: #e0e0e0;
-      }
-    }
-
-    mat-icon {
-      font-size: 24px;
-    }
-
-    .logo {
-      height: 38px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    .right-space {
-      width: 40px; // bilanciamento visuale per il bottone menu
-    }
-  }
+:host {
+  display: block;
+  width: 100%; /* opzionale ma sicuro con sticky */
 }
 
-// *** DESKTOP HEADER ***
+/* Mobile: sticky quando tocca la safe-area (che è il padding del body) */
+@media (max-width: 768px) {
+  :host {
+    position: sticky;
+    top: 0;                 /* safe-area già nel body */
+    z-index: 1001;
+    background: #fff;       /* barra bianca */
+  }
+
+  /* Toolbar interna */
+  .mobile-header {
+    background: transparent !important;
+    color: #000;
+    box-shadow: none;
+    height: 40px;           /* tua altezza */
+    min-height: 40px !important;  /* 👈 override della min-height di Material */
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* Copertura sia mat-toolbar che mat-mdc-toolbar */
+  .mobile-header.mat-toolbar.mat-primary,
+  .mobile-header.mat-mdc-toolbar.mat-primary {
+    background: transparent !important;
+    color: #000 !important;
+  }
+
+  .menu-button {
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .mobile-header .mat-icon,
+  .mobile-header mat-icon {
+    color: inherit;
+  }
+
+  .logo { height: 26px; cursor: pointer; }
+  .right-space { flex: 1 1 auto; }
+}
+
+/* Desktop */
 @media (min-width: 769px) {
   .desktop-header {
+    position: static;
     height: 64px;
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-    position: relative; // necessario per centrare assolutamente il logo
     display: flex;
     align-items: center;
     justify-content: center;
-
-    .logo-desktop-center {
-      height: 50px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      cursor: pointer;
-    }
+    background: #fff;
+    color: #000;
   }
+
+  .desktop-header.mat-toolbar.mat-primary,
+  .desktop-header.mat-mdc-toolbar.mat-primary {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .logo-desktop-center { height: 36px; cursor: pointer; }
 }

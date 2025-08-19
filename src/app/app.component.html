@@ -11,11 +11,7 @@
 <!-- ============================= -->
 <ng-container *ngIf="!isMobile">
   <div class="spinner-overlay" *ngIf="isRefreshing">
-    <mat-progress-spinner
-      mode="indeterminate"
-      diameter="48"
-      strokeWidth="4"
-      color="primary">
+    <mat-progress-spinner mode="indeterminate" diameter="48" strokeWidth="4" color="primary">
     </mat-progress-spinner>
   </div>
   <!-- Logout admin -->
@@ -26,7 +22,7 @@
     <button mat-stroked-button color="warn" (click)="refreshCache()">
       Refresh della cache
     </button>
-        <!-- Spinner visibile solo durante il refresh -->
+    <!-- Spinner visibile solo durante il refresh -->
 
   </div>
 
@@ -47,23 +43,21 @@
     <mat-sidenav #sidenavDesktop mode="side" [(opened)]="desktopSidenavOpen" class="desktop-sidenav">
       <div class="sidenav-content">
 
-<!-- Azioni admin: visibili solo su desktop e solo se admin -->
-<div *ngIf="isAdmin" class="admin-sidenav-actions">
-  <button mat-stroked-button color="primary"
-          (click)="apriAdminFolderPopUp()"
-          matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
-    <mat-icon>create_new_folder</mat-icon>
-    Gestisci cartelle
-  </button>
-  <small class="hint">Formato: livello1[/livello2[/livello3]]</small>
-</div>
+        <!-- Azioni admin: visibili solo su desktop e solo se admin -->
+        <div *ngIf="isAdmin" class="admin-sidenav-actions">
+          <button mat-stroked-button color="primary" (click)="apriAdminFolderPopUp()"
+            matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
+            <mat-icon>create_new_folder</mat-icon>
+            Gestisci cartelle
+          </button>
+          <small class="hint">Formato: livello1[/livello2[/livello3]]</small>
+        </div>
 
         <!-- Livello 1: categorie root -->
         <ng-container *ngFor="let categoriaNew of categorieNew">
 
           <!-- Nodo L1: click = apri/chiudi ramo 'categoriaNew' -->
-          <div class="sidenav-categoria-desktop"
-               (click)="saveCategoriaAndToggle(categoriaNew)">
+          <div class="sidenav-categoria-desktop" (click)="saveCategoriaAndToggle(categoriaNew)">
             {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
@@ -73,8 +67,8 @@
 
             <!-- Ogni 'childPath' è un path completo tipo 'borse/conchiglia' -->
             <div class="sidenav-sottocategoria"
-                 *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
-                 (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
+              *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
+              (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
 
               <!-- etichetta = ultimo segmento leggibile -->
               {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
@@ -85,8 +79,8 @@
                 <!-- Ogni 'grandChildPath' è un path completo tipo 'borse/conchiglia/perlata' -->
                 <!-- click = NAVIGA passando il path completo (un solo argomento) -->
                 <div class="sidenav-sottocategoria"
-                     *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
-                     (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
+                  *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
+                  (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
                   {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
                 </div>
 
@@ -111,7 +105,7 @@
   </mat-sidenav-container>
 
   <!-- Chat desktop -->
- <!-- togliere commento x abilitare <app-live-chat></app-live-chat> -->
+  <!-- togliere commento x abilitare <app-live-chat></app-live-chat> -->
 </ng-container>
 
 <!-- ============================= -->
@@ -119,46 +113,31 @@
 <!-- ============================= -->
 <ng-container *ngIf="isMobile && !isAdmin">
 
-  <!-- Header mobile: apre/chiude la sidenav mobile -->
-  <app-header (menuToggle)="sidenav.toggle()"></app-header>
-
   <mat-sidenav-container class="sidenav-container">
-
     <!-- ====================== -->
     <!-- SIDENAV MOBILE -->
     <!-- ====================== -->
     <mat-sidenav #sidenav mode="over" [(opened)]="mobileMenuOpen">
       <div class="sidenav-content">
-
-        <!-- Livello 1: categorie root -->
         <ng-container *ngFor="let categoriaNew of categorieNew">
-
-          <!-- Nodo L1 mobile: evidenzia se il ramo è aperto -->
           <div class="sidenav-categoria"
                [class.attiva]="isPathOpen(categoriaNew)"
                (click)="saveCategoriaAndToggle(categoriaNew)">
             {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
-          <!-- Livello 2 mobile -->
           <div class="sotto-container" *ngIf="isPathOpen(categoriaNew)" [@expandCollapse]>
-
-            <!-- Ogni 'childPath' è un path completo tipo 'borse/conchiglia' -->
             <div class="sotto-categoria"
                  *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
                  (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
               {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
 
-              <!-- Livello 3 mobile: foglie -->
               <div class="filtro-container" *ngIf="isPathOpen(childPath)" [@expandCollapse]>
-
-                <!-- click = NAVIGA passando il path completo (un solo argomento) -->
                 <button class="filtro-categoria"
                         *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
                         (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
                   {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
                 </button>
-
               </div>
             </div>
           </div>
@@ -167,16 +146,19 @@
     </mat-sidenav>
 
     <!-- ====================== -->
-    <!-- CONTENUTO MOBILE -->
+    <!-- CONTENUTO MOBILE (scroller) -->
     <!-- ====================== -->
     <mat-sidenav-content>
+      <app-top-banner></app-top-banner>
+      <!-- Header mobile: apre/chiude la sidenav mobile -->
+      <app-header (menuToggle)="sidenav.toggle()"></app-header>
+
       <div class="mobile-page-container">
         <router-outlet></router-outlet>
+        <app-footer></app-footer>
+        <!-- <app-live-chat></app-live-chat> -->
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
 
-  <!-- Footer + Chat mobile -->
-  <app-footer></app-footer>
- <!-- togliere commento x abilitare <app-live-chat></app-live-chat> -->
 </ng-container>

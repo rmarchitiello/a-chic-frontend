@@ -4,19 +4,30 @@
   <meta charset="utf-8">
   <title>A-Chic | Borse e Accessori Artigianali Fatto a Mano</title>
   <base href="/" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
+  <!-- ✅ viewport con supporto safe-area -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- ✅ Colore della status bar in Safari (anche quando scende la barra in alto) -->
+
+  <!-- ✅ PWA / Aggiungi a Home su iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <!-- "default" = status bar bianca con testo nero -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- SEO -->
   <meta name="description" content="Scopri A-Chic: borse e accessori artigianali fatti all'uncinetto. Eleganza, creatività e qualità in ogni dettaglio. Realizzati con amore in Italia.">
   <meta name="keywords" content="borse artigianali, borse fatte a mano, borse uncinetto, accessori artigianali, A-Chic, handmade bags, moda sostenibile, uncinetto, borsa crochet">
   <meta name="author" content="A-Chic Handmade">
 
-  <!-- Open Graph / Facebook / LinkedIn -->
+  <!-- Open Graph -->
   <meta property="og:title" content="A-Chic | Borse e Accessori Artigianali Fatto a Mano" />
   <meta property="og:description" content="Scopri le borse fatte a mano all'uncinetto firmate A-Chic. Design elegante, materiali di qualità e stile unico." />
   <meta property="og:image" content="https://www.a-chic.it/assets/home/images/Logo.png" />
   <meta property="og:url" content="https://www.a-chic.it/" />
   <meta property="og:type" content="website" />
 
-  <!-- Twitter Card -->
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="A-Chic | Borse e Accessori Artigianali" />
   <meta name="twitter:description" content="Borse artigianali fatte all'uncinetto, perfette per ogni occasione. Realizzate in Italia." />
@@ -29,36 +40,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<!-- JSON‑LD per sitelinks e breadcrumb -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "url": "https://www.a-chic.it/",
-    "name": "A‑Chic",
-    "description": "Borse e accessori artigianali fatti a mano a uncinetto.",
-    "inLanguage": "it",
-    "publisher": {
-      "@type": "Organization",
-      "name": "A‑Chic Handmade",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://www.a-chic.it/assets/home/images/Logo.png"
-      }
-    },
-    "hasPart": [
-      { "@type": "WebPage", "url": "https://www.a-chic.it/borse",                       "name": "Borse Conchiglia" },
-      { "@type": "WebPage", "url": "https://www.a-chic.it/accessori",                   "name": "Accessori, Manici e Charm" },
-      { "@type": "WebPage", "url": "https://www.a-chic.it/baby/carillon?filtri=Tutte",  "name": "Carillon" },
-      { "@type": "WebPage", "url": "https://www.a-chic.it/chi-siamo",                   "name": "Chi Sono" },
-      { "@type": "WebPage", "url": "https://www.a-chic.it/contatti",                   "name": "Contatti" },
-    ]
-  }
-  </script>
-
-
 </head>
+
 <body class="mat-typography">
   <app-root></app-root>
 </body>

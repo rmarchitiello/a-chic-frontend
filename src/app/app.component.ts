@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef, ViewChild,AfterViewInit  } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from './services/cloudinary.service';
@@ -31,6 +31,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AdminService } from './services/admin.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TopBannerComponent } from './pages/top-banner/top-banner.component';
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -139,7 +140,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     FooterComponent,
     HeaderComponent,
     LiveChatComponent,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TopBannerComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -151,7 +153,7 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     ])
   ]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit,AfterViewInit {
 
   // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -183,6 +185,16 @@ export class AppComponent implements OnInit {
 
   // Flag per verificare se siamo nella homepage
   isHomeRoute = false;
+
+  ngAfterViewInit() {
+      console.log("ahaaha,", document.scrollingElement)
+
+  const el = document.querySelector('.prova') as HTMLElement;
+  const styles = getComputedStyle(el);
+  console.log('Margin-top di .prova:', styles.marginTop);
+  console.log("ahaaha,", document.scrollingElement)
+}
+
 
   constructor(
     private router: Router,

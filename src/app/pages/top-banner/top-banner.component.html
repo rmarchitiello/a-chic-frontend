@@ -1,0 +1,15 @@
+<!-- Desktop -->
+<div *ngIf="!isMobile" class="top-banner-desktop">
+  <p>
+    <span class="marquee-segment">{{ bannerText }}</span>
+    <span class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
+  </p>
+</div>
+
+<!-- Mobile -->
+<div *ngIf="isMobile" class="top-banner-mobile">
+  <p>
+    <span class="marquee-segment">{{ bannerText }}</span>
+    <span class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
+  </p>
+</div>

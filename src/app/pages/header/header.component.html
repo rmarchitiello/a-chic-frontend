@@ -1,22 +1,23 @@
-
-<!-- HEADER PER DESKTOP-->
+<!-- HEADER DESKTOP -->
 <mat-toolbar *ngIf="!isMobile" class="desktop-header" color="primary">
-  <img (click)="goToHome('/home')" class="logo-desktop-center" src="assets/home/images/Logo.png" alt="Logo" />
+  <img
+    (click)="goToHome('/home')"
+    class="logo-desktop-center"
+    src="assets/home/images/Logo.png"
+    alt="Logo" />
 </mat-toolbar>
 
-
-
-<!-- HEADER PER MOBILE-->
+<!-- HEADER MOBILE -->
 <mat-toolbar *ngIf="isMobile" class="mobile-header" color="primary">
-  <button  (click)="toggleMenu()">
+  <button mat-icon-button (click)="toggleMenu()" aria-label="Apri menu" class="menu-button">
     <mat-icon>menu</mat-icon>
   </button>
 
-  <img (click)="goToHome('/home')" class="logo" src="assets/home/images/Logo.png" alt="Logo" />
+  <img
+    (click)="goToHome('/home')"
+    class="logo"
+    src="assets/home/images/Logo.png"
+    alt="Logo" />
 
-  <span class="right-space"></span> <!-- spazio per bilanciare visivamente -->
+  <span class="right-space"></span>
 </mat-toolbar>
-
-<!-- adesso devo collegare il bottone menu hamb al sidenav definito in app component ovvero, tramite questo bottone di un altro component devo aprire un menu di un altro component in app component-->
- <!-- in questo caso mobile component è figlio di app component ed ha questa funzione toggleMenu() che fa questo apre e chiude ma se clicco cosi non funziona-->
-  <!-- quando clicco deve triggerare #sidenav definito di app component -->
