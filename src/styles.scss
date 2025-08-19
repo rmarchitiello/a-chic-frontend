@@ -5,8 +5,12 @@ html, body {
   min-height: 100vh;
   background: #fff;              /* la status bar prende questo colore */
   -webkit-overflow-scrolling: touch;
+
   overflow-x: hidden;
 }
+
+  html { -webkit-text-size-adjust: 100%; } /* evita che iOS ingrandisca i font */
+
 
 @media (max-width: 768px) {
   /* Safe-area = padding del body (bianco): niente ::before, niente z-index */
