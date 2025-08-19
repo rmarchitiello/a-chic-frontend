@@ -12,99 +12,77 @@
   width: 100%;
 }
 
-/* =========================
-   MOBILE (≤ 768px)
-   ========================= */
+/* =====================================
+   HEADER MOBILE: hamburger sx, logo centro
+   ===================================== */
 @media (max-width: 768px) {
-  :host {
-    --bar-h: 40px;                       /* altezza barra (escl. safe-area) */
-
-    /* sticky dentro .mat-sidenav-content */
-    position: sticky;
-    top: 0;
+  :host{
+    position: fixed;
+    top: var(--offset-top);          /* sotto eventuale topbar + safe-area */
+    left: 0; right: 0;
     z-index: 1100;
 
-    /* safe-area (tacca iOS) */
-    padding-top: env(safe-area-inset-top);
-    padding-top: constant(safe-area-inset-top); /* iOS legacy */
-
-    /* dimensioni totali barra = bar-h + safe-area */
-    height: calc(var(--bar-h) + env(safe-area-inset-top));
-    height: calc(var(--bar-h) + constant(safe-area-inset-top)); /* legacy */
-    min-height: calc(var(--bar-h) + env(safe-area-inset-top));
-    min-height: calc(var(--bar-h) + constant(safe-area-inset-top)); /* legacy */
-
-    /* bianco pieno, nessuna separazione */
+    height: var(--bar-h);
+    min-height: var(--bar-h);
     background: #fff !important;
     box-shadow: none !important;
     border-bottom: 0 !important;
+    padding: 0 !important;           /* niente safe-area qui: siamo già sotto */
   }
 
-  /* Toolbar Material: usa lo sfondo dell'host, nessuna ombra/riga */
+  /* Forza la toolbar (e la sua row interna) ad usare una griglia 3 colonne */
   .mobile-header,
-  .mobile-header.mat-toolbar,
-  .mobile-header.mat-mdc-toolbar,
-  .mobile-header .mat-toolbar-row,
-  .mobile-header .mat-mdc-toolbar-row {
+  .mobile-header > .mat-toolbar-row,
+  .mobile-header > .mat-mdc-toolbar-row{
     background: transparent !important;
     color: #000 !important;
     box-shadow: none !important;
     border: 0 !important;
 
+    display: grid !important;
+    grid-template-columns: var(--bar-h) 1fr var(--bar-h); /* [menu][logo][spazio] */
+    align-items: center;
+    width: 100%;
     height: var(--bar-h);
     min-height: var(--bar-h) !important;
 
-    display: grid;
-    grid-template-columns: var(--bar-h) 1fr var(--bar-h); /* [menu][logo][spazio] */
-    align-items: center;
-    gap: .5rem;
+    white-space: nowrap;   /* evita l’andare a capo */
+    text-align: left !important; /* annulla text-align:center globali */
   }
 
-  /* elimina eventuali hairline dei temi */
+  /* evita hairline/righe dei temi */
   :host::before, :host::after,
-  .mobile-header::before, .mobile-header::after {
-    content: none !important;
-  }
+  .mobile-header::before, .mobile-header::after{ content: none !important; }
 
-  .menu-button {
-    border: 0;
-    background: transparent;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--bar-h);
-    height: var(--bar-h);
-    padding: 0;
+  .menu-button{
+    grid-column: 1;
+    justify-self: start;
+    border: 0; background: transparent;
+    display: inline-flex; align-items: center; justify-content: center;
+    width: var(--bar-h); height: var(--bar-h); padding: 0; margin: 0;
   }
 
   .mobile-header .mat-icon,
-  .mobile-header mat-icon {
-    color: currentColor;
-    line-height: 1;
+  .mobile-header mat-icon{
+    color: currentColor; line-height: 1; display: block;
   }
 
-  .logo {
-    height: 26px;            /* 24–28px consigliato su 40px */
-    width: auto;
+  /* Logo centrato e inline, per non creare una nuova riga */
+  .mobile-header .logo{
+    grid-column: 2;
     justify-self: center;
-    cursor: pointer;
-    user-select: none;
+    display: inline-block !important;  /* sovrascrive eventuale display:block globali */
+    height: 26px; width: auto;
+    cursor: pointer; user-select: none;
+    margin: 0 !important;
   }
 
-  .right-space {
+  .mobile-header .right-space{
+    grid-column: 3;
+    justify-self: end;
     width: var(--bar-h);
     height: 1px;
-    justify-self: end;
   }
-}
-
-/* (facoltativo ma utile)
-   Contenuto sotto: bianco e ancore che tengono conto dell'header */
-.mat-sidenav-content,
-.mat-drawer-content {
-  background: #fff !important;
-  scroll-padding-top: calc(40px + env(safe-area-inset-top));
-  scroll-padding-top: calc(40px + constant(safe-area-inset-top));
 }
 
 /* =========================

@@ -22,7 +22,14 @@ html { -webkit-text-size-adjust: 100%; }
   --mat-sidenav-content-background-color: #fff;
   --mat-toolbar-container-background-color: #fff;
   --mat-toolbar-container-text-color: #000;
+
+    /* offset totale sotto la status bar/notch + altezza top bar */
+  --topbar-offset: calc(env(safe-area-inset-top) + 32px);
+  --toolbar-h: 40px;
 }
+
+/* Se in una pagina NON c’è la top bar */
+body.no-topbar { --topbar-offset: env(safe-area-inset-top); }
 
 /* Contenitori principali Material/Angular: tutti bianchi */
 .mat-drawer-container,
