@@ -16,45 +16,54 @@
    MOBILE (≤ 768px)
    ========================= */
 @media (max-width: 768px) {
-  /* L’host è la “barra” vera e propria */
   :host {
-    /* Sticky funziona perché l’header è dentro .mat-sidenav-content */
+    --bar-h: 40px;                       /* altezza barra (escl. safe-area) */
+
+    /* sticky dentro .mat-sidenav-content */
     position: sticky;
     top: 0;
     z-index: 1100;
 
-    /* Aggancio alla safe-area: il contenuto dell’header inizia sotto la tacca */
+    /* safe-area (tacca iOS) */
     padding-top: env(safe-area-inset-top);
     padding-top: constant(safe-area-inset-top); /* iOS legacy */
 
-    /* Altezza totale della barra: 40px + safe-area */
-    height: calc(40px + env(safe-area-inset-top));
-    height: calc(40px + constant(safe-area-inset-top)); /* iOS legacy */
-    min-height: calc(40px + env(safe-area-inset-top));
-    min-height: calc(40px + constant(safe-area-inset-top)); /* iOS legacy */
+    /* dimensioni totali barra = bar-h + safe-area */
+    height: calc(var(--bar-h) + env(safe-area-inset-top));
+    height: calc(var(--bar-h) + constant(safe-area-inset-top)); /* legacy */
+    min-height: calc(var(--bar-h) + env(safe-area-inset-top));
+    min-height: calc(var(--bar-h) + constant(safe-area-inset-top)); /* legacy */
 
-    background: #fff; /* sfondo pieno per coprire il contenuto sotto */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08); /* elevazione leggera */
+    /* bianco pieno, nessuna separazione */
+    background: #fff !important;
+    box-shadow: none !important;
+    border-bottom: 0 !important;
   }
 
-  /* Toolbar interna (Material). Manteniamo trasparente per usare lo sfondo dell’host */
-  .mobile-header {
-    background: transparent !important;
-    color: #000;
-    box-shadow: none;
-    height: 40px;
-    min-height: 40px !important; /* override min-height Material */
-    display: grid;
-    grid-template-columns: 40px 1fr 40px; /* [menu] [logo centrato] [spazio dx] */
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  /* Copertura sia mat-toolbar che mat-mdc-toolbar */
-  .mobile-header.mat-toolbar.mat-primary,
-  .mobile-header.mat-mdc-toolbar.mat-primary {
+  /* Toolbar Material: usa lo sfondo dell'host, nessuna ombra/riga */
+  .mobile-header,
+  .mobile-header.mat-toolbar,
+  .mobile-header.mat-mdc-toolbar,
+  .mobile-header .mat-toolbar-row,
+  .mobile-header .mat-mdc-toolbar-row {
     background: transparent !important;
     color: #000 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+
+    height: var(--bar-h);
+    min-height: var(--bar-h) !important;
+
+    display: grid;
+    grid-template-columns: var(--bar-h) 1fr var(--bar-h); /* [menu][logo][spazio] */
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* elimina eventuali hairline dei temi */
+  :host::before, :host::after,
+  .mobile-header::before, .mobile-header::after {
+    content: none !important;
   }
 
   .menu-button {
@@ -63,18 +72,19 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px; height: 40px;
+    width: var(--bar-h);
+    height: var(--bar-h);
     padding: 0;
   }
 
   .mobile-header .mat-icon,
   .mobile-header mat-icon {
-    color: inherit;
+    color: currentColor;
     line-height: 1;
   }
 
   .logo {
-    height: 26px; /* 24–28px consigliato su 40px di barra */
+    height: 26px;            /* 24–28px consigliato su 40px */
     width: auto;
     justify-self: center;
     cursor: pointer;
@@ -82,9 +92,19 @@
   }
 
   .right-space {
-    width: 40px; height: 1px;
+    width: var(--bar-h);
+    height: 1px;
     justify-self: end;
   }
+}
+
+/* (facoltativo ma utile)
+   Contenuto sotto: bianco e ancore che tengono conto dell'header */
+.mat-sidenav-content,
+.mat-drawer-content {
+  background: #fff !important;
+  scroll-padding-top: calc(40px + env(safe-area-inset-top));
+  scroll-padding-top: calc(40px + constant(safe-area-inset-top));
 }
 
 /* =========================
