@@ -57,13 +57,18 @@
 
   /* SCROLLER VERO: dove vive lo sticky dell'header */
   .mat-sidenav-content {
-    min-height: 100vh;
-    overflow: auto;
+    height: 100vh;                 /* <-- cambia da min-height a height */
+    overflow-y: auto;              /* lo scroller è qui */
+    overflow-x: hidden;
     position: relative;
     -webkit-overflow-scrolling: touch;
+
+    /* offset iniziale di 1px o safe-area */
+    padding-top: constant(safe-area-inset-top);
+    padding-top: max(env(safe-area-inset-top), 1px);
   }
 
-  /* Patch iOS/WebKit: evita che un transform rompa lo sticky */
+  /* importantissimo per iOS/Material: evita che uno `transform` rompa lo sticky */
   .mat-sidenav-content,
   .mat-drawer-content {
     transform: none !important;

@@ -16,18 +16,12 @@
    HEADER MOBILE: hamburger sx, logo centro
    ===================================== */
 @media (max-width: 768px) {
-  :host{
-    position: fixed;
-    top: var(--offset-top);          /* sotto eventuale topbar + safe-area */
-    left: 0; right: 0;
-    z-index: 1100;
-
-    height: var(--bar-h);
-    min-height: var(--bar-h);
-    background: #fff !important;
-    box-shadow: none !important;
-    border-bottom: 0 !important;
-    padding: 0 !important;           /* niente safe-area qui: siamo già sotto */
+  :host {
+    position: sticky;
+    top: 0;                  /* si incolla alla linea dello scroller */
+    z-index: 1000;
+    display: block;
+    background: #fff;
   }
 
   /* Forza la toolbar (e la sua row interna) ad usare una griglia 3 colonne */

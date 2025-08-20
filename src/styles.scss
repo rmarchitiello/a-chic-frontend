@@ -29,7 +29,6 @@ html { -webkit-text-size-adjust: 100%; }
 }
 
 /* Se in una pagina NON c’è la top bar */
-body.no-topbar { --topbar-offset: env(safe-area-inset-top); }
 
 /* Contenitori principali Material/Angular: tutti bianchi */
 .mat-drawer-container,
@@ -70,19 +69,36 @@ body.no-topbar { --topbar-offset: env(safe-area-inset-top); }
   background: #fff !important; /* oppure transparent */
 }
 
-/* (Opzionale) togli eventuale “alone” sotto header eliminando l’ombra */
-@media (min-width: 769px) {
-  [_nghost-ng-c2897767300] { /* host dell’header desktop nel tuo DOM */
-    box-shadow: none !important;
+/* */
+/* Mobile: tappo fisso in alto, senza env()/constant() 
+sto creando una sorta di div, che va a sovrastare la safe bar
+in modo da colorarla come piace a me
+ma e una fake colorazione perche in realta non si colora veramente
+solo con theme color in html posso colorarla */
+@media (max-width: 768px) and (orientation: portrait) {
+  html::before,
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    /* iOS 11 vecchi (se presenti) */
+    height: constant(safe-area-inset-top);
+    /* iOS moderni + fallback minimo per il “0 al primo paint” */
+    height: max( env(safe-area-inset-top), 1px ); //al momento la metto bianca una sottile barra bianca di 1 px
+    background: #fff;
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
-@media (max-width: 768px) {
-  /* Safe-area = padding del body (bianco): niente ::before, niente z-index */
-  body {
-    padding-top: env(safe-area-inset-top);
-  }
-}
+
+
+
+
+
+
+
+
 
 /* ===========================================================
    DESKTOP (≥ 769px)
@@ -95,11 +111,6 @@ body.no-topbar { --topbar-offset: env(safe-area-inset-top); }
     color: #222;
   }
 
-  .mat-sidenav-content {
-    display: block;
-    min-height: 100vh;
-    overflow: visible;
-  }
 }
 
 
