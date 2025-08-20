@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone, ChangeDetectorRef, ViewChild,AfterViewInit  } from '@angular/core';
+import { Component, OnInit,OnDestroy, NgZone, ChangeDetectorRef, ViewChild,AfterViewInit  } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CloudinaryService } from './services/cloudinary.service';
@@ -32,6 +32,11 @@ import { AdminService } from './services/admin.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TopBannerComponent } from './pages/top-banner/top-banner.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkScrollable, ScrollDispatcher } from '@angular/cdk/scrolling';
+import { Subscription } from 'rxjs';
+import { auditTime } from 'rxjs/operators';
+
 /* DEFINISCO LE INTERFACCE */
 /**
  * Descrive un singolo asset (immagine, video o audio) associato a un media.
@@ -141,7 +146,8 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     HeaderComponent,
     LiveChatComponent,
     MatProgressSpinnerModule,
-    TopBannerComponent
+    TopBannerComponent,
+    ScrollingModule
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
@@ -153,15 +159,16 @@ Gli items contengono tutti i media con i metadati e poi in media ci sono le avri
     ])
   ]
 })
-export class AppComponent implements OnInit,AfterViewInit {
+export class AppComponent implements OnInit,OnDestroy,AfterViewInit {
 
   // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
-
+@ViewChild(CdkScrollable) scrollable?: CdkScrollable;
+private scrollSub?: Subscription;
   // Stato modalità admin
   isAdmin: boolean = false;
-
+title: string = 'A-chic bag'
   // True se siamo su un dispositivo mobile
   isMobile = false;
 
@@ -189,6 +196,16 @@ export class AppComponent implements OnInit,AfterViewInit {
   ngAfterViewInit() {
         this.onDrawerState(false);
 
+          // Bridge: quando scorre cdkScrollable, rilancia un evento "scroll" sul window
+  this.scrollSub = this.scrollDispatcher.scrolled()
+    .pipe(auditTime(16)) // ~60fps
+    .subscribe(() => {
+      window.dispatchEvent(new Event('scroll'));
+    });
+}
+
+ngOnDestroy() {
+  this.scrollSub?.unsubscribe();
 }
 
   /**
@@ -202,9 +219,10 @@ export class AppComponent implements OnInit,AfterViewInit {
    * A seconda della versione di Material la classe può essere .mat-drawer-content o .mat-sidenav-content.
    * Se non esiste (ad esempio non siamo nel ramo mobile), restituisce null.
    */
-  private getScrollerElement(): HTMLElement | null {
-    return document.querySelector('.mat-drawer-content, .mat-sidenav-content') as HTMLElement | null;
-  }
+ private getScrollerElement(): HTMLElement | null {
+  return this.scrollable?.getElementRef().nativeElement
+      ?? document.querySelector('.mat-drawer-content, .mat-sidenav-content') as HTMLElement | null;
+}
 
   /**
    * Gestore chiamato dal template con (openedChange) della sidenav.
@@ -264,7 +282,9 @@ export class AppComponent implements OnInit,AfterViewInit {
     private sharedDataService: SharedDataService,
     private dialog: MatDialog,
     private adminService: AdminService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private scrollDispatcher: ScrollDispatcher
+    
   ) {
     // Monitoraggio della route per sapere se siamo in /home
     this.router.events.pipe(
