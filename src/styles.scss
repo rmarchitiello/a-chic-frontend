@@ -82,6 +82,10 @@ solo con theme color in html posso colorarla */
     position: fixed;
     top: 0; left: 0; right: 0;
     /* iOS 11 vecchi (se presenti) */
+   /* qua sto indicando una linea sottile di 1 px 
+    questa linea sottile e subito dopo l area di safe
+    serve perche da quell area in poi deve partire lo scroll
+    e quando l header tocca quell area si aggancia */
     height: constant(safe-area-inset-top);
     /* iOS moderni + fallback minimo per il “0 al primo paint” */
     height: max( env(safe-area-inset-top), 1px ); //al momento la metto bianca una sottile barra bianca di 1 px
