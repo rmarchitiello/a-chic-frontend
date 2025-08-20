@@ -37,7 +37,7 @@
     min-width: 200px;
     max-width: 80vw;
     background-color: #fff;
-    overflow-y: auto;
+    overflow-y: auto; // abilito lo scroll sul sidenav e lo registro con cdk
     display: flex;
     flex-direction: column;
     border: none;
