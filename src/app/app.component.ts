@@ -164,6 +164,10 @@ export class AppComponent implements OnInit,OnDestroy,AfterViewInit {
   // Riferimenti ai due sidenav (mobile e desktop)
   @ViewChild('sidenav') sidenav!: MatSidenav;
   @ViewChild('sidenavDesktop') sidenavDesktop!: MatSidenav;
+  /* 
+  USO LA DIRETTIVA CDK SCROLLABLE PERCHE A SCROLLARE NN E PIU LA WINDOWS MA
+  UN CONTAINER QUINDI PER FAR CAPIRE CHE STO SCROLLANDO DEVO USARE LA DIRETTIVA.
+  */
 @ViewChild(CdkScrollable) scrollable?: CdkScrollable;
 private scrollSub?: Subscription;
   // Stato modalità admin
