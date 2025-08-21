@@ -36,15 +36,17 @@
         aria-required="true"
         aria-label="Inserisci la tua email per la newsletter" />
 
-      <button
-        type="submit"
-        class="newsletter-submit"
-        [disabled]="loadingNewsLetter"
-        [attr.aria-busy]="loadingNewsLetter ? 'true' : null"
-        aria-label="Iscriviti alla newsletter">
-        <span *ngIf="!loadingNewsLetter">→</span>
-        <span *ngIf="loadingNewsLetter" class="spinner" aria-hidden="true"></span>
-      </button>
+<button
+  type="submit"
+  class="newsletter-submit"
+  [disabled]="loadingNewsLetter"
+  [attr.aria-busy]="loadingNewsLetter ? 'true' : null"
+  aria-label="Iscriviti alla newsletter"
+>
+  <mat-icon class="arrow" *ngIf="!loadingNewsLetter">arrow_forward</mat-icon>
+  <span *ngIf="loadingNewsLetter" class="spinner" aria-hidden="true"></span>
+</button>
+
     </form>
 
     <!-- Messaggio di esito (live) -->

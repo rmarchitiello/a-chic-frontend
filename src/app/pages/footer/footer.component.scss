@@ -1,6 +1,7 @@
 /* ============================================================================
-   FOOTER – template unico (mobile + desktop)
-   Elimina il gap bianco sotto, gestisce safe-area e migliora il bottone freccia
+   FOOTER – unico (mobile + desktop)
+   - Elimina il gap bianco sotto (bleed nero + safe-area)
+   - Freccia invio centrata (Material Icon) con fallback <span>
    ========================================================================== */
 
 :host {
@@ -8,7 +9,7 @@
   width: 100%;
 }
 
-/* Applica a entrambi i nomi se nel template esistono ancora */
+/* Base per qualunque classe footer rimasta nel template */
 .footer,
 .footer-desktop,
 .footer-mobile {
@@ -16,15 +17,16 @@
   color: #fff;
   text-align: center;
   border-top: 1px solid #222;
-  margin: 0 !important;            /* nessun margine di coda */
+  margin: 0 !important;
   position: relative;
-  isolation: isolate;               /* per pseudo-elemento di bleed */
+  isolation: isolate;
 
-  /* “Bleed” nero sotto il footer per coprire safe-area / piccoli gap */
+  /* “Bleed” nero sotto il footer per coprire qualunque spazio residuo */
   &::after {
     content: "";
     display: block;
-    height: max(env(safe-area-inset-bottom, 0px), 40px); /* copre la striscia bianca */
+    /* 64px di margine ottico + safe-area; se non serve, resta invisibile sotto */
+    height: calc(64px + max(env(safe-area-inset-bottom, 0px), 0px));
     background: #000;
   }
 }
@@ -49,7 +51,7 @@
     color: #ccc;
   }
 
-  /* form base */
+  /* Form */
   .newsletter-form,
   .newsletter-form-desktop {
     display: flex;
@@ -58,12 +60,12 @@
     gap: .6rem;
     width: 100%;
     margin: .25rem auto 0;
-    max-width: 560px;
+    max-width: 640px;
 
     input[type="email"] {
       flex: 1;
       min-width: 0;                       /* evita overflow */
-      padding: .8rem 1rem;
+      padding: .85rem 1.1rem;
       border: 1px solid #666;
       border-radius: 999px;
       background: #fff;
@@ -73,49 +75,56 @@
       transition: border-color .2s ease, box-shadow .2s ease;
 
       &:focus {
-        border-color: #bbb;
+        border-color: #bdbdbd;
         box-shadow: 0 0 0 3px rgba(255,255,255,.15);
       }
-
-      &:disabled {
-        opacity: .7;
-      }
+      &:disabled { opacity: .7; }
     }
 
-    /* Bottone freccia migliorato */
+    /* Bottone freccia circolare */
     button,
     .newsletter-submit {
-      width: 3rem;
-      height: 3rem;
+      width: 3.25rem;
+      height: 3.25rem;
       border: none;
       border-radius: 50%;
       background: #fff;
       color: #000;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-grid;         /* centratura perfetta */
+      place-items: center;
+      padding: 0;
       transition: transform .08s ease, background-color .2s ease, box-shadow .2s ease;
-      box-shadow: 0 4px 14px rgba(0,0,0,.25);
+      box-shadow: 0 4px 14px rgba(0,0,0,.22);
 
       &:hover:not(:disabled) {
         background: #f2f2f2;
-        transform: translateX(2px);
+        transform: translateX(1px);
+        box-shadow: 0 6px 16px rgba(0,0,0,.25);
       }
       &:active:not(:disabled) {
         transform: translateX(0) scale(.98);
+        box-shadow: 0 3px 10px rgba(0,0,0,.2);
       }
-      &:disabled {
-        opacity: .6;
-        cursor: default;
+      &:disabled { opacity: .6; cursor: default; }
+
+      /* icona Material */
+      .mat-icon,
+      mat-icon {
+        font-size: 26px;
+        line-height: 1;
+        width: 1em;
+        height: 1em;
+        display: block;
       }
 
-      /* freccia tipografica più grande e leggibile */
+      /* fallback tipografico se usi ancora <span>→</span> */
       > span:not(.spinner) {
-        font-size: 1.4rem;
+        font-size: 1.35rem;
         line-height: 1;
         font-weight: 800;
         transform: translateX(1px);
+        display: block;
       }
 
       /* spinner durante l’invio */
@@ -131,7 +140,7 @@
     }
   }
 
-  /* messaggio di risposta */
+  /* Messaggio risposta */
   p[ng-reflect-ng-if],
   .newsletter-response {
     margin-top: .9rem;
@@ -208,7 +217,7 @@
   color: #ccc;
   line-height: 1.45;
   margin: 0 auto;
-  max-width: 560px;
+  max-width: 620px;
   padding-bottom: .25rem; /* piccolo respiro sopra il bleed */
 }
 
@@ -218,20 +227,23 @@
 @media (max-width: 768px) {
   .footer,
   .footer-mobile {
-    padding: 2rem 1rem 0; /* 0 perché il “bleed” fa da riempitivo */
+    padding: 2rem 1rem 0; /* 0: il bleed chiude a filo in basso */
   }
 
-  .newsletter h2 { font-size: 1.25rem; }
+  .newsletter h2 { font-size: 1.22rem; }
   .newsletter p { font-size: .95rem; }
 
   .newsletter-form input[type="email"] {
-    font-size: .95rem;
-    padding: .7rem .9rem;
+    font-size: .96rem;
+    padding: .75rem .9rem;
   }
 
   .newsletter-form button {
-    width: 2.8rem;
-    height: 2.8rem;
+    width: 2.9rem;
+    height: 2.9rem;
+
+    .mat-icon { font-size: 22px; }
+    .spinner  { width: 16px; height: 16px; }
   }
 
   .footer-links {
@@ -240,7 +252,7 @@
     margin: 1.25rem 0 1.75rem;
   }
 
-  .footer-tiur { font-size: .78rem; max-width: 300px; }
+  .footer-tiur { font-size: .78rem; max-width: 320px; }
 }
 
 /* ============================================================================
@@ -249,7 +261,7 @@
 @media (min-width: 769px) {
   .footer,
   .footer-desktop {
-    padding: 3rem 2rem 0; /* 0 perché il “bleed” chiude a filo */
+    padding: 3rem 2rem 0; /* 0: il bleed chiude a filo in basso */
   }
 
   .newsletter h2 { font-size: 1.5rem; }
@@ -257,16 +269,18 @@
 
   .newsletter-form-desktop input[type="email"] {
     font-size: 1rem;
-    padding: .8rem 1.1rem;
+    padding: .85rem 1.1rem;
   }
 
   .newsletter-form-desktop button {
-    width: 3.2rem;
-    height: 3.2rem;
+    width: 3.25rem;
+    height: 3.25rem;
+
+    .mat-icon { font-size: 26px; }
   }
 
   .footer-links-desktop { gap: 1.6rem; }
-  .footer-tiur-desktop { font-size: .85rem; }
+  .footer-tiur-desktop { font-size: .86rem; }
 }
 
 /* ============================================================================

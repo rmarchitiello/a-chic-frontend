@@ -4,10 +4,11 @@ import { CommonModule } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { FormsModule } from '@angular/forms';
 import { EmailService } from '../../services/email.service';
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule,MatIconModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss'
 })
