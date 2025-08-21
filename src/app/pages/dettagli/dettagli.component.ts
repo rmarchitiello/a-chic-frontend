@@ -1,4 +1,11 @@
-import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,223 +15,248 @@ import {
   state,
   style,
   animate,
-  transition
-} from '@angular/animations'; //importo le animazioni cosi nello scroll delle altre immagin non uso il set timeout
-
+  transition,
+  AnimationEvent,
+} from '@angular/animations';
+import { Subject, takeUntil, map } from 'rxjs';
 
 @Component({
   selector: 'app-dettagli',
-  standalone: true, // Il componente è standalone (senza modulo dedicato)
+  standalone: true, // rendo il componente autonomo (senza modulo)
   imports: [
-    CommonModule,          // Per *ngIf, *ngClass, ecc.
-    MatIconModule,         // Per eventuali icone Angular Material (es. mat-icon)
-    MatButtonModule,        // Per eventuali pulsanti con stile Material
+    CommonModule,     // *ngIf, *ngFor, [ngClass], ecc.
+    MatIconModule,    // <mat-icon> per le frecce
+    MatButtonModule,  // eventuali pulsanti Material
   ],
-    animations: [
+  animations: [
+    // Gestisco lo slide orizzontale del media (uscita → cambio indice → entrata)
     trigger('slideAnimation', [
-      state('in', style({ opacity: 1, transform: 'translateX(0)' })),
-      state('out-left', style({ opacity: 0, transform: 'translateX(-40px)' })),
+      state('in',        style({ opacity: 1, transform: 'translateX(0)' })),
+      state('out-left',  style({ opacity: 0, transform: 'translateX(-40px)' })),
       state('out-right', style({ opacity: 0, transform: 'translateX(40px)' })),
-      transition('* => in', [
-        style({ opacity: 0, transform: 'translateX(20px)' }),
-        animate('300ms ease-out')
-      ]),
+      transition('* => in',        animate('300ms ease-out')),
       transition('in => out-left', animate('300ms ease-in')),
-      transition('in => out-right', animate('300ms ease-in'))
-    ])
+      transition('in => out-right',animate('300ms ease-in')),
+    ]),
   ],
-  templateUrl: './dettagli.component.html',  // Template HTML associato
-  styleUrl: './dettagli.component.scss'      // Stili CSS/SCSS associati
+  templateUrl: './dettagli.component.html',
+  styleUrl: './dettagli.component.scss',
 })
-export class DettagliComponent implements OnInit {
+export class DettagliComponent implements OnInit, OnDestroy {
+  // ===========================================================================
+  // 1) COSTANTI / CONFIG
+  // ===========================================================================
+  /** Durata di chiusura pannello in ms: la tengo allineata con lo SCSS */
+  private readonly CLOSE_MS = 400;
+  /** Soglia minima (px) per riconoscere uno swipe orizzontale */
+  private readonly SWIPE_THRESHOLD = 50;
 
+  // ===========================================================================
+  // 2) INPUT DAL PADRE
+  // ===========================================================================
+  /**
+   * Media “frontale” (in genere un’immagine). Lo tratto come facoltativo per
+   * evitare errori in fase di costruzione dell’array.
+   */
+  @Input() immagineFrontale: string | null | undefined = null;
 
-  
-  // ======================================================
-  // INPUT ricevuto dal componente padre (dati dell’immagine)
-  // ======================================================
-@Input() immagineFrontale!: string; //URL DELL IMMAGINE SELEZIONATA
-@Input() descrizioneImmagineFrontale!: string; //URL DELL IMMAGINE SELEZIONATA
+  /** Descrizione testuale sotto al media (facoltativa). */
+  @Input() descrizioneImmagineFrontale: string | null | undefined = '';
 
-@Input() altreImmaginiDellaFrontale!: string[];  //URLS DELLE IMMAGINI LATERALI OBLIQUE DI QUELLA SELEZIONATA
+  /**
+   * Altri media correlati (immagini / video / audio). Mantengo il nome che usi
+   * nel padre per non rompere il binding.
+   */
+  @Input() altreImmaginiDellaFrontale: string[] | null | undefined = [];
 
-  totaleImmagini: string[] = [];
-
-  // ======================================================
-  // OUTPUT emesso verso il padre quando il pannello viene chiuso
-  // ======================================================
+  // ===========================================================================
+  // 3) OUTPUT AL PADRE
+  // ===========================================================================
+  /** Emesso quando l’animazione di chiusura è terminata e posso smontare. */
   @Output() chiudiDettaglio = new EventEmitter<void>();
 
-  // ======================================================
-  // Stato usato per attivare l’animazione di chiusura del pannello
-  // ======================================================
+  // ===========================================================================
+  // 4) STATO INTERNO
+  // ===========================================================================
+  /** Collezione completa dei media che mostro nel carosello (frontale + altri). */
+  totaleImmagini: string[] = [];
+
+  /** Indice del media attualmente visibile. */
+  currentIndexOtherImage = 0;
+
+  /** Overlay/pannello: stato per classi CSS di apertura/chiusura. */
+  attivo = false;
   panelClosing = false;
 
-  // ======================================================
-  // Stato usato per attivare l’effetto sfocatura e overlay
-  // Serve per attivare la classe `.attiva` sull’overlay
-  // ======================================================
-  attivo = false;
+  /** Responsive */
+  isMobile = false;
 
-  // ======================================================
-  // ngOnInit — eseguito quando il componente viene montato
-  // Attiva l’effetto blur/sfocatura subito dopo il rendering
-  // ======================================================
+  /** Stato corrente per le Angular Animations. */
+  animationState: 'in' | 'out-left' | 'out-right' = 'in';
 
+  /**
+   * Quando avvio una transizione, memorizzo qui la direzione richiesta.
+   * Aggiorno l’indice nel callback `onSlideDone` (quando l’animazione finisce).
+   */
+  private pendingDelta: 1 | -1 | 0 = 0;
 
-  //variabile che attiva lo scroll se ci sono piu immagini di quella frontale passata dal padre
-  checkOtherImages: boolean = false;
-  currentIndexOtherImage: number = 0; // serve x capire quale pagina voglio visualizzare 
+  /** Swipe: coord X di partenza del tocco. */
+  private startX = 0;
 
-      isMobile = false;
+  /** Pattern di cleanup per le subscription. */
+  private readonly destroy$ = new Subject<void>();
 
-      //opacita quando traslo la mini immagine
-immagineVisibile = false;
-
-
-  // Variabile che rappresenta lo stato dell'animazione corrente
-animationState: 'in' | 'out-left' | 'out-right' | '' = 'in';
-
-
-//vediamo come fare lo swipe da mobile
-// Variabile che memorizza la posizione iniziale del tocco sullo schermo
-startX = 0;
-
-/**
- * Evento attivato quando l'utente inizia il tocco (touchstart)
- * Registra la coordinata orizzontale (X) iniziale del tocco
- */
-onTouchStart(event: TouchEvent): void {
-  this.startX = event.changedTouches[0].screenX;
-}
-
-/**
- * Evento attivato quando l'utente termina il tocco (touchend)
- * Calcola la differenza tra il punto iniziale e finale del tocco
- * Se la differenza supera una soglia (es. 50px), considera lo swipe valido
- * Determina la direzione dello swipe:
- *  - Se verso sinistra, mostra l'immagine successiva
- *  - Se verso destra, mostra l'immagine precedente
- */
-onTouchEnd(event: TouchEvent): void {
-  const endX = event.changedTouches[0].screenX;
-  const deltaX = endX - this.startX;
-
-  // Controlla se lo swipe è significativo (più di 50px)
-  if (Math.abs(deltaX) > 50) {
-    if (deltaX < 0) {
-      // Swipe verso sinistra: mostra immagine successiva
-      this.slideLeft(); // swipe sinistra
-    } else {
-      // Swipe verso destra: mostra immagine precedente
-      this.slideRight(); // swipe destra
-    }
+  // ===========================================================================
+  // 5) GETTER DI COMODO
+  // ===========================================================================
+  /**
+   * Ritorno sempre una stringa valida per il media corrente, così nel template
+   * passo sempre una `string` a [src] ed evito errori di tipo.
+   */
+  get currentMediaUrl(): string {
+    const i = this.currentIndexOtherImage;
+    return this.totaleImmagini[i] ?? '';
   }
-}
 
-/**
- * Esegue lo swipe verso sinistra:
- *  - Avvia un'animazione di uscita verso sinistra impostando lo stato
- *  - Attende che l'animazione termini (durata ~300ms)
- *  - Aggiorna l'indice all'immagine successiva
- *  - Reimposta lo stato per avviare animazione di entrata
- */
-slideLeft(): void {
-  // Se non siamo all'ultima immagine, possiamo proseguire
-  if (this.currentIndexOtherImage < this.totaleImmagini.length - 1) {
-    this.animationState = 'out-left';               // Inizia animazione di uscita verso sinistra
-    setTimeout(() => {
-      this.currentIndexOtherImage++;                // Incrementa l'indice
-      this.animationState = 'in';                   // Cambia stato in 'in' per animazione di entrata
-    }, 300);                                         // Attendiamo 300ms (durata animazione uscita)
-  }
-}
+  // ===========================================================================
+  // 6) COSTRUTTORE
+  // ===========================================================================
+  constructor(private breakpointObserver: BreakpointObserver) {}
 
-
-
-
-// Metodo alternativo per andare avanti (usato da freccia destra)
-vaiImmagineSuccessiva(): void {
-  this.slideLeft(); // Riusa la logica di slideLeft()
-}
-
-// Metodo alternativo per tornare indietro (usato da freccia sinistra)
-vaiImmaginePrecedente(): void {
-  this.slideRight(); // Riusa la logica di slideRight()
-}
-
-/**
- * Esegue lo swipe verso destra:
- *  - Avvia un'animazione di uscita verso destra impostando lo stato
- *  - Attende che l'animazione termini
- *  - Aggiorna l'indice all'immagine precedente
- *  - Reimposta lo stato per animazione di entrata
- */
-slideRight(): void {
-  // Se non siamo già alla prima immagine
-  if (this.currentIndexOtherImage > 0) {
-    this.animationState = 'out-right';              // Inizia animazione di uscita verso destra
-    setTimeout(() => {
-      this.currentIndexOtherImage--;                // Decrementa l'indice
-      this.animationState = 'in';                   // Anima l'entrata della nuova immagine
-    }, 300);                                         // 300ms per l'animazione di uscita
-  }
-}
-
-
-
-
-constructor(private breakpointObserver: BreakpointObserver) {}
-
+  // ===========================================================================
+  // 7) LIFECYCLE
+  // ===========================================================================
   ngOnInit(): void {
+    // a) Preparo l’array di navigazione: frontale + altri media, filtrando i falsy
+    const front = this.immagineFrontale ? [this.immagineFrontale] : [];
+    const extra = Array.isArray(this.altreImmaginiDellaFrontale)
+      ? this.altreImmaginiDellaFrontale
+      : [];
+    this.totaleImmagini = [...front, ...extra].filter((u): u is string => !!u);
 
+    // b) Responsive
+    this.breakpointObserver
+      .observe(['(max-width: 768px)'])
+      .pipe(map(s => s.matches), takeUntil(this.destroy$))
+      .subscribe(isMob => (this.isMobile = isMob));
 
-
-    console.log("Figlio immagine frontale", JSON.stringify(this.immagineFrontale));
-    console.log("Figlio altre", JSON.stringify(this.altreImmaginiDellaFrontale));
-    console.log("La descrizioneee: ", this.descrizioneImmagineFrontale);
-    //Qui sommo l'array frontale piu l'array figlio cosi ho 4 pallini metto i 3 pallini per avere un unico array piatto con le immagini frontali e altre immagini
-    this.totaleImmagini = [this.immagineFrontale, ...this.altreImmaginiDellaFrontale];
-    console.log("Unico array frontale piu le altre: ", this.totaleImmagini)
-
-
-    //intercetta se lo schermo è mobile o desktop
-  this.breakpointObserver
-    .observe(['(max-width: 768px)'])
-    .subscribe(result => {
-      this.isMobile = result.matches;
-    });
-
-
-
-    // Usa un piccolo delay per pe
-    // rmettere alla classe `.attiva`
-    // di essere applicata dopo il rendering iniziale, così da far
-    // partire la transizione CSS in modo fluido
-    setTimeout(() => {
-      this.attivo = true; // Applica la classe CSS `.attiva` all’overlay
-
-    }, 10); // 10ms sono sufficienti a differire al frame successivo
-
-    //controllo se ci sono altre immagini di quella frontale se si sarà true e attiva il template in dettagli html
-    this.checkOtherImages = this.altreImmaginiDellaFrontale.length > 0;
-
-  this.immagineVisibile = true;
-
+    // c) Attivo overlay dopo il paint per far partire la transizione in ingresso
+    setTimeout(() => (this.attivo = true), 10);
   }
 
-  // ======================================================
-  // closeWindow — chiamato al click sul bottone "Chiudi"
-  // Rimuove la classe attiva, fa partire l’animazione di uscita
-  // e notifica il componente padre dopo 400ms
-  // ======================================================
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ===========================================================================
+  // 8) NAVIGAZIONE: FRECCE + SWIPE
+  // ===========================================================================
+  /** Vado al media successivo (se possibile). */
+  vaiImmagineSuccessiva(): void {
+    if (this.canGoNext()) this.startSlide(+1);
+  }
+
+  /** Vado al media precedente (se possibile). */
+  vaiImmaginePrecedente(): void {
+    if (this.canGoPrev()) this.startSlide(-1);
+  }
+
+  /** Posso andare avanti? (no wrap) */
+  private canGoNext(): boolean {
+    return this.currentIndexOtherImage < this.totaleImmagini.length - 1;
+  }
+
+  /** Posso andare indietro? (no wrap) */
+  private canGoPrev(): boolean {
+    return this.currentIndexOtherImage > 0;
+  }
+
+  /**
+   * Avvio la transizione. Non cambio subito l’indice: aspetto che l’animazione
+   * finisca e lo aggiorno in `onSlideDone`, poi rientro in stato `in`.
+   */
+  private startSlide(delta: 1 | -1): void {
+    this.pendingDelta = delta;
+    this.animationState = delta > 0 ? 'out-left' : 'out-right';
+  }
+
+  /**
+   * Mi aggancio al “done” dell’animazione:
+   * - se stavo uscendo (out-left/out-right), aggiorno l’indice in base a pendingDelta
+   * - poi imposto `animationState = 'in'` per l’animazione di entrata
+   */
+  onSlideDone(e: AnimationEvent): void {
+    if (e.toState !== 'out-left' && e.toState !== 'out-right') return;
+
+    if (!this.totaleImmagini.length || this.pendingDelta === 0) {
+      this.animationState = 'in';
+      return;
+    }
+
+    if (this.pendingDelta > 0 && this.canGoNext()) {
+      this.currentIndexOtherImage++;
+    } else if (this.pendingDelta < 0 && this.canGoPrev()) {
+      this.currentIndexOtherImage--;
+    }
+    this.pendingDelta = 0;
+
+    // Rientro
+    this.animationState = 'in';
+  }
+
+  /** Inizio swipe: memorizzo la X di partenza. */
+  onTouchStart(ev: TouchEvent): void {
+    this.startX = ev.changedTouches[0]?.screenX ?? 0;
+  }
+
+  /** Fine swipe: valuto la distanza e decido la direzione. */
+  onTouchEnd(ev: TouchEvent): void {
+    const endX = ev.changedTouches[0]?.screenX ?? 0;
+    const dx = endX - this.startX;
+    if (Math.abs(dx) < this.SWIPE_THRESHOLD) return;
+
+    if (dx < 0) this.vaiImmagineSuccessiva();
+    else        this.vaiImmaginePrecedente();
+  }
+
+  // ===========================================================================
+  // 9) CHIUSURA PANNELLO
+  // ===========================================================================
+  /**
+   * Avvio la chiusura: applico lo stato per la classe CSS e
+   * dopo la durata della transizione emetto l’evento al padre.
+   */
   closeWindow(): void {
-    this.panelClosing = true;  // Aggiunge la classe `.chiusura` per animare
-    this.attivo = false;       // Rimuove effetto blur e oscuramento sfondo
-
-    // Attende il completamento dell’animazione prima di chiudere
-    setTimeout(() => {
-      this.chiudiDettaglio.emit(); // Notifica al padre che può rimuovere il componente
-    }, 400); // Deve corrispondere alla durata dell’animazione in SCSS
+    this.attivo = false;
+    this.panelClosing = true;
+    setTimeout(() => this.chiudiDettaglio.emit(), this.CLOSE_MS);
   }
+
+  // ===========================================================================
+  // 10) UTILITY TIPO MEDIA (per lo switch nel template)
+  // ===========================================================================
+  /**
+   * Verifico il tipo del media via estensione. Accetto null/undefined e
+   * ritorno false in quei casi, così il template non va in errore.
+   */
+  checkEstensione(
+    url: string | null | undefined,
+    tipo: 'image' | 'video' | 'audio'
+  ): boolean {
+    if (!url) return false;
+    const u = url.toLowerCase();
+    const mapExt = {
+      image: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'],
+      video: ['.mp4', '.webm', '.ogg', '.mov', '.m4v'],
+      audio: ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'],
+    } as const;
+    return mapExt[tipo].some(ext => u.endsWith(ext));
+  }
+
+  // ===========================================================================
+  // 11) TRACKBY PER INDICATORI
+  // ===========================================================================
+  /** TrackBy minimo per i pallini degli indicatori. */
+  trackByIndex = (index: number) => index;
 }

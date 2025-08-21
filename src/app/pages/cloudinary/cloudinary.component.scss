@@ -1,316 +1,240 @@
-/* ============================
-   STILI COMUNI
-============================ */
+/* ============================================================================
+   CATALOGO – SCSS UNIFICATO
+   - Fondo SEMPRE bianco
+   - Mobile-first con media query dedicate a mobile e desktop
+   ========================================================================== */
 
-/* Banner admin comune */
+/* ---------------------------
+   Comuni
+--------------------------- */
+:host {
+  display: block;
+  background: #fff; /* sempre bianco */
+}
+
+/* Banner admin */
 .admin-banner {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: .75rem;
-  background-color: #ffeeba;
+  background: #ffeeba;
   color: #856404;
   border: 1px solid #ffeeba;
-  padding: 0.75rem 1rem;
+  padding: .75rem 1rem;
   margin: 1rem auto 0;
   border-radius: 8px;
   max-width: 980px;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
+
+  .admin-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
 }
 
-.admin-action {
-  display: inline-flex;
-  align-items: center;
-  gap: .4rem;
+/* Wrapper generico e griglia (set di default che poi afiniamo in media) */
+.catalogo-wrapper {
+  background: #fff;
+  min-height: 100vh;
+  padding: 1rem;
 }
 
-/* Media element reset per card:
-   garantisco layout coerente per img/video/audio nei contenitori */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* default 2 col (mobile-first) */
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Card + media */
+.image-wrapper { display: flex; flex-direction: column; align-items: center; }
+
+.image-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff; /* se il media è trasparente, resta bianco */
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.card-image-container {
+  position: relative;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Media coerenti dentro la card */
 .image-card img,
-.image-card video,
-.image-card audio,
-.image-card-desktop img,
-.image-card-desktop video,
-.image-card-desktop audio {
+.image-card video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;   /* riempie la card senza buchi */
+  display: block;
+  background: #fff;
+}
+
+/* Supporto ai nomi già presenti nel markup */
+.media-video-mobile,
+.media-video-desktop {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-/* Variante se vuoi una resa “contain” per i video in certe card */
-.media-video-desktop,
-.media-video-mobile {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
+/* Audio “centrato” nella card, usato se riproduci direttamente nella card */
+.image-card .media-audio,
+.image-card .media-audio-mobile,
+.image-card .media-audio-desktop {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(90%, 520px);
+  height: auto;
+  transform: translate(-50%, -50%);
+  background: transparent;
 }
 
-/* Stato durante panel audio attivo */
-.image-card.audio-attivo,
-.image-card-desktop.audio-attivo {
+/* Stato quando l’overlay audio esterno è attivo */
+.image-card.audio-attivo {
   pointer-events: none;
   opacity: .6;
 }
 
-/* Icone overlay: base comune */
-.lens-icon,
-.audio-icon,
-.lens-icon-desktop,
-.audio-icon-desktop {
-  backdrop-filter: blur(4px);
-  background: rgba(255, 255, 255, 0.4);
-  border-radius: 12px;
-  padding: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+/* Overlay icone */
+.icon-wrapper {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  z-index: 2;
+}
+
+.lens-icon,
+.audio-icon {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 6px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.45);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0,0,0,.18);
   cursor: pointer;
-  transition: transform .2s ease;
+  transition: transform .18s ease;
 
-  svg {
-    width: 18px;
-    height: 18px;
-    fill: #333;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
+  svg { width: 18px; height: 18px; fill: #333; }
+  &:hover { transform: scale(1.08); }
 }
 
-/* ============================
-   SEZIONE MOBILE CLOUDINARY
-============================ */
-@media (max-width: 768px) {
+/* Info sotto la card */
+.image-info {
+  padding-top: .5rem;
+  text-align: center;
 
-  html, body {
+  h3 {
     margin: 0;
-    padding: 0;
-    height: auto;
-    min-height: 100vh;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    touch-action: manipulation;
-    font-family: 'Montserrat', sans-serif;
-  }
-
-  .mobile-immagini-wrapper {
-    min-height: 100vh;
-    overflow-y: auto;
-    padding: 1rem;
-    background-color: #ffffff;
-    -webkit-overflow-scrolling: touch;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Griglia 2 colonne */
-  .contenitore-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .image-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .image-card {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    padding: 0;
-    margin: 0;
-    border: none;
-    box-shadow: none;
-    border-radius: 0;
-    overflow: hidden;
-
-    img {
-      transition: transform .3s ease;
-    }
-
-    &:hover img,
-    &:active img {
-      transform: scale(1.05);
-    }
-  }
-
-  .card-image-container {
-    position: relative;
-  }
-
-  .icon-wrapper {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    align-items: flex-end;
-    z-index: 2;
-  }
-
-  .image-info {
-    padding-top: .5rem;
-    text-align: center;
-
-    h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      color: #222;
-    }
-
-    p {
-      font-size: .9rem;
-      margin: .25rem 0 0;
-      color: #555;
-    }
-  }
-
-  /* Paginazione mobile */
-  .paginazione-mobile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1.5rem;
-    gap: 1rem;
-  }
-
-  .numero-pagina {
-    font-size: .85rem;
-    color: #555;
-    font-family: 'Montserrat', sans-serif;
-  }
-
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(5px); }
-  }
-}
-
-/* ============================
-   SEZIONE DESKTOP CLOUDINARY
-============================ */
-@media (min-width: 769px) {
-
-  .desktop-immagini-wrapper {
-    min-height: 100vh;
-    padding: 2rem;
-    background-color: #fff;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .contenitore-cards-desktop {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    margin-top: 2rem;
-  }
-
-  .image-wrapper-desktop {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .image-card-desktop {
-      width: 100%;
-      cursor: pointer;
-      aspect-ratio: 1 / 1;
-      padding: 0;
-      margin: 0;
-      border: none;
-      box-shadow: 0 0 12px rgba(0,0,0,.05);
-      border-radius: 4px;
-      overflow: hidden;
-      transition: box-shadow .3s;
-
-      &:hover {
-        box-shadow: 0 0 20px rgba(0,0,0,.15);
-      }
-
-      img {
-        transition: transform .3s ease;
-      }
-
-      &:hover img {
-        transform: scale(1.05);
-      }
-    }
-
-    .image-info-desktop {
-      padding-top: .5rem;
-      text-align: center;
-
-      h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin: 0;
-        color: #111;
-      }
-
-      p {
-        font-size: 1rem;
-        margin: .25rem 0 0;
-        color: #444;
-      }
-    }
-  }
-
-  .card-image-container-desktop {
-    position: relative;
-  }
-
-  .icon-wrapper-desktop {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-    z-index: 5;
-  }
-
-  .lens-icon-desktop,
-  .audio-icon-desktop {
-    /* dimensioni già impostate nel blocco comune */
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .paginazione-desktop {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 2rem;
-    gap: 1.5rem;
-  }
-
-  .numero-pagina {
     font-size: 1rem;
+    font-weight: 600;
+    color: #222;
+  }
+  p {
+    margin: .25rem 0 0;
+    font-size: .9rem;
+    color: #555;
+  }
+}
+
+/* Paginazione */
+.paginazione {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+
+  .numero-pagina {
+    font-size: .9rem;
     color: #444;
     font-family: 'Montserrat', sans-serif;
   }
 }
 
+/* Effetti hover SOLO sui device che hanno davvero hover (es. mouse) */
+@media (hover: hover) {
+  .image-card img { transition: transform .25s ease; }
+  .image-card:hover img { transform: scale(1.04); }
+}
 
-/* ========================================================================== */
-/*                       ADMIN POPUP (Angular Material)                        */
-/* ========================================================================== */
+/* ============================================================================
+   MOBILE (≤ 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .catalogo-wrapper { padding: 1rem; }
 
-/* Stile del contenitore principale del dialog (overlay pane) */
+  .cards-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 colonne su mobile */
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .icon-wrapper { top: 8px; right: 8px; gap: 6px; }
+  .lens-icon svg, .audio-icon svg { width: 18px; height: 18px; }
+
+  .image-info h3 { font-size: 1rem; }
+  .image-info p  { font-size: .9rem; }
+
+  .paginazione { gap: 1rem; }
+  .paginazione .numero-pagina { font-size: .85rem; }
+}
+
+/* ============================================================================
+   DESKTOP (≥ 769px)
+   ========================================================================== */
+@media (min-width: 769px) {
+  .catalogo-wrapper { padding: 2rem; }
+
+  .cards-container {
+    grid-template-columns: repeat(4, minmax(0, 1fr)); /* 4 colonne su desktop */
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .image-card {
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,.06);
+    transition: box-shadow .25s ease;
+
+    @media (hover: hover) {
+      &:hover { box-shadow: 0 0 18px rgba(0,0,0,.14); }
+    }
+  }
+
+  .icon-wrapper { top: 10px; right: 10px; gap: 10px; }
+  .lens-icon svg, .audio-icon svg { width: 20px; height: 20px; }
+
+  .image-info h3 { font-size: 1.1rem; }
+  .image-info p  { font-size: 1rem; }
+
+  .paginazione { gap: 1.25rem; margin-top: 1.75rem; }
+  .paginazione .numero-pagina { font-size: 1rem; }
+}
+
+/* ============================================================================
+   DIALOG / POPUP ADMIN (Angular Material) – full screen
+   ========================================================================== */
 ::ng-deep .cdk-overlay-pane.popup-admin-editor {
   width: 100vw !important;
   height: 100vh !important;
@@ -321,14 +245,13 @@
   top: 0 !important;
   left: 0 !important;
   pointer-events: auto !important;
-  z-index: 1100 !important; /* sopra altri overlay */
+  z-index: 1100 !important;
 }
 
-/* Superficie del dialog */
 ::ng-deep .popup-admin-editor .mat-mdc-dialog-surface {
   width: 100% !important;
   height: 100% !important;
-  background: white; /* oppure trasparente se preferito */
+  background: #fff;
   box-shadow: none !important;
   border-radius: 0 !important;
   padding: 0 !important;
@@ -336,11 +259,9 @@
   flex-direction: column !important;
 }
 
-/* Contenuto scrollabile del dialog */
 ::ng-deep .popup-admin-editor .mat-mdc-dialog-content {
   flex: 1 1 auto !important;
   overflow-y: auto !important;
   max-height: 100% !important;
   padding: 2rem !important;
 }
-

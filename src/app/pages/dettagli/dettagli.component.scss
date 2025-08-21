@@ -1,359 +1,328 @@
-@media (min-width: 769px) {
-  .desktop-dettagli-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-    transition:
-      backdrop-filter 0.4s ease-out,
-      -webkit-backdrop-filter 0.4s ease-out,
-      background-color 0.4s ease-out;
+/* =========================================================
+   DETTAGLI – STILI COMUNI
+   (le differenze sono nei blocchi @media)
+   ========================================================= */
+
+:host {
+  display: block;
+}
+
+/* Overlay full-screen (stato base: trasparente) */
+.dettagli-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background-color: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+  transition:
+    backdrop-filter 0.4s ease,
+    -webkit-backdrop-filter 0.4s ease,
+    background-color 0.4s ease;
+}
+
+/* Gli stati .attiva / .chiusura sono rifiniti nelle media query
+   per applicare blur e opacity differenti fra mobile e desktop */
+.dettagli-overlay.attiva   {}
+.dettagli-overlay.chiusura {}
+
+/* Pannello base */
+.dettagli-panel {
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* Gli spacing e le dimensioni sono definiti per viewport nei blocchi @media */
+}
+
+/* Area di visualizzazione del media corrente */
+.media-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0; /* evita overflow nei contenitori flex */
+}
+
+/* Media generici */
+.media-image,
+.media-video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.media-audio {
+  width: min(680px, 90%);
+}
+
+/* Indicatori (pallini) */
+.indicator-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .6rem;
+  margin: .75rem 0 0;
+
+  span {
+    font-size: 1.2rem;
+    color: #bbb;
+    transition: color .2s ease;
+  }
+  .attiva {
+    color: #222;
+  }
+}
+
+/* Descrizione */
+.descrizione-scroll {
+  color: #444;
+  line-height: 1.7;
+  text-align: center;
+  padding: .5rem 1rem 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Pulsanti chiudi */
+.chiudi-testuale {
+  position: absolute;
+  background: none;
+  border: 0;
+  color: #fcfafa;
+  cursor: pointer;
+
+  &:hover   { opacity: .8; text-decoration: underline; }
+  &:active  { opacity: .6; }
+}
+
+.chiudi-icon {
+  position: absolute;
+  top: .75rem;
+  right: .75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 0;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Se usi <mat-icon> all’interno, forza dimensione e centratura */
+  mat-icon {
+    font-size: 20px;
+    line-height: 20px;
+    width: 20px;
+    height: 20px;
   }
 
-  .desktop-dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.5);
+  &:hover  { background: #f2f2f2; }
+  &:active { background: #e8e8e8; }
+}
+
+/* Frecce laterali (desktop): contenitore rotondo; icona centrata */
+.freccia {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .9);
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Mat icon grande e centrata */
+  mat-icon {
+    font-size: 28px;
+    line-height: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover  { background: rgba(255, 255, 255, .95); }
+  &:active { background: rgba(235, 235, 235, 1); }
+}
+.freccia-sinistra { left: 1rem; }
+.freccia-destra  { right: 1rem; }
+
+/* =========================================================
+   Keyframes animazioni pannello
+   (il timing e l’uso sono differenziati tra mobile/desktop)
+   ========================================================= */
+@keyframes scaleIn {
+  from { transform: scale(.94); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes scaleOut {
+  from { transform: scale(1);   opacity: 1; }
+  to   { transform: scale(.94); opacity: 0; }
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes slideDownFade {
+  from { transform: translateY(0);   opacity: 1; }
+  to   { transform: translateY(100%); opacity: 0; }
+}
+
+/* =========================================================
+   MOBILE (≤ 768px)
+   ========================================================= */
+@media (max-width: 768px) {
+  .dettagli-overlay.mobile {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .dettagli-overlay.mobile.attiva {
+    background-color: rgba(0, 0, 0, .4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .dettagli-overlay.mobile.chiusura {
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+
+  .dettagli-panel.mobile {
+    width: 100%;
+    height: 58vh;
+    padding: 1rem 1rem 1.25rem;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    box-shadow: 0 -4px 12px rgba(0,0,0,.22);
+    animation: slideUp .4s ease-out both;
+
+    /* Struttura a colonna: media + indicatori + descrizione scrollabile */
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dettagli-panel.mobile.chiusura {
+    animation: slideDownFade .4s ease-in forwards;
+  }
+
+  .chiudi-testuale {
+    top: 0;
+    right: 1rem;
+    transform: translateY(-1.25rem);
+    font: 500 .95rem/1 'Montserrat', sans-serif;
+    padding: .25rem;
+    z-index: 5;
+  }
+
+  .media-stage {
+    padding: .25rem 0 .75rem;
+  }
+
+  .media-image,
+  .media-video {
+    width: 96%;
+    max-width: 96%;
+    max-height: 35vh;
+    border-radius: 0;
+  }
+
+  .media-audio {
+    width: 92%;
+  }
+
+  .indicator-wrapper {
+    gap: .45rem;
+    margin-top: .25rem;
+
+    span { font-size: 1.2rem; }
+    .attiva { color: #000; }
+  }
+
+  .descrizione-scroll {
+    flex: 1;              /* occupa lo spazio rimanente */
+    max-height: 100%;     /* abilita scroll interno */
+    font-size: .95rem;
+    letter-spacing: .2px;
+    padding-bottom: .25rem;
+  }
+
+  /* Frecce nascoste su mobile */
+  .freccia { display: none; }
+}
+
+/* =========================================================
+   DESKTOP (≥ 769px)
+   ========================================================= */
+@media (min-width: 769px) {
+  .dettagli-overlay.desktop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dettagli-overlay.desktop.attiva {
+    background-color: rgba(0, 0, 0, .5);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
   }
 
-  .desktop-dettagli-overlay.chiusura {
+  .dettagli-overlay.desktop.chiusura {
     background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    transition:
-      backdrop-filter 0.4s ease-in,
-      -webkit-backdrop-filter 0.4s ease-in,
-      background-color 0.4s ease-in;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
   }
 
-  .desktop-dettagli-panel {
-    background-color: #fff;
-    width: 70%;
-    max-width: 900px;
+  .dettagli-panel.desktop {
+    width: min(900px, 70vw);
     height: 70vh;
-    border-radius: 16px;
-    position: relative;
     padding: 2rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    animation: slideUpDesktop 0.4s ease-out;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    animation: scaleIn .35s ease-out both;
+
     display: flex;
     flex-direction: column;
-    overflow: hidden;
   }
 
-  .desktop-dettagli-panel.chiusura {
-    animation: slideDownFadeDesktop 0.4s ease-in forwards;
+  .dettagli-panel.desktop.chiusura {
+    animation: scaleOut .35s ease-in forwards;
   }
 
-  @keyframes slideUpDesktop {
-    from {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-    to {
-      transform: scale(1);
-      opacity: 1;
-    }
+  .media-stage {
+    flex: 1;             /* media al centro, prende lo spazio principale */
+    margin-top: .25rem;
   }
 
-  @keyframes slideDownFadeDesktop {
-    from {
-      transform: scale(1);
-      opacity: 1;
-    }
-    to {
-      transform: scale(0.9);
-      opacity: 0;
-    }
-  }
-
-  .desktop-chiudi-testuale {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: transparent;
-    border: none;
-    color: #222;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-      opacity: 0.7;
-    }
-  }
-
-  .desktop-swipe-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 1rem;
-    position: relative;
-  }
-
-  .desktop-animated-image {
-    display: block;
-    max-width: 100%;
+  .media-image,
+  .media-video {
     max-height: 45vh;
-    object-fit: contain;
     border-radius: 6px;
-    transition: transform 0.3s ease;
   }
 
-  .desktop-indicator-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.6rem;
-    margin: 1rem 0;
-
-    span {
-      font-size: 1.2rem;
-      color: #bbb;
-      transition: color 0.3s ease;
-    }
-
-    .attiva {
-      color: #222;
-    }
+  .media-audio {
+    width: min(640px, 80%);
   }
 
-  .desktop-descrizione-scroll {
-    flex: 1;
-    overflow-y: auto;
-    font-size: 1.1rem;
-    color: #444;
-    text-align: center;
-    line-height: 1.8;
-    padding-top: 0.5rem;
-  }
-
-  // FRECCE LATERALI — visibili solo su desktop
-  .freccia {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 2.5rem;
-    background: rgba(255, 255, 255, 0.75);
-    border: none;
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    z-index: 10;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.95);
-    }
-
-    &:active {
-      background: rgba(235, 235, 235, 1);
-    }
-  }
-
-  .freccia-sinistra {
-    left: 1rem;
-  }
-
-  .freccia-destra {
-    right: 1rem;
-  }
-}
-
-
-
-/* =======================================================
-   STILI MOBILE - max-width: 768px
-   ======================================================= */
-@media (max-width: 768px) {
-
-  /* ================================================
-     OVERLAY DI SFONDO — copre l'intera viewport
-     con transizione e sfocatura graduale
-     ================================================ */
-  .dettagli-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0); // Inizialmente trasparente
-    backdrop-filter: blur(0px); // Sfocatura disattivata
-    -webkit-backdrop-filter: blur(0px); // Compatibilità Safari
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    z-index: 2000;
-    transition:
-      backdrop-filter 0.4s ease-out,
-      -webkit-backdrop-filter 0.4s ease-out,
-      background-color 0.4s ease-out;
-  }
-
-  /* ===============================
-     OVERLAY ATTIVO — sfoca e oscura
-     =============================== */
-  .dettagli-overlay.attiva {
-    background-color: rgba(0, 0, 0, 0.4); // Sfondo scuro
-    backdrop-filter: blur(4px); // Sfocatura attivata
-    -webkit-backdrop-filter: blur(4px);
-  }
-
-  /* ==============================================
-     OVERLAY IN CHIUSURA — effetto graduale in uscita
-     ============================================== */
-  .dettagli-overlay.chiusura {
-    background-color: rgba(0, 0, 0, 0);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    transition:
-      backdrop-filter 0.4s ease-in,
-      -webkit-backdrop-filter 0.4s ease-in,
-      background-color 0.4s ease-in;
-  }
-
-  /* ======================================================
-     PULSANTE "CHIUDI" — in alto a destra, fuori dal pannello
-     ====================================================== */
-  .chiudi-testuale {
-    position: absolute;
-    top: 0;
-    right: 1rem;
-    transform: translateY(-1.25rem);
-    background: transparent;
-    border: none;
-    color: #fcfafa;
-    font-size: 0.95rem;
-    font-weight: 500;
-    z-index: 10;
-    cursor: pointer;
-    padding: 0.25rem;
-
-    &:hover {
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-
-    &:active {
-      opacity: 0.5;
-    }
-  }
-
-  /* =====================================
-     PANNELLO CHE SI SOLLEVA DAL BASSO
-     ===================================== */
-  .dettagli-panel {
-    background-color: #fff;
-    width: 100%;
-    height: 58vh;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    position: relative;
-    padding: 1rem;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.4s ease-out;
-
-    overflow: hidden; // ❗️IMPORTANTE: blocca scroll totale del pannello
-    display: flex;
-    flex-direction: column;
-
-
-  }
-
-  .dettagli-panel .descrizione-scroll {
-    font-size: clamp(1.35rem, 5vw, 1.6rem); // ≃ 22 – 26 px
-
-    line-height: 1.75; // respiro extra fra le righe
-    letter-spacing: 0.4px;
+  .indicator-wrapper {
+    margin: 1rem 0 .25rem;
   }
 
   .descrizione-scroll {
-    overflow-y: auto;
-    max-height: 100%; // 🔥 importante per farlo scrollare dentro il flex
-    flex: 1; // 👈 prende tutto lo spazio disponibile verticale
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #333;
-
-    // su iOS
-    -webkit-overflow-scrolling: touch;
+    flex: 0 0 auto;
+    font-size: 1.05rem;
+    padding-top: .25rem;
   }
 
-  /* Pannello in uscita — scivola verso il basso */
-  .dettagli-panel.chiusura {
-    animation: slideDownFade 0.4s ease-in forwards;
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-    }
-
-    to {
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideDownFade {
-    0% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    100% {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-  }
-
-  /* =========================================================
-     CONTENITORE IMMAGINE CON TRANSIZIONE ANGULAR
-     ========================================================= */
-  .swipe-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .animated-image {
-    display: block;
-    width: 96%;
-    max-width: 96%;
-    max-height: 35vh;
-    object-fit: contain;
-    margin: -0.7rem auto 1rem;
-    border-radius: 0;
-  }
-
-  /* =====================================================
-     INDICATORI (PALLINI) PER LE IMMAGINI
-     ===================================================== */
-  .indicator-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: 0.5rem;
-
-    span {
-      font-size: 1.2rem;
-      color: #bbb;
-      transition: color 0.3s ease;
-    }
-
-    .attiva {
-      color: #000; // Pallino attivo in nero
-    }
-  }
-
+  /* Frecce visibili su desktop */
+  .freccia { display: inline-flex; }
 }

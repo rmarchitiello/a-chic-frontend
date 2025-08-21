@@ -1,90 +1,128 @@
-<!-- DESKTOP -->
-<!-- DESKTOP -->
-<div *ngIf="!isMobile" class="desktop-dettagli-overlay" [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }" (click)="closeWindow()">
+<!-- DETTAGLI: TEMPLATE UNICO (mobile + desktop) -->
+<div
+  class="dettagli-overlay"
+  [class.attiva]="attivo"
+  [class.chiusura]="panelClosing"
+  [class.mobile]="isMobile"
+  [class.desktop]="!isMobile"
+  (click)="closeWindow()"
+  role="dialog"
+  [attr.aria-modal]="'true'"
+  [attr.aria-hidden]="attivo ? null : 'true'">
+
+  <!-- PANNELLO -->
   <div
-    class="desktop-dettagli-panel"
-    [ngClass]="{ 'chiusura': panelClosing }"
-    (click)="$event.stopPropagation()"
-  >
-    <button class="desktop-chiudi-testuale" (click)="closeWindow()">Chiudi</button>
+    class="dettagli-panel"
+    [class.mobile]="isMobile"
+    [class.desktop]="!isMobile"
+    (click)="$event.stopPropagation()">
 
-    <!-- FRECCIA SINISTRA -->
-    <button class="freccia freccia-sinistra" (click)="vaiImmaginePrecedente()">
-      ‹
+    <!-- Pulsante CHIUDI (testuale su mobile, icona su desktop) -->
+    <button
+      *ngIf="isMobile"
+      class="chiudi-testuale"
+      type="button"
+      (click)="closeWindow()">
+      Chiudi
     </button>
 
-    <!-- FRECCIA DESTRA -->
-    <button class="freccia freccia-destra" (click)="vaiImmagineSuccessiva()">
-      ›
+    <button
+      *ngIf="!isMobile"
+      class="chiudi-icon"
+      type="button"
+      (click)="closeWindow()"
+      aria-label="Chiudi"
+      mat-icon-button>
+      <mat-icon>close</mat-icon>
     </button>
 
-    <!-- Contenitore immagine -->
-    <div class="desktop-swipe-container">
-      <img
-        [@slideAnimation]="animationState"
-        [src]="totaleImmagini[currentIndexOtherImage]"
-        class="desktop-animated-image"
-        (animationend)="animationState = ''"
-      />
+    <!-- FRECCE NAVIGAZIONE (desktop; visibili solo con più media) -->
+    <button
+      *ngIf="!isMobile && totaleImmagini.length > 1"
+      class="freccia freccia-sinistra"
+      type="button"
+      (click)="vaiImmaginePrecedente()"
+      [disabled]="currentIndexOtherImage === 0"
+      aria-label="Precedente"
+      mat-icon-button>
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <button
+      *ngIf="!isMobile && totaleImmagini.length > 1"
+      class="freccia freccia-destra"
+      type="button"
+      (click)="vaiImmagineSuccessiva()"
+      [disabled]="currentIndexOtherImage === (totaleImmagini.length - 1)"
+      aria-label="Successiva"
+      mat-icon-button>
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+
+    <!-- STAGE MEDIA (con swipe su mobile) -->
+    <div
+      class="media-stage"
+      [class.swipeable]="isMobile"
+      (touchstart)="isMobile && onTouchStart($event)"
+      (touchend)="isMobile && onTouchEnd($event)"
+      [@slideAnimation]="animationState"
+      (@slideAnimation.done)="onSlideDone($event)">
+
+      <!-- SWITCH MEDIA: image / video / audio / fallback -->
+      <ng-container [ngSwitch]="true">
+
+        <!-- IMMAGINE -->
+        <img
+          *ngSwitchCase="checkEstensione(currentMediaUrl, 'image')"
+          class="media-image"
+          [src]="currentMediaUrl"
+          [alt]="descrizioneImmagineFrontale || 'Media A-Chic'" />
+
+        <!-- VIDEO -->
+        <video
+          *ngSwitchCase="checkEstensione(currentMediaUrl, 'video')"
+          class="media-video"
+          controls
+          playsinline
+          preload="metadata">
+          <source [src]="currentMediaUrl" />
+          Il tuo browser non supporta il tag video.
+        </video>
+
+        <!-- AUDIO -->
+        <audio
+          *ngSwitchCase="checkEstensione(currentMediaUrl, 'audio')"
+          class="media-audio"
+          controls
+          preload="metadata">
+          <source [src]="currentMediaUrl" />
+          Il tuo browser non supporta il tag audio.
+        </audio>
+
+        <!-- FALLBACK: tratto come immagine -->
+        <img
+          *ngSwitchDefault
+          class="media-image"
+          [src]="currentMediaUrl"
+          [alt]="descrizioneImmagineFrontale || 'Media A-Chic'" />
+      </ng-container>
     </div>
 
-    <!-- Indicatori -->
-    <div *ngIf="totaleImmagini && totaleImmagini.length > 0" class="desktop-indicator-wrapper">
-      <span *ngFor="let immagine of totaleImmagini; let i = index"
-            [ngClass]="{ 'attiva': i === currentIndexOtherImage }">
+    <!-- INDICATORI (pallini) -->
+    <div
+      *ngIf="totaleImmagini.length > 1"
+      class="indicator-wrapper"
+      aria-label="Indicatori media">
+      <span
+        *ngFor="let m of totaleImmagini; let i = index; trackBy: trackByIndex"
+        [class.attiva]="i === currentIndexOtherImage">
         ●
       </span>
     </div>
 
-    <p class="desktop-descrizione-scroll">{{ descrizioneImmagineFrontale }}</p>
+    <!-- DESCRIZIONE -->
+    <p class="descrizione-scroll">
+      {{ descrizioneImmagineFrontale }}
+    </p>
   </div>
-</div>
-
-
-
-
-
-
-
-
-<!--MOBILE-->
-<!-- Overlay principale con sfocatura metto il click perche se clicco fuori da pannello chiude  --> 
-<div  *ngIf="isMobile" class="dettagli-overlay" [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }" (click)="closeWindow()">
-  
-  <!-- Pulsante testuale in alto a destra fuori dal pannello -->
-
-  <!-- Pannello con dettaglio immagine -->
-  <div
-    class="dettagli-panel"
-    [ngClass]="{ chiusura: panelClosing }"
-    (click)="$event.stopPropagation()"
-  >
-      <button class="chiudi-testuale" (click)="closeWindow()">Chiudi</button>
-
-    <!-- Immagine in evidenza la avoolgo in un contenitore per fare lo swipe mobile-->
-<div
-  class="swipe-container"
-  (touchstart)="onTouchStart($event)"
-  (touchend)="onTouchEnd($event)"
->
-  <img
-    [@slideAnimation]="animationState"
-    [src]="totaleImmagini[currentIndexOtherImage]"
-    class="animated-image"
-    (animationend)="animationState = ''"
-  />
-</div>
-
-
-
-
-    <!-- Indicatore immagini (es. ● ○ ○) -->
-    <div *ngIf="totaleImmagini && totaleImmagini.length > 0" class="indicator-wrapper">  <!-- let i = index incrementa mi dici a quanto sono nel ciclo {{i}} vale 0 1 2 perche parte da 0 -->
-      <span *ngFor="let immagine of totaleImmagini ; let i = index" [ngClass]="{ 'attiva': i === currentIndexOtherImage }"> <!-- quando la i === currentIndex si deve attivare la classe cioe si illumina il pallino, al primo step il pallino 1 è scuro quando scrollo incremento currentIndexOtherImage e si illumina l'altro pallino-->
-                         ● 
-      </span>
-    </div>
-<p class="descrizione-scroll">{{ descrizioneImmagineFrontale }}</p>
-  </div>
-
 </div>

@@ -1,13 +1,10 @@
-<!-- ========================
+<!-- ======================================================================
      ADMIN (comune)
-========================= -->
-<!-- ========================
-     ADMIN (comune)
-========================= -->
+     ====================================================================== -->
 <div *ngIf="isAdmin" class="admin-banner">
   Modalità amministratore attiva
 
-  <!-- Gestione della cartella corrente del catalogo -->
+  <!-- Gestione media nella cartella corrente -->
   <button
     mat-stroked-button
     class="admin-action"
@@ -17,7 +14,7 @@
     Gestisci media
   </button>
 
-  <!-- Se sono nella sezione Carillon, mostro anche la gestione audio CONFIG -->
+  <!-- Gestione tracce audio CONFIG (solo se visibile in questa sezione) -->
   <button
     *ngIf="isAudioIconVisible"
     mat-stroked-button
@@ -29,204 +26,113 @@
   </button>
 </div>
 
-<!-- ========================
-     DESKTOP VIEW
-========================= -->
-<ng-container *ngIf="!isMobile">
-  <div class="desktop-immagini-wrapper">
-    <div class="contenitore-cards-desktop">
-      <ng-container *ngFor="let item of immaginiFrontaliPaginata">
-        <div class="image-wrapper-desktop">
+<!-- ======================================================================
+     CATALOGO – TEMPLATE UNICO
+     ====================================================================== -->
+<div class="catalogo-wrapper">
+  <div class="cards-container">
+    <ng-container *ngFor="let item of immaginiFrontaliPaginata">
+      <div class="image-wrapper">
+        <mat-card
+          class="image-card"
+          (click)="onImmagineClick(item)"
+          [class.audio-attivo]="mostraAudioPlayer">
 
-          <mat-card
-            class="image-card-desktop"
-            (click)="onImmagineClick(item)"
-            [class.audio-attivo]="mostraAudioPlayer">
+          <div class="card-image-container">
+            <!-- MEDIA: immagine -->
+            <img
+              *ngIf="checkEstensione(item.url, 'image')"
+              mat-card-image
+              [src]="item.url"
+              [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
 
-            <div class="card-image-container-desktop">
+            <!-- MEDIA: video -->
+            <video
+              *ngIf="checkEstensione(item.url, 'video')"
+              class="media-video"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="auto">
+              <source [src]="item.url" />
+            </video>
 
-              <!-- MEDIA: immagine -->
-              <img
-                *ngIf="checkEstensione(item.url, 'image')"
-                mat-card-image
-                [src]="item.url"
-                [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
+            <!-- MEDIA: audio (embedded) -->
+            <audio
+              *ngIf="checkEstensione(item.url, 'audio')"
+              class="media-audio"
+              controls>
+              <source [src]="item.url" />
+            </audio>
 
-              <!-- MEDIA: video -->
-              <video
-                *ngIf="checkEstensione(item.url, 'video')"
-                class="media-video-desktop"
-                autoplay
-                muted
-                loop
-                playsinline
-                preload="auto">
-                <source [src]="item.url" />
-              </video>
+            <!-- Fallback: tratta come immagine -->
+            <img
+              *ngIf="!checkEstensione(item.url, 'image') && !checkEstensione(item.url, 'video') && !checkEstensione(item.url, 'audio')"
+              mat-card-image
+              [src]="item.url"
+              [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
 
-              <!-- MEDIA: audio -->
-              <audio
-                *ngIf="checkEstensione(item.url, 'audio')"
-                class="media-audio-desktop"
-                controls>
-                <source [src]="item.url" />
-              </audio>
-
-              <!-- Fallback: tratto come immagine -->
-              <img
-                *ngIf="!checkEstensione(item.url, 'image') && !checkEstensione(item.url, 'video') && !checkEstensione(item.url, 'audio')"
-                mat-card-image
-                [src]="item.url"
-                [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
-
-              <!-- Overlay icone -->
-              <div class="icon-wrapper-desktop">
-                <!-- Lente -->
-                <div class="lens-icon-desktop">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000">
-                    <path d="M505 442.7L405.3 343c28.4-34.9 45.7-79 45.7-127C451 96.5 354.5 0 234 0S17 96.5 17 216s96.5 216 216 216c48 0 92.1-17.3 127-45.7l99.7 99.7c4.7 4.7 12.3 4.7 17 0l45.3-45.3c4.8-4.7 4.8-12.3.1-17zM233 368c-84.7 0-152-67.3-152-152S148.3 64 233 64s152 67.3 152 152-67.3 152-152 152z"/>
-                  </svg>
-                </div>
-
-                <!-- Icona audio toggle -->
-                <div (click)="onAudioIconClick($event)" *ngIf="isAudioIconVisible" class="audio-icon-desktop">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="#000">
-                    <path d="M215 71c7.6 4.7 9.9 14.8 5.2 22.4L146.8 192H72c-13.3 0-24 10.7-24 24v80c0 13.3 10.7 24 24 24h74.8L220.2 418.6c4.7 7.6 2.4 17.7-5.2 22.4-7.6 4.7-17.7 2.4-22.4-5.2L144 328H72c-39.8 0-72-32.2-72-72v-80c0-39.8 32.2-72 72-72h72l48.6-76.2c4.7-7.6 14.8-9.9 22.4-5.2zM288 176c0-13.3 10.7-24 24-24s24 10.7 24 24v160c0 13.3-10.7 24-24 24s-24-10.7-24-24V176zm-32.1 3.8c9.2-10.6 25.2-11.6 35.8-2.3s11.6 25.2 2.3 35.8c-11.7 13.4-18 30.6-18 48.7s6.3 35.3 18 48.7c9.2 10.6 7.9 26.6-2.3 35.8s-26.6 7.9-35.8-2.3c-21.7-25-34-57.4-34-90.2s12.3-65.2 34-90.2z"/>
-                  </svg>
-                </div>
+            <!-- Overlay icone -->
+            <div class="icon-wrapper" (click)="$event.stopPropagation()">
+              <!-- Lente (decorativa o futura azione) -->
+              <div class="lens-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000">
+                  <path d="M505 442.7L405.3 343c28.4-34.9 45.7-79 45.7-127C451 96.5 354.5 0 234 0S17 96.5 17 216s96.5 216 216 216c48 0 92.1-17.3 127-45.7l99.7 99.7c4.7 4.7 12.3 4.7 17 0l45.3-45.3c4.8-4.7 4.8-12.3.1-17zM233 368c-84.7 0-152-67.3-152-152S148.3 64 233 64s152 67.3 152 152-67.3 152-152 152z"/>
+                </svg>
               </div>
+
+              <!-- Toggle player audio (solo se previsto) -->
+              <button
+                *ngIf="isAudioIconVisible"
+                type="button"
+                class="audio-icon"
+                (click)="onAudioIconClick($event)"
+                aria-label="Apri player audio">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="#000" aria-hidden="true">
+                  <path d="M215 71c7.6 4.7 9.9 14.8 5.2 22.4L146.8 192H72c-13.3 0-24 10.7-24 24v80c0 13.3 10.7 24 24 24h74.8L220.2 418.6c4.7 7.6 2.4 17.7-5.2 22.4-7.6 4.7-17.7 2.4-22.4-5.2L144 328H72c-39.8 0-72-32.2-72-72v-80c0-39.8 32.2-72 72-72h72l48.6-76.2c4.7-7.6 14.8-9.9 22.4-5.2zM288 176c0-13.3 10.7-24 24-24s24 10.7 24 24v160c0 13.3-10.7 24-24 24s-24-10.7-24-24V176zm-32.1 3.8c9.2-10.6 25.2-11.6 35.8-2.3s11.6 25.2 2.3 35.8c-11.7 13.4-18 30.6-18 48.7s6.3 35.3 18 48.7c9.2 10.6 7.9 26.6-2.3 35.8s-26.6 7.9-35.8-2.3c-21.7-25-34-57.4-34-90.2s12.3-65.2 34-90.2z"/>
+                </svg>
+              </button>
             </div>
-          </mat-card>
-
-          <!-- Info sotto -->
-          <div class="image-info-desktop">
-            <h3>{{ item.display_name }}</h3>
-            <p *ngIf="item.quantita">Quantità: {{ item.quantita }}</p>
           </div>
+        </mat-card>
 
+        <!-- Info sotto la card -->
+        <div class="image-info">
+          <h3>{{ item.display_name }}</h3>
+          <p *ngIf="item.quantita">Quantità: {{ item.quantita }}</p>
         </div>
-      </ng-container>
+      </div>
+    </ng-container>
 
-      <!-- Player audio -->
-      <app-audio-player
-        *ngIf="mostraAudioPlayer"
-        (chiusuraAnimazioneCompleta)="handleChiudiAudioPlayer()">
-      </app-audio-player>
+    <!-- Player audio (overlay) -->
+    <app-audio-player
+      *ngIf="mostraAudioPlayer"
+      (chiusuraAnimazioneCompleta)="handleChiudiAudioPlayer()">
+    </app-audio-player>
 
-      <!-- Dettaglio immagine -->
-      <app-dettagli
-        *ngIf="immagineSelezionata && !mostraAudioPlayer"
-        [immagineFrontale]="immagineSelezionata"
-        [altreImmaginiDellaFrontale]="altreImmaginiSelezionate"
-        [descrizioneImmagineFrontale]="descrizioneImmagineFrontale"
-        (chiudiDettaglio)="handleChiudiDettaglio()">
-      </app-dettagli>
-    </div>
+    <!-- Dettagli immagine -->
+    <app-dettagli
+      *ngIf="immagineSelezionata && !mostraAudioPlayer"
+      [immagineFrontale]="immagineSelezionata"
+      [altreImmaginiDellaFrontale]="altreImmaginiSelezionate"
+      [descrizioneImmagineFrontale]="descrizioneImmagineFrontale"
+      (chiudiDettaglio)="handleChiudiDettaglio()">
+    </app-dettagli>
   </div>
-</ng-container>
 
+  <!-- Paginazione (puoi renderla “solo mobile” via CSS) -->
+  <div class="paginazione" *ngIf="numeroDiPagine > 1">
+    <button mat-icon-button (click)="paginaPrecedente()" [disabled]="paginaCorrente === 1" aria-label="Pagina precedente">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
 
-<!-- ========================
-     MOBILE VIEW
-========================= -->
-<ng-container *ngIf="isMobile">
-  <div class="mobile-immagini-wrapper">
-    <div class="contenitore-cards">
-      <ng-container *ngFor="let item of immaginiFrontaliPaginata">
-        <div class="image-wrapper">
+    <span class="numero-pagina">
+      Pagina {{ paginaCorrente }} / {{ numeroDiPagine }}
+    </span>
 
-          <mat-card
-            class="image-card"
-            (click)="onImmagineClick(item)"
-            [class.audio-attivo]="mostraAudioPlayer">
-
-            <div class="card-image-container">
-
-              <!-- Immagine -->
-              <img
-                *ngIf="checkEstensione(item.url, 'image')"
-                mat-card-image
-                [src]="item.url"
-                [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
-
-              <!-- Video -->
-              <video
-                *ngIf="checkEstensione(item.url, 'video')"
-                class="media-video-mobile"
-                autoplay
-                muted
-                loop
-                playsinline
-                preload="auto">
-                <source [src]="item.url" />
-              </video>
-
-              <!-- Audio -->
-              <audio
-                *ngIf="checkEstensione(item.url, 'audio')"
-                class="media-audio-mobile"
-                controls>
-                <source [src]="item.url" />
-              </audio>
-
-              <!-- Fallback -->
-              <img
-                *ngIf="!checkEstensione(item.url, 'image') && !checkEstensione(item.url, 'video') && !checkEstensione(item.url, 'audio')"
-                mat-card-image
-                [src]="item.url"
-                [alt]="(item.descrizione || '') + ' - Modello: ' + (item.display_name || '')" />
-
-              <!-- Overlay icone -->
-              <div class="icon-wrapper">
-                <div class="lens-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000">
-                    <path d="M505 442.7L405.3 343c28.4-34.9 45.7-79 45.7-127C451 96.5 354.5 0 234 0S17 96.5 17 216s96.5 216 216 216c48 0 92.1-17.3 127-45.7l99.7 99.7c4.7 4.7 12.3 4.7 17 0l45.3-45.3c4.8-4.7 4.8-12.3.1-17zM233 368c-84.7 0-152-67.3-152-152S148.3 64 233 64s152 67.3 152 152-67.3 152-152 152z"/>
-                  </svg>
-                </div>
-                <div (click)="onAudioIconClick($event)" *ngIf="isAudioIconVisible" class="audio-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" fill="#000">
-                    <path d="M215 71c7.6 4.7 9.9 14.8"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </mat-card>
-
-          <!-- Info sotto -->
-          <div class="image-info">
-            <h3>{{ item.display_name }}</h3>
-            <p *ngIf="item.quantita">Quantità: {{ item.quantita }}</p>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Player audio -->
-      <app-audio-player
-        *ngIf="mostraAudioPlayer"
-        (chiusuraAnimazioneCompleta)="handleChiudiAudioPlayer()">
-      </app-audio-player>
-
-      <!-- Dettagli -->
-      <app-dettagli
-        *ngIf="immagineSelezionata && !mostraAudioPlayer"
-        [immagineFrontale]="immagineSelezionata"
-        [altreImmaginiDellaFrontale]="altreImmaginiSelezionate"
-        [descrizioneImmagineFrontale]="descrizioneImmagineFrontale"
-        (chiudiDettaglio)="handleChiudiDettaglio()">
-      </app-dettagli>
-    </div>
-
-    <!-- Paginazione -->
-    <div class="paginazione-mobile" *ngIf="numeroDiPagine > 1">
-      <button mat-icon-button (click)="paginaPrecedente()" [disabled]="paginaCorrente === 1">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-      <span class="numero-pagina">
-        Pagina {{ paginaCorrente }} / {{ numeroDiPagine }}
-      </span>
-      <button mat-icon-button (click)="paginaSuccessiva()" [disabled]="paginaCorrente === numeroDiPagine">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
-    </div>
+    <button mat-icon-button (click)="paginaSuccessiva()" [disabled]="paginaCorrente === numeroDiPagine" aria-label="Pagina successiva">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
   </div>
-</ng-container>
+</div>
