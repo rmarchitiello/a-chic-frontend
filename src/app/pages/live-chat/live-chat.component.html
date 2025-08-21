@@ -1,75 +1,92 @@
-<!-- =============== DESKTOP =============== -->
-<ng-container *ngIf="!isMobile">
-  <!-- Pulsante fisso in basso a destra -->
-  <div class="desktop-chat-button" (click)="chatAperta = true">
-    <img src="assets/images/icona-whatsapp.png" alt="chat" />
+<!-- =============================================================================
+     LIVE CHAT – TEMPLATE UNICO (desktop + mobile)
+     - Un solo markup; differenze di posizione/dimensioni tipicamente via SCSS
+     - Mantiene le stesse API: isMobile (solo per stile), chatAperta, messaggi,
+       messaggioCorrente, apriChat(), chiudiChat(), inviaMessaggio()
+     - Accessibilità: ruoli ARIA per overlay/pannello e area messaggi
+     ========================================================================== -->
+
+<!-- Pulsante flottante (in basso a destra). Lo stile cambia via media queries -->
+<button
+  type="button"
+  class="chat-button"
+  (click)="apriChat()"
+  aria-label="Apri la chat di supporto">
+  <img src="assets/images/icona-whatsapp.png" alt="" aria-hidden="true" />
+</button>
+
+<!-- Overlay + pannello chat (renderizzati solo quando la chat è aperta) -->
+<ng-container *ngIf="chatAperta">
+  <!-- Overlay cliccabile per chiudere la chat -->
+  <div
+    class="chat-overlay"
+    (click)="chiudiChat()"
+    aria-hidden="true">
   </div>
 
-  <!-- Overlay + pannello chat -->
-  <ng-container *ngIf="chatAperta">
-    <div class="desktop-chat-overlay" (click)="chiudiChat()"></div>
+  <!-- Pannello chat.
+       - role="dialog" e aria-modal="true" per i lettori di schermo
+       - click stopPropagation per non chiudere quando si clicca all’interno -->
+  <section
+    class="chat-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Supporto Live"
+    (click)="$event.stopPropagation()">
 
-    <div class="desktop-chat-panel" (click)="$event.stopPropagation()">
-      <!-- Header -->
-      <div class="desktop-chat-header">
-        Supporto Live
-        <span class="chiudi" (click)="chiudiChat()">✖</span>
+    <!-- Header del pannello con titolo e pulsante chiudi -->
+    <header class="chat-header">
+      <h3 class="chat-title">Supporto Live</h3>
+
+      <button
+        type="button"
+        class="chat-close"
+        (click)="chiudiChat()"
+        aria-label="Chiudi la chat">
+        ✖
+      </button>
+    </header>
+
+    <!-- Corpo della chat: area scrollable con i messaggi
+         - aria-live="polite" annuncia i nuovi messaggi senza interrompere l’utente -->
+    <div
+      class="chat-body"
+      #contenitoreChat
+      aria-live="polite">
+      <div
+        *ngFor="let msg of messaggi"
+        [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
+        {{ msg.testo }}
       </div>
-
-      <!-- Corpo -->
-      <div class="desktop-chat-body" #contenitoreChat>
-        <div *ngFor="let msg of messaggi"
-             [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
-          {{ msg.testo }}
-        </div>
-      </div>
-
-      <!-- Form invio -->
-      <form class="desktop-chat-form" (ngSubmit)="inviaMessaggio()" #frm="ngForm">
-        <mat-form-field appearance="fill" class="input-msg">
-          <input matInput name="testo" [(ngModel)]="messaggioCorrente" placeholder="Scrivi un messaggio…" required />
-        </mat-form-field>
-
-        <button mat-icon-button color="primary" type="submit" *ngIf="messaggioCorrente.trim()">
-          <mat-icon>send</mat-icon>
-        </button>
-      </form>
     </div>
-  </ng-container>
-</ng-container>
 
-<!-- =============== MOBILE =============== -->
-<ng-container *ngIf="isMobile">
-  <!-- Pulsante fisso in basso a destra -->
-  <div class="mobile-chat-button" (click)="apriChat()">
-    <img src="assets/images/icona-whatsapp.png" alt="chat" />
-  </div>
+    <!-- Form di invio messaggio
+         - Submit disabilitato se l’input è vuoto o solo spazi -->
+    <form
+      class="chat-form"
+      (ngSubmit)="inviaMessaggio()"
+      #frm="ngForm"
+      autocomplete="off">
+      <mat-form-field appearance="fill" class="input-msg">
+        <input
+          matInput
+          name="testo"
+          [(ngModel)]="messaggioCorrente"
+          placeholder="Scrivi un messaggio…"
+          required
+          autocomplete="off"
+          autocapitalize="sentences"
+          aria-label="Scrivi un messaggio" />
+      </mat-form-field>
 
-  <ng-container *ngIf="chatAperta">
-    <div class="mobile-chat-overlay" (click)="chiudiChat()"></div>
-
-    <div class="mobile-chat-panel" (click)="$event.stopPropagation()">
-      <div class="mobile-chat-header">
-        Supporto Live
-        <span class="chiudi" (click)="chiudiChat()">✖</span>
-      </div>
-
-      <div class="mobile-chat-body" #contenitoreChat>
-        <div *ngFor="let msg of messaggi"
-             [ngClass]="msg.tipo === 'utente' ? 'messaggio-utente' : 'messaggio-system'">
-          {{ msg.testo }}
-        </div>
-      </div>
-
-      <form class="mobile-chat-form" (ngSubmit)="inviaMessaggio()" #frm="ngForm">
-        <mat-form-field appearance="fill" class="input-msg">
-          <input matInput name="testo" [(ngModel)]="messaggioCorrente" placeholder="Scrivi un messaggio…" required />
-        </mat-form-field>
-
-        <button mat-icon-button color="primary" type="submit" *ngIf="messaggioCorrente.trim()">
-          <mat-icon>send</mat-icon>
-        </button>
-      </form>
-    </div>
-  </ng-container>
+      <button
+        mat-icon-button
+        color="primary"
+        type="submit"
+        [disabled]="!messaggioCorrente || !messaggioCorrente.trim()"
+        aria-label="Invia messaggio">
+        <mat-icon>send</mat-icon>
+      </button>
+    </form>
+  </section>
 </ng-container>

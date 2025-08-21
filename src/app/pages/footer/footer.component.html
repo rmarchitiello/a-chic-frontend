@@ -1,144 +1,109 @@
-<!-- FOOTER DESKTOP -->
-<!-- FOOTER DESKTOP -->
-<footer *ngIf="!isMobile" class="footer-desktop">
+<!-- ============================================================================
+     FOOTER – TEMPLATE UNICO (desktop + mobile)
+     - Un solo markup: gli stili responsive li gestisci con le media queries
+     - Mantiene le API esistenti: email, loadingNewsLetter, responseEmail, iscrivitiNewsletter(), goTo()
+     - Accessibilità: label/ruoli/aria-live dove utile
+     ========================================================================== -->
 
-  <!-- Sezione newsletter -->
-  <div class="newsletter-desktop">
-    <h2>Ricevi informazioni e novità</h2>
-    <p>Lascia la tua email: ti avviseremo solo per nuove uscite o promozioni saltuarie.</p>
+<footer class="footer" role="contentinfo">
 
-    <!-- Form newsletter -->
-    <form (ngSubmit)="iscrivitiNewsletter(email)" #f="ngForm" class="newsletter-form-desktop">
+  <!-- ===========================
+       Sezione NEWSLETTER
+       =========================== -->
+  <section class="newsletter" aria-labelledby="tit-newsletter">
+    <h2 id="tit-newsletter">Ricevi informazioni e novità</h2>
+    <p class="newsletter-subtitle">
+      Lascia la tua email: ti avviseremo solo per nuove uscite o promozioni saltuarie.
+    </p>
+
+    <!-- Form newsletter (unico) -->
+    <form
+      class="newsletter-form"
+      (ngSubmit)="iscrivitiNewsletter(email)"
+      #f="ngForm"
+      autocomplete="email"
+      novalidate>
+
+      <label class="visually-hidden" for="newsletter-email">Email</label>
       <input
+        id="newsletter-email"
         type="email"
         name="email"
         [(ngModel)]="email"
         placeholder="Inserisci la tua email"
         required
-        [disabled]="loadingNewsLetter" />
+        [disabled]="loadingNewsLetter"
+        aria-required="true"
+        aria-label="Inserisci la tua email per la newsletter" />
 
-      <button type="submit" [disabled]="loadingNewsLetter">
+      <button
+        type="submit"
+        class="newsletter-submit"
+        [disabled]="loadingNewsLetter"
+        [attr.aria-busy]="loadingNewsLetter ? 'true' : null"
+        aria-label="Iscriviti alla newsletter">
         <span *ngIf="!loadingNewsLetter">→</span>
-        <span *ngIf="loadingNewsLetter" class="spinner"></span>
+        <span *ngIf="loadingNewsLetter" class="spinner" aria-hidden="true"></span>
       </button>
     </form>
 
-    <!-- Messaggio di risposta -->
-    <p *ngIf="responseEmail">{{ responseEmail }}</p>
-  </div>
+    <!-- Messaggio di esito (live) -->
+    <p *ngIf="responseEmail" class="newsletter-response" aria-live="polite">
+      {{ responseEmail }}
+    </p>
+  </section>
 
-  <!-- Link utili -->
-  <div class="footer-links-desktop">
+  <!-- ===========================
+       Link utili
+       =========================== -->
+  <nav class="footer-links" aria-label="Link utili">
     <button type="button" (click)="goTo('/chi-siamo')">Chi Sono</button>
     <button type="button" (click)="goTo('/privacy-policy')">Privacy Policy</button>
     <button type="button" (click)="goTo('/cookie-policy')">Cookie Policy</button>
-  </div>
+  </nav>
 
-  <!-- Social e contatti -->
-  <div class="footer-social-desktop">
-    <a href="https://www.tiktok.com/@arianna.monteforte91" target="_blank" rel="noopener" aria-label="TikTok">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2a6.34 6.34 0 0 0 .17 1.44 5.35 5.35 0 0 0 2 3.07 5.55 5.55 0 0 0 3 .9v2.44a8 8 0 0 1-3.46-.8v6.87a5.92 5.92 0 1 1-6.23-5.9 6 6 0 0 1 1.23.14v2.47a3.51 3.51 0 1 0 2.58 3.37V2Z" />
-      </svg>
-    </a>
-
-    <a href="https://www.instagram.com/arianna_monteforte" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7.5 2C4.46 2 2 4.46 2 7.5v9C2 19.54 4.46 22 7.5 22h9c3.04 0 5.5-2.46 5.5-5.5v-9C22 4.46 19.54 2 16.5 2h-9Zm0 2h9A3.5 3.5 0 0 1 20 7.5v9a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 16.5v-9A3.5 3.5 0 0 1 7.5 4Zm10.25 1.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />
-      </svg>
-    </a>
-
-    <button type="button" aria-label="Contattaci" (click)="goTo('/contatti')" class="email-btn-desktop">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v.01l10 6.49 10-6.49V6H2Zm0 12h20V8.24l-9.33 6.05a2 2 0 0 1-2.34 0L2 8.24V18Z" />
-      </svg>
-    </button>
-  </div>
-
-  <!-- Frase legale -->
-  <p class="footer-tiur-desktop">
-    A chic by Arianna – vendita occasionale ai sensi dell’art. 4 D.P.R. 633/72. Tutti i diritti riservati.
-  </p>
-</footer>
-
-
-
-
-
-
-
-
-
-
-<!-- FOOTER MOBILE -->
-<footer *ngIf="isMobile" class="footer-mobile">
-  <!-- Newsletter -->
-<!-- Newsletter -->
-<div class="newsletter">
-  <h2>Ricevi informazioni e novità</h2>
-  <p>Lascia la tua email: ti avviseremo solo per nuove uscite o promozioni saltuarie.</p>
-
-  <form (ngSubmit)="iscrivitiNewsletter(email)" #f="ngForm" class="newsletter-form">
-    <input
-      type="email"
-      name="email"
-      [(ngModel)]="email"
-      placeholder="Inserisci la tua email"
-      required
-      [disabled]="loadingNewsLetter" />
-
-    <!-- Bottone con spinner -->
-    <button type="submit" [disabled]="loadingNewsLetter">
-      <span *ngIf="!loadingNewsLetter">→</span>
-      <span *ngIf="loadingNewsLetter" class="spinner"></span>
-    </button>
-  </form>
-
-  <!-- Messaggio di esito -->
-  <p *ngIf="responseEmail">{{ responseEmail }}</p>
-</div>
-
-
-  <!-- Link utili -->
-  <div class="footer-links">
-    <button (click)="goTo('/chi-siamo')">Chi Sono</button>
-    <button (click)="goTo('/privacy-policy')">Privacy Policy</button>
-    <button (click)="goTo('/cookie-policy')">Cookie Policy</button>
-  </div>
-
-  <!-- Social e contatti -->
-  <div class="footer-social">
-    <!-- Facebook -->
-
+  <!-- ===========================
+       Social e contatti
+       =========================== -->
+  <div class="footer-social" aria-label="Social e contatti">
     <!-- TikTok -->
-    <a href="https://www.tiktok.com/@arianna.monteforte91" target="_blank" rel="noopener" aria-label="TikTok">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <!-- Simple-Icons TikTok glyph -->
-        <path
-          d="M12 2a6.34 6.34 0 0 0 .17 1.44 5.35 5.35 0 0 0 2 3.07 5.55 5.55 0 0 0 3 .9v2.44a8 8 0 0 1-3.46-.8v6.87a5.92 5.92 0 1 1-6.23-5.9 6 6 0 0 1 1.23.14v2.47a3.51 3.51 0 1 0 2.58 3.37V2Z" />
+    <a
+      href="https://www.tiktok.com/@arianna.monteforte91"
+      target="_blank"
+      rel="noopener"
+      aria-label="TikTok di A-Chic">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+        <path d="M12 2a6.34 6.34 0 0 0 .17 1.44 5.35 5.35 0 0 0 2 3.07 5.55 5.55 0 0 0 3 .9v2.44a8 8 0 0 1-3.46-.8v6.87a5.92 5.92 0 1 1-6.23-5.9 6 6 0 0 1 1.23.14v2.47a3.51 3.51 0 1 0 2.58 3.37V2Z"/>
       </svg>
     </a>
 
     <!-- Instagram -->
-    <a href="https://www.instagram.com/arianna_monteforte" target="_blank" rel="noopener" aria-label="Instagram">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <!-- Simple-Icons Instagram glyph -->
-        <path
-          d="M7.5 2C4.46 2 2 4.46 2 7.5v9C2 19.54 4.46 22 7.5 22h9c3.04 0 5.5-2.46 5.5-5.5v-9C22 4.46 19.54 2 16.5 2h-9Zm0 2h9A3.5 3.5 0 0 1 20 7.5v9a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 16.5v-9A3.5 3.5 0 0 1 7.5 4Zm10.25 1.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z" />
+    <a
+      href="https://www.instagram.com/arianna_monteforte"
+      target="_blank"
+      rel="noopener"
+      aria-label="Instagram di A-Chic">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+        <path d="M7.5 2C4.46 2 2 4.46 2 7.5v9C2 19.54 4.46 22 7.5 22h9c3.04 0 5.5-2.46 5.5-5.5v-9C22 4.46 19.54 2 16.5 2h-9Zm0 2h9A3.5 3.5 0 0 1 20 7.5v9a3.5 3.5 0 0 1-3.5 3.5h-9A3.5 3.5 0 0 1 4 16.5v-9A3.5 3.5 0 0 1 7.5 4Zm10.25 1.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5ZM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6Z"/>
       </svg>
     </a>
 
-    <!-- Contatti (e-mail) -->
-    <button type="button" aria-label="Contattaci" (click)="goTo('/contatti')" class="email-btn">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v.01l10 6.49 10-6.49V6H2Zm0 12h20V8.24l-9.33 6.05a2 2 0 0 1-2.34 0L2 8.24V18Z" />
+    <!-- Contatti (pagina contatti) -->
+    <button
+      type="button"
+      class="email-btn"
+      aria-label="Vai alla pagina contatti"
+      (click)="goTo('/contatti')">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false" aria-hidden="true">
+        <path d="M2 4h20a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 2v.01l10 6.49 10-6.49V6H2Zm0 12h20V8.24l-9.33 6.05a2 2 0 0 1-2.34 0L2 8.24V18Z"/>
       </svg>
     </button>
-
   </div>
-    <!-- Frase legale TIUR -->
-    <p class="footer-tiur">
-      A chic by Arianna – vendita occasionale ai sensi dell’art. 4 D.P.R. 633/72. Tutti i diritti riservati.
-    </p>
+
+  <!-- ===========================
+       Frase legale / TIUR
+       =========================== -->
+  <p class="footer-tiur">
+    A chic by Arianna – vendita occasionale ai sensi dell’art. 4 D.P.R. 633/72. Tutti i diritti riservati.
+  </p>
 </footer>

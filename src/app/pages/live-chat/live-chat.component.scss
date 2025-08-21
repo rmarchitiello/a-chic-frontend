@@ -1,317 +1,247 @@
-/* =======================
-   Stili MOBILE (≤768px)
-   ======================= */
-@media (max-width: 768px) {
-.mobile-chat-button {
+/* =============================================================================
+   LIVE CHAT – SCSS unico (mobile + desktop)
+   - Stesse classi per entrambe le viste: differenze via media queries
+   - Template atteso: .chat-button, .chat-overlay, .chat-panel, .chat-header,
+     .chat-title, .chat-close, .chat-body, .messaggio-utente, .messaggio-system,
+     .chat-form, .input-msg
+   ========================================================================== */
+
+/* -----------------------
+   Pulsante flottante
+   ----------------------- */
+.chat-button {
   position: fixed;
   bottom: 1.25rem;
   right: 1.25rem;
   z-index: 1500;
+
   width: 60px;
   height: 60px;
-  background-color: rgba(255, 255, 255, 0.6); // Sfondo bianco semi-trasparente
-  border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); // Ombra più leggera
   padding: 0.5rem;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px); // Sfocatura dietro per maggiore leggibilità
+
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+
+  background-color: rgba(255, 255, 255, 0.6); /* bianco semi-trasparente */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);  /* ombra leggera */
+  backdrop-filter: blur(4px);                  /* leggibilità su sfondi busy */
+  transition: transform 0.2s ease, background-color 0.2s ease;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    opacity: 0.85; // Anche l'immagine leggermente trasparente
+    opacity: 0.85; /* anche l’icona leggermente trasparente */
   }
 
   &:hover {
     transform: scale(1.05);
-    background-color: rgba(255, 255, 255, 0.75); // Meno trasparente al passaggio
+    background-color: rgba(255, 255, 255, 0.75);
   }
 
   &:active {
     transform: scale(0.95);
-    background-color: rgba(255, 255, 255, 0.9); // Quasi pieno in active
+    background-color: rgba(255, 255, 255, 0.9);
   }
 }
 
+/* -----------------------
+   Overlay pieno schermo
+   ----------------------- */
+.chat-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1499;
+  background: rgba(0, 0, 0, 0.4);
+}
 
+/* -----------------------
+   Pannello chat
+   ----------------------- */
+.chat-panel {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  height: 65vh;
+  z-index: 1501;
 
-  .mobile-chat-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 998;
-  }
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 
-  .mobile-chat-panel {
-    position: fixed;
-    inset-inline: 0;
-    bottom: 0;
-    height: 65vh;
-    background: #111b21;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
+  background: #111b21;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+}
 
-  .mobile-chat-header {
-    background: #075e54;
-    color: #fff;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+/* Header del pannello */
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-  .chiudi {
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: bold;
-  }
+  background: #075e54;
+  color: #fff;
 
-  .mobile-chat-body {
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.chat-title {
+  margin: 0;
+  line-height: 1;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.chat-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: bold;
+  line-height: 1;
+  padding: 0;
+}
+
+/* Corpo messaggi */
+.chat-body {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Bolle messaggi */
+.messaggio-system {
+  align-self: flex-start;
+  background: #e4e6eb;
+  color: #111b21;
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 75%;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.messaggio-utente {
+  align-self: flex-end;
+  background: #25d366;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 16px;
+  max-width: 75%;
+  font-size: 15px;
+  word-break: break-word;
+}
+
+/* Form invio */
+.chat-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 12px;
+  background: #202c33;
+  border-top: 1px solid #2a3942;
+
+  .input-msg {
     flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
 
-  .messaggio-system {
-    align-self: flex-start;
-    background: #e4e6eb;
-    color: #111b21;
-    padding: 10px 14px;
-    border-radius: 16px;
-    max-width: 75%;
-    font-size: 15px;
-    word-break: break-word;
-  }
-
-  .messaggio-utente {
-    align-self: flex-end;
-    background: #25d366;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 16px;
-    max-width: 75%;
-    font-size: 15px;
-    word-break: break-word;
-  }
-
-  .mobile-chat-form {
-    display: flex;
-    align-items: center;
-    padding: 6px 12px;
-    background: #202c33;
-    border-top: 1px solid #2a3942;
-
-    .input-msg {
-      flex: 1;
-      margin-right: 8px;
-
-      ::ng-deep .mat-form-field-flex {
-        background: #2a3942;
-        border-radius: 20px;
-        height: 36px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-      }
-
-      ::ng-deep .mat-input-element {
-        color: #fff;
-        line-height: 36px;
-        font-size: 15px;
-      }
-
-      ::ng-deep .mat-form-field-outline,
-      ::ng-deep .mat-form-field-outline-start,
-      ::ng-deep .mat-form-field-outline-end {
-        display: none;
-      }
-
-      ::ng-deep .mat-input-element::placeholder {
-        color: #9aa6ac;
-        opacity: 1;
-      }
-    }
-
-    button {
-      width: 36px;
+    /* Personalizzazione del mat-form-field */
+    ::ng-deep .mat-form-field-flex {
+      background: #2a3942;
+      border-radius: 20px;
       height: 36px;
-      border-radius: 50%;
-      background: #25d366;
-      color: #fff;
+      padding: 0 12px;
+
       display: flex;
       align-items: center;
-      justify-content: center;
+    }
 
-      mat-icon {
-        font-size: 18px;
-        line-height: 18px;
-      }
+    ::ng-deep .mat-input-element {
+      color: #fff;
+      line-height: 36px;
+      font-size: 15px;
+    }
+
+    /* Nasconde outline “outline” dell’aspetto */
+    ::ng-deep .mat-form-field-outline,
+    ::ng-deep .mat-form-field-outline-start,
+    ::ng-deep .mat-form-field-outline-end {
+      display: none;
+    }
+
+    ::ng-deep .mat-input-element::placeholder {
+      color: #9aa6ac;
+      opacity: 1;
+    }
+  }
+
+  /* Pulsante invio */
+  button[mat-icon-button],
+  .mat-mdc-icon-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 50%;
+    background: #25d366 !important; /* forza il cerchio verde */
+    color: #fff !important;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+      font-size: 18px;
+      line-height: 18px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+      background: #3b4a54 !important;
+      color: #b7c3c9 !important;
     }
   }
 }
 
 /* =======================
-   Stili DESKTOP (>768px)
+   DESKTOP (>768px)
    ======================= */
 @media (min-width: 769px) {
-  .desktop-chat-button {
-    position: fixed;
+  .chat-button {
     bottom: 90px;
     right: 20px;
     width: 72px;
     height: 72px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    z-index: 999;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0;
+
+    /* stile più “pulito” su desktop (icona senza pallino latte) */
     background: transparent;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    backdrop-filter: none;
 
     img {
       width: 72px;
       height: 72px;
-    }
-  }
-
-  .desktop-chat-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 998;
-  }
-
-  .desktop-chat-panel {
-    position: fixed;
-    inset-inline: 0;
-    bottom: 0;
-    height: 65vh;
-    background: #111b21;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .desktop-chat-header {
-    background: #075e54;
-    color: #fff;
-    padding: 12px 16px;
-    font-weight: 700;
-    font-size: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .chiudi {
-    cursor: pointer;
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .desktop-chat-body {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .messaggio-system {
-    align-self: flex-start;
-    background: #e4e6eb;
-    color: #111b21;
-    padding: 10px 14px;
-    border-radius: 16px;
-    max-width: 75%;
-    font-size: 15px;
-    word-break: break-word;
-  }
-
-  .messaggio-utente {
-    align-self: flex-end;
-    background: #25d366;
-    color: #fff;
-    padding: 10px 14px;
-    border-radius: 16px;
-    max-width: 75%;
-    font-size: 15px;
-    word-break: break-word;
-  }
-
-  .desktop-chat-form {
-    display: flex;
-    align-items: center;
-    padding: 6px 12px;
-    background: #202c33;
-    border-top: 1px solid #2a3942;
-
-    .input-msg {
-      flex: 1;
-      margin-right: 8px;
-
-      ::ng-deep .mat-form-field-flex {
-        background: #2a3942;
-        border-radius: 20px;
-        height: 36px;
-        padding: 0 12px;
-        display: flex;
-        align-items: center;
-      }
-
-      ::ng-deep .mat-input-element {
-        color: #fff;
-        line-height: 36px;
-        font-size: 15px;
-      }
-
-      ::ng-deep .mat-form-field-outline,
-      ::ng-deep .mat-form-field-outline-start,
-      ::ng-deep .mat-form-field-outline-end {
-        display: none;
-      }
-
-      ::ng-deep .mat-input-element::placeholder {
-        color: #9aa6ac;
-        opacity: 1;
-      }
+      opacity: 1;
     }
 
-    button {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: #25d366;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      mat-icon {
-        font-size: 18px;
-        line-height: 18px;
-      }
-    }
+    &:hover { transform: scale(1.06); }
+    &:active { transform: scale(0.97); }
   }
+
 }

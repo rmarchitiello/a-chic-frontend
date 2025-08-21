@@ -1,128 +1,72 @@
-<!-- ===============================================================
-     CHI-SIAMO  |  TEMPLATE COMPLETO
-     =============================================================== -->
+<!-- =========================================================================
+     CHI-SIAMO  |  TEMPLATE UNICO (desktop + mobile)
+     - Un solo markup: tutte le differenze sono gestite via SCSS con media query
+     - Struttura a due colonne su desktop, impilata su mobile
+     - Evito suffissi -desktop / -mobile: stesse classi per tutti i viewport
+     ========================================================================= -->
 
-<!-- DESKTOP VIEW -->
-<div *ngIf="!isMobile" class="chi-siamo-overlay desktop-view">
+<section class="chi-siamo-overlay">
 
-  <!-- Container generale -->
-  <div class="chi-siamo-desktop-container">
+  <!-- Contenitore principale: su desktop è una griglia a 2 colonne,
+       su mobile diventa una singola colonna impilata -->
+  <div class="chi-siamo-container">
 
-    <!-- Colonna sinistra: immagine Arianna -->
-    <div class="foto-colonna-desktop">
-      <img src="/assets/images/arianna_background.jpg" alt="Arianna">
-      <p class="nome-arianna-desktop">Arianna</p>
+    <!-- Colonna immagine/persona
+         - L’immagine resta responsiva; il nome è sovrapposto o sotto in base al CSS -->
+    <div class="foto-colonna">
+      <img src="/assets/images/arianna_background.jpg" alt="Ritratto di Arianna" />
+      <p class="nome-arianna">Arianna</p>
     </div>
 
-    <!-- Colonna destra: testo -->
-    <div class="chi-siamo-testo-desktop">
+    <!-- Colonna testo/descrizione
+         - Paragrafi con piccole animazioni di ingresso (fade-in + delay-N) -->
+    <div class="chi-siamo-testo">
 
-      <p class="fade-in-desktop delay-1">
+      <p class="fade-in delay-1">
         <strong>Sono Arianna e le mie borse nascono da un filo… di passione.</strong>
       </p>
 
-      <p class="fade-in-desktop delay-2">
-        Ogni modello è <strong>lavorato a mano all’uncinetto</strong>,
-        punto dopo punto, con materiali scelti con amore.
+      <p class="fade-in delay-2">
+        Ogni modello è <strong>lavorato a mano all’uncinetto</strong>, punto dopo punto, con materiali scelti con amore.
       </p>
 
-      <p class="fade-in-desktop delay-3">
-        <strong>A-Chic by Arianna</strong> è la mia casa creativa:
-        qui la tradizione artigianale incontra uno stile moderno, sobrio e chic.
+      <p class="fade-in delay-3">
+        <strong>A-Chic by Arianna</strong> è la mia casa creativa: qui la tradizione artigianale incontra uno stile moderno, sobrio e chic.
       </p>
 
-      <p class="fade-in-desktop delay-4">
-        Dietro ogni creazione ci sono notti di prove, errori trasformati in idee
-        e un entusiasmo che non mi abbandona mai.
+      <p class="fade-in delay-4">
+        Dietro ogni creazione ci sono notti di prove, errori trasformati in idee e un entusiasmo che non mi abbandona mai.
       </p>
 
-      <!-- Invito alla condivisione -->
-      <div class="supporta-desktop fade-in-desktop delay-5">
+      <!-- Blocco invito alla condivisione: layout centrale, bottone azione -->
+      <div class="supporta fade-in delay-5">
         <p>
-          Vuoi sostenere A-Chic by Arianna? <br>
-          Condividi il mio lavoro con i tuoi amici!
+          Vuoi sostenere A-Chic by Arianna?<br />
+          Condividi il mio lavoro con i tuoi amici.
         </p>
-        <button type="button"
-                class="btn-condividi-desktop"
-                (click)="shareSite()">
-          📲 Condividi
+
+        <button
+          type="button"
+          class="btn-condividi"
+          (click)="shareSite()">
+          Condividi
         </button>
       </div>
 
-      <!-- Firma -->
-      <p class="firma-desktop fade-in-desktop delay-6">
-        Benvenuti nel mio mondo.<br>
-        Un mondo fatto a mano, con il cuore.<br>
+      <!-- Saluto/firma testuale -->
+      <p class="firma fade-in delay-6">
+        Benvenuti nel mio mondo.<br />
+        Un mondo fatto a mano, con il cuore.<br />
         Un mondo semplice, autentico e… chic.
       </p>
 
-      <!-- Firma grafica -->
-      <div class="firma-wrapper-desktop">
-        <img src="/assets/images/a-chic-firma.gif"
-             alt="Firma A-Chic"
-             class="firma-gif-desktop" />
+      <!-- Firma grafica (gif) -->
+      <div class="firma-wrapper">
+        <img
+          src="/assets/images/a-chic-firma.gif"
+          alt="Firma A-Chic"
+          class="firma-gif" />
       </div>
-
     </div>
   </div>
-</div>
-
-
-<!-- MOBILE -->
-<div *ngIf="isMobile" class="chi-siamo-overlay mobile-view">
-
-  <!-- Foto Arianna -->
-  <div class="foto-colonna arianna">
-    <img src="/assets/images/arianna_background.jpg" alt="Arianna" />
-    <p>Arianna</p>
-  </div>
-
-  <!-- Testo principale -->
-  <div class="chi-siamo-testo">
-    <p class="fade-in delay-1">
-      <strong>Sono Arianna e le mie borse nascono da un filo… di passione.</strong>
-    </p>
-
-    <p class="fade-in delay-2">
-      Ogni modello è <strong>lavorato a mano all’uncinetto</strong>,
-      punto dopo punto, con materiali scelti con amore.
-    </p>
-
-    <p class="fade-in delay-3">
-      <strong>A-Chic by Arianna</strong> è la mia casa creativa:
-      qui la tradizione artigianale incontra uno stile moderno, sobrio e chic.
-    </p>
-
-    <p class="fade-in delay-4">
-      Dietro ogni creazione ci sono notti di prove, errori trasformati in idee
-      e un entusiasmo che non mi abbandona mai.
-    </p>
-
-    <!-- Invito a condividere il progetto -->
-    <div class="supporta fade-in delay-5">
-      <p>
-        Vuoi sostenere A-Chic by Arianna? <br>
-        Condividi il mio lavoro con i tuoi amici!
-      </p>
-      <button type="button"
-              class="btn-condividi"
-              (click)="shareSite()">
-        📲 Condividi
-      </button>
-    </div>
-
-    <!-- Saluto finale -->
-    <p class="firma fade-in delay-6">
-      Benvenuti nel mio mondo.<br>
-      Un mondo fatto a mano, con il cuore.<br>
-      Un mondo semplice, autentico e… chic.
-    </p>
-
-    <!-- Firma grafica -->
-    <div class="firma-wrapper">
-      <img src="/assets/images/a-chic-firma.gif"
-           alt="Firma A-Chic"
-           class="firma-gif-prima" />
-    </div>
-  </div>
-</div>
+</section>

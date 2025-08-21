@@ -1,14 +1,13 @@
-<!-- Desktop -->
-<div *ngIf="!isMobile" class="top-banner-desktop">
-  <p>
-    <span class="marquee-segment">{{ bannerText }}</span>
-    <span class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
-  </p>
-</div>
-
-<!-- Mobile -->
-<div *ngIf="isMobile" class="top-banner-mobile">
-  <p>
+<!-- ============================================================================
+     TOP BANNER – TEMPLATE UNICO (desktop + mobile)
+     - Un solo markup; differenze di altezza, font-size, spaziatura e velocità
+       si gestiscono via SCSS con media query (.top-banner, .marquee, ecc.).
+     - Doppio <span> identico per ottenere l’effetto “marquee” in loop continuo.
+       Il secondo è aria-hidden per non ripetere il testo ai lettori di schermo.
+     - aria-live="off" evita annunci continui mentre scorre.
+     ============================================================================ -->
+<div class="top-banner" *ngIf="bannerText" role="region" aria-label="Annuncio">
+  <p class="marquee" aria-live="off">
     <span class="marquee-segment">{{ bannerText }}</span>
     <span class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
   </p>

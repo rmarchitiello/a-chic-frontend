@@ -1,79 +1,77 @@
-<!-- ========================
-     MOBILE VIEW
-========================= -->
-<ng-container *ngIf="isMobile">
+<!-- ===============================================================
+     PANNELLO AUDIO (UNICO TEMPLATE)
+     - L'overlay copre tutta la pagina quando 'attivo' è true
+     - Le transizioni di apertura/chiusura sono gestite da:
+         • classi: .attiva / .chiusura
+         • animazione: [@panelSlideAnimation]
+     - Accessibilità: role="dialog" + aria-modal
+   =============================================================== -->
+
+<!-- OVERLAY + PANEL (template unico) -->
+<div
+  class="audio-overlay"
+  [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }"
+  (click)="closeWindow()"
+  [attr.aria-hidden]="!attivo"
+  role="dialog"
+  aria-modal="true"
+>
   <div
-    class="audio-overlay-mobile"
-    [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }"
-    (click)="closeWindow()"
+    class="audio-panel"
+    [@panelSlideAnimation]="panelAnimationState"
+    (click)="$event.stopPropagation()"
   >
-    <div
-      class="audio-panel-mobile"
-      [@panelSlideAnimation]="panelAnimationState"
-      (click)="$event.stopPropagation()"
+    <!-- Chiudi: versione mobile (testo) -->
+    <button
+      type="button"
+      class="chiudi-testuale only-mobile"
+      (click)="closeWindow()"
+      aria-label="Chiudi pannello audio"
     >
-      <!-- Pulsante chiudi -->
-      <button class="chiudi-testuale-mobile" (click)="closeWindow()">Chiudi</button>
+      Chiudi
+    </button>
 
-      <!-- Titolo -->
-      <h2 class="titolo-melodie-mobile">Melodie disponibili</h2>
-
-      <!-- Lista melodie -->
-      <mat-list>
-        <mat-list-item *ngFor="let audio of assetCarllonAudioUrl; let i = index">
-          <div class="melodia-row-mobile">
-            <span>{{ audio.nome_canzone }}</span>
-            <button mat-icon-button (click)="togglePlay(audio.url, i)">
-              <mat-icon>{{ currentIndex === i && isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
-            </button>
-          </div>
-        </mat-list-item>
-      </mat-list>
-
-      <!-- Audio player -->
-      <audio #audioPlayer (ended)="onEnded()"></audio>
-    </div>
-  </div>
-</ng-container>
-
-
-<!-- ========================
-     DESKTOP VIEW
-========================= -->
-<ng-container *ngIf="!isMobile">
-  <div
-    class="audio-overlay-desktop"
-    [ngClass]="{ 'attiva': attivo, 'chiusura': panelClosing }"
-    (click)="closeWindow()"
-  >
-    <div
-      class="audio-panel-desktop"
-      [@panelSlideAnimation]="panelAnimationState"
-      (click)="$event.stopPropagation()"
+    <!-- Chiudi: versione desktop (icona) -->
+    <button
+      type="button"
+      class="chiudi-icon only-desktop"
+      mat-icon-button
+      (click)="closeWindow()"
+      aria-label="Chiudi pannello audio"
     >
-      <!-- Pulsante chiudi -->
-<!-- Pulsante "chiudi" in alto a destra -->
-<button mat-icon-button class="chiudi-icon-desktop" (click)="closeWindow()" aria-label="Chiudi pannello audio">
-  <mat-icon>close</mat-icon>
-</button>
+      <mat-icon>close</mat-icon>
+    </button>
 
-      <!-- Titolo -->
-      <h2 class="titolo-melodie-desktop">Melodie disponibili</h2>
+    <!-- Titolo -->
+    <h2 class="titolo-melodie">Melodie disponibili</h2>
 
-      <!-- Lista melodie -->
-      <mat-list>
-        <mat-list-item *ngFor="let audio of assetCarllonAudioUrl; let i = index">
-          <div class="melodia-row-desktop">
-            <span>{{ audio.nome_canzone }}</span>
-            <button mat-icon-button (click)="togglePlay(audio.url, i)">
-              <mat-icon>{{ currentIndex === i && isPlaying ? 'pause' : 'play_arrow' }}</mat-icon>
-            </button>
-          </div>
-        </mat-list-item>
-      </mat-list>
+    <!-- Lista tracce -->
+    <mat-list role="list">
+      <mat-list-item
+        role="listitem"
+        *ngFor="let audio of assetCarllonAudioUrl; let i = index"
+      >
+        <div
+          class="melodia-row"
+          [class.is-playing]="currentIndex === i && isPlaying"
+        >
+          <span class="melodia-nome">{{ audio.nome_canzone }}</span>
 
-      <!-- Audio player -->
-      <audio #audioPlayer (ended)="onEnded()"></audio>
-    </div>
+          <button
+            type="button"
+            mat-icon-button
+            (click)="togglePlay(audio.url, i)"
+            [attr.aria-label]="(currentIndex === i && isPlaying) ? 'Metti in pausa' : 'Riproduci'"
+          >
+            <mat-icon>
+              {{ (currentIndex === i && isPlaying) ? 'pause' : 'play_arrow' }}
+            </mat-icon>
+          </button>
+        </div>
+      </mat-list-item>
+    </mat-list>
+
+    <!-- Audio element -->
+    <audio #audioPlayer (ended)="onEnded()"></audio>
   </div>
-</ng-container>
+</div>

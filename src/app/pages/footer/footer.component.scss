@@ -1,293 +1,275 @@
-/* ==========================================================================
-   FOOTER MOBILE – visibile solo su viewport <= 768px
+/* ============================================================================
+   FOOTER – template unico (mobile + desktop)
+   Elimina il gap bianco sotto, gestisce safe-area e migliora il bottone freccia
+   ========================================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* Applica a entrambi i nomi se nel template esistono ancora */
+.footer,
+.footer-desktop,
+.footer-mobile {
+  background: #000;
+  color: #fff;
+  text-align: center;
+  border-top: 1px solid #222;
+  margin: 0 !important;            /* nessun margine di coda */
+  position: relative;
+  isolation: isolate;               /* per pseudo-elemento di bleed */
+
+  /* “Bleed” nero sotto il footer per coprire safe-area / piccoli gap */
+  &::after {
+    content: "";
+    display: block;
+    height: max(env(safe-area-inset-bottom, 0px), 40px); /* copre la striscia bianca */
+    background: #000;
+  }
+}
+
+/* ---------------------------
+   Newsletter (comune)
+   --------------------------- */
+.newsletter,
+.newsletter-desktop {
+  margin: 0 auto 2rem;
+  max-width: 980px;
+
+  h2 {
+    margin: 0 0 .5rem;
+    font-weight: 800;
+    letter-spacing: .2px;
+  }
+
+  p,
+  .newsletter-subtitle {
+    margin: 0 auto 1rem;
+    color: #ccc;
+  }
+
+  /* form base */
+  .newsletter-form,
+  .newsletter-form-desktop {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    margin: .25rem auto 0;
+    max-width: 560px;
+
+    input[type="email"] {
+      flex: 1;
+      min-width: 0;                       /* evita overflow */
+      padding: .8rem 1rem;
+      border: 1px solid #666;
+      border-radius: 999px;
+      background: #fff;
+      color: #000;
+      outline: none;
+      font-size: 1rem;
+      transition: border-color .2s ease, box-shadow .2s ease;
+
+      &:focus {
+        border-color: #bbb;
+        box-shadow: 0 0 0 3px rgba(255,255,255,.15);
+      }
+
+      &:disabled {
+        opacity: .7;
+      }
+    }
+
+    /* Bottone freccia migliorato */
+    button,
+    .newsletter-submit {
+      width: 3rem;
+      height: 3rem;
+      border: none;
+      border-radius: 50%;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .08s ease, background-color .2s ease, box-shadow .2s ease;
+      box-shadow: 0 4px 14px rgba(0,0,0,.25);
+
+      &:hover:not(:disabled) {
+        background: #f2f2f2;
+        transform: translateX(2px);
+      }
+      &:active:not(:disabled) {
+        transform: translateX(0) scale(.98);
+      }
+      &:disabled {
+        opacity: .6;
+        cursor: default;
+      }
+
+      /* freccia tipografica più grande e leggibile */
+      > span:not(.spinner) {
+        font-size: 1.4rem;
+        line-height: 1;
+        font-weight: 800;
+        transform: translateX(1px);
+      }
+
+      /* spinner durante l’invio */
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        display: inline-block;
+        animation: spin .8s linear infinite;
+      }
+    }
+  }
+
+  /* messaggio di risposta */
+  p[ng-reflect-ng-if],
+  .newsletter-response {
+    margin-top: .9rem;
+    font-size: .9rem;
+    color: #ccc;
+  }
+}
+
+/* ---------------------------
+   Link utili (comune)
+   --------------------------- */
+.footer-links,
+.footer-links-desktop {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 1.25rem 0 2rem;
+
+  button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    font-size: .9rem;
+    cursor: pointer;
+    padding: .5rem 1rem;
+    transition: color .2s ease;
+
+    &:hover { color: #ff69b4; }
+  }
+}
+
+/* ---------------------------
+   Social / contatti (comune)
+   --------------------------- */
+.footer-social,
+.footer-social-desktop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+
+  a svg,
+  .email-btn svg,
+  .email-btn-desktop svg {
+    width: 28px;
+    height: 28px;
+    fill: #fff;
+    transition: transform .2s ease;
+  }
+  a:hover svg,
+  .email-btn:hover svg,
+  .email-btn-desktop:hover svg {
+    transform: scale(1.2);
+  }
+
+  .email-btn,
+  .email-btn-desktop {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+/* ---------------------------
+   Frase legale (comune)
+   --------------------------- */
+.footer-tiur,
+.footer-tiur-desktop {
+  color: #ccc;
+  line-height: 1.45;
+  margin: 0 auto;
+  max-width: 560px;
+  padding-bottom: .25rem; /* piccolo respiro sopra il bleed */
+}
+
+/* ============================================================================
+   MOBILE (≤ 768px)
    ========================================================================== */
 @media (max-width: 768px) {
+  .footer,
   .footer-mobile {
-    background-color: #000;
-    color: #fff;
-    padding: 2rem 1rem;
-    text-align: center;
-    border-top: 1px solid #222;
-
-    .newsletter {
-      margin-bottom: 2rem;
-
-      h2 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-      }
-
-      p {
-        font-size: 0.9rem;
-        color: #ccc;
-        margin-bottom: 1rem;
-      }
-
-      .newsletter-form {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        max-width: 400px;
-        margin: 0 auto;
-
-        input[type='email'] {
-          flex: 1;
-          padding: 0.6rem 0.8rem;
-          border: none;
-          border-radius: 4px;
-          font-size: 0.9rem;
-          outline: none;
-        }
-
-        button {
-          width: 2.5rem;
-          height: 2.5rem;
-          border-radius: 50%;
-          border: none;
-          background-color: #fff;
-          color: #000;
-          font-size: 1.2rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-
-          &:hover:not(:disabled) {
-            background-color: #e5e5e5;
-          }
-
-          .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #000;
-            border-top-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            animation: spin 0.8s linear infinite;
-          }
-        }
-      }
-
-      p[ng-reflect-ng-if] {
-        margin-top: 0.8rem;
-        font-size: 0.85rem;
-        color: #ccc;
-      }
-    }
-
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-      margin-bottom: 1.5rem;
-
-      button {
-        background: none;
-        border: none;
-        color: #fff;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        padding: 0.4rem;
-        cursor: pointer;
-        transition: color 0.2s ease;
-
-        &:hover {
-          color: #ff69b4;
-        }
-      }
-    }
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1.5rem;
-
-      a svg,
-      .email-btn svg {
-        width: 28px;
-        height: 28px;
-        fill: #fff;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.2);
-        }
-      }
-
-      .email-btn {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-      }
-    }
-
-    .footer-tiur {
-      font-size: 0.75rem;
-      color: #ccc;
-      line-height: 1.4;
-      max-width: 280px;
-      margin: 0 auto;
-      text-align: center;
-    }
+    padding: 2rem 1rem 0; /* 0 perché il “bleed” fa da riempitivo */
   }
+
+  .newsletter h2 { font-size: 1.25rem; }
+  .newsletter p { font-size: .95rem; }
+
+  .newsletter-form input[type="email"] {
+    font-size: .95rem;
+    padding: .7rem .9rem;
+  }
+
+  .newsletter-form button {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .footer-links {
+    flex-direction: column;
+    gap: .45rem;
+    margin: 1.25rem 0 1.75rem;
+  }
+
+  .footer-tiur { font-size: .78rem; max-width: 300px; }
 }
 
-/* ==========================================================================
-   FOOTER DESKTOP – visibile su viewport >= 769px
-   Stile dark: sfondo nero, testo bianco
+/* ============================================================================
+   DESKTOP (≥ 769px)
    ========================================================================== */
 @media (min-width: 769px) {
+  .footer,
   .footer-desktop {
-    background-color: #000; // Sfondo nero
-    color: #fff;            // Testo bianco
-    padding: 3rem 2rem;
-    text-align: center;
-
-    // Sezione newsletter
-    .newsletter-desktop {
-      margin-bottom: 2rem;
-
-      h2 {
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: #fff;
-      }
-
-      p {
-        font-size: 1rem;
-        color: #ccc;
-        margin-bottom: 1rem;
-      }
-
-      // Form di iscrizione alla newsletter
-      .newsletter-form-desktop {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        max-width: 500px;
-        margin: 0 auto;
-
-        input[type="email"] {
-          flex: 1;
-          padding: 0.7rem 1rem;
-          border: 1px solid #666;
-          border-radius: 4px;
-          font-size: 1rem;
-          outline: none;
-          background-color: #fff;
-          color: #000;
-        }
-
-        button {
-          width: 3rem;
-          height: 3rem;
-          border-radius: 50%;
-          border: none;
-          background-color: #fff;
-          color: #000;
-          font-size: 1.2rem;
-          font-weight: bold;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-
-          &:hover:not(:disabled) {
-            background-color: #ccc;
-          }
-
-          // Spinner durante il caricamento
-          .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid #000;
-            border-top-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            animation: spin 0.8s linear infinite;
-          }
-        }
-      }
-
-      // Messaggio di conferma dopo invio
-      p[ng-reflect-ng-if] {
-        margin-top: 0.8rem;
-        font-size: 0.9rem;
-        color: #ccc;
-      }
-    }
-
-    // Link utili: Chi sono, Privacy, Cookie
-    .footer-links-desktop {
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-
-      button {
-        background: none;
-        border: none;
-        color: #fff;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.9rem;
-        cursor: pointer;
-        padding: 0.5rem 1rem;
-        transition: color 0.2s ease;
-
-        &:hover {
-          color: #ff69b4;
-        }
-      }
-    }
-
-    // Icone social e contatti
-    .footer-social-desktop {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-
-      a svg,
-      .email-btn-desktop svg {
-        width: 28px;
-        height: 28px;
-        fill: #fff;
-        transition: transform 0.2s ease;
-
-        &:hover {
-          transform: scale(1.2);
-        }
-      }
-
-      .email-btn-desktop {
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-      }
-    }
-
-    // Frase legale finale
-    .footer-tiur-desktop {
-      font-size: 0.8rem;
-      color: #ccc;
-      max-width: 500px;
-      margin: 0 auto;
-      line-height: 1.4;
-    }
+    padding: 3rem 2rem 0; /* 0 perché il “bleed” chiude a filo */
   }
+
+  .newsletter h2 { font-size: 1.5rem; }
+  .newsletter p { font-size: 1rem; }
+
+  .newsletter-form-desktop input[type="email"] {
+    font-size: 1rem;
+    padding: .8rem 1.1rem;
+  }
+
+  .newsletter-form-desktop button {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+
+  .footer-links-desktop { gap: 1.6rem; }
+  .footer-tiur-desktop { font-size: .85rem; }
 }
 
-/* ==========================================================================
-   Spinner animation (usata in tutti i footer)
+/* ============================================================================
+   Animazioni
    ========================================================================== */
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }

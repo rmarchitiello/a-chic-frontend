@@ -1,165 +1,156 @@
-/* ======================
-   Contenitore principale
-   ====================== */
+/* ============================================================================
+   PRIVACY POLICY – SCSS unico (mobile + desktop)
+   Obiettivo: fondo sempre BIANCO in ogni parte (niente grigi) e layout responsive.
+   ========================================================================== */
 
-/* Garantisce che il componente occupi tutta l’altezza disponibile della pagina */
+/* Contenitore principale del componente */
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100vh;     /* occupa tutta la pagina */
+  background: #fff;      /* sempre bianco */
+  box-sizing: border-box;
 
-  /* Evita che il contenuto si restringa */
-  > * {
-    flex-shrink: 0;
-  }
+  /* Evita che il contenuto si restringa in layout flessibili */
+  > * { flex-shrink: 0; }
 }
 
-/* ======================
-   Stili per la versione desktop
-   ====================== */
-.privacy-policy-card-desktop {
-  max-width: 900px;
-  margin: 3rem auto 2rem auto; // Aumentato per sollevare il div
-  padding: 2rem;
-  background-color: #ffffff;
-  border-radius: 12px;
+/* Effetto dissolvenza opzionale */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.2s forwards;
+}
+@keyframes fadeIn { to { opacity: 1; } }
+
+/* ----------------------------------------------------------------------------
+   CARD BASE (vale per mobile + desktop)
+   - Forzo tutte le superfici a bianco pieno.
+   - Disattivo l’overlay MDC che può introdurre un “velo” grigiastro.
+   ------------------------------------------------------------------------- */
+.privacy-policy-card {
   width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 
+  /* Bianco pieno ovunque (MDC + token Material) */
+  background: #fff !important;
+  --mdc-elevated-card-container-color: #fff;
+  --mat-sys-surface: #fff;
+  --mat-sys-background: #fff;
+
+  /* Rimuove eventuale overlay di elevazione delle card MDC */
+  .mdc-elevation-overlay { background: transparent !important; }
+
+  /* Tipografia e spaziature di base */
+  mat-card-header { padding: 0; }   /* usiamo il padding della card */
   mat-card-title {
-    font-size: 1.6rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #2c2c2c;
+    line-height: 1.2;
   }
-
-  mat-card-content {
-    padding-top: 1rem;
-  }
+  mat-card-content { padding: 0; }  /* gestito dal padding della card */
 
   h2 {
-    margin-top: 2rem;
-    font-size: 1.3rem;
     font-weight: 600;
     color: #333;
   }
 
   p,
   mat-list-item {
-    font-size: 1rem;
-    line-height: 1.6;
     color: #444;
+    line-height: 1.6;
     margin-bottom: 1rem;
+    white-space: normal !important;
+    display: block !important;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   a {
     color: #1976d2;
     text-decoration: underline;
     cursor: pointer;
-
-    &:hover {
-      color: #0d47a1;
-    }
+    &:hover { color: #0d47a1; }
   }
 }
 
-/* ======================
-   Azioni in fondo alla pagina (desktop)
-   ====================== */
-.form-actions-desktop {
+/* ----------------------------------------------------------------------------
+   AZIONI (bottone Home) – stili comuni
+   ------------------------------------------------------------------------- */
+.form-actions {
   text-align: center;
-  margin-top: 2rem;
-  margin-bottom: 4rem;
+  margin-top: 1.5rem;
 
   .send-button {
-    background-color: #e0e0e0;
-    color: white;
+    background-color: #e0e0e0;  /* solo il bottone è grigio, NON lo sfondo pagina */
+    color: #333;
     cursor: pointer;
-    padding: 0.6rem 1.5rem;
     border-radius: 25px;
     font-weight: 600;
-    font-size: 1rem;
     text-transform: none;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     transition: background-color 0.2s ease;
 
-    &:hover {
-        background-color: #d5d5d5;
-    }
+    &:hover { background-color: #d5d5d5; }
   }
 }
 
 /* ======================
-   Stili per la versione mobile (max 768px)
+   MOBILE – max 768px
    ====================== */
 @media (max-width: 768px) {
-  /* Contenitore che gestisce il padding per toolbar e footer mobile */
-  .mobile-page-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-
-    padding: 1rem;
-    padding-top: 64px; // margine per evitare che la toolbar copra il contenuto
-    padding-bottom: 100px; // margine per lasciare visibile il footer
-
-    background-color: #ffffff;
-  }
-
-  .privacy-policy-card-mobile {
+  .privacy-policy-card {
+    /* Card seamless con la pagina: niente bordi stondati/ombre */
     margin: 0;
-    padding: 1rem;
     border-radius: 0;
-    width: 100%;
+    box-shadow: none;
 
-    mat-card-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-    }
+    /* Padding con considerazione della safe-area iOS */
+    padding: calc(1rem + max(env(safe-area-inset-top, 0px), 0px)) 1rem 1.5rem 1rem;
 
-    h2 {
-      font-size: 1.1rem;
-      margin-top: 1.5rem;
-      font-weight: 600;
-    }
-
-    p,
-    mat-list-item {
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-bottom: 0.9rem;
-      color: #444;
-    }
-
-    a {
-      color: #1976d2;
-      text-decoration: underline;
-
-      &:hover {
-        color: #0d47a1;
-      }
-    }
+    mat-card-title { font-size: 1.3rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.25rem; }
+    p, mat-list-item { font-size: 0.95rem; }
   }
 
   .form-actions {
-    text-align: center;
-    margin-top: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
 
     .send-button {
+      width: 100%;             /* tappabile a tutta larghezza */
       font-size: 0.95rem;
-      padding: 0.5rem 1.2rem;
-      font-weight: 600;
-      border-radius: 20px;
-      background-color: #e0e0e0;
-      color: #333;
+      padding: 0.6rem 1.2rem;
+    }
+  }
+}
 
-      &:hover {
-        background-color: #d5d5d5;
-      }
+/* ======================
+   DESKTOP – min 769px
+   ====================== */
+@media (min-width: 769px) {
+  .privacy-policy-card {
+    max-width: 900px;
+    margin: 3rem auto 2rem auto;
+    padding: 2rem;
+    border-radius: 12px;
+
+    /* Per evitare qualsiasi alone grigio, nessuna ombra di default: */
+    box-shadow: none;
+
+    /* Se vuoi una lieve profondità, abilita l’ombra qui sotto: */
+    /* box-shadow: 0 8px 24px rgba(0,0,0,0.08); */
+
+    mat-card-title { font-size: 1.6rem; }
+    h2 { font-size: 1.3rem; margin-top: 2rem; }
+    p, mat-list-item { font-size: 1rem; }
+  }
+
+  .form-actions {
+    margin-top: 2rem;
+    margin-bottom: 4rem;
+
+    .send-button {
+      font-size: 1rem;
+      padding: 0.6rem 1.5rem;
     }
   }
 }
