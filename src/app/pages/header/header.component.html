@@ -1,23 +1,34 @@
-<!-- HEADER DESKTOP -->
-<mat-toolbar *ngIf="!isMobile" class="desktop-header" color="primary">
-  <img
-    (click)="goToHome('/home')"
-    class="logo-desktop-center"
-    src="assets/home/images/Logo.png"
-    alt="Logo" />
-</mat-toolbar>
-
-<!-- HEADER MOBILE -->
-<mat-toolbar *ngIf="isMobile" class="mobile-header" color="primary">
-  <button mat-icon-button (click)="toggleMenu()" aria-label="Apri menu" class="menu-button">
+<!-- =============================================================================
+     HEADER TEMPLATE UNICO (mobile + desktop)
+     - Un solo <mat-toolbar> per entrambe le modalità
+     - Le differenze di layout/visibilità (hamburger, dimensione logo, allineamenti)
+       si gestiscono SOLO via media queries nello SCSS del componente.
+     - Il bottone hamburger richiama toggleMenu(), che nel TS del componente
+       emette l’Output (menuToggle) verso il parent (AppComponent).
+     ============================================================================ -->
+<mat-toolbar class="app-header" color="primary">
+  <!-- Bottone hamburger:
+       - Visibile su mobile, nascosto su desktop via CSS
+       - L’handler toggleMenu() deve emettere this.menuToggle.emit() nel TS -->
+  <button
+    mat-icon-button
+    class="menu-button"
+    aria-label="Apri menu di navigazione"
+    (click)="toggleMenu()">
     <mat-icon>menu</mat-icon>
   </button>
 
+  <!-- Logo cliccabile:
+       - Allineato al centro su desktop tramite flex + margini auto in CSS
+       - Dimensioni differenziate via media query -->
   <img
-    (click)="goToHome('/home')"
     class="logo"
     src="assets/home/images/Logo.png"
-    alt="Logo" />
+    alt="Logo"
+    (click)="goToHome('/home')" />
 
+  <!-- Spazio di bilanciamento a destra:
+       - Serve a mantenere il logo centrato quando l’hamburger è visibile a sinistra
+       - Nascosto o ridimensionato via CSS su desktop -->
   <span class="right-space"></span>
 </mat-toolbar>

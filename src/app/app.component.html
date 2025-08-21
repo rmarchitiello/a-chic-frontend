@@ -1,20 +1,50 @@
-<!-- ============================= -->
-<!-- BLOCCO MOBILE PER ADMIN -->
-<!-- ============================= -->
+<!-- =============================================================================
+     APP COMPONENT TEMPLATE (UNICO)
+     - Un solo <mat-sidenav> con template condiviso per mobile e desktop
+     - Logica di visibilità e comportamento gestita da isMobile / isAdmin e dallo SCSS
+     - Le differenze visive tra mobile/desktop si gestiscono via media queries
+     ============================================================================ -->
+
+<!-- =============================================================================
+     BLOCCO: ACCESSO ADMIN BLOCCATO SU MOBILE
+     - Se l’utente è admin e si trova su mobile, mostriamo un messaggio e nascondiamo
+       il resto del layout per evitare l’uso dell’area admin su dispositivi mobili.
+     ============================================================================ -->
 <div *ngIf="isMobile && isAdmin" class="mobile-blocked">
   <h2>Accesso ADMIN non disponibile su mobile</h2>
   <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
 </div>
 
-<!-- ============================= -->
-<!-- DESKTOP -->
-<!-- ============================= -->
-<ng-container *ngIf="!isMobile">
+<!-- =============================================================================
+     LAYOUT PRINCIPALE (UNICO)
+     - Reso visibile solo se NON siamo nel caso “admin su mobile”
+     - Contiene:
+       1) Overlay di caricamento durante il refresh cache
+       2) Pulsanti fissi per gestione admin (logout / refresh)
+       3) Sidenav container condiviso
+          3.1) Sidenav unico (#sidenav) con albero categorie
+          3.2) Contenuto scroller con banner, header e corpo pagina (router-outlet)
+     ============================================================================ -->
+<ng-container *ngIf="!(isMobile && isAdmin)">
+
+  <!-- ===========================================================================
+       OVERLAY DI CARICAMENTO
+       - Visibile quando isRefreshing è true (es. durante refresh della cache)
+       ======================================================================== -->
   <div class="spinner-overlay" *ngIf="isRefreshing">
-    <mat-progress-spinner mode="indeterminate" diameter="48" strokeWidth="4" color="primary">
+    <mat-progress-spinner
+      mode="indeterminate"
+      diameter="48"
+      strokeWidth="4"
+      color="primary">
     </mat-progress-spinner>
   </div>
-  <!-- Logout admin -->
+
+  <!-- ===========================================================================
+       AZIONI ADMIN FISSE
+       - Visibili quando l’utente è in modalità admin (tipicamente su desktop)
+       - Puoi regolare la visibilità via CSS per nasconderle su mobile, se necessario
+       ======================================================================== -->
   <div *ngIf="isAdmin" class="admin-logout">
     <button mat-stroked-button color="warn" (click)="logoutAdmin()">
       Esci da modalità admin
@@ -22,31 +52,51 @@
     <button mat-stroked-button color="warn" (click)="refreshCache()">
       Refresh della cache
     </button>
-    <!-- Spinner visibile solo durante il refresh -->
-
   </div>
 
-  <!-- Header -->
-  <app-header></app-header>
+  <!-- ===========================================================================
+       CONTENITORE SIDENAV CONDIVISO
+       - Unico container per mobile e desktop
+       - Le dimensioni, lo scrolling e altri dettagli si regolano via SCSS e media query
+       ======================================================================== -->
+  <mat-sidenav-container class="sidenav-container">
 
-  <!-- Pulsante apertura/chiusura sidenav -->
-  <div class="sidenav-handler" (click)="desktopSidenavOpenFun()" [class.aperta]="desktopSidenavOpen">
-    <mat-icon>{{ desktopSidenavOpen ? 'chevron_left' : 'chevron_right' }}</mat-icon>
-  </div>
+    <!-- =======================================================================
+         SIDENAV UNICO
+         - Reference unica #sidenav
+         - Il comportamento cambia in base a isMobile:
+             * mode="over"  su mobile  (menu a scomparsa)
+             * mode="side"  su desktop (menu affiancato o persistente)
+         - Lo stato di apertura è legato alle variabili esistenti:
+             * mobileMenuOpen  quando isMobile === true
+             * desktopSidenavOpen quando isMobile === false
+         - openedChange:
+             * Sincronizza la variabile corretta in base a isMobile
+             * Chiama onDrawerState(opened) per blocco/sblocco dello scroll
+         ==================================================================== -->
+    <mat-sidenav
+      #sidenav
+      [mode]="isMobile ? 'over' : 'side'"
+      [opened]="isMobile ? mobileMenuOpen : desktopSidenavOpen"
+      (openedChange)="(isMobile ? mobileMenuOpen = $event : desktopSidenavOpen = $event); onDrawerState($event)"
+      (backdropClick)="sidenav.close()"
+      (keydown.escape)="sidenav.close()">
 
-  <!-- Layout principale -->
-  <mat-sidenav-container class="desktop-sidenav-container">
-
-    <!-- ====================== -->
-    <!-- SIDENAV DESKTOP -->
-    <!-- ====================== -->
-    <mat-sidenav #sidenavDesktop mode="side" [(opened)]="desktopSidenavOpen" class="desktop-sidenav">
+      <!-- =====================================================================
+           CONTENUTO DEL MENU LATERALE (ALBERO CATEGORIE)
+           - Struttura unica per mobile/desktop
+           - Le classi sono comuni; differenze estetiche via SCSS
+           - Comportamento:
+             * Click su livello 1: apre/chiude rami o naviga se foglia
+             * Click su livello 2: come sopra
+             * Click su livello 3 (bottoni): naviga e chiude il menu
+           ================================================================== -->
       <div class="sidenav-content">
 
-        <!-- Azioni admin: visibili solo su desktop e solo se admin -->
-        <div *ngIf="isAdmin" class="admin-sidenav-actions">
+        <!-- Azioni admin opzionali nel menu (visibili solo se admin e non mobile) -->
+        <div *ngIf="isAdmin && !isMobile" class="admin-sidenav-actions">
           <button mat-stroked-button color="primary" (click)="apriAdminFolderPopUp()"
-            matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
+                  matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
             <mat-icon>create_new_folder</mat-icon>
             Gestisci cartelle
           </button>
@@ -56,95 +106,32 @@
         <!-- Livello 1: categorie root -->
         <ng-container *ngFor="let categoriaNew of categorieNew">
 
-          <!-- Nodo L1: click = apri/chiudi ramo 'categoriaNew' -->
-          <div class="sidenav-categoria-desktop" (click)="saveCategoriaAndToggle(categoriaNew)">
-            {{ capitalizeFirstLetter(categoriaNew) }}
-          </div>
-
-          <!-- Livello 2: figli diretti di L1 -->
-          <!-- Rimane aperto se L1 è selezionato o se l'espanso è un suo discendente -->
-          <div class="sidenav-sottocategorie livello-2" *ngIf="isPathOpen(categoriaNew)">
-
-            <!-- Ogni 'childPath' è un path completo tipo 'borse/conchiglia' -->
-            <div class="sidenav-sottocategoria"
-              *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
-              (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
-
-              <!-- etichetta = ultimo segmento leggibile -->
-              {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
-
-              <!-- Livello 3: figli diretti di L2 -->
-              <div class="sidenav-sottocategorie livello-3" *ngIf="isPathOpen(childPath)">
-
-                <!-- Ogni 'grandChildPath' è un path completo tipo 'borse/conchiglia/perlata' -->
-                <!-- click = NAVIGA passando il path completo (un solo argomento) -->
-                <div class="sidenav-sottocategoria"
-                  *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
-                  (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
-                  {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-    </mat-sidenav>
-
-    <!-- ====================== -->
-    <!-- CONTENUTO DESKTOP -->
-    <!-- ====================== -->
-    <mat-sidenav-content>
-      <div class="main-layout">
-        <div class="desktop-page-container" [ngClass]="{ 'home-page': isHomeRoute }">
-          <router-outlet></router-outlet>
-        </div>
-        <app-footer *ngIf="!isMobile"></app-footer>
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-
-  <!-- Chat desktop -->
-  <!-- togliere commento x abilitare <app-live-chat></app-live-chat> -->
-</ng-container>
-
-<!-- ============================= -->
-<!-- MOBILE (solo se non admin) -->
-<!-- ============================= -->
-<ng-container *ngIf="isMobile && !isAdmin">
-
-  <mat-sidenav-container class="sidenav-container">
-    <!-- ====================== -->
-    <!-- SIDENAV MOBILE -->
-    <!-- ====================== -->
-    <mat-sidenav
-      #sidenav
-      mode="over"
-      [(opened)]="mobileMenuOpen"
-      (openedChange)="onDrawerState($event)"
-      (backdropClick)="sidenav.close()"
-      (keydown.escape)="sidenav.close()">
-
-      <div class="sidenav-content">
-        <ng-container *ngFor="let categoriaNew of categorieNew">
+          <!-- Nodo L1 -->
           <div class="sidenav-categoria"
                [class.attiva]="isPathOpen(categoriaNew)"
                (click)="saveCategoriaAndToggle(categoriaNew)">
             {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
+          <!-- Contenitore L2: visibile se il path L1 è aperto -->
           <div class="sotto-container" *ngIf="isPathOpen(categoriaNew)" [@expandCollapse]>
+
+            <!-- Ogni childPath è un path completo (es. 'borse/conchiglia') -->
             <div class="sotto-categoria"
                  *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
                  (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
               {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
 
+              <!-- Contenitore L3: visibile se il path L2 è aperto -->
               <div class="filtro-container" *ngIf="isPathOpen(childPath)" [@expandCollapse]>
+
+                <!-- Ogni grandChildPath è un path completo (es. 'borse/conchiglia/perlata') -->
                 <button class="filtro-categoria"
                         *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
                         (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
                   {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
                 </button>
+
               </div>
             </div>
           </div>
@@ -152,22 +139,29 @@
       </div>
     </mat-sidenav>
 
-    <!-- ====================== -->
-    <!-- CONTENUTO MOBILE (scroller) -->
-    <!-- ====================== -->
+    <!-- =======================================================================
+         CONTENUTO SCORREVOLE (DESTRA)
+         - Contiene top banner, header e corpo pagina
+         - cdkScrollable: necessario per la tua logica di scroll dispatcher
+         ==================================================================== -->
     <mat-sidenav-content cdkScrollable>
+
+      <!-- Banner superiore (opzionale, già in uso) -->
       <app-top-banner></app-top-banner>
 
-      <!-- Header mobile: apre/chiude la sidenav mobile -->
-      <!-- Il lock/unlock dello scroll è gestito da (openedChange) sul mat-sidenav -->
+      <!-- Header unico:
+           - L’icona hamburger (se presente nel componente) emette (menuToggle)
+           - Il toggle agisce sempre sullo stesso #sidenav -->
       <app-header (menuToggle)="sidenav.toggle()"></app-header>
 
-      <div class="mobile-page-container">
+      <!-- Contenitore principale pagina:
+           - Usa una classe unica (page-container); se necessario puoi mantenere
+             classi legacy in parallelo per non rompere lo SCSS esistente -->
+      <div class="page-container" [ngClass]="{ 'home-page': isHomeRoute }">
         <router-outlet></router-outlet>
         <app-footer></app-footer>
         <!-- <app-live-chat></app-live-chat> -->
       </div>
     </mat-sidenav-content>
   </mat-sidenav-container>
-
 </ng-container>

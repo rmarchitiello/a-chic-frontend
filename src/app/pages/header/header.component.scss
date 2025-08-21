@@ -1,10 +1,8 @@
-
-
 /* =========================================
    HEADER COMPONENT (app-header)
+   - Template unico (mobile + desktop)
    - Sticky dentro lo scroller Material
-   - Safe-area iOS gestita sull'header
-   - Stili mobile e desktop
+   - Safe-area iOS gestita lato mobile
    ========================================= */
 
 :host {
@@ -12,110 +10,158 @@
   width: 100%;
 }
 
-/* =====================================
-   HEADER MOBILE: hamburger sx, logo centro
-   ===================================== */
+/* ==========================================================================
+   MOBILE (<= 768px)
+   - Griglia a 3 colonne: [hamburger 40px][logo][spazio 40px]
+   - Altezza barra: 40px, logo: 26px
+   ========================================================================== */
 @media (max-width: 768px) {
   :host {
     position: sticky;
-    top: 0;                  /* si incolla alla linea dello scroller */
+    top: 0;
     z-index: 1000;
     display: block;
     background: #fff;
+    padding-top: max(env(safe-area-inset-top, 0px), 0px);
   }
 
-  /* Forza la toolbar (e la sua row interna) ad usare una griglia 3 colonne */
-  .mobile-header,
-  .mobile-header > .mat-toolbar-row,
-  .mobile-header > .mat-mdc-toolbar-row{
-    background: transparent !important;
-    color: #000 !important;
-    box-shadow: none !important;
-    border: 0 !important;
+  .app-header,
+  .app-header > .mat-toolbar-row,
+  .app-header > .mat-mdc-toolbar-row {
+    background: transparent;
+    color: #000;
+    box-shadow: none;
+    border: 0;
 
-    display: grid !important;
-    grid-template-columns: var(--bar-h) 1fr var(--bar-h); /* [menu][logo][spazio] */
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
     align-items: center;
     width: 100%;
-    height: var(--bar-h);
-    min-height: var(--bar-h) !important;
+    height: 40px;
+    min-height: 40px;
 
-    white-space: nowrap;   /* evita l’andare a capo */
-    text-align: left !important; /* annulla text-align:center globali */
+    white-space: nowrap;
+    text-align: left;
   }
 
-  /* evita hairline/righe dei temi */
   :host::before, :host::after,
-  .mobile-header::before, .mobile-header::after{ content: none !important; }
+  .app-header::before, .app-header::after { content: none; }
 
-  .menu-button{
+  .menu-button {
     grid-column: 1;
     justify-self: start;
-    border: 0; background: transparent;
-    display: inline-flex; align-items: center; justify-content: center;
-    width: var(--bar-h); height: var(--bar-h); padding: 0; margin: 0;
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+
+    .mat-icon, mat-icon {
+      color: currentColor;
+      line-height: 1;
+      display: block;
+    }
   }
 
-  .mobile-header .mat-icon,
-  .mobile-header mat-icon{
-    color: currentColor; line-height: 1; display: block;
-  }
-
-  /* Logo centrato e inline, per non creare una nuova riga */
-  .mobile-header .logo{
+  .logo {
     grid-column: 2;
     justify-self: center;
-    display: inline-block !important;  /* sovrascrive eventuale display:block globali */
-    height: 26px; width: auto;
-    cursor: pointer; user-select: none;
-    margin: 0 !important;
+    display: inline-block;
+    height: 26px;
+    width: auto;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
   }
 
-  .mobile-header .right-space{
+  .right-space {
     grid-column: 3;
     justify-self: end;
-    width: var(--bar-h);
+    width: 40px;
+    height: 1px;
+  }
+}
+
+/* ==========================================================================
+   DESKTOP (>= 769px)
+   - Griglia a 3 colonne: [hamburger 72px][logo][spazio 72px]
+   - Altezza barra: 72px, logo: 48px
+   - Ombra leggera per separare
+   - L’hamburger resta visibile su desktop
+   ========================================================================== */
+@media (min-width: 769px) {
+  :host {
+    position: sticky;
+    top: 0;
+    z-index: 1100;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding-top: 0;
+  }
+
+  .app-header,
+  .app-header > .mat-toolbar-row,
+  .app-header > .mat-mdc-toolbar-row {
+    background: transparent;
+    color: #000;
+
+    display: grid;
+    grid-template-columns: 72px 1fr 72px; /* hamburger a sinistra, logo centrato, spazio di bilanciamento */
+    align-items: center;
+    width: 100%;
+    height: 72px;
+    min-height: 72px;
+  }
+
+  .menu-button {
+    grid-column: 1;
+    justify-self: start;
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    padding: 0;
+    margin: 0;
+
+    .mat-icon, mat-icon {
+      color: currentColor;
+      line-height: 1;
+      display: block;
+      font-size: 24px; /* opzionale, Material gestisce la size di default */
+    }
+  }
+
+  .logo {
+    grid-column: 2;
+    justify-self: center;
+    display: inline-block;
+    height: 48px;
+    width: auto;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+  }
+
+  .right-space {
+    grid-column: 3;
+    justify-self: end;
+    width: 72px;
     height: 1px;
   }
 }
 
 /* =========================
-   DESKTOP (≥ 769px)
-   ========================= */
-@media (min-width: 769px) {
-  :host {
-    position: sticky; /* resta in vista in cima anche su desktop */
-    top: 0;
-    z-index: 1100;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-
-  .desktop-header {
-    background: transparent !important; /* usa lo sfondo dell’host */
-    color: #000 !important;
-    height: 72px;
-    min-height: 72px !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .desktop-header .logo-desktop-center {
-    height: 48px;
-    width: auto;
-    display: block;
-    cursor: pointer;
-    user-select: none;
-  }
-}
-
-/* =========================
    NOTE TECNICHE:
-   - Richiede in index.html: <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-   - Non applicare padding-top di safe-area al body o al contenitore che scorre (.mat-sidenav-content),
-     per evitare “gradini” o header che scompare sotto la tacca.
-   - Per ancore interne, imposta scroll-padding-top sul contenitore che scorre nel foglio globale:
-       .mat-drawer-content, .mat-sidenav-content { scroll-padding-top: calc(40px + env(safe-area-inset-top)); }
+   - Richiede in index.html:
+     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+   - Non applicare padding-top di safe-area al body o al contenitore che scorre (.mat-sidenav-content).
+   - Per ancore interne, imposta scroll-padding-top sul contenitore che scorre:
+     .mat-drawer-content, .mat-sidenav-content { scroll-padding-top: 56px; } 
    ========================= */

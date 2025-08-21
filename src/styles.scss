@@ -1,9 +1,11 @@
-/* ===== Reset & background globale: status bar bianca su iPhone ===== */
+/* =========================================
+   Global reset + status bar iOS bianca
+   ========================================= */
 html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background: #fff !important;        /* la status bar prende questo colore */
+  background: #fff !important;      /* colore di fondo globale (status bar iOS) */
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
 }
@@ -11,110 +13,34 @@ html, body {
 /* Evita che iOS ingrandisca i font */
 html { -webkit-text-size-adjust: 100%; }
 
-/* Forza tema chiaro per evitare superfici “grigiastre” in dark mode */
+/* Forza tema chiaro a livello UA */
 :root { color-scheme: light; }
 
-/* Allinea i token di Material a superfici bianche */
-:root{
-  --mat-sys-background: #fff;
-  --mat-sys-surface: #fff;
-  --mat-sidenav-container-background-color: #fff;
-  --mat-sidenav-content-background-color: #fff;
-  --mat-toolbar-container-background-color: #fff;
-  --mat-toolbar-container-text-color: #000;
-
-    /* offset totale sotto la status bar/notch + altezza top bar */
-  --topbar-offset: calc(env(safe-area-inset-top) + 32px);
-  --toolbar-h: 40px;
-}
-
-/* Se in una pagina NON c’è la top bar */
-
-/* Contenitori principali Material/Angular: tutti bianchi */
-.mat-drawer-container,
-.mat-drawer-content,
-.mat-drawer,
-.mat-sidenav-content,
-.mat-sidenav {
-  background: #fff !important;
-}
-
-/* Toolbar bianca (se vuoi non-trasparente) + testo/icone nere */
-.mobile-header.mat-toolbar.mat-primary,
-.mobile-header.mat-mdc-toolbar.mat-primary,
-.desktop-header {
-  background: #fff !important;
-  color: #000 !important;
-}
-
-/* Sezioni del sito che usavano grigi -> portale a bianco */
-.creazioni-desktop,
-.creazioni-mobile {
-  background: #fff !important;
-}
-
-/* Media/carousel: alcune slide avevano bg #f8f8f8 -> bianco */
-.carousel-slide-desktop img,
-.carousel-slide-desktop video,
-.carousel-slide-desktop audio,
-.carousel-slide-mobile img,
-.carousel-slide-mobile video,
-.carousel-slide-mobile audio,
-.carousel-slide-recensioni-desktop img,
-.carousel-slide-recensioni-desktop video,
-.carousel-slide-recensioni-desktop audio,
-.carousel-slide-recensioni-mobile img,
-.carousel-slide-recensioni-mobile video,
-.carousel-slide-recensioni-mobile audio {
-  background: #fff !important; /* oppure transparent */
-}
-
-/* */
-/* Mobile: tappo fisso in alto, senza env()/constant() 
-sto creando una sorta di div, che va a sovrastare la safe bar
-in modo da colorarla come piace a me
-ma e una fake colorazione perche in realta non si colora veramente
-solo con theme color in html posso colorarla */
+/* Mobile portrait: “tappo” fisso sotto la safe-area/notch */
 @media (max-width: 768px) and (orientation: portrait) {
   html::before,
   body::before {
     content: "";
     position: fixed;
     top: 0; left: 0; right: 0;
-    /* iOS 11 vecchi (se presenti) */
-   /* qua sto indicando una linea sottile di 1 px 
-    questa linea sottile e subito dopo l area di safe
-    serve perche da quell area in poi deve partire lo scroll
-    e quando l header tocca quell area si aggancia */
     height: constant(safe-area-inset-top);
-    /* iOS moderni + fallback minimo per il “0 al primo paint” */
-    height: max( env(safe-area-inset-top), 1px ); //al momento la metto bianca una sottile barra bianca di 1 px
+    height: max(env(safe-area-inset-top), 1px);
     background: #fff;
     pointer-events: none;
     z-index: 1;
   }
 }
 
-
-
-
-
-
-
-
-
-
-/* ===========================================================
-   DESKTOP (≥ 769px)
-   =========================================================== */
+/* =========================================
+   Desktop base typography
+   ========================================= */
 @media (min-width: 769px) {
   html, body {
-    font-family: 'Montserrat', sans-serif; /* Font elegante per desktop */
+    font-family: 'Montserrat', sans-serif;
     font-size: 16px;
     line-height: 1.6;
     color: #222;
   }
-
 }
 
 
