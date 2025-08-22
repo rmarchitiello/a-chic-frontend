@@ -1,8 +1,7 @@
 /* =========================================
    HEADER COMPONENT (app-header)
-   - Template unico (mobile + desktop)
-   - Sticky dentro lo scroller Material
-   - Safe-area iOS gestita lato mobile
+   - Header più alto
+   - Dietro al banner (desktop via z-index; mobile via offset top)
    ========================================= */
 
 :host {
@@ -10,16 +9,17 @@
   width: 100%;
 }
 
-/* ==========================================================================
+/* =========================================
    MOBILE (<= 768px)
-   - Griglia a 3 colonne: [hamburger 40px][logo][spazio 40px]
-   - Altezza barra: 40px, logo: 26px
-   ========================================================================== */
+   - Griglia: [hamburger 64][logo][spazio 64]
+   - Barra: 64px, logo ~42px (più grande e centrato)
+   - Offset sotto al banner: usa valore fisso (puoi collegarlo a una var)
+   ========================================= */
 @media (max-width: 768px) {
   :host {
     position: sticky;
-    top: 0;
-    z-index: 1000;
+    top: 30px;                  /* altezza banner mobile attuale */
+    z-index: 100;               /* il banner sopra resta visivamente davanti */
     display: block;
     background: #fff;
     padding-top: max(env(safe-area-inset-top, 0px), 0px);
@@ -34,14 +34,14 @@
     border: 0;
 
     display: grid;
-    grid-template-columns: 40px 1fr 40px;
+    grid-template-columns: 64px 1fr 64px; /* ↑ menu/spazio più ampi */
     align-items: center;
+    justify-items: center;                 /* logo davvero centrato */
     width: 100%;
-    height: 40px;
-    min-height: 40px;
-
+    height: 64px;                          /* ↑ altezza barra */
+    min-height: 64px;
     white-space: nowrap;
-    text-align: left;
+    text-align: center;                    /* ulteriore garanzia di centratura */
   }
 
   :host::before, :host::after,
@@ -55,15 +55,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 64px;              /* ↑ */
+    height: 64px;             /* ↑ */
     padding: 0;
     margin: 0;
+    cursor: pointer;
 
     .mat-icon, mat-icon {
       color: currentColor;
       line-height: 1;
       display: block;
+      font-size: 28px;        /* ↑ icona un po’ più grande */
+    }
+
+    &:focus-visible {
+      outline: 2px solid #0ea5e9;
+      outline-offset: 2px;
+      border-radius: 6px;
     }
   }
 
@@ -71,7 +79,7 @@
     grid-column: 2;
     justify-self: center;
     display: inline-block;
-    height: 26px;
+    height: 42px;             /* ↑ logo più grande e ben visibile */
     width: auto;
     cursor: pointer;
     user-select: none;
@@ -81,25 +89,24 @@
   .right-space {
     grid-column: 3;
     justify-self: end;
-    width: 40px;
+    width: 64px;              /* ↑ */
     height: 1px;
   }
 }
 
-/* ==========================================================================
+/* =========================================
    DESKTOP (>= 769px)
-   - Griglia a 3 colonne: [hamburger 72px][logo][spazio 72px]
-   - Altezza barra: 72px, logo: 48px
-   - Ombra leggera per separare
-   - L’hamburger resta visibile su desktop
-   ========================================================================== */
+   - Griglia: [hamburger 88][logo][spazio 88]
+   - Barra: 88px, logo ~56px
+   - z-index sotto al banner (banner z-index: 1002)
+   ========================================= */
 @media (min-width: 769px) {
   :host {
     position: sticky;
     top: 0;
-    z-index: 1100;
+    z-index: 1001;           /* < 1002 del banner => header dietro al banner */
     background: #fff;
-    box-shadow: none; // riga sotto alla barra header
+    box-shadow: none;
     padding-top: 0;
   }
 
@@ -110,11 +117,11 @@
     color: #000;
 
     display: grid;
-    grid-template-columns: 72px 1fr 72px; /* hamburger a sinistra, logo centrato, spazio di bilanciamento */
+    grid-template-columns: 88px 1fr 88px;
     align-items: center;
     width: 100%;
-    height: 72px;
-    min-height: 72px;
+    height: 88px;
+    min-height: 88px;
   }
 
   .menu-button {
@@ -125,8 +132,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 72px;
-    height: 72px;
+    width: 88px;
+    height: 88px;
     padding: 0;
     margin: 0;
 
@@ -134,7 +141,13 @@
       color: currentColor;
       line-height: 1;
       display: block;
-      font-size: 24px; /* opzionale, Material gestisce la size di default */
+      font-size: 24px;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #0ea5e9;
+      outline-offset: 2px;
+      border-radius: 6px;
     }
   }
 
@@ -142,7 +155,7 @@
     grid-column: 2;
     justify-self: center;
     display: inline-block;
-    height: 48px;
+    height: 56px;
     width: auto;
     cursor: pointer;
     user-select: none;
@@ -152,16 +165,12 @@
   .right-space {
     grid-column: 3;
     justify-self: end;
-    width: 72px;
+    width: 88px;
     height: 1px;
   }
 }
 
-/* =========================
-   NOTE TECNICHE:
-   - Richiede in index.html:
-     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-   - Non applicare padding-top di safe-area al body o al contenitore che scorre (.mat-sidenav-content).
-   - Per ancore interne, imposta scroll-padding-top sul contenitore che scorre:
-     .mat-drawer-content, .mat-sidenav-content { scroll-padding-top: 56px; } 
-   ========================= */
+/* NOTE:
+   - Desktop: il banner ha z-index 1002; l’header a 1001 resta “dietro”.
+   - Mobile: il banner è nel flusso (static); l’offset top dell’header lo posiziona sotto.
+*/

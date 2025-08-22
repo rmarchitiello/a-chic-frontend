@@ -1,13 +1,18 @@
 /* =========================================
    Global reset + status bar iOS bianca
    ========================================= */
+/* =========================================================
+   GLOBAL RESET — scroll SOLO sul body
+   ========================================================= */
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
-  background: #fff !important;      /* colore di fondo globale (status bar iOS) */
-  -webkit-overflow-scrolling: touch;
+  height: auto;
+  min-height: 100vh;               /* oppure 100% se preferisci */
+  overflow-y: auto;                 /* lo scroller è il body */
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: #fff !important;      /* colore status bar iOS */
 }
 
 /* Evita che iOS ingrandisca i font */

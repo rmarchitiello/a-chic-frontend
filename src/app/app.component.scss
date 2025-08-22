@@ -81,12 +81,12 @@
 
   /* Drawer mobile:
      - overlay sotto banner + header
-     - scroller indipendente registrato con cdk */
+     - scroll DISABILITATO sul sidenav */
   mat-sidenav {
     min-width: 200px;
     max-width: 80vw;
     background-color: #fff;
-    overflow-y: auto;
+    overflow-y: hidden;
     display: flex;
     flex-direction: column;
     border: none;
@@ -110,14 +110,10 @@
      - lo sticky dell’header vive qui
      - altezza piena per evitare doppio scroll su body */
   .mat-sidenav-content {
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-
-    /* offset iniziale di 1px o safe-area */
-    padding-top: constant(safe-area-inset-top);
+    height: auto;          /* lascia crescere il contenuto */
+    overflow: visible;      /* niente scroller qui */
+    position: static;       /* evita nuovi contesti di scroll */
+    transform: none;        /* safety per sticky in iOS */
     padding-top: max(env(safe-area-inset-top), 1px);
   }
 
@@ -209,13 +205,13 @@
 
   /* Drawer desktop:
      - larghezza fissa
-     - scroller interno
+     - SCROLL DISABILITATO sul sidenav
      - nessun posizionamento fixed */
   .sidenav-container mat-sidenav {
     width: 260px;
     max-width: 30vw;
     background-color: #fff;
-    overflow-y: auto;
+    overflow: hidden; /* <-- cambiato da overflow-y: auto */
     display: flex;
     flex-direction: column;
     border: none;
