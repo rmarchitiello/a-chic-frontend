@@ -1,21 +1,25 @@
+/* =========================================================
+   APP COMPONENT SCSS (ripulito)
+   - Nessuna gestione scroller qui: è tutta in styles.scss
+   - Solo layout, overlay e stile locale del componente
+   ========================================================= */
+
 :host {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh; /* meglio di 100vh su mobile per le UI bars */
   font-family: 'Montserrat', sans-serif;
 }
 
-/* ==========================================================================
-   ELEMENTI GLOBALI (VALGONO PER MOBILE E DESKTOP)
-   ========================================================================== */
+/* ==================================================================
+   GLOBALI (valide per mobile e desktop) — no scroller qui
+   ================================================================== */
 
-/* Globale, fuori dai media query (vale per mobile e desktop) */
+/* Contenitori interni che animano l'altezza: possono clipparsi */
 .sotto-container,
 .filtro-container {
-  overflow: hidden;
-  /* evita che il contenuto “sbordi” durante l’animazione di height */
-  will-change: height, opacity;
-  /* hint al browser per l’animazione */
+  overflow: hidden;                 /* evita sbordi durante animazioni */
+  will-change: height, opacity;     /* hint performance */
 }
 
 /* Overlay spinner durante refresh cache */
@@ -45,286 +49,94 @@
   }
 }
 
-/* ==========================================================================
+/* ==================================================================
    MOBILE (<= 768px)
-   ========================================================================== */
+   - Scroller = BODY (gestito in styles.scss)
+   - Qui solo layout del sidenav e dei contenitori pagina
+   ================================================================== */
 @media (max-width: 768px) {
 
-  /* Blocco ADMIN su mobile */
-  .mobile-blocked {
-    max-width: 90%;
-    margin: 5rem auto;
-    padding: 2rem;
-    text-align: center;
-    background-color: #fef2f2;
-    border: 1px solid #f5c2c7;
-    border-radius: 8px;
-    color: #b02a37;
-
-    h2 {
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-    }
-
-    p {
-      font-size: 1rem;
-      color: #721c24;
-    }
-  }
-
-  /* Contenitore generale del layout con sidenav */
+  /* Wrapper layout */
   .sidenav-container {
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
   }
 
   /* Drawer mobile:
      - overlay sotto banner + header
-     - scroll DISABILITATO sul sidenav */
+     - scroll DEL Sidenav disabilitato (come da tua policy) */
   mat-sidenav {
     min-width: 200px;
     max-width: 80vw;
     background-color: #fff;
-    overflow-y: hidden;
+    overflow-y: hidden;             /* no scroll nel menu laterale */
     display: flex;
     flex-direction: column;
     border: none;
 
+    /* Posizionato sotto safe-area + banner (32px) + header (64px) */
     position: fixed !important;
-    top: calc(env(safe-area-inset-top) + 2.5rem + 40px);
-    /* safe-area + banner (2.5rem) + header (40px) */
-    height: calc(100% - env(safe-area-inset-top) - 2.5rem - 40px);
+    top: calc(env(safe-area-inset-top, 0px) + 32px + 64px);
+    height: calc(100dvh - env(safe-area-inset-top, 0px) - 32px - 64px);
     z-index: 2000;
   }
 
-  /* Contenitore pagina:
-     - nessuno scroll interno, padding inferiore per footer/contenuti */
+  /* Contenitore pagina — nessuno scroll interno */
   .page-container {
     overflow: visible;
     padding: 0;
-    padding-bottom: 0px;
+    padding-bottom: 0; /* niente spazio extra sotto */
   }
 
-  /* Scroller principale:
-     - lo sticky dell’header vive qui
-     - altezza piena per evitare doppio scroll su body */
-  .mat-sidenav-content {
-    height: auto;          /* lascia crescere il contenuto */
-    overflow: visible;      /* niente scroller qui */
-    position: static;       /* evita nuovi contesti di scroll */
-    transform: none;        /* safety per sticky in iOS */
-    padding-top: max(env(safe-area-inset-top), 1px);
-  }
-
-  /* Importante per iOS/Material: evita che un transform rompa lo sticky */
-  .mat-sidenav-content,
-  .mat-drawer-content {
-    transform: none !important;
-    will-change: auto !important;
-  }
-
-  /* Azioni admin nel menu laterale: su mobile nascoste per policy */
-  .admin-sidenav-actions {
-    display: none;
-  }
-
-  /* Albero categorie – livello 1 */
-  .sidenav-categoria {
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin: 0.4rem 0 0.5rem;
-    color: #333;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s, color 0.3s;
-
-    &:first-child {
-      margin-top: 1.5rem;
-    }
-
-    &:hover {
-      background-color: #e1f4f6;
-    }
-
-    &.attiva {
-      background-color: #d7f2f4;
-      color: #000;
-    }
-  }
-
-  /* Albero categorie – livello 2 */
-  .sotto-categoria {
-    padding-left: 1.5rem;
-    font-size: 1.1rem;
-    color: #444;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 0.3rem;
-
-    &:hover {
-      color: #222;
-    }
-  }
-
-  /* Albero categorie – livello 3 */
-  .filtro-categoria {
-    padding-left: 2.5rem;
-    font-size: 1rem;
-    color: #666;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 0.25rem;
-
-    &:hover {
-      color: #000;
-    }
-  }
-
-
+  /* NOTE:
+     - NON mettere qui regole per .mat-sidenav-content/.mat-drawer-content:
+       sono gestite in styles.scss per evitare "sticky killers". */
 }
 
-/* ==========================================================================
+/* ==================================================================
    DESKTOP (>= 769px)
-   ========================================================================== */
+   - Scroller = .mat-sidenav-content (gestito in styles.scss)
+   - Qui solo layout e stile locale
+   ================================================================== */
 @media (min-width: 769px) {
 
-  /* Contenitore generale del layout con sidenav */
   .sidenav-container {
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
   }
 
-  /* Drawer desktop:
-     - larghezza fissa
-     - SCROLL DISABILITATO sul sidenav
-     - nessun posizionamento fixed */
+  /* Drawer desktop: larghezza fissa, senza posizionamento fixed */
   .sidenav-container mat-sidenav {
     width: 260px;
     max-width: 30vw;
     background-color: #fff;
-    overflow: hidden; /* <-- cambiato da overflow-y: auto */
+    overflow: hidden;        /* disabilita scroll del menu laterale */
     display: flex;
     flex-direction: column;
     border: none;
   }
 
-  /* Contenitore pagina:
-     - stile simile al mobile per uniformità
-     - possibilità di rimuovere padding sulla home */
+  /* Contenitore pagina */
   .page-container {
     overflow: visible;
     padding: 0;
-    padding-bottom: 0px; //elimino la barra sotto lo spazio nel footer
+    padding-bottom: 0; /* elimina la “barra” vuota sotto il footer */
 
     &.home-page {
       padding: 0 !important;
     }
   }
 
-  /* Scroller principale */
-  .sidenav-container .mat-sidenav-content {
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* Evita che transform rompa sticky e calcoli height */
-  .sidenav-container .mat-sidenav-content,
-  .sidenav-container .mat-drawer-content {
-    transform: none !important;
-    will-change: auto !important;
-  }
-
-  /* Azioni admin nel menu laterale */
-  .admin-sidenav-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin: 0.5rem 0 1rem;
-
-    .hint {
-      color: #666;
-      font-size: 0.85rem;
-      margin-left: 0.25rem;
-    }
-  }
-
-  /* Albero categorie – livello 1 (stile allineato al mobile) */
-  .sidenav-categoria {
-    font-weight: 600;
-    font-size: 1.05rem;
-    margin: 0.4rem 0 0.5rem;
-    color: #333;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s, color 0.3s;
-
-    &:first-child {
-      margin-top: 1.5rem;
-    }
-
-    &:hover {
-      background-color: #e1f4f6;
-    }
-
-    &.attiva {
-      background-color: #d7f2f4;
-      color: #000;
-    }
-  }
-
-  /* Albero categorie – livello 2 */
-  .sotto-categoria {
-    padding-left: 1.5rem;
-    font-size: 1.1rem;
-    color: #444;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 0.3rem;
-
-    &:hover {
-      color: #222;
-    }
-  }
-
-  /* Albero categorie – livello 3 */
-  .filtro-categoria {
-    padding-left: 2.5rem;
-    font-size: 1rem;
-    color: #666;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    width: 100%;
-    margin-bottom: 0.25rem;
-
-    &:hover {
-      color: #000;
-    }
-  }
-
-
+  /* NOTE:
+     - NON ridefinire qui overflow/height di .mat-sidenav-content:
+       in desktop lo scroller è abilitato da styles.scss. */
 }
 
-/* ==========================================================================
+/* ==================================================================
    ADMIN POPUP (Angular Material)
-   ========================================================================== */
+   ================================================================== */
 
 /* Dialog fullscreen editor */
 ::ng-deep .cdk-overlay-pane.popup-admin-editor {
@@ -353,7 +165,7 @@
 
 ::ng-deep .popup-admin-editor .mat-mdc-dialog-content {
   flex: 1 1 auto !important;
-  overflow-y: auto !important;
+  overflow-y: auto !important;  /* lo scroll del contenuto dialog resta interno al dialog */
   max-height: 100% !important;
   padding: 2rem !important;
 }
@@ -378,5 +190,5 @@
 
 ::ng-deep .popup-admin-folder .mat-mdc-dialog-content {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 0; /* evita overflow sul contenuto scrollabile del dialog */
 }

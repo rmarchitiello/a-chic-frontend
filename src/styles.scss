@@ -1,52 +1,136 @@
-/* =========================================
-   Global reset + status bar iOS bianca
-   ========================================= */
 /* =========================================================
-   GLOBAL RESET — scroll SOLO sul body
+   GESTIONE DI CHI SCROLLA — styles.scss (fonte unica)
+   - MOBILE  (<=768px): scorre il DOCUMENTO (html/body)
+   - DESKTOP (>=769px): scorre .mat-sidenav-content / .mat-drawer-content
+   - Niente “sticky killers” (overflow/transform) sui wrapper
+   - Blocca lo scroll-chaining e stabilizza la scrollbar su desktop
    ========================================================= */
+
+/* ——— BASE (sempre) ——— */
 html, body {
   margin: 0;
   padding: 0;
-  height: auto;
-  min-height: 100vh;               /* oppure 100% se preferisci */
-  overflow-y: auto;                 /* lo scroller è il body */
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  background: #fff !important;      /* colore status bar iOS */
+  min-height: 100vh;
+  -webkit-overflow-scrolling: touch;   /* inerzia iOS */
+  background: #fff !important;         /* status bar iOS chiara */
 }
-
-/* Evita che iOS ingrandisca i font */
 html { -webkit-text-size-adjust: 100%; }
-
-/* Forza tema chiaro a livello UA */
 :root { color-scheme: light; }
 
-/* Mobile portrait: “tappo” fisso sotto la safe-area/notch */
-@media (max-width: 768px) and (orientation: portrait) {
-  html::before,
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: constant(safe-area-inset-top);
-    height: max(env(safe-area-inset-top), 1px);
-    background: #fff;
-    pointer-events: none;
-    z-index: 1;
+/* Wrapper Material: NON deve clippar e non deve trasformare */
+mat-sidenav-container {
+  overflow: visible !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Content wrappers: niente transform/sticky-killers */
+.mat-sidenav-content,
+.mat-drawer-content,
+.cdkScrollable {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Desktop “qualità vita”: niente jump quando appare la scrollbar */
+@media (hover: hover) and (pointer: fine) {
+  .sidenav-container .mat-sidenav-content { scrollbar-gutter: stable both-edges; }
+}
+
+/* Sezione mobile per gestire lo scroll e che l header si attacca subito sotto
+il notch */
+/* =========================================================
+   MOBILE (<= 768px) — scorre il DOCUMENTO (html/body)
+   - Applica safe-area al documento
+   - Azzeriamo overflow/transform su TUTTI i wrapper tipici
+     che possono rompere lo sticky dell’header
+   ========================================================= */
+@media (max-width: 768px) {
+  /* Documento = scroller + safe-area (notch) */
+  html, body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding-top: env(safe-area-inset-top, 0); /* sotto al notch */
+    background: #fff;                         /* status bar chiara */
+  }
+
+  /* —— KILL STICKY-KILLERS sugli antenati dell’header —— */
+  app-root,
+  mat-sidenav-container,
+  .sidenav-container,
+  .mat-sidenav-content,
+  .mat-drawer-content,
+  mat-drawer-content,
+  .page-container {
+    /* niente scroll/clipping/stacking context */
+    overflow: visible !important;
+    position: static !important;
+    transform: none !important;
+    contain: initial !important;
+    will-change: auto !important;
+  }
+
+  /* Il sidenav, se presente, non deve scrollare su mobile */
+  mat-sidenav { overflow: hidden !important; }
+}
+
+
+
+/* =========================================================
+   DESKTOP (>= 769px) — scorre .mat-sidenav-content / .mat-drawer-content
+   ========================================================= */
+@media (min-width: 769px) {
+  /* Il documento NON scorre (evita doppi scroll) */
+  html, body {
+    overflow: hidden !important;
+    height: 100% !important;  /* aiuta alcuni browser a rispettare il blocco */
+  }
+
+  /* Scroller principale = .mat-sidenav-content */
+  .sidenav-container .mat-sidenav-content,
+  .mat-sidenav-content {
+    height: 100vh !important;              /* fallback */
+    height: 100dvh !important;             /* migliore con UI bars moderne */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;         /* sicuro per sticky/stacking */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;        /* non “passare” lo scroll all’html */
+  }
+
+  /* Se usi mat-drawer-content come content principale, stesso trattamento */
+  .sidenav-container .mat-drawer-content,
+  .mat-drawer-content {
+    height: 100vh !important;
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 }
 
-/* =========================================
-   Desktop base typography
-   ========================================= */
-@media (min-width: 769px) {
-  html, body {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #222;
-  }
+/* =========================================================
+   EDGE CASES ANGULAR MATERIAL
+   ========================================================= */
+
+/* MatDialog: il CDK blocca lo scroll del body quando è aperto (giusto così) */
+.cdk-global-scrollblock { overflow: hidden !important; }
+
+/* (Opzionale) Verniciatura notch iOS
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: env(safe-area-inset-top, 0px);
+  background: #fff;
+  pointer-events: none;
+  z-index: 1100;
 }
+*/
+
 
 
 /* GESTIONE DEI POP UP E COME FUNZIONANO

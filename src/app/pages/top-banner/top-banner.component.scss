@@ -1,67 +1,75 @@
 /* ============================================================
-   TOP BANNER COMPONENT – template unico (mobile + desktop)
+   TOP BANNER COMPONENT — mobile statico, desktop statico
    ============================================================ */
 
-/* Contenitore del componente (neutro) */
+/* Contenitore componente (neutro) */
 :host {
   display: block;
   box-sizing: border-box;
 }
 
-/* Nodo banner (colore, testo e clipping orizzontale) */
+/* Nodo banner (colore + clipping orizzontale per marquee) */
 .top-banner {
-  background: #000;   /* colore del banner */
-  color: #fff;        /* colore del testo */
-  overflow: hidden;   /* nasconde il testo che scorre ai bordi */
+  background: #000;           /* colore del banner */
+  color: #fff;                /* colore del testo */
+  overflow: hidden;           /* taglia il testo ai bordi */
+  transform: none;            /* evita nuovi stacking/contesti */
 }
 
-/* Riga testuale che scorre (due copie di testo per loop continuo) */
+/* Riga testuale che scorre (loop continuo) */
 .marquee {
   margin: 0;
   display: flex;
   align-items: center;
   gap: 2rem;
   white-space: nowrap;
-  width: max-content;        /* la riga si misura sul contenuto */
-  will-change: transform;    /* hint prestazioni */
+  width: max-content;         /* la riga si misura sul contenuto */
+  will-change: transform;     /* hint prestazioni */
 }
 
 .marquee-segment {
-  display: inline-block;     /* evita a capo e mantiene il flusso inline */
+  display: inline-block;      /* no a-capo; resta inline */
 }
 
 /* ============================
-   MOBILE (≤ 768px): non sticky
+   MOBILE (≤ 768px): statico
    ============================ */
 @media (max-width: 768px) {
   .top-banner {
-    position: static;     /* scorre nel flusso */
-    min-height: 32px;     /* ↓ da 40px */
-    padding-inline: 0.5rem; /* ↓ da 0.6rem */
+    position: static;         /* scorre nel flusso */
+    height: 32px;             /* fisso (coerente con header offset) */
+    line-height: 32px;        /* opz.: centra verticalmente il testo */
+    padding-inline: 0.5rem;
   }
 
-  /* Velocità e animazione del testo su mobile */
   .marquee {
     animation: marquee-mobile 20s linear infinite;
   }
 }
 
 /* ============================
-   DESKTOP (≥ 769px): sticky
+   DESKTOP (≥ 769px): statico
    ============================ */
 @media (min-width: 769px) {
   .top-banner {
-    position: sticky;   /* resta agganciato al top quando si scrolla */
-    top: 0;             /* bordo superiore del viewport/container */
-    height: 1.8rem;     /* ↓ da 2.2rem */
-    padding-inline: 0.6rem; /* ↓ da 0.75rem */
-    z-index: 1002;      /* sopra al contenuto, sotto header modali */
+    position: static;         /* resta nel flusso (non sticky) */
+    height: 1.8rem;           /* ≈ 28.8px */
+    line-height: 1.8rem;      /* opz.: centratura verticale */
+    padding-inline: 0.6rem;
+    z-index: auto;            /* nessun layering speciale necessario */
   }
 
-  /* Velocità e animazione del testo su desktop */
   .marquee {
     animation: marquee-desktop 28s linear infinite;
   }
+
+  /* —— Opzionale: se un giorno lo vuoi sticky su desktop ——
+  .top-banner {
+    position: sticky;
+    top: 0;
+    z-index: 1002;            // header a 1001 resta “sotto”
+  }
+  */
 }
 
 /* ============================
@@ -80,7 +88,5 @@
    Accessibilità: riduzione movimento
    ============================ */
 @media (prefers-reduced-motion: reduce) {
-  .marquee {
-    animation-duration: 999s;  /* quasi fermo, ma non “salta” */
-  }
+  .marquee { animation-duration: 999s; }  /* quasi fermo, niente “salti” */
 }
