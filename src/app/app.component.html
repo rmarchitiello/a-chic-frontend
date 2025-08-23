@@ -32,11 +32,7 @@
        - Visibile quando isRefreshing è true (es. durante refresh della cache)
        ======================================================================== -->
   <div class="spinner-overlay" *ngIf="isRefreshing">
-    <mat-progress-spinner
-      mode="indeterminate"
-      diameter="48"
-      strokeWidth="4"
-      color="primary">
+    <mat-progress-spinner mode="indeterminate" diameter="48" strokeWidth="4" color="primary">
     </mat-progress-spinner>
   </div>
 
@@ -59,7 +55,8 @@
        - Unico container per mobile e desktop
        - Le dimensioni, lo scrolling e altri dettagli si regolano via SCSS e media query
        ======================================================================== -->
-  <mat-sidenav-container class="sidenav-container">
+  <mat-sidenav-container class="sidenav-container" (backdropClick)="sidenav.close()"
+    > <!-- oscura lo schermo -->
 
     <!-- =======================================================================
          SIDENAV UNICO
@@ -74,12 +71,9 @@
              * Sincronizza la variabile corretta in base a isMobile
              * Chiama onDrawerState(opened) per blocco/sblocco dello scroll
          ==================================================================== -->
-    <mat-sidenav
-      #sidenav
-      [mode]="isMobile ? 'over' : 'side'"
+    <mat-sidenav class="app-sidenav" #sidenav [mode]="isMobile ? 'over' : 'side'"
       [opened]="isMobile ? mobileMenuOpen : desktopSidenavOpen"
       (openedChange)="(isMobile ? mobileMenuOpen = $event : desktopSidenavOpen = $event); onDrawerState($event)"
-      (backdropClick)="sidenav.close()"
       (keydown.escape)="sidenav.close()">
 
       <!-- =====================================================================
@@ -96,7 +90,7 @@
         <!-- Azioni admin opzionali nel menu (visibili solo se admin e non mobile) -->
         <div *ngIf="isAdmin && !isMobile" class="admin-sidenav-actions">
           <button mat-stroked-button color="primary" (click)="apriAdminFolderPopUp()"
-                  matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
+            matTooltip="Visualizza tutte le cartelle e aggiungine di nuove (max 3 livelli)">
             <mat-icon>create_new_folder</mat-icon>
             Gestisci cartelle
           </button>
@@ -107,9 +101,8 @@
         <ng-container *ngFor="let categoriaNew of categorieNew">
 
           <!-- Nodo L1 -->
-          <div class="sidenav-categoria"
-               [class.attiva]="isPathOpen(categoriaNew)"
-               (click)="saveCategoriaAndToggle(categoriaNew)">
+          <div class="sidenav-categoria" [class.attiva]="isPathOpen(categoriaNew)"
+            (click)="saveCategoriaAndToggle(categoriaNew)">
             {{ capitalizeFirstLetter(categoriaNew) }}
           </div>
 
@@ -118,8 +111,8 @@
 
             <!-- Ogni childPath è un path completo (es. 'borse/conchiglia') -->
             <div class="sotto-categoria"
-                 *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
-                 (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
+              *ngFor="let childPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, categoriaNew)"
+              (click)="saveCategoriaAndToggle(childPath); $event.stopPropagation()">
               {{ capitalizeFirstLetter(childPath.split('/').slice(-1)[0]) }}
 
               <!-- Contenitore L3: visibile se il path L2 è aperto -->
@@ -127,8 +120,8 @@
 
                 <!-- Ogni grandChildPath è un path completo (es. 'borse/conchiglia/perlata') -->
                 <button class="filtro-categoria"
-                        *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
-                        (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
+                  *ngFor="let grandChildPath of getChildrenPaths(mapFolderWithCategorieESottoCategorie, childPath)"
+                  (click)="goToAndCloseSideNav(grandChildPath); $event.stopPropagation()">
                   {{ capitalizeFirstLetter(grandChildPath.split('/').slice(-1)[0]) }}
                 </button>
 

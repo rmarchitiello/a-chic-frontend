@@ -281,31 +281,35 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
    *  - ripristino esattamente lo scroll precedente
    */
   onDrawerState(opened: boolean): void {
-    if (!this.isMobile) return; // su desktop non applico lo scroll-lock
+  // Desktop: non faccio nulla (deve poter scorrere .mat-sidenav-content)
+  if (!this.isMobile) return;
 
-    const scroller = this.getScrollerElement();
-    if (!scroller) return;
+  const body = document.body;
 
-    if (opened) {
-      this._lockedScrollTop = scroller.scrollTop || 0;
+  if (opened) {
+    // salvo la posizione attuale e congelo il body
+    this._lockedScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
 
-      scroller.style.position = 'fixed';
-      scroller.style.top = `-${this._lockedScrollTop}px`;
-      scroller.style.left = '0';
-      scroller.style.right = '0';
-      scroller.style.width = '100%';
-    } else {
-      scroller.style.position = '';
-      scroller.style.top = '';
-      scroller.style.left = '';
-      scroller.style.right = '';
-      scroller.style.width = '';
+    body.classList.add('no-scroll');
+    body.style.position = 'fixed';
+    body.style.top = `-${this._lockedScrollTop}px`;
+    body.style.left = '0';
+    body.style.right = '0';
+    body.style.width = '100%';
+    body.style.overflow = 'hidden'; // cintura di sicurezza
+  } else {
+    // sblocco e ripristino la posizione
+    body.classList.remove('no-scroll');
+    body.style.position = '';
+    body.style.top = '';
+    body.style.left = '';
+    body.style.right = '';
+    body.style.width = '';
+    body.style.overflow = '';
 
-      scroller.scrollTo({ top: this._lockedScrollTop });
-      scroller.scrollTop = this._lockedScrollTop;
-    }
+    window.scrollTo(0, this._lockedScrollTop);
   }
-
+}
   /**
    * Handler legacy che usavo per aprire/chiudere il menu su desktop
    * con il pulsante flottante. Ora che ho un solo sidenav, preferisco
