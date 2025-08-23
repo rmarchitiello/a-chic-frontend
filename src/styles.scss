@@ -34,7 +34,8 @@ mat-sidenav-container {
 
 /* Desktop “qualità vita”: niente jump quando appare la scrollbar */
 @media (hover: hover) and (pointer: fine) {
-  .sidenav-container .mat-sidenav-content { scrollbar-gutter: stable both-edges; }
+  .sidenav-container .mat-sidenav-content { scrollbar-gutter: stable both-edges; } // se  voglio ggiungere padding sul dinevav faccio scrollbar-gutter: stable both-edges;
+
 }
 
 /* Sezione mobile per gestire lo scroll e che l header si attacca subito sotto
@@ -77,40 +78,53 @@ il notch */
 
 
 
-/* =========================================================
-   DESKTOP (>= 769px) — scorre .mat-sidenav-content / .mat-drawer-content
-   ========================================================= */
 @media (min-width: 769px) {
-  /* Il documento NON scorre (evita doppi scroll) */
   html, body {
     overflow: hidden !important;
-    height: 100% !important;  /* aiuta alcuni browser a rispettare il blocco */
+    height: 100% !important;
   }
 
-  /* Scroller principale = .mat-sidenav-content */
-  .sidenav-container .mat-sidenav-content,
-  .mat-sidenav-content {
-    height: 100vh !important;              /* fallback */
-    height: 100dvh !important;             /* migliore con UI bars moderne */
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    position: relative !important;         /* sicuro per sticky/stacking */
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;        /* non “passare” lo scroll all’html */
+  .mat-sidenav-container,
+  .sidenav-container {
+    height: 100dvh;
   }
 
-  /* Se usi mat-drawer-content come content principale, stesso trattamento */
-  .sidenav-container .mat-drawer-content,
+  /* Larghezza reale del sidenav in mode="side" */
+  .mat-sidenav-container .mat-sidenav.mat-drawer-side {
+    width: 280px !important;
+    flex: 0 0 280px !important;
+    border-right: 1px solid #e9e9e9;
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Colore reale del pannello (rosso di test) */
+  .mat-sidenav-container .mat-sidenav .mat-drawer-inner-container {
+    background: red;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  /* Unico scroller = content (niente gutter a sinistra) */
+  .mat-sidenav-container .mat-sidenav-content,
+  .mat-sidenav-content,
   .mat-drawer-content {
     height: 100vh !important;
     height: 100dvh !important;
+    padding: 0 !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
     position: relative !important;
+    overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable; /* <— NON both-edges */
   }
+
+  /* Rete di sicurezza: toglila se vedi che Material fa già il calcolo giusto */
+  /* .mat-sidenav-container .mat-sidenav-content { margin-left: 280px !important; } */
 }
+
 
 /* =========================================================
    EDGE CASES ANGULAR MATERIAL

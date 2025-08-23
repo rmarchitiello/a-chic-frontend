@@ -94,10 +94,11 @@
        sono gestite in styles.scss per evitare "sticky killers". */
 }
 
+
 /* ==================================================================
    DESKTOP (>= 769px)
    - Scroller = .mat-sidenav-content (gestito in styles.scss)
-   - Qui solo layout e stile locale
+   - Sidenav ROSSA + rimozione padding interno del contenuto
    ================================================================== */
 @media (min-width: 769px) {
 
@@ -107,32 +108,137 @@
     flex-direction: column;
   }
 
-  /* Drawer desktop: larghezza fissa, senza posizionamento fixed */
-  .sidenav-container mat-sidenav {
-    width: 260px;
+  /* Wrapper del drawer: dimensioni e separazione.
+     Lascio trasparente; il colore lo metto nell'inner container. */
+  .sidenav-container mat-sidenav,
+  .sidenav-container .app-sidenav {
+    width: 280px;
     max-width: 30vw;
-    background-color: #fff;
-    overflow: hidden;        /* disabilita scroll del menu laterale */
+    background: transparent;              /* il fondo visibile è dentro */
+    border-right: 1px solid #e9e9e9;
+    box-shadow: 0 2px 24px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
-    border: none;
+    overflow: hidden;                      /* niente scroll nel menu */
+    outline: none;
+    padding: 0;
   }
 
-  /* Contenitore pagina */
+  /* Pannello visibile: qui rendo la sidenav ROSSA */
+  :host ::ng-deep mat-sidenav .mat-drawer-inner-container,
+  :host ::ng-deep .app-sidenav .mat-drawer-inner-container {
+    background: #fff !important;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* Contenuto del menu: qui rimuovo il padding che vedi in verde */
+  .sidenav-content {
+    padding: 0;                 /* <— rimuovo la fascia interna */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Azioni admin nel menu */
+  .admin-sidenav-actions {
+    padding: 8px 8px 12px 8px;
+    margin-bottom: 8px;
+    background: #fafafa;
+    border: 1px solid #efefef;
+    border-radius: 10px;
+
+    button { line-height: 1.2; height: 36px; }
+    .hint { display: block; margin-top: 6px; color: #6b7280; font-size: 12px; }
+  }
+
+  /* =========================
+     Livello 1: Categorie root
+     ========================= */
+  .sidenav-categoria {
+    font-weight: 600;
+    font-size: 15px;
+    color: #222;
+    padding: 10px 12px;         /* tengo il padding sul singolo item */
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+  .sidenav-categoria:hover { background-color: rgba(255, 255, 255, 0.18); }
+  .sidenav-categoria.attiva {
+    background-color: rgba(255, 255, 255, 0.30);
+    color: #111;
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  /* ========================================
+     Livello 2: Sotto-categorie (contenitore)
+     ======================================== */
+  .sotto-container {
+    padding-left: 6px;
+    margin: 4px 0;
+    border-left: 2px solid rgba(255, 255, 255, 0.35);
+  }
+  .sotto-categoria {
+    font-weight: 500;
+    font-size: 14px;
+    color: #111;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 140ms ease;
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .sotto-categoria:hover { background: rgba(255, 255, 255, 0.24); }
+
+  /* ======================================
+     Livello 3: Filtri / foglie (button)
+     ====================================== */
+  .filtro-container {
+    padding-left: 10px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    border-left: 2px dashed rgba(255, 255, 255, 0.35);
+  }
+  .filtro-categoria {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #ffffff;
+    color: #444;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 120ms ease, border-color 120ms ease, transform 60ms ease;
+  }
+  .filtro-categoria:hover { background-color: #f9fafb; border-color: #e7e7e7; }
+  .filtro-categoria:active { transform: translateY(1px); }
+  .filtro-categoria:focus-visible { box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.14); border-color: #d0d0d0; }
+
+  /* =======================
+     Contenitore della pagina
+     ======================= */
   .page-container {
     overflow: visible;
     padding: 0;
-    padding-bottom: 0; /* elimina la “barra” vuota sotto il footer */
-
-    &.home-page {
-      padding: 0 !important;
-    }
+    padding-bottom: 0;
+    &.home-page { padding: 0 !important; }
   }
-
-  /* NOTE:
-     - NON ridefinire qui overflow/height di .mat-sidenav-content:
-       in desktop lo scroller è abilitato da styles.scss. */
 }
+
+
 
 /* ==================================================================
    ADMIN POPUP (Angular Material)
