@@ -1,39 +1,38 @@
 /* =========================================================
-   APP COMPONENT SCSS (ripulito + overlay)
-   - Non gestisco lo scroller (è in styles.scss)
-   - Qui curo layout locale, sidenav (bianca) e CDK overlay
+   APP COMPONENT SCSS
+   - Layout locale, Sidenav (mobile + desktop) e Overlay
+   - Lo scroller globale (body o contenuto) resta in styles.scss
    ========================================================= */
 
 :host {
-  /* === TOKEN (facili da cambiare) === */
-  --sidenav-bg: #ffffff;        /* Colore pannello sidenav (bianco pieno) */
-  --menu-text: #111111;         /* Colore testo generale voci menu         */
-  --hover-bg: #f6f6f7;          /* Bg su hover (se lo vuoi disattivo: = #fff) */
-  --active-bg: #f1f1f1;         /* Bg su “attiva” (se lo vuoi disattivo: = #fff) */
-  --gap-l1: 12px;               /* Spazio verticale tra categorie L1       */
-  --gap-l2: 8px;                /* Spazio tra sotto-categorie L2           */
-  --gap-l3: 6px;                /* Spazio tra filtri L3                    */
-  --pad-x: 12px;                /* Padding orizzontale comune              */
+  /* ====== Token di stile ====== */
+  --sidenav-bg: #ffffff;        /* Superficie del pannello laterale */
+  --menu-text: #111111;         /* Colore testo di default (fallback) */
+
+  /* Colori per livello (scuro → chiaro → molto chiaro) */
+  --cat-color:    #111111;      /* L1: categoria */
+  --subcat-color: #555555;      /* L2: sotto-categoria */
+  --filter-color: #888888;      /* L3: filtro */
+
+  /* Spaziature base */
+  --gap-l1: 12px;               /* Spazio verticale tra blocchi L1 */
+  --gap-l2: 8px;                /* Spazio verticale tra voci L2 */
+  --gap-l3: 6px;                /* Spazio verticale tra voci L3 */
+
+  /* Padding orizzontale del contenuto (creo aria a sinistra) */
+  --pad-x: 20px;
 
   display: flex;
   flex-direction: column;
-  min-height: 100dvh; /* meglio di 100vh su mobile per le UI bars */
+  min-height: 100dvh;           /* Evito glitch con UI bars mobile */
   font-family: 'Montserrat', sans-serif;
   color: var(--menu-text);
 }
 
-/* ==================================================================
-   GLOBALI (valide per mobile e desktop) — no scroller qui
-   ================================================================== */
 
-/* Contenitori che animano l'altezza: li posso clippar senza artefatti */
-.sotto-container,
-.filtro-container {
-  overflow: hidden;
-  will-change: height, opacity;
-}
-
-/* Overlay spinner durante refresh cache */
+/* =========================================================
+   Overlay spinner durante refresh cache
+   ========================================================= */
 .spinner-overlay {
   position: fixed;
   inset: 0;
@@ -46,7 +45,10 @@
   z-index: 1000;
 }
 
-/* Pulsanti admin fissi */
+
+/* =========================================================
+   Pulsanti amministrazione in overlay fisso
+   ========================================================= */
 .admin-logout {
   position: fixed;
   top: 10px;
@@ -60,149 +62,148 @@
   }
 }
 
-/* ========= RESET TOTALE voci menu (cat / sotto-cat / filtri) =========
-   Voglio elementi PIATTI: nessun bordo, nessuna ombra, niente “press”.
-   Mantengo solo outline tastiera per accessibilità.                   */
-.sidenav-categoria,
-.sotto-categoria,
-.filtro-categoria {
-  display: block;
-  width: 100%;
-  background: #fff;                 /* coerente col pannello bianco */
-  color: var(--menu-text);
-  line-height: 1.3;
-  border: none !important;
-  box-shadow: none !important;
-  transform: none !important;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-  cursor: pointer;
-  word-break: break-word;
-}
-.sidenav-categoria:hover,
-.sotto-categoria:hover,
-.filtro-categoria:hover {
-  background: var(--hover-bg);
-  box-shadow: none !important;
-}
-.sidenav-categoria:active,
-.sotto-categoria:active,
-.filtro-categoria:active {
-  background: var(--hover-bg);
-  transform: none !important;
-  box-shadow: none !important;
-  filter: none !important;
-}
-.sidenav-categoria.attiva,
-.sotto-categoria.attiva,
-.filtro-categoria.attiva {
-  background: var(--active-bg);
-}
-.sidenav-categoria:focus-visible,
-.sotto-categoria:focus-visible,
-.filtro-categoria:focus-visible {
-  box-shadow: none !important;
-  outline: 2px solid rgba(17, 24, 39, 0.22);
-  outline-offset: 2px;
-}
 
 /* ==================================================================
    MOBILE (<= 768px)
-   - Scroller = BODY (gestito in styles.scss)
-   - Pannello visibile del drawer DEVE essere bianco pieno
+   - Scorre il BODY (lock/unlock gestito globalmente)
+   - Pannello visibile bianco pieno, angoli netti
    ================================================================== */
 @media (max-width: 768px) {
 
-  /* Wrapper layout */
   .sidenav-container {
     min-height: 100dvh;
     display: flex;
     flex-direction: column;
   }
 
-  /* Drawer mobile (wrapper) */
+  /* Wrapper <mat-sidenav> a pieno schermo */
   mat-sidenav {
     min-width: 260px;
-    max-width: 86vw;
-    background-color: var(--sidenav-bg);  /* comunque bianco, ma l’inner decide */
-    overflow-y: hidden;                    /* niente scroll nel menu laterale */
+    width: 100vw;
+    height: 100dvh;
+    border-radius: 0 !important;
+    background-color: var(--sidenav-bg);
     display: flex;
     flex-direction: column;
     border: none;
-
-    /* Posizionato sotto safe-area + banner (32px) + header (64px) */
-    position: fixed !important;
-    top: calc(env(safe-area-inset-top, 0px) + 32px + 64px);
-    height: calc(100dvh - env(safe-area-inset-top, 0px) - 32px - 64px);
-    z-index: 2000;
   }
 
-  /* PANEL VISIBILE DEL SIDENAV (necessario per bianco pieno) */
+  /* Superficie interna animata da Material */
   :host ::ng-deep mat-sidenav .mat-drawer-inner-container {
-    background: var(--sidenav-bg) !important; /* opaco, non trasparente */
+    background: var(--sidenav-bg) !important;
+    border-radius: 0 !important;
     opacity: 1 !important;
-    overflow: hidden !important;              /* niente scroll interno */
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    overflow: hidden !important;   /* niente scroll interno su mobile */
   }
 
-  /* Contenuto del menu: aria in alto così “Borse” non parte attaccato */
+  /* Contenuto del menu: aria e riferimento per la X */
   .sidenav-content {
-    padding: 16px var(--pad-x) 12px;
+    position: relative;
+    padding: 80px var(--pad-x) 16px;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l1);
     background: transparent;
   }
 
-  /* Livello 1: Categorie root (dimensioni comode al tatto) */
+  /* Pulsante chiusura */
+  .chiudi-btn-sidenav {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: var(--pad-x);
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    color: #000;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  /* ===== Livello 1: CATEGORIA ===== */
   .sidenav-categoria {
+    color: var(--cat-color);
     font-weight: 700;
     font-size: 16px;
     padding: 12px 14px;
-    border-radius: 10px; /* se la vuoi squadrata: 0 */
-    margin: 0;           /* separazione gestita da gap del contenitore */
+    border-radius: 10px;       /* portare a 0 se serve look squadrato */
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
   }
 
-  /* Contenitore L2 (niente guide laterali) */
+  /* Avvicino L2 alla L1: distanza finale ~4px (più stretta di prima) */
+  .sidenav-categoria + .sotto-container {
+    margin-top: calc(-1 * var(--gap-l1) + 4px);
+  }
+
+  /* ===== Contenitore L2 (SOTTO-CATEGORIA) ===== */
   .sotto-container {
-    margin: 8px 0 0 0;
-    padding-left: 8px;   /* lieve indentazione */
+    padding-left: 8px;         /* leggera indentazione */
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l2);
   }
 
+  /* Voce L2: compatta e colore più chiaro */
   .sotto-categoria {
+    color: var(--subcat-color);
     font-weight: 600;
     font-size: 15px;
-    padding: 10px 12px;
-    min-height: 42px;
+    padding: 8px 12px;         /* compatto verticalmente */
+    min-height: unset;
     border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
   }
 
-  /* Contenitore L3 (filtri) */
+  /* ===== Contenitore L3 (FILTRI) =====
+     Avvicino ancora di più: distanza L2→L3 ~2px */
   .filtro-container {
-    margin: 6px 0 0 0;
-    padding-left: 10px;  /* ulteriore indent per profondità */
+    margin-top: 2px;           /* prima era 6px */
+    padding-left: 10px;        /* ulteriore indentazione */
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l3);
   }
 
+  /* Voce L3: molto chiara, piatta, senza underline */
   .filtro-categoria {
+    color: var(--filter-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+
     font-weight: 600;
     font-size: 14px;
-    padding: 10px 12px;
-    min-height: 40px;
-    border-radius: 999px; /* look pill; se non ti piace: 8px o 0 */
+    line-height: 1.2;
+
+    padding: 8px 0;
+    min-height: auto;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
   }
 
-  /* Contenitore pagina — nessuno scroll interno (scorre il body) */
+  .filtro-categoria:hover,
+  .filtro-categoria:focus,
+  .filtro-categoria.attiva {
+    text-decoration: none;
+    background: transparent !important;
+  }
+
   .page-container {
     overflow: visible;
     padding: 0;
@@ -213,9 +214,9 @@
 
 /* ==================================================================
    DESKTOP (>= 769px)
-   - Scroller = .mat-sidenav-content (gestito in styles.scss)
-   - Drawer affiancato; pannello bianco pieno
-   - ZERO ombre/bordi sulle voci anche al click
+   - Estetica identica al mobile
+   - Lo scroll è sul pannello visibile del sidenav
+   - Drawer affiancato con larghezza comoda
    ================================================================== */
 @media (min-width: 769px) {
 
@@ -225,150 +226,166 @@
     flex-direction: column;
   }
 
-  /* Wrapper del drawer (se vuoi piattissimo, togli le due righe commentate) */
-  .sidenav-container mat-sidenav,
-  .sidenav-container .app-sidenav {
+  /* Wrapper in side/over */
+  mat-sidenav.app-sidenav {
+    min-width: 260px;
     width: 280px;
     max-width: 30vw;
-    background: transparent;
-    /* border-right: none !important; */
-    /* box-shadow: none !important; */
+    height: 100dvh;
+    border-radius: 0 !important;
+    background: var(--sidenav-bg);
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* niente scroll nel menu */
-    outline: none;
-    padding: 0;
+    border: none;
   }
 
-  /* Pannello visibile del drawer: bianco pieno */
-  :host ::ng-deep mat-sidenav .mat-drawer-inner-container,
-  :host ::ng-deep .app-sidenav .mat-drawer-inner-container {
+  /* Pannello visibile con scroll interno */
+  :host ::ng-deep mat-sidenav.app-sidenav .mat-drawer-inner-container {
     background: var(--sidenav-bg) !important;
+    border-radius: 0 !important;
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto !important;     /* qui scorre */
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* Contenuto del menu: aggiungo padding-top per non stare attaccati all’header */
   .sidenav-content {
-    padding: 16px var(--pad-x) 8px;
+    position: relative;
+    padding: 50px var(--pad-x) 16px;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l1);
+    background: transparent;
   }
 
-  /* L1: categorie (piatte, senza bordi/ombre anche in stato) */
+  .chiudi-btn-sidenav {
+    position: absolute;
+    top: 8px;
+    right: var(--pad-x);
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    color: #000;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  /* ===== L1: CATEGORIA ===== */
   .sidenav-categoria {
-    font-weight: 600;
-    font-size: 15px;
-    color: #222;
-    padding: 10px 12px;
+    color: var(--cat-color);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 14px;
     border-radius: 10px;
-    background: #fff;
-    border: none !important;
-    box-shadow: none !important;
-    transition: background-color 160ms ease, color 160ms ease;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
   }
-  .sidenav-categoria:hover  { background: var(--hover-bg); }
-  .sidenav-categoria.attiva { background: var(--active-bg); color: #111; }
-  .sidenav-categoria:active { box-shadow: none !important; }
 
-  /* L2: contenitore (niente guide) */
+  /* L1→L2 più ravvicinati (~4px) */
+  .sidenav-categoria + .sotto-container {
+    margin-top: calc(-1 * var(--gap-l1) + 4px);
+  }
+
+  /* ===== Contenitore L2 ===== */
   .sotto-container {
-    padding-left: 6px;
-    margin: 4px 0 0 0;
+    padding-left: 8px;
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l2);
   }
 
-  /* L2: voce */
+  /* L2: colore più chiaro e compatto */
   .sotto-categoria {
-    font-weight: 500;
-    font-size: 14px;
-    color: #111;
-    padding: 8px 10px;
+    color: var(--subcat-color);
+    font-weight: 600;
+    font-size: 15px;
+    padding: 8px 12px;
+    min-height: unset;
     border-radius: 8px;
-    background: #fff;                 /* piatto su bianco */
-    border: none !important;
-    box-shadow: none !important;
-    transition: background-color 140ms ease;
+    cursor: pointer;
+    text-decoration: none;
   }
-  .sotto-categoria:hover  { background: var(--hover-bg); }
-  .sotto-categoria.attiva { background: var(--active-bg); }
-  .sotto-categoria:active { box-shadow: none !important; }
 
-  /* L3: contenitore filtri */
+  /* ===== Contenitore L3 =====
+     L2→L3 ancora più vicino (~2px) */
   .filtro-container {
+    margin-top: 2px;
     padding-left: 10px;
-    margin-top: 4px;
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l3);
   }
 
-  /* L3: filtro/leaf */
+  /* L3: molto chiaro, piatto, senza underline */
   .filtro-categoria {
-    background: #fff;
-    color: #444;
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.3;
-    padding: 8px 10px;
-    border-radius: 8px;
-    outline: none;
+    color: var(--filter-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    background: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    transition: background-color 120ms ease;
-  }
-  .filtro-categoria:hover  { background: #f9fafb; }
-  .filtro-categoria.attiva { background: var(--active-bg); }
-  .filtro-categoria:active { box-shadow: none !important; }
+    border-radius: 0 !important;
 
-  /* Contenitore pagina */
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+
+    padding: 8px 0;
+    min-height: auto;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .filtro-categoria:hover,
+  .filtro-categoria:focus,
+  .filtro-categoria.attiva {
+    text-decoration: none;
+    background: transparent !important;
+  }
+
   .page-container {
     overflow: visible;
     padding: 0;
     padding-bottom: 0;
-    &.home-page { padding: 0 !important; }
   }
 }
 
 
 /* ==================================================================
    CDK OVERLAY / ANGULAR MATERIAL DIALOG
-   - Backdrop, z-index, pane e superfici
-   - Preset: popup-admin-editor (fullscreen) / popup-admin-folder (dialog)
    ================================================================== */
 
-/* Contenitore overlay sopra il sidenav */
 ::ng-deep .cdk-overlay-container {
-  z-index: 3000 !important;  /* sidenav ~2000 ⇒ overlay sopra */
+  z-index: 3000 !important;   /* il sidenav è ~2000 */
 }
 
-/* Backdrop: scurisco senza blur (metti transparent se non vuoi scurire) */
 ::ng-deep .cdk-overlay-backdrop {
   background: rgba(0, 0, 0, 0.48);
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
-/* Pannello generico: piatto */
 ::ng-deep .cdk-overlay-pane {
   z-index: 3100 !important;
   box-shadow: none;
   border: none;
 }
 
-/* Dialog container Material */
 ::ng-deep .mat-mdc-dialog-container {
   .mat-mdc-dialog-surface {
     background: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18); /* piatto? usa 'none' */
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   }
   .mat-mdc-dialog-content {
     overflow-y: auto;
@@ -377,7 +394,6 @@
   }
 }
 
-/* FULLSCREEN editor admin */
 ::ng-deep .cdk-overlay-pane.popup-admin-editor {
   width: 100vw !important;
   height: 100vh !important;
@@ -394,7 +410,7 @@
   width: 100% !important;
   height: 100% !important;
   background: #ffffff;
-  box-shadow: none !important;       /* fullscreen piatto */
+  box-shadow: none !important;
   border-radius: 0 !important;
   padding: 0 !important;
   display: flex !important;
@@ -407,7 +423,6 @@
   padding: 2rem !important;
 }
 
-/* Dialog gestione cartelle admin */
 ::ng-deep .cdk-overlay-pane.popup-admin-folder {
   padding: 16px;
   box-sizing: border-box;
@@ -418,7 +433,7 @@
   max-height: min(86vh, 860px);
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18); /* piatto? usa 'none' */
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
   padding: 0;
   display: flex;
   flex-direction: column;
@@ -426,12 +441,12 @@
 }
 ::ng-deep .popup-admin-folder .mat-mdc-dialog-content {
   flex: 1 1 auto;
-  min-height: 0; /* evita overflow sul contenuto scrollabile del dialog */
+  min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Safety: evito stacking strani con dialog + sidenav insieme */
+/* Safety: garantisco che il sidenav stia sotto agli overlay locali */
 :host ::ng-deep .mat-drawer,
 :host ::ng-deep .mat-sidenav {
   z-index: 2000;

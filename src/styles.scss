@@ -59,59 +59,6 @@ mat-sidenav-container {
     background: #fff;
   }
 
-  /* 2) Kill degli sticky-killers sui wrapper del layout */
-  app-root,
-  mat-sidenav-container,
-  .sidenav-container,
-  .mat-sidenav-content,
-  .mat-drawer-content,
-  mat-drawer-content,
-  .page-container {
-    overflow: visible !important;
-    position: static !important;
-    transform: none !important;
-    contain: initial !important;
-    will-change: auto !important;
-  }
-
-  /* 3) Backdrop del drawer: scurisco senza blur */
-  .mat-drawer-backdrop {
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    touch-action: none;  /* non faccio passare gesture allo sfondo */
-  }
-
-  /* 4) Il WRAPPER del sidenav può restare trasparente.
-        — IMPORTANTISSIMO —
-        Il COLORE vero del pannello lo metto in AppComponent SCSS
-        (variabile: `--sidenav-bg-mobile`). NON gestirlo qui. */
-  .mat-sidenav-container .mat-sidenav,
-  .mat-sidenav-container .app-sidenav {
-    background: transparent !important;
-    overflow: hidden; /* niente scroll interno: scorre il body */
-  }
-
-  /* 5) Opacità del pannello visibile (safety): nessuna trasparenza.
-        Il colore effettivo resta in AppComponent. */
-  .mat-sidenav-container .mat-sidenav .mat-drawer-inner-container {
-    opacity: 1 !important;
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-    overflow: hidden;  /* evito doppio scroller */
-    -webkit-overflow-scrolling: auto;
-  }
-
-  /* 6) Classe opzionale per BLOCCARE lo scroll del body da TS
-        (aggiungila/rimuovila su <body> quando il drawer è aperto).
-        Se vuoi evitare “jump”, in TS imposta anche `top:-scrollYpx`
-        e poi ripristina. */
-  body.body--lock-scroll,
-  html.body--lock-scroll {
-    overflow: hidden !important;
-    height: 100% !important;
-  }
 }
 
 /* =========================================================
@@ -148,10 +95,7 @@ mat-sidenav-container {
     padding: 0 !important;
   }
 
-  /* 4) Nessuna skin del sidenav: solo note tecniche
-        - Il colore del pannello si mette in AppComponent SCSS
-          (variabile: `--sidenav-bg-desktop`)
-        - Non forzo width/margini: lascio ad AppComponent il layout */
+  
 }
 
 /* =========================================================

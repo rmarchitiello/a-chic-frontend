@@ -86,7 +86,9 @@
              * Click su livello 3 (bottoni): naviga e chiude il menu
            ================================================================== -->
       <div class="sidenav-content">
-
+        <button (click)="sidenav.close()" class="chiudi-btn-sidenav">
+          <mat-icon>close</mat-icon>
+        </button>
         <!-- Azioni admin opzionali nel menu (visibili solo se admin e non mobile) -->
         <div *ngIf="isAdmin && !isMobile" class="admin-sidenav-actions">
           <button mat-stroked-button color="primary" (click)="apriAdminFolderPopUp()"
