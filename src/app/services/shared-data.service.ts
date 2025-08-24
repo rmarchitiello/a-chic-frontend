@@ -30,6 +30,10 @@ private getAdminToken(): string | null {
   return sessionStorage.getItem('admin');
 }
 
+setAdminSubject(trueOrFalse: boolean){
+  this.isAdminSubject.next(trueOrFalse);
+}
+
 
 
 

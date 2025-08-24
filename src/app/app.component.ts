@@ -191,9 +191,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  setEditModeAfterSetViewMode: boolean = false;
   //metodo che viene utilizzato per settare la modalita visualizzazione
-  setViewMode(){
-      this.isAdmin = false; // non basta devo sharare questo valore con tutti isAdmin$ devo utilizzare
+  setViewOrEditMode(viewOrdEditMode: boolean){
+      console.log("Inizio chiamata modalita view . . .");
+      this.sharedDataService.setAdminSubject(viewOrdEditMode); 
+      console.log("Fine chiamata modalita view . . .");
+      this.setEditModeAfterSetViewMode = !viewOrdEditMode;
   }
   /* ==========================================================
      LIFECYCLE
@@ -206,6 +210,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
      */
     this.sharedDataService.isAdmin$.subscribe((isAdmin: boolean) => {
       this.isAdmin = isAdmin;
+      console.log("Get admin value: ", this.isAdmin);
     });
 
     /**

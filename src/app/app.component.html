@@ -25,7 +25,7 @@
           3.1) Sidenav unico (#sidenav) con albero categorie
           3.2) Contenuto scroller con banner, header e corpo pagina (router-outlet)
      ============================================================================ -->
-<ng-container *ngIf="!(isMobile && isAdmin)">
+<ng-container *ngIf="!(isMobile && isAdmin && setEditModeAfterSetViewMode)">
 
   <!-- ===========================================================================
        OVERLAY DI CARICAMENTO
@@ -42,7 +42,7 @@
        - Puoi regolare la visibilità via CSS per nasconderle su mobile, se necessario
        ======================================================================== -->
   <div *ngIf="isAdmin" class="admin-managing">
-    <button mat-stroked-button color="warn" (click)="setViewMode()">
+    <button mat-stroked-button color="warn" (click)="setViewOrEditMode(false)">
       Modalita visualizzazione
     </button>
     <button mat-stroked-button color="warn" (click)="logoutAdmin()">
@@ -52,7 +52,9 @@
       Refresh della cache
     </button>
   </div>
-
+    <button mat-stroked-button class="admin-managing" *ngIf="setEditModeAfterSetViewMode" color="warn" (click)="setViewOrEditMode(true)">
+      <strong>Entra in modalita editing</strong>
+    </button>
   <!-- ===========================================================================
        CONTENITORE SIDENAV CONDIVISO
        - Unico container per mobile e desktop
