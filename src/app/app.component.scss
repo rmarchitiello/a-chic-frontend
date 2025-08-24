@@ -110,6 +110,7 @@
     position: relative;
     padding: 80px var(--pad-x) 16px;
     display: flex;
+    overflow-y: auto;
     flex-direction: column;
     gap: var(--gap-l1);
     background: transparent;
