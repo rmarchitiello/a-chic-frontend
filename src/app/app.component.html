@@ -41,7 +41,10 @@
        - Visibili quando l’utente è in modalità admin (tipicamente su desktop)
        - Puoi regolare la visibilità via CSS per nasconderle su mobile, se necessario
        ======================================================================== -->
-  <div *ngIf="isAdmin" class="admin-logout">
+  <div *ngIf="isAdmin" class="admin-managing">
+    <button mat-stroked-button color="warn" (click)="setViewMode()">
+      Modalita visualizzazione
+    </button>
     <button mat-stroked-button color="warn" (click)="logoutAdmin()">
       Esci da modalità admin
     </button>

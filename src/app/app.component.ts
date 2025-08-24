@@ -191,6 +191,10 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
+  //metodo che viene utilizzato per settare la modalita visualizzazione
+  setViewMode(){
+      this.isAdmin = false; // non basta devo sharare questo valore con tutti isAdmin$ devo utilizzare
+  }
   /* ==========================================================
      LIFECYCLE
      ========================================================== */

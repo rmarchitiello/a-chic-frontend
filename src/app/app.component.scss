@@ -14,17 +14,21 @@
   --subcat-color: #555555;      /* L2: sotto-categoria */
   --filter-color: #888888;      /* L3: filtro */
 
-  /* Spaziature base */
-  --gap-l1: 12px;               /* Spazio verticale tra blocchi L1 */
-  --gap-l2: 8px;                /* Spazio verticale tra voci L2 */
-  --gap-l3: 6px;                /* Spazio verticale tra voci L3 */
+  /* Spaziature base del contenitore */
+  --gap-l1: 12px;               /* Spazio verticale generico fra blocchi L1 */
+  --gap-l2: 8px;                /* Spazio fra voci L2 */
+  --gap-l3: 6px;                /* Spazio fra voci L3 */
 
-  /* Padding orizzontale del contenuto (creo aria a sinistra) */
+  /* Nuove distanze “reali” fra livelli (facili da regolare) */
+  --l1-l2-gap: 0px;             /* distanza finale L1→L2 (metti 0–6px a piacere) */
+  --l2-l3-gap: 4px;             /* distanza finale L2→L3 */
+
+  /* Padding orizzontale del contenuto (aria a sinistra/destra) */
   --pad-x: 20px;
 
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;           /* Evito glitch con UI bars mobile */
+  min-height: 100dvh;
   font-family: 'Montserrat', sans-serif;
   color: var(--menu-text);
 }
@@ -49,9 +53,9 @@
 /* =========================================================
    Pulsanti amministrazione in overlay fisso
    ========================================================= */
-.admin-logout {
+.admin-managing {
   position: fixed;
-  top: 10px;
+  top: 30px;
   right: 10px;
   z-index: 1000;
 
@@ -96,10 +100,12 @@
     display: flex;
     flex-direction: column;
     min-height: 100%;
-    overflow: hidden !important;   /* niente scroll interno su mobile */
+    overflow: hidden !important;   /* su mobile NON scrolla il pannello.
+                                      Se vuoi che scrolli anche su mobile:
+                                      usa overflow-y: auto !important; */
   }
 
-  /* Contenuto del menu: aria e riferimento per la X */
+  /* Contenuto del menu e riferimento per la X */
   .sidenav-content {
     position: relative;
     padding: 80px var(--pad-x) 16px;
@@ -109,7 +115,6 @@
     background: transparent;
   }
 
-  /* Pulsante chiusura */
   .chiudi-btn-sidenav {
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 8px);
@@ -125,56 +130,59 @@
     z-index: 1;
   }
 
-  /* ===== Livello 1: CATEGORIA ===== */
+  /* ===== L1: CATEGORIA ===== */
   .sidenav-categoria {
     color: var(--cat-color);
     font-weight: 700;
     font-size: 16px;
     padding: 12px 14px;
-    border-radius: 10px;       /* portare a 0 se serve look squadrato */
+    border-radius: 10px;   /* porta a 0 per look squadrato */
     margin: 0;
     cursor: pointer;
     text-decoration: none;
   }
 
-  /* Avvicino L2 alla L1: distanza finale ~4px (più stretta di prima) */
+  /* Avvicino L2 alla L1:
+     il contenitore ha gap: var(--gap-l1); qui lo compenso e fisso la distanza finale */
   .sidenav-categoria + .sotto-container {
-    margin-top: calc(-1 * var(--gap-l1) + 4px);
+    margin-top: calc(-1 * var(--gap-l1) + var(--l1-l2-gap));
   }
 
   /* ===== Contenitore L2 (SOTTO-CATEGORIA) ===== */
   .sotto-container {
-    padding-left: 8px;         /* leggera indentazione */
+    padding-left: 8px;
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l2);
   }
 
-  /* Voce L2: compatta e colore più chiaro */
+  /* Prima voce L2: riduco il padding-top per non “gonfiare” lo spazio percepito */
+  .sotto-container > .sotto-categoria:first-child {
+    padding-top: 4px;       /* era 8px */
+  }
+
   .sotto-categoria {
     color: var(--subcat-color);
     font-weight: 600;
     font-size: 15px;
-    padding: 8px 12px;         /* compatto verticalmente */
+    padding: 8px 12px;
     min-height: unset;
     border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
   }
 
-  /* ===== Contenitore L3 (FILTRI) =====
-     Avvicino ancora di più: distanza L2→L3 ~2px */
+  /* ===== Contenitore L3 (FILTRI) ===== */
   .filtro-container {
-    margin-top: 2px;           /* prima era 6px */
-    padding-left: 10px;        /* ulteriore indentazione */
+    margin-top: var(--l2-l3-gap);   /* prima 2px fissi */
+    padding-left: 10px;
     border-left: none !important;
     display: flex;
     flex-direction: column;
     gap: var(--gap-l3);
   }
 
-  /* Voce L3: molto chiara, piatta, senza underline */
   .filtro-categoria {
     color: var(--filter-color);
     display: inline-flex;
@@ -214,9 +222,8 @@
 
 /* ==================================================================
    DESKTOP (>= 769px)
-   - Estetica identica al mobile
+   - Estetica come mobile
    - Lo scroll è sul pannello visibile del sidenav
-   - Drawer affiancato con larghezza comoda
    ================================================================== */
 @media (min-width: 769px) {
 
@@ -226,7 +233,6 @@
     flex-direction: column;
   }
 
-  /* Wrapper in side/over */
   mat-sidenav.app-sidenav {
     min-width: 260px;
     width: 280px;
@@ -239,14 +245,13 @@
     border: none;
   }
 
-  /* Pannello visibile con scroll interno */
   :host ::ng-deep mat-sidenav.app-sidenav .mat-drawer-inner-container {
     background: var(--sidenav-bg) !important;
     border-radius: 0 !important;
     min-height: 100%;
     display: flex;
     flex-direction: column;
-    overflow-y: auto !important;     /* qui scorre */
+    overflow-y: auto !important;  /* in desktop scorre il pannello */
     -webkit-overflow-scrolling: touch;
   }
 
@@ -279,19 +284,18 @@
     color: var(--cat-color);
     font-weight: 700;
     font-size: 16px;
-    padding: 12px 14px;
+    padding: 12px 25px;
     border-radius: 10px;
     margin: 0;
     cursor: pointer;
     text-decoration: none;
   }
 
-  /* L1→L2 più ravvicinati (~4px) */
+  /* Stesso trucco: distanza reale L1→L2 controllata da --l1-l2-gap */
   .sidenav-categoria + .sotto-container {
-    margin-top: calc(-1 * var(--gap-l1) + 4px);
+    margin-top: calc(-1 * var(--gap-l1) + var(--l1-l2-gap));
   }
 
-  /* ===== Contenitore L2 ===== */
   .sotto-container {
     padding-left: 8px;
     border-left: none !important;
@@ -300,22 +304,23 @@
     gap: var(--gap-l2);
   }
 
-  /* L2: colore più chiaro e compatto */
+  .sotto-container > .sotto-categoria:first-child {
+    padding-top: 4px;   /* riduco per non far sembrare troppo “lontano” */
+  }
+
   .sotto-categoria {
     color: var(--subcat-color);
     font-weight: 600;
     font-size: 15px;
-    padding: 8px 12px;
+    padding: 8px 26px;
     min-height: unset;
     border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
   }
 
-  /* ===== Contenitore L3 =====
-     L2→L3 ancora più vicino (~2px) */
   .filtro-container {
-    margin-top: 2px;
+    margin-top: var(--l2-l3-gap);
     padding-left: 10px;
     border-left: none !important;
     display: flex;
@@ -323,7 +328,6 @@
     gap: var(--gap-l3);
   }
 
-  /* L3: molto chiaro, piatto, senza underline */
   .filtro-categoria {
     color: var(--filter-color);
     display: inline-flex;
