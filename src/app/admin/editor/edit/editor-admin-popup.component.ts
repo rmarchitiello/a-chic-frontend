@@ -157,6 +157,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   contextsInput: MediaContext[] = [];
   mediasInput: MediaMeta[] = [];
 
+  disabledMoreVertButton: boolean = false; //se sto scaricando cancellando ecc disabilito per un momento il bottone
 
   //questa folder la salvo perche
   /* Ciclo di vita, alla prima apertura del pop up da parte della home, inviamo un media collection 
@@ -200,14 +201,15 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     @Inject(MAT_DIALOG_DATA) public data: { isConfigMode: boolean}
   ) { }
 
-
   caricaMediaCollection(data: MediaCollection) {
     if (data) {
       console.log('[EditorAdminPopUpComponent] Media ricevuto:', data);
       // Assegna i dati ricevuti dal componente padre alla variabile locale
       this.inputFromFatherComponent = data;
       console.log("Dati ricevuti dalla home: ", JSON.stringify(this.inputFromFatherComponent));
-
+      //carico tutte le url complete:
+      this.tutteLeUrl = data.items.flatMap(item => item.media.map(m => m.url));
+      console.log("Tutte le urls caricate", JSON.stringify(this.tutteLeUrl));
       // Estrae il percorso della cartella
       this.folderInput = this.inputFromFatherComponent.folder || this.folderSelezionata;
       console.log("Folder ricevuta in ingresso: ", this.folderInput);
@@ -661,13 +663,15 @@ private gestisciAggiornamentoLista(data: MediaCollection[]): void {
 
   readonly tipiSupportati = ['image', 'video', 'audio']; // Definisco i soli tipi MIME che accetto
 
+  isDropped: boolean = false;
   // Metodo invocato quando l'utente rilascia i file nell'area di drop
   // Metodo invocato quando l'utente rilascia dei file nell'area di drop
   /* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
   onDrop(event: DragEvent) {
     // Attivo il flag visivo per segnalare che un'area di drop è attiva
-    this.isDragging = true;
-
+    this.isDragging = false;
+    this.isDropped = true;
+    console.log("Variabile is dropped: ", this.isDropped);
     console.log("Ho droppato nell'area");
 
     // Impedisco il comportamento di default del browser (es. apertura file)
@@ -752,7 +756,7 @@ private gestisciAggiornamentoLista(data: MediaCollection[]): void {
 
     // Salvo i file validi in memoria per l’upload
     this.fileArray = filesValidi;
-    // ✅ Mostro il componente per gestire l’upload
+    //  Mostro il componente per gestire l’upload
     this.showUploadComponent = true;
     this.isUploading = true;
     // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
@@ -789,6 +793,7 @@ private gestisciAggiornamentoLista(data: MediaCollection[]): void {
       setTimeout(() => this.uploadSuccess = false, 2000);
 
       this.mostraMessaggioSnakBar("File caricati correttamente.", false);
+      this.isDropped = false;
     } else {
       this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
     }
@@ -1249,11 +1254,14 @@ Il valore è un numero:
     console.log('Mappa indici angolazioni inizializzata:', this.indiciAngolazioniMap);
   }
 
+  tutteLeUrl: string[] = [];
 
-  cancellaMedia(url: string, all: boolean): void {
+  cancellaMedia(url: string, all: boolean, cancellazioneMassiva: boolean): void {
+    //se non e una cancellazione massiva allora esegui la cancellazione normale
+    if(!cancellazioneMassiva){
     // Attiva lo spinner per la card associata a questa URL
     this.isDeletingMap[url] = true;
-
+    this.disabledMoreVertButton = true;
     // Inizializza l'elenco delle URL da eliminare
     let urlOrUrlsDaEliminare: string[] = [];
 
@@ -1293,11 +1301,12 @@ Il valore è un numero:
     // Se ci sono URL da eliminare, procedi con la chiamata al servizio
     if (urlOrUrlsDaEliminare.length > 0) {
       console.log("Avvio procedura di eliminazione...");
-
+      
+      console.log("Tasto disabilitato: ", this.disabledMoreVertButton);
       this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
         next: (response) => {
           console.log("Cancellazione completata:", response);
-
+          this.disabledMoreVertButton= false;
           this.mostraMessaggioSnakBar(
             "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
             false
@@ -1315,7 +1324,7 @@ Il valore è un numero:
         },
         error: (err) => {
           console.error("Errore durante la cancellazione:", err);
-
+          this.disabledMoreVertButton = false;
           this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
 
           // Disattiva lo spinner anche in caso di errore
@@ -1323,9 +1332,37 @@ Il valore è un numero:
         }
       });
     } else {
+      this.disabledMoreVertButton = false;
       // Nessuna eliminazione da eseguire
       this.isDeletingMap[url] = false;
     }
+  }
+  else{
+      if(this.tutteLeUrl.length > 0){
+        //mostro lo spinner overlay (non fa niente se e quello di upload)
+        this.isUploading = true;
+          this.adminService.deleteImages(this.tutteLeUrl, this.isConfigFolder).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          console.log("Cancellazione completata:", response);
+          this.disabledMoreVertButton= false;
+          this.mostraMessaggioSnakBar(
+            "Cancellazione avvenuta con successo, media eliminati: " + this.tutteLeUrl.length,
+            false
+          );
+          // Notifica ad altri componenti che la cache è cambiata
+          this.sharedService.notifyCacheIsChanged();
+        },
+        error: (err) => {
+          this.isUploading = false;
+          console.error("Errore durante la cancellazione:", err);
+        }
+      });
+        
+        
+      }
+  }
+
   }
 
 
@@ -1378,6 +1415,7 @@ Il valore è un numero:
       const nomeFile = `${displayName}_${index}`;
       this.scaricaAsset(currentUrl, nomeFile);
     });
+
   }
 
   /* ------------------------------------------------------------------ */
@@ -1594,22 +1632,27 @@ Il valore è un numero:
       console.log("Url frontale da appendere: ", url);
       formData.append('urlFrontaleDiInput', url);
 
+      this.isUploading = true;
       console.log("Form Data finale da inviare all'upload exist frontale nuovo metodo: ", JSON.stringify(formData));
       this.adminService.uploadMediaExistFrontale(formData, this.isConfigFolder).subscribe({
         next: (response) => {
+          this.isUploading = false;
           console.log('Upload riuscito:', response);
           this.sharedService.notifyCacheIsChanged();
           this.mostraMessaggioSnakBar('File caricati correttamente', false);
         },
         error: (err) => {
+          this.isUploading = false;
           console.error('Errore durante l\'upload:', err);
           this.mostraMessaggioSnakBar('Errore durante il caricamento dei file', true);
         }
       });
     }
     else {
+      this.isUploading = false;
       this.mostraMessaggioSnakBar('Errore nel caricamento di altri file', true);
     }
+    
   }
 
   /* Nuovo metodo che serve per individuare il tipo di tag da utilizzare in base alla url corrente. Questo perche 

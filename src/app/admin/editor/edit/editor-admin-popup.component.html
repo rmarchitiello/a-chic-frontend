@@ -1,15 +1,18 @@
 <div class="dialog-content">
-
-  <!-- Spinner caricamento figli -->
   <div class="spinner-overlay" *ngIf="isUploading">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
 
-  <!-- Pulsante Chiudi -->
-  <button mat-icon-button class="chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi"
-    (click)="chiudiDialog()">
-    <mat-icon>close</mat-icon>
-  </button>
+  <div class="top-actions">
+    <button mat-icon-button class="icon-btn elimina-tutto" [matTooltipClass]="'tooltip-custom'" matTooltip="Elimina tutti i media"
+            (click)="cancellaMedia('not defined url',false,true)" [disabled]="isUploading || disabledMoreVertButton">
+      <mat-icon>delete</mat-icon>
+    </button>
+    <button [disabled]="isUploading" mat-icon-button class="icon-btn chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
 
   <!-- Griglia card -->
   <div class="preview-container" (click)="onChiudiMetaDati()">
@@ -20,13 +23,9 @@
     
     Pero se clicco fuori la card voglio che si chiude tutto pero poi devo stoppare l'evento altrimenti non si aprono piu le card
     -->
-    <div class="preview-card" 
-    *ngFor="let url of mediasUrlsFrontale" 
-    [class.expanded]="espandiMetaDati === url"
-    (dragenter)="onDragEnterOnCard($event, url)"
-    (dragover)="onDragOverOnCard($event, url)"
-    (drop)="onDropOnCard($event,url)"
-    [class.drag-drop-event]="isDraggingOnCard === url"
+    <div class="preview-card" *ngFor="let url of mediasUrlsFrontale" [class.expanded]="espandiMetaDati === url"
+      (dragenter)="onDragEnterOnCard($event, url)" (dragover)="onDragOverOnCard($event, url)"
+      (drop)="onDropOnCard($event,url)" [class.drag-drop-event]="isDraggingOnCard === url"
       (click)="$event.stopPropagation()">
       <div class="card-inner">
 
@@ -46,9 +45,11 @@
             <div class="card-actions">
               <mat-spinner *ngIf="isDeletingMap[url]" diameter="24"></mat-spinner>
               <!-- Pulsante menu -->
-              <button class="action-button" [matMenuTriggerFor]="menu" mat-icon-button>
+              <button mat-icon-button class="action-button" [disabled]="disabledMoreVertButton"
+                [matMenuTriggerFor]="disabledMoreVertButton ? null : menu">
                 <mat-icon>more_vert</mat-icon>
               </button>
+
 
               <!-- Menu principale -->
               <mat-menu #menu="matMenu" class="menu-card-actions">
@@ -74,13 +75,13 @@
               <!-- Sottomenu cancella -->
               <mat-menu #menuCancella="matMenu" class="menu-card-actions cancella">
                 <!-- Elimina solo l’angolazione corrente -->
-                <button mat-menu-item (click)="cancellaMedia(getUrlCorrente(url), false)">
+                <button mat-menu-item (click)="cancellaMedia(getUrlCorrente(url), false,false)">
                   Elimina il media corrente
                 </button>
 
                 <!-- Elimina tutto: angolazioni + frontale -->
                 <button mat-menu-item *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0"
-                  (click)="cancellaMedia(url, true)">
+                  (click)="cancellaMedia(url, true,false)">
                   Elimina tutto
                 </button>
               </mat-menu>
@@ -103,61 +104,50 @@
 
 
             <!-- Determina il tipo effettivo del media attualmente visibile (image, video, audio) -->
-<div class="gallery-viewport" [ngSwitch]="getTipoMediaCorrente(getUrlCorrente(url))">
+            <div class="gallery-viewport" [ngSwitch]="getTipoMediaCorrente(getUrlCorrente(url))">
 
-  <!-- Identifica il media frontale – l’indice frontale è -1 -->
-  <div class="contenitore-anteprima-altre-angolazioni">
-    <span
-      class="anteprima-badge"
-      *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
-      Anteprima
-    </span>
+              <!-- Identifica il media frontale – l’indice frontale è -1 -->
+              <div class="contenitore-anteprima-altre-angolazioni">
+                <span class="anteprima-badge"
+                  *ngIf="(mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0">
+                  Anteprima
+                </span>
 
-    <button
-      *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
-      type="button"
-      class="button-rendi-anteprima"
-      (click)="rendiMediaFrontale(url, getUrlCorrente(url))">
-      Imposta come anteprima
-    </button>
-  </div>
+                <button *ngIf="!((mapUrlsNoFrontali[url]?.length || 0) === 0 || (currentSecondaryIndex[url] ?? -1) < 0)"
+                  type="button" class="button-rendi-anteprima" (click)="rendiMediaFrontale(url, getUrlCorrente(url))">
+                  Imposta come anteprima
+                </button>
+              </div>
 
-  <!-- ===== IMMAGINE ===== -->
-  <ng-container *ngSwitchCase="'image'">
-    <img
-      class="gallery-media"
-      [src]="getUrlCorrente(url)"
-      [alt]="'Vista immagine di ' + context.display_name" />
-  </ng-container>
+              <!-- ===== IMMAGINE ===== -->
+              <ng-container *ngSwitchCase="'image'">
+                <img class="gallery-media" [src]="getUrlCorrente(url)"
+                  [alt]="'Vista immagine di ' + context.display_name" />
+              </ng-container>
 
-  <!-- ===== VIDEO ===== -->
-  <ng-container *ngSwitchCase="'video'">
-    <video
-      class="gallery-media"
-      [src]="getUrlCorrente(url)"
-      controls
-      playsinline
-      preload="metadata">
-    </video>
-  </ng-container>
+              <!-- ===== VIDEO ===== -->
+              <ng-container *ngSwitchCase="'video'">
+                <video class="gallery-media" [src]="getUrlCorrente(url)" controls playsinline preload="metadata">
+                </video>
+              </ng-container>
 
-  <!-- ===== AUDIO ===== -->
-  <ng-container *ngSwitchCase="'audio'">
-    <div class="audio-cover">
-      <mat-icon>graphic_eq</mat-icon>
-    </div>
-    <audio class="audio-inline" [src]="getUrlCorrente(url)" controls>
-    </audio>
-  </ng-container>
+              <!-- ===== AUDIO ===== -->
+              <ng-container *ngSwitchCase="'audio'">
+                <div class="audio-cover">
+                  <mat-icon>graphic_eq</mat-icon>
+                </div>
+                <audio class="audio-inline" [src]="getUrlCorrente(url)" controls>
+                </audio>
+              </ng-container>
 
-  <!-- ===== CONTATORE (include anche il frontale come primo) ===== -->
-  <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
-    {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
-    /
-    {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
-  </div>
+              <!-- ===== CONTATORE (include anche il frontale come primo) ===== -->
+              <div class="gallery-counter" *ngIf="(mapUrlsNoFrontali[url]?.length || 0) > 0">
+                {{ (currentSecondaryIndex[url] ?? -1) + 2 }}
+                /
+                {{ 1 + (mapUrlsNoFrontali[url]?.length || 0) }}
+              </div>
 
-</div>
+            </div>
 
 
             <!-- pulsante per espandere i metadata-->
@@ -330,18 +320,25 @@
       </div>
     </div>
 
-    <!-- CARD upload/drag-and-drop -->
-    <div class="upload-dropzone" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
-      (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-      (drop)="onDrop($event)">
+    <!-- CARD upload/drag-and-drop 
+      Non uso al momento il pop up di upload ma trascino solo per il momento
+          <div class="upload-dropzone" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
+ 
+    -->
+    <div class="upload-dropzone" [class.drag-over]="isDragging" (dragenter)="onDragEnter($event)"
+      (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
       <div class="upload-content">
         <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
         <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
 
-        <p class="upload-text" *ngIf="!isDragging">
+        <!-- <p class="upload-text" *ngIf="!isDragging">
           Trascina qui i file<br><strong>oppure clicca</strong>
+        </p> -->
+        <p class="upload-text" *ngIf="!isDragging && !isDropped">
+          <strong>Trascina qui i file</strong>
         </p>
-        <p class="upload-text" *ngIf="isDragging">Rilascia i file per caricarli</p>
+        <p class="upload-text" *ngIf="isDragging"><strong>Rilascia i file per caricarli</strong></p>
+        <p class="upload-text" *ngIf="isDropped"><strong>Sto caricando</strong></p>
       </div>
     </div>
 
