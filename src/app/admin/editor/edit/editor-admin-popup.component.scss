@@ -1,213 +1,244 @@
 /* =======================================
    Contenitore principale del dialog
-   - gestisce padding, layering e colori base
 ======================================= */
 .dialog-content {
-  position: relative;          /* serve per posizionare assolutamente elementi interni (es. .top-actions) */
-  height: 100%;                /* il dialog occupa tutta l’altezza disponibile */
-  padding: 2.5rem;             /* padding generale interno */
-  padding-top: 4rem;           /* spazio extra per i pulsanti nell’angolo in alto a destra */
-  padding-right: 4rem;         /* spazio extra a destra per non sovrapporre i pulsanti */
-  overflow: visible;           /* permette a overlay interni di “uscire” (menu, tooltip, ecc.) */
-  z-index: 1000;               /* layer base del contenuto del dialog */
-  color: #111827;              /* colore testo principale (grigio molto scuro) */
+  position: relative;
+  height: 100%;
+  padding: 2.5rem;
+  padding-top: 4rem;   /* spazio extra per i pulsanti in alto */
+  padding-right: 4rem; /* spazio extra a destra */
+  overflow: visible;
+  z-index: 1000;
+  color: #111827;
 
-  /* =======================================
-     Overlay spinner (quando isUploading = true)
-     - copre l’intero viewport, blocca input, mostra loader
-  ======================================= */
+  /* Overlay spinner */
   .spinner-overlay {
-    position: fixed;                           /* fisso rispetto alla finestra */
-    inset: 0;                                  /* top/right/bottom/left: 0 => copre tutto */
-    display: flex;                             /* centra lo spinner */
+    position: fixed;
+    inset: 0;
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.7);      /* velo chiaro traslucido */
-    z-index: 2000;                             /* sopra il contenuto del dialog */
-    pointer-events: all;                       /* intercetta click per bloccare interazione sotto */
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 2000;
+    pointer-events: all;
   }
 
-  /* =======================================
-     Azioni in alto a destra (chiudi / elimina tutto)
-     - posizionate in overlay rispetto al contenuto
-  ======================================= */
+  /* Azioni in alto a destra */
   .top-actions {
-    position: absolute;        /* agganciato al .dialog-content */
-    top: 1.25rem;              /* distanza dal top */
-    right: 1.25rem;            /* distanza dal right */
-    z-index: 2100;             /* sopra altri contenuti (es. immagini) */
-    display: flex;             /* allinea i pulsanti su una riga */
-    gap: 1rem;                 /* spaziatura tra i bottoni */
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 2100;
+    display: flex;
+    gap: 1rem;
   }
 
   .icon-btn {
-    background: transparent !important;  /* nessuno sfondo di default */
-    border: none;                        /* niente bordi */
-    padding: 0;                          /* reset padding */
-    width: 36px;                         /* area clic consistente */
+    background: transparent !important;
+    border: none;
+    padding: 0;
+    width: 36px;
     height: 36px;
-    border-radius: 50%;                  /* forma circolare */
-    display: inline-flex;                /* centra l’icona */
+    border-radius: 50%;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;                     /* mano su hover */
+    cursor: pointer;
 
     mat-icon {
-      font-size: 26px;                   /* dimensione icona */
+      font-size: 26px;
       width: 26px;
       height: 26px;
       line-height: 26px;
-      color: #000;                       /* icona scura */
+      color: #000;
     }
 
     &:hover {
-      background: transparent !important; /* niente highlight aggressivo */
+      background: transparent !important;
       box-shadow: none !important;
     }
 
     &:focus-visible {
-      outline: none;                      /* rimuove outline default */
-      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25); /* alone di focus accessibile */
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25);
     }
 
     &:disabled {
-      opacity: 0.45;                      /* attenuato */
-      cursor: not-allowed;                 /* cursore disabilitato */
+      opacity: 0.45;
+      cursor: not-allowed;
     }
   }
 
-  /* Colorazioni specifiche delle icone in alto */
-  .chiudi-btn mat-icon { color: #111; }           /* chiudi = grigio scuro */
-  .elimina-tutto mat-icon { color: #b00020; }     /* elimina = rosso acceso */
-  .elimina-tutto:focus-visible {
-    box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25); /* alone rosso al focus */
+  .chiudi-btn mat-icon { color: #111; }
+  .elimina-tutto mat-icon { color: #b00020; }
+  .elimina-tutto:focus-visible { box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25); }
+
+  /* =======================================
+     Guida/Helper
+  ======================================= */
+  .spigazione-editor {
+    background: #f8fafc;
+    border-left: 4px solid #3b82f6;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    margin-bottom: 1.25rem;
+    color: #0f172a;
+
+    h3 {
+      margin: 0 0 .5rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .helper-steps {
+      margin: 0 0 .75rem;
+      padding: 0;
+      list-style: none;
+
+      li {
+        position: relative;
+        padding-left: 1.25rem;
+        margin: .35rem 0;
+
+        &::before {
+          content: "•";
+          position: absolute;
+          left: 0; top: 0;
+          line-height: 1.2;
+          font-weight: 700;
+          color: #3b82f6;
+        }
+      }
+    }
+
+    .helper-note {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .95rem;
+      color: #334155;
+
+      .i {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        color: #3b82f6;
+      }
+    }
   }
 
   /* =======================================
-     Riga che CENTRA le due dropzone
+     Righe Dropzone (CENTRATE)
   ======================================= */
   .dropzones-row {
     display: flex;
-    justify-content: center;    /* centra orizzontalmente le DZ */
-    align-items: flex-start;    /* allinea in alto se hanno altezze diverse */
-    gap: 24px;                  /* spazio tra le DZ */
-    flex-wrap: wrap;            /* vanno a capo su schermi stretti */
-    margin-bottom: 2rem;        /* respiro sotto la riga */
+    justify-content: center;   /* centra di default */
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+
+    /* le DZ dentro la riga usano il gap, non i margin propri */
+    .upload-dropzone { margin: 0; }
   }
-  .dropzones-row .upload-dropzone {
-    margin: 0;                  /* il gap della riga gestisce la spaziatura */
+
+  /* L'HTML ha una riga annidata: .dropzones-right > .dropzones-row
+     Forziamo entrambe al CENTRO */
+  .dropzones-row.dropzones-right {
+    justify-content: center !important;
+    padding-right: 0;
+  }
+  .dropzones-right > .dropzones-row {
+    justify-content: center !important;
+    width: auto;              /* evita 100% che può "sbilanciare" il centro */
+    margin: 0 auto 2rem;      /* centra il blocco */
   }
 
   /* =======================================
-     Dropzone (riutilizzabile) – base
-     Nota: qui definiamo lo stile comune a TUTTE le dropzone
+     Dropzone base
   ======================================= */
   .upload-dropzone {
-    width: 260px;                         /* dimensione “card” */
+    width: 260px;
     height: 260px;
-    border: 2px dashed #4caf50;           /* bordo tratteggiato (colore di default; verrà sovrascritto dalle varianti) */
-    border-radius: 16px;                  /* angoli arrotondati “card” */
-    background: #ffffff;                  /* sfondo bianco */
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1); /* ombra leggera */
-    cursor: pointer;                      /* indica che è cliccabile */
-    display: inline-flex;                 /* mantiene dimensioni “intrinseche” anche fuori dalla row */
-    vertical-align: top;                  /* allineamento top tra elementi inline-flex */
-    align-items: center;                  /* centra contenuto verticalmente */
-    justify-content: center;              /* centra contenuto orizzontalmente */
-    text-align: center;                   /* testo centrato */
-    transition: background-color 0.3s ease, border-color 0.3s ease; /* transizioni morbide */
-    position: relative;                   /* base per overlay interni */
-    overflow: hidden;                     /* evita overflow del contenuto animato */
-    margin: 0 12px 2rem 0;                /* usato SOLO fuori da .dropzones-row (dove viene azzerato) */
+    border: 2px dashed #4caf50;  /* default verde (sovrascritto dalle varianti) */
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: inline-flex;
+    vertical-align: top;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
 
-    /* Contenuto interno “muto” per non interferire con drag&drop */
     .upload-content {
-      pointer-events: none;               /* lascia che i click/drag vadano al contenitore */
-      user-select: none;                  /* evita selezione di testo durante il drag */
-      padding: 1rem;                      /* respiro interno */
-      display: flex;                      /* icona + testo in colonna */
+      pointer-events: none;
+      user-select: none;
+      padding: 1rem;
+      display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;                       /* spazio tra icona e testo */
-      transition: transform 0.3s ease, opacity 0.3s ease; /* per eventuali animazioni */
+      gap: 0.75rem;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
-    /* Icona Material principale (nuvola / done) */
     .upload-icon {
-      font-family: 'Material Icons' !important;  /* forza font corretto */
-      font-size: 48px;                           /* dimensione icona */
-      color: #4caf50;                            /* colore predefinito (verde) – varianti lo sovrascrivono */
+      font-family: 'Material Icons' !important;
+      font-size: 48px;
+      color: #4caf50;
       height: 48px; width: 48px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-feature-settings: 'liga';             /* migliora resa font */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-feature-settings: 'liga';
       -webkit-font-feature-settings: 'liga';
       -webkit-font-smoothing: antialiased;
-      transition: transform 0.3s ease, color 0.3s ease; /* animazione su hover/drag-over */
+      transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    /* Testo guida */
     .upload-text {
       font-size: 0.95rem;
       line-height: 1.4;
-      color: #4caf50;                             /* colore predefinito (verde) – varianti lo sovrascrivono */
+      color: #4caf50;
       transition: color 0.3s ease, opacity 0.3s ease;
 
       strong {
         display: block;
         font-weight: 600;
-        color: inherit;                           /* eredita il colore dal parent */
+        color: inherit;
       }
     }
-
-    /* Stato hover (mouse sopra, non drag) */
-    &:hover {
-      background: rgba(76, 175, 80, 0.06);        /* leggero highlight di sfondo */
-      border-color: #388e3c;                      /* bordo più scuro */
-
-      .upload-icon {
-        color: #388e3c;                           /* icona più scura */
-        transform: scale(1.05);                   /* leggera crescita */
-      }
-
-      .upload-text { color: #388e3c; }
-    }
-
-    /* Stato drag-over (quando un file è sopra la zona) */
-    &.drag-over {
-      background: linear-gradient(
-        135deg,
-        rgba(76, 175, 80, 0.08),
-        rgba(200, 230, 201, 0.2)
-      );                                          /* sfondo più evidente durante il drag */
-      border-color: #2e7d32;                      /* bordo ancora più scuro */
-
-      .upload-icon {
-        color: #047857;                           /* tono differente per feedback immediato */
-        transform: scale(1.1);
-      }
-
-      .upload-text {
-        color: #2e7d32;
-        opacity: 0.85;
-      }
-    }
-  }
-
-  /* Eliminazione del margine destro sull’ultima dropzone affiancata (utile fuori da .dropzones-row) */
-  .upload-dropzone:last-of-type { margin-right: 0; }
-
-  /* =======================================
-     Varianti di stile per le due dropzone
-     - .anteprime            => accento verde
-     - .anteprime-altre      => accento blu
-     (stesse regole, colori diversi)
-  ======================================= */
-  .upload-dropzone.anteprime {
-    border-color: #4caf50;             /* verde */
-    .upload-icon, .upload-text { color: #4caf50; }
 
     &:hover {
       background: rgba(76, 175, 80, 0.06);
+      border-color: #388e3c;
+
+      .upload-icon { color: #388e3c; transform: scale(1.05); }
+      .upload-text { color: #388e3c; }
+    }
+
+    &.drag-over {
+      background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(200,230,201,.2));
+      border-color: #2e7d32;
+
+      .upload-icon { color: #047857; transform: scale(1.1); }
+      .upload-text { color: #2e7d32; opacity: .85; }
+    }
+  }
+
+  /* =======================================
+     Varianti Dropzone
+  ======================================= */
+  .upload-dropzone.anteprime {
+    border-color: #4caf50;
+    .upload-icon, .upload-text { color: #4caf50; }
+
+    &:hover {
+      background: rgba(76,175,80,.06);
       border-color: #388e3c;
       .upload-icon { color: #388e3c; transform: scale(1.05); }
       .upload-text { color: #388e3c; }
@@ -222,11 +253,11 @@
   }
 
   .upload-dropzone.anteprime-altre {
-    border-color: #0288d1;             /* blu */
+    border-color: #0288d1;
     .upload-icon, .upload-text { color: #0288d1; }
 
     &:hover {
-      background: rgba(2, 136, 209, 0.06);
+      background: rgba(2,136,209,.06);
       border-color: #0277bd;
       .upload-icon { color: #0277bd; transform: scale(1.05); }
       .upload-text { color: #0277bd; }
@@ -241,49 +272,16 @@
   }
 
   /* =======================================
-     Griglia card (card media)
-     - flex-wrap per andare a capo
-     - centrata, con gap coerente
-  ======================================= */
-  .preview-container {
-    display: flex;            /* layout flessibile delle card */
-    flex-wrap: wrap;          /* le card vanno a capo quando non c’è spazio */
-    gap: 2rem;                /* distanza tra card */
-    justify-content: center;  /* centratura orizzontale card */
-    align-items: flex-start;  /* allineamento in alto delle righe */
-    margin-bottom: 2.5rem;    /* respiro sotto la griglia */
-  }
-
-  /* =======================================
-     Responsive (facoltativo)
-     - Sotto 768px, le dropzone vanno a capo e si centrano
+     Responsive
   ======================================= */
   @media (max-width: 768px) {
-    .dropzones-row {
-      gap: 16px;
-    }
-    .upload-dropzone {
-      display: block;         /* occupa tutta la riga quando fuori dalla row */
-      margin: 0 auto 1.25rem; /* centrata e con spazio sotto */
-    }
+    .dropzones-row { gap: 16px; }
+    .dropzones-row.dropzones-right { justify-content: center !important; padding-right: 0; }
+    .dropzones-right > .dropzones-row { justify-content: center !important; }
   }
-
-  /* =======================================
-     (OPZIONALE) Sticky header per dropzone
-  ======================================= */
-  /*
-  .contenitore-scrollante {
-    max-height: calc(100vh - 240px);
-    overflow: auto;
-  }
-  .upload-dropzone {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #fff;
-  }
-  */
 }
+
+
 
 
 

@@ -15,16 +15,41 @@
     </button>
   </div>
 
-  
-  <!-- DROP ZONE PER ANTEPRIME-->
-<!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
-<!--
+  <div class="spigazione-editor" role="region" aria-label="Guida rapida editor media">
+    <h3>Guida rapida</h3>
+
+    <ul class="helper-steps">
+      <li><strong>Carica solo anteprime</strong>: usa il riquadro <em>verde</em> “Solo anteprime”. Puoi trascinare i
+        file o fare clic per selezionarli dal dispositivo.</li>
+      <li><strong>Carica anteprima + angolazioni</strong>: usa il riquadro <em>blu</em>. Trascina più file dello stesso
+        prodotto (frontale + laterali) o fai clic per scegliere.</li>
+      <li><strong>Aggiungi angolazioni su una card esistente</strong>: trascina i nuovi file direttamente sulla
+        <em>card</em> del media per aggiungere altre viste.</li>
+      <li><strong>Modifica i dati</strong>: clicca su un campo (es. prezzo, materiale, quantità, descrizione) per
+        modificarlo. Conferma con <span aria-label="conferma">✓</span> o annulla con <span
+          aria-label="annulla">×</span>. Aggiungi nuovi metadati con <span aria-label="aggiungi">+</span> o rimuovili
+        con <span aria-label="elimina">🗑</span>.</li>
+      <li><strong>Azioni rapide</strong>: dal menu <span aria-hidden="true">⋮</span> della card puoi scaricare o
+        eliminare. Puoi anche impostare un media come <em>Anteprima</em>.</li>
+    </ul>
+
+    <div class="helper-note">
+      <mat-icon class="i" aria-hidden="true">info</mat-icon>
+      Sono supportati <strong>immagini</strong>, <strong>video</strong> e <strong>audio</strong>
+    </div>
+  </div>
+
+  <!-- Allinea le due dropzone più a destra (su mobile tornano centrate) -->
+  <div class="dropzones-row dropzones-right">
+    <!-- DROP ZONE PER ANTEPRIME-->
+    <!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
+    <!--
   Riga contenitore che CENTRA orizzontalmente le due dropzone.
   (Ricordati di avere lo SCSS per .dropzones-row con display:flex; justify-content:center; gap:24px;)
 -->
-<div class="dropzones-row">
+    <div class="dropzones-row">
 
-  <!-- =========================================
+      <!-- =========================================
        DROP ZONE PER SOLE ANTEPRIME
        - Click su tutta l'area => apre l'input file nascosto
        - Stati usati:
@@ -32,45 +57,40 @@
          * isDroppedAnteprime               -> mostra "Sto caricando" solo qui
          * uploadSuccessAnteprime           -> icona cloud_done solo qui per 2s
      ========================================= -->
-  <div (click)="inputDaInvocareAnteprime.click()"
-       class="upload-dropzone anteprime"
-       [class.drag-over]="isDraggingAnteprime"
-       (dragenter)="onDragEnter('anteprime')"
-       (dragover)="onDragOver($event,'anteprime')"
-       (dragleave)="onDragLeave($event,'anteprime')"
-       (drop)="onDrop($event,'anteprime')">
+      <div (click)="inputDaInvocareAnteprime.click()" class="upload-dropzone anteprime"
+        [class.drag-over]="isDraggingAnteprime" (dragenter)="onDragEnter('anteprime')"
+        (dragover)="onDragOver($event,'anteprime')" (dragleave)="onDragLeave($event,'anteprime')"
+        (drop)="onDrop($event,'anteprime')">
 
-    <!--
+        <!--
       Input file NASCOSTO:
       - apertura nativa (Explorer/Finder/Foto) al click della dropzone
       - uso (change) perché i file sono disponibili SOLO dopo la selezione
       - ctx = 'anteprime' per distinguere la zona
     -->
-    <input #inputDaInvocareAnteprime
-           hidden
-           type="file"
-           multiple
-           (change)="filesCaricatiManualmente($event,'anteprime')">
+        <input #inputDaInvocareAnteprime hidden type="file" multiple
+          (change)="filesCaricatiManualmente($event,'anteprime')">
 
-    <div class="upload-content">
-      <!-- Icona stato: di default nuvola; su successo (solo per questa DZ) cloud_done -->
-      <mat-icon *ngIf="!uploadSuccessAnteprime" class="upload-icon">cloud_upload</mat-icon>
-      <mat-icon *ngIf="uploadSuccessAnteprime"  class="upload-icon">cloud_done</mat-icon>
+        <div class="upload-content">
+          <!-- Icona stato: di default nuvola; su successo (solo per questa DZ) cloud_done -->
+          <mat-icon *ngIf="!uploadSuccessAnteprime" class="upload-icon">cloud_upload</mat-icon>
+          <mat-icon *ngIf="uploadSuccessAnteprime" class="upload-icon">cloud_done</mat-icon>
 
-      <!-- Testi di stato (solo per questa DZ) -->
-      <p class="upload-text" *ngIf="!isDraggingAnteprime && !isDroppedAnteprime">
-        <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare solo le ANTEPRIME</strong>
-      </p>
-      <p class="upload-text" *ngIf="isDraggingAnteprime && !isDroppedAnteprime">
-        <strong>Rilascia i file per caricarli</strong>
-      </p>
-      <p class="upload-text" *ngIf="isDroppedAnteprime">
-        <strong>Sto caricando</strong>
-      </p>
-    </div>
-  </div>
+          <!-- Testi di stato (solo per questa DZ) -->
+          <p class="upload-text" *ngIf="!isDraggingAnteprime && !isDroppedAnteprime">
+            <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare solo le
+              ANTEPRIME</strong>
+          </p>
+          <p class="upload-text" *ngIf="isDraggingAnteprime && !isDroppedAnteprime">
+            <strong>Rilascia i file per caricarli</strong>
+          </p>
+          <p class="upload-text" *ngIf="isDroppedAnteprime">
+            <strong>Sto caricando</strong>
+          </p>
+        </div>
+      </div>
 
-  <!-- =========================================
+      <!-- =========================================
        DROP ZONE PER ANTEPRIME + ALTRE ANGOLAZIONI
        - Click su tutta l'area => apre l'input file nascosto
        - Stati usati:
@@ -78,45 +98,47 @@
          * isDroppedAnteprimePiuAltre          -> mostra "Sto caricando" solo qui
          * uploadSuccessAnteprimePiuAltre      -> icona cloud_done solo qui per 2s
      ========================================= -->
-  <div (click)="inputDaInvocareAnteprimeEAltre.click()"
-       class="upload-dropzone anteprime-altre"
-       [class.drag-over]="isDraggingAnteprimePiuAltre"
-       (dragenter)="onDragEnter('anteprime-altre')"
-       (dragover)="onDragOver($event,'anteprime-altre')"
-       (dragleave)="onDragLeave($event,'anteprime-altre')"
-       (drop)="onDrop($event,'anteprime-altre')">
+      <div (click)="inputDaInvocareAnteprimeEAltre.click()" class="upload-dropzone anteprime-altre"
+        [class.drag-over]="isDraggingAnteprimePiuAltre" (dragenter)="onDragEnter('anteprime-altre')"
+        (dragover)="onDragOver($event,'anteprime-altre')" (dragleave)="onDragLeave($event,'anteprime-altre')"
+        (drop)="onDrop($event,'anteprime-altre')">
 
-    <!--
+        <!--
       Input file NASCOSTO:
       - apertura nativa
       - uso (change) perché i file sono disponibili SOLO dopo la selezione
       - ctx = 'anteprime-altre' per distinguere la zona
     -->
-    <input #inputDaInvocareAnteprimeEAltre
-           hidden
-           type="file"
-           multiple
-           (change)="filesCaricatiManualmente($event,'anteprime-altre')">
+        <input #inputDaInvocareAnteprimeEAltre hidden type="file" multiple
+          (change)="filesCaricatiManualmente($event,'anteprime-altre')">
 
-    <div class="upload-content">
-      <!-- Icona stato per QUESTA DZ -->
-      <mat-icon *ngIf="!uploadSuccessAnteprimePiuAltre" class="upload-icon">cloud_upload</mat-icon>
-      <mat-icon *ngIf="uploadSuccessAnteprimePiuAltre"  class="upload-icon">cloud_done</mat-icon>
+        <div class="upload-content">
+          <!-- Icona stato per QUESTA DZ -->
+          <mat-icon *ngIf="!uploadSuccessAnteprimePiuAltre" class="upload-icon">cloud_upload</mat-icon>
+          <mat-icon *ngIf="uploadSuccessAnteprimePiuAltre" class="upload-icon">cloud_done</mat-icon>
 
-      <!-- Testi di stato (solo per questa DZ) -->
-      <p class="upload-text" *ngIf="!isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
-        <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare le ANTEPRIME più ALTRE ANGOLAZIONI</strong>
-      </p>
-      <p class="upload-text" *ngIf="isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
-        <strong>Rilascia i file per caricarli</strong>
-      </p>
-      <p class="upload-text" *ngIf="isDroppedAnteprimePiuAltre">
-        <strong>Sto caricando</strong>
-      </p>
+          <!-- Testi di stato (solo per questa DZ) -->
+          <p class="upload-text" *ngIf="!isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
+            <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare le ANTEPRIME più ALTRE
+              ANGOLAZIONI</strong>
+          </p>
+          <p class="upload-text" *ngIf="isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
+            <strong>Rilascia i file per caricarli</strong>
+          </p>
+          <p class="upload-text" *ngIf="isDroppedAnteprimePiuAltre">
+            <strong>Sto caricando</strong>
+          </p>
+        </div>
+      </div>
+
     </div>
   </div>
 
-</div>
+
+
+
+
+
 
 
 
