@@ -11,7 +11,9 @@
   z-index: 1000;
   color: #111827;
 
-  /* Overlay spinner */
+  /* =========================
+     Overlay spinner
+  ========================== */
   .spinner-overlay {
     position: fixed;
     inset: 0;
@@ -23,7 +25,9 @@
     pointer-events: all;
   }
 
-  /* Azioni in alto a destra */
+  /* =========================
+     Azioni in alto a destra
+  ========================== */
   .top-actions {
     position: absolute;
     top: 1.25rem;
@@ -53,20 +57,9 @@
       color: #000;
     }
 
-    &:hover {
-      background: transparent !important;
-      box-shadow: none !important;
-    }
-
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25);
-    }
-
-    &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    &:hover { background: transparent !important; box-shadow: none !important; }
+    &:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25); }
+    &:disabled { opacity: 0.45; cursor: not-allowed; }
   }
 
   .chiudi-btn mat-icon { color: #111; }
@@ -74,49 +67,169 @@
   .elimina-tutto:focus-visible { box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25); }
 
   /* =======================================
-     Guida/Helper
+     Bottone Guida Rapida (stroked)
   ======================================= */
-  .spigazione-editor {
-    background: #f8fafc;
-    border-left: 4px solid #3b82f6;
-    padding: 1rem 1.25rem;
-    border-radius: 12px;
+  .btn-guida-rapida {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 0.5rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 9999px;
+    background: #ffffff;
+    border-color: #3b82f6; /* primary edge */
+    transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+    mat-icon:first-child {
+      color: #3b82f6;
+      background: #eaf2ff;
+      border-radius: 9999px;
+      padding: 2px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+
+    .chev {
+      color: #1f2937;
+      transition: transform 0.18s ease;
+    }
+
+    &:hover { background: rgba(59, 130, 246, 0.07); border-color: #2b6fff; }
+    &:focus-visible { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); }
+  }
+  /* Rotazione caret quando aperto */
+  #guida-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  /* =======================================
+     Guida / Helper (card + bottone toggle)
+     Supporta sia .spigazione-editor (come in HTML)
+     che .spiegazione-editor (nel caso correggessi il nome)
+  ======================================= */
+  .spigazione-editor,
+  .spiegazione-editor {
+    position: relative;
+    background: #f8fbff;
+    border-radius: 14px;
+    padding: 1rem 1.25rem 1.25rem;
     margin-bottom: 1.25rem;
     color: #0f172a;
+    box-shadow: 0 10px 22px rgba(2, 6, 23, 0.06);
 
-    h3 {
-      margin: 0 0 .5rem;
-      font-size: 1.05rem;
-      font-weight: 700;
+    /* “ribbon” sinistro */
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 6px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #5aa0ff, #2b6fff);
+    }
+
+    .guida-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      justify-content: flex-start;
+      margin-bottom: 0.25rem;
+
+      /* se preferisci agganciarti genericamente al bottone */
+      button.mat-mdc-button-base {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        border-color: #3b82f6;
+        transition: background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+        mat-icon:first-child {
+          color: #3b82f6;
+          background: #eaf2ff;
+          border-radius: 9999px;
+          padding: 2px;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+          line-height: 18px;
+        }
+
+        .chev { color: #1f2937; transition: transform 0.18s ease; }
+
+        &:hover { background: rgba(59, 130, 246, 0.07); border-color: #2b6fff; }
+        &:focus-visible { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); }
+      }
+
+      [aria-expanded="true"] .chev { transform: rotate(180deg); }
+    }
+
+    mat-divider { margin: 0.5rem 0 0.75rem; border-top-color: #e6eefb; }
+
+    .guida-body { animation: guida-fade-in 160ms cubic-bezier(0.2, 0.6, 0.2, 1); }
+
+    .supported {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 0.75rem;
+      margin-bottom: 0.5rem;
+
+      .label { font-weight: 600; color: #0f172a; }
+
+      mat-chip-set { display: inline-flex; gap: 0.35rem; }
+
+      /* Fallback diretto per chip (senza rely su CSS vars) */
+      .mat-mdc-chip {
+        background-color: #eaf2ff !important;
+        color: #0b3b8f !important;
+        font-weight: 600;
+      }
+      .mat-mdc-chip .mdc-evolution-chip__text-label {
+        color: inherit;
+        font-weight: inherit;
+      }
     }
 
     .helper-steps {
-      margin: 0 0 .75rem;
+      margin: 0.25rem 0 0.75rem;
       padding: 0;
       list-style: none;
+      display: grid;
+      gap: 0.5rem;
 
       li {
-        position: relative;
-        padding-left: 1.25rem;
-        margin: .35rem 0;
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        column-gap: 0.5rem;
+        align-items: flex-start;
 
-        &::before {
-          content: "•";
-          position: absolute;
-          left: 0; top: 0;
-          line-height: 1.2;
-          font-weight: 700;
+        .step-ico {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          line-height: 20px;
           color: #3b82f6;
+          margin-top: 2px;
         }
+
+        strong { color: #0f172a; }
+        em { color: #059669; font-style: normal; }
       }
     }
 
     .helper-note {
       display: flex;
       align-items: center;
-      gap: .5rem;
-      font-size: .95rem;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      background: #eef2ff;
       color: #334155;
+      border: 1px solid #e2e8f0;
 
       .i {
         font-size: 18px;
@@ -128,31 +241,31 @@
     }
   }
 
+  @keyframes guida-fade-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
   /* =======================================
      Righe Dropzone (CENTRATE)
   ======================================= */
   .dropzones-row {
     display: flex;
-    justify-content: center;   /* centra di default */
+    justify-content: center; /* centra di default */
     align-items: flex-start;
     gap: 24px;
     flex-wrap: wrap;
-    margin-bottom: 2rem;
+    margin: 1rem auto 2rem;
 
-    /* le DZ dentro la riga usano il gap, non i margin propri */
-    .upload-dropzone { margin: 0; }
+    .upload-dropzone { margin: 0; } /* usa il gap, non i margin propri */
   }
 
-  /* L'HTML ha una riga annidata: .dropzones-right > .dropzones-row
-     Forziamo entrambe al CENTRO */
-  .dropzones-row.dropzones-right {
-    justify-content: center !important;
-    padding-right: 0;
-  }
+  /* l’html ha .dropzones-right > .dropzones-row: forziamo centro su entrambe */
+  .dropzones-row.dropzones-right { justify-content: center !important; padding-right: 0; }
   .dropzones-right > .dropzones-row {
     justify-content: center !important;
-    width: auto;              /* evita 100% che può "sbilanciare" il centro */
-    margin: 0 auto 2rem;      /* centra il blocco */
+    width: auto;
+    margin: 0 auto 2rem;
   }
 
   /* =======================================
@@ -161,9 +274,9 @@
   .upload-dropzone {
     width: 260px;
     height: 260px;
-    border: 2px dashed #4caf50;  /* default verde (sovrascritto dalle varianti) */
+    border: 2px dashed #4caf50; /* default (sovrascritto dalle varianti) */
     border-radius: 16px;
-    background: #ffffff;
+    background: #fff;
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     display: inline-flex;
@@ -190,7 +303,8 @@
       font-family: 'Material Icons' !important;
       font-size: 48px;
       color: #4caf50;
-      height: 48px; width: 48px;
+      height: 48px;
+      width: 48px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -206,27 +320,21 @@
       color: #4caf50;
       transition: color 0.3s ease, opacity 0.3s ease;
 
-      strong {
-        display: block;
-        font-weight: 600;
-        color: inherit;
-      }
+      strong { display: block; font-weight: 600; color: inherit; }
     }
 
     &:hover {
       background: rgba(76, 175, 80, 0.06);
       border-color: #388e3c;
-
       .upload-icon { color: #388e3c; transform: scale(1.05); }
       .upload-text { color: #388e3c; }
     }
 
     &.drag-over {
-      background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(200,230,201,.2));
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(200, 230, 201, 0.2));
       border-color: #2e7d32;
-
       .upload-icon { color: #047857; transform: scale(1.1); }
-      .upload-text { color: #2e7d32; opacity: .85; }
+      .upload-text { color: #2e7d32; opacity: 0.85; }
     }
   }
 
@@ -235,39 +343,41 @@
   ======================================= */
   .upload-dropzone.anteprime {
     border-color: #4caf50;
-    .upload-icon, .upload-text { color: #4caf50; }
+    .upload-icon,
+    .upload-text { color: #4caf50; }
 
     &:hover {
-      background: rgba(76,175,80,.06);
+      background: rgba(76, 175, 80, 0.06);
       border-color: #388e3c;
       .upload-icon { color: #388e3c; transform: scale(1.05); }
       .upload-text { color: #388e3c; }
     }
 
     &.drag-over {
-      background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(200,230,201,.2));
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(200, 230, 201, 0.2));
       border-color: #2e7d32;
       .upload-icon { color: #047857; transform: scale(1.1); }
-      .upload-text { color: #2e7d32; opacity: .85; }
+      .upload-text { color: #2e7d32; opacity: 0.85; }
     }
   }
 
   .upload-dropzone.anteprime-altre {
     border-color: #0288d1;
-    .upload-icon, .upload-text { color: #0288d1; }
+    .upload-icon,
+    .upload-text { color: #0288d1; }
 
     &:hover {
-      background: rgba(2,136,209,.06);
+      background: rgba(2, 136, 209, 0.06);
       border-color: #0277bd;
       .upload-icon { color: #0277bd; transform: scale(1.05); }
       .upload-text { color: #0277bd; }
     }
 
     &.drag-over {
-      background: linear-gradient(135deg, rgba(2,136,209,.08), rgba(179,229,252,.22));
+      background: linear-gradient(135deg, rgba(2, 136, 209, 0.08), rgba(179, 229, 252, 0.22));
       border-color: #01579b;
       .upload-icon { color: #01579b; transform: scale(1.1); }
-      .upload-text { color: #01579b; opacity: .85; }
+      .upload-text { color: #01579b; opacity: 0.85; }
     }
   }
 
@@ -278,11 +388,33 @@
     .dropzones-row { gap: 16px; }
     .dropzones-row.dropzones-right { justify-content: center !important; padding-right: 0; }
     .dropzones-right > .dropzones-row { justify-content: center !important; }
+    .spigazione-editor .guida-header,
+    .spiegazione-editor .guida-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
   }
 }
 
 
 
+//container
+/* Contenitore delle card di anteprima */
+.preview-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  align-items: start;
+  margin: 1.5rem 0 2rem;
+}
+
+/* Card singola (opzionale, per coerenza dimensioni) */
+.preview-container .mat-card {
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0,0,0,.08);
+  overflow: hidden;
+}
 
 
 

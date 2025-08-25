@@ -104,6 +104,9 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatCardModule } from '@angular/material/card';
 import { ConfermaDeleteMassivaComponent } from '../../common/conferma-delete-massiva/conferma-delete-massiva.component';
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
@@ -139,7 +142,10 @@ export interface UpdateAngolazioneMedia {
     MatFormFieldModule,
     ReactiveFormsModule,
     MatTableModule,
-    MatMenuModule
+    MatCardModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatDividerModule
   ]
 })
 export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
@@ -159,6 +165,13 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   mediasInput: MediaMeta[] = [];
 
   disabledMoreVertButton: boolean = false; //se sto scaricando cancellando ecc disabilito per un momento il bottone
+
+isGuidaVisibile: boolean = false;
+
+showGuida() {
+  this.isGuidaVisibile = !this.isGuidaVisibile;
+}
+
 
   //questa folder la salvo perche
   /* Ciclo di vita, alla prima apertura del pop up da parte della home, inviamo un media collection 

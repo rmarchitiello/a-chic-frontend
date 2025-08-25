@@ -15,29 +15,96 @@
     </button>
   </div>
 
-  <div class="spigazione-editor" role="region" aria-label="Guida rapida editor media">
-    <h3>Guida rapida</h3>
+  <!-- INIZIO SEZIONE GUIDA-->
+<mat-card class="spigazione-editor guida-card" role="region" aria-labelledby="guida-btn">
+  <!-- Unico bottone: è lui la "Guida rapida" -->
+  <div class="guida-header">
+    <button id="guida-btn"
+            mat-stroked-button
+            class="btn-guida-rapida"
+            color="primary"
+            (click)="showGuida()"
+            [attr.aria-expanded]="isGuidaVisibile"
+            aria-controls="guida-content"
+            matTooltip="{{ isGuidaVisibile ? 'Riduci' : 'Espandi' }}"
+            [matTooltipClass]="'tooltip-custom'">
+      <mat-icon aria-hidden="true">help</mat-icon>
+      <mat-icon class="chev" aria-hidden="true">{{ isGuidaVisibile ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  </div>
 
+  <mat-divider></mat-divider>
+
+  <!-- Corpo guida -->
+  <div id="guida-content" *ngIf="isGuidaVisibile" class="guida-body">
+    <!-- Chips formati supportati -->
+    <div class="supported">
+      <span class="label">Supporta:</span>
+      <mat-chip-set aria-label="Formati supportati">
+        <mat-chip color="primary" selected>Immagini</mat-chip>
+        <mat-chip color="primary" selected>Video</mat-chip>
+        <mat-chip color="primary" selected>Audio</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <!-- Steps con icone -->
     <ul class="helper-steps">
-      <li><strong>Carica solo anteprime</strong>: usa il riquadro <em>verde</em> “Solo anteprime”. Puoi trascinare i
-        file o fare clic per selezionarli dal dispositivo.</li>
-      <li><strong>Carica anteprima + angolazioni</strong>: usa il riquadro <em>blu</em>. Trascina più file dello stesso
-        prodotto (frontale + laterali) o fai clic per scegliere.</li>
-      <li><strong>Aggiungi angolazioni su una card esistente</strong>: trascina i nuovi file direttamente sulla
-        <em>card</em> del media per aggiungere altre viste.</li>
-      <li><strong>Modifica i dati</strong>: clicca su un campo (es. prezzo, materiale, quantità, descrizione) per
-        modificarlo. Conferma con <span aria-label="conferma">✓</span> o annulla con <span
-          aria-label="annulla">×</span>. Aggiungi nuovi metadati con <span aria-label="aggiungi">+</span> o rimuovili
-        con <span aria-label="elimina">🗑</span>.</li>
-      <li><strong>Azioni rapide</strong>: dal menu <span aria-hidden="true">⋮</span> della card puoi scaricare o
-        eliminare. Puoi anche impostare un media come <em>Anteprima</em>.</li>
+      <li>
+        <mat-icon class="step-ico" aria-hidden="true">cloud_upload</mat-icon>
+        <div>
+          <strong>Carica solo anteprime</strong>:
+          usa il riquadro <strong>verde</strong> “Solo anteprime”. Trascina i file oppure fai clic per selezionarli.
+        </div>
+      </li>
+
+      <li>
+        <mat-icon class="step-ico" aria-hidden="true">layers</mat-icon>
+        <div>
+          <strong>Carica anteprima + angolazioni</strong>:
+          usa il riquadro <strong>blu</strong>. Trascina più file dello stesso prodotto (frontale + laterali) o fai clic per scegliere.
+        </div>
+      </li>
+
+      <li>
+        <mat-icon class="step-ico" aria-hidden="true">move_up</mat-icon>
+        <div>
+          <strong>Aggiungi angolazioni su una card esistente</strong>:
+          trascina i nuovi file direttamente sulla <strong>card</strong> del media per aggiungere altre viste.
+        </div>
+      </li>
+
+      <li>
+        <mat-icon class="step-ico" aria-hidden="true">edit</mat-icon>
+        <div>
+          <strong>Modifica i dati</strong>:
+          clicca su prezzo, materiale, quantità o descrizione per modificarli.
+          Conferma con <span aria-label="conferma">✓</span> o annulla con <span aria-label="annulla">×</span>.
+          Aggiungi nuovi metadati con <span aria-label="aggiungi">+</span> o rimuovili con <span aria-label="elimina">🗑</span>.
+        </div>
+      </li>
+
+      <li>
+        <mat-icon class="step-ico" aria-hidden="true">more_vert</mat-icon>
+        <div>
+          <strong>Azioni rapide</strong>:
+          dal menu <span aria-hidden="true">⋮</span> della card puoi scaricare o eliminare,
+          e impostare un media come <strong>Anteprima</strong>.
+        </div>
+      </li>
     </ul>
 
+    <!-- Nota finale -->
     <div class="helper-note">
       <mat-icon class="i" aria-hidden="true">info</mat-icon>
-      Sono supportati <strong>immagini</strong>, <strong>video</strong> e <strong>audio</strong>
+      Se vuoi ordinare i prodotti da visualizzare puoi anche spostare le <strong>card</strong> tra loro
     </div>
   </div>
+</mat-card>
+
+
+
+    <!-- FINE SEZIONE GUIDA-->
+
 
   <!-- Allinea le due dropzone più a destra (su mobile tornano centrate) -->
   <div class="dropzones-row dropzones-right">
