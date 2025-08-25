@@ -17,7 +17,7 @@
 
   <!-- DROP ZONE PER ANTEPRIME-->
   <!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
-  <div (click)="inputDaInvocare.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprime"
+  <div (click)="inputDaInvocareAnteprime.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprime"
     (dragenter)="onDragEnter('anteprime')" (dragover)="onDragOver($event,'anteprime')" (dragleave)="onDragLeave($event,'anteprime')"
     (drop)="onDrop($event,'anteprime')">
     <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
@@ -26,7 +26,7 @@
        Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
        e chiamo questo tag di input passando un template #inputDaInvocare
        cosi quando clicco il box mi si apre la finestra nativa di upload-->
-    <input #inputDaInvocare hidden type="file" multiple (change)="filesCaricatiManualmente($event)">
+    <input #inputDaInvocareAnteprime hidden type="file" multiple (change)="filesCaricatiManualmente($event,'anteprime')">
     <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
 
     <div class="upload-content">
@@ -45,7 +45,7 @@
   </div>
 
   <!-- DROP ZONE PER ANTEPRIME + FRONTALI -->
-  <div (click)="inputDaInvocare.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprimePiuAltre"
+  <div (click)="inputDaInvocareAnteprimeEAltre.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprimePiuAltre"
     (dragenter)="onDragEnter('anteprime-altre')" (dragover)="onDragOver($event,'anteprime-altre')" (dragleave)="onDragLeave($event,'anteprime-altre')"
     (drop)="onDrop($event,'anteprime-altre')">
     <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
@@ -54,7 +54,7 @@
        Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
        e chiamo questo tag di input passando un template #inputDaInvocare
        cosi quando clicco il box mi si apre la finestra nativa di upload-->
-    <input #inputDaInvocare hidden type="file" multiple (change)="filesCaricatiManualmente($event)">
+    <input #inputDaInvocareAnteprimeEAltre hidden type="file" multiple (change)="filesCaricatiManualmente($event,'anteprime-altre')">
     <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
 
     <div class="upload-content">

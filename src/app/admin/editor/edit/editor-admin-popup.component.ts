@@ -1742,7 +1742,11 @@ Il valore è un numero:
   }
 
 
-  filesCaricatiManualmente(event: Event) {
+  filesCaricatiManualmente(event: Event, anteprimeOrAnteprimeEAltre: string) {
+
+    console.log("Sto per caricare manualmente le " + anteprimeOrAnteprimeEAltre);
+    
+
     this.isDropped = false;
     this.isDraggingByEditor = true;
     const input = event.target as HTMLInputElement;
