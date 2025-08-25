@@ -622,7 +622,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   apriPopUpUploadMedia(files?: File[]) {
 
-    console.log("File sono droppati dall'editor ? ", this.isDragging);
+    console.log("File sono droppati dall'editor ? ", this.isDraggingByEditor);
     this.dialog.open(UploadDataAdminComponent, {
       panelClass: 'upload-dialog',
       disableClose: false,
@@ -640,21 +640,34 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
   //mi fa capire se sono sull area di drop
-  isDragging: boolean = false;
+  isDraggingAnteprime: boolean = false;
+  isDraggingAnteprimePiuAltre: boolean = false;
 
   //gestisco lo spinner con una variabile diversa
   isUploading: boolean = false;
 
+  isDraggingByEditor: boolean = false;
+  checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre: string, value: boolean) {
+    this.isDraggingByEditor = true;
+    let logMsg = '';
+    if (anteprimeOrAltre === 'anteprime') {
+      this.isDraggingAnteprime = value;
+      logMsg = 'anteprime'
+    } else if (anteprimeOrAltre === 'anteprime-altre') {
+      this.isDraggingAnteprimePiuAltre = value;
+      logMsg = 'anteprime piu altre'
+    }
+    console.log("Sono entrato nel drag " + logMsg);
+  }
   //per attivare l'altro component a ricevere i dati
   showUploadComponent: boolean = false
-  onDragEnter(event: DragEvent): void {
-    this.isDragging = true; // ✅ entri nel dropzone → attiva stile
-    console.log("Sono entrato nel drag");
+  onDragEnter(anteprimeOrAltre: string): void {
+    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
   }
 
-  onDragOver(event: DragEvent): void {
-    this.isDragging = true; // ✅ continui a passare sopra → resta attivo
-    event.preventDefault(); // ✅ necessario per consentire il drop
+  onDragOver(event: DragEvent, anteprimeOrAltre: string): void {
+    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
+    event.preventDefault(); //  necessario per consentire il drop
     console.log("Ora mi sto spostando nella drop area");
   }
 
@@ -668,9 +681,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   // Metodo invocato quando l'utente rilascia i file nell'area di drop
   // Metodo invocato quando l'utente rilascia dei file nell'area di drop
   /* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
-  onDrop(event: DragEvent) {
+  onDrop(event: DragEvent, anteprimeOrAltre: string) {
     // Attivo il flag visivo per segnalare che un'area di drop è attiva
-    this.isDragging = false;
+    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
     this.isDropped = true;
     console.log("Variabile is dropped: ", this.isDropped);
     console.log("Ho droppato nell'area");
@@ -767,9 +780,9 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
 
 
-  onDragLeave(event: DragEvent) {
+  onDragLeave(event: DragEvent, anteprimeOrAltre: string) {
     console.log("Sono uscito dalla area");
-    this.isDragging = false;
+    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, false);
   }
 
   //serve per cambiare l'icone da cloud_upload a cloud_upload_done per poi ritornare dopo 2 secondi a quella normale
@@ -784,11 +797,12 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     this.isUploading = false;
 
     // Disattiva qualsiasi stato di trascinamento residuo
-    this.isDragging = false;
-
+    this.isDraggingByEditor = false;
+    this.isDraggingAnteprime = false;
+    this.isDraggingAnteprimePiuAltre = false;
     // Mostra il messaggio di esito
     if (valore) {
-      this.uploadSuccess = true; // ✅ Mostra icona success
+      this.uploadSuccess = true; //  Mostra icona success
 
       // Dopo 2 secondi, torna a quella normale
       setTimeout(() => this.uploadSuccess = false, 2000);
@@ -1346,36 +1360,36 @@ Il valore è un numero:
 
         const confermaDeleteMassivaDialogRef = this.dialog.open(ConfermaDeleteMassivaComponent, {
           panelClass: 'conferma-cancellazione-dialog', // Questo collega lo stile alla .cdk-overlay-pane
-            disableClose: false, // consente chiusura con
+          disableClose: false, // consente chiusura con
         });
 
         confermaDeleteMassivaDialogRef.afterClosed().subscribe(data => {
           console.log("Hai scelto di cancellare tutto: ", data);
           //mostro lo spinner overlay (non fa niente se e quello di upload)
-          if(data === true){ //se confermiamo di eliminare allora procediamo
+          if (data === true) { //se confermiamo di eliminare allora procediamo
             this.isUploading = true;
-          this.adminService.deleteImages(this.tutteLeUrl, this.isConfigFolder).subscribe({
-            next: (response) => {
-              this.isUploading = false;
-              console.log("Cancellazione completata:", response);
-              this.disabledMoreVertButton = false;
-              this.mostraMessaggioSnakBar(
-                "Cancellazione avvenuta con successo, media eliminati: " + this.tutteLeUrl.length,
-                false
-              );
-              // Notifica ad altri componenti che la cache è cambiata
-              this.sharedService.notifyCacheIsChanged();
-            },
-            error: (err) => {
-              this.isUploading = false;
-              console.error("Errore durante la cancellazione:", err);
-            }
-          });
+            this.adminService.deleteImages(this.tutteLeUrl, this.isConfigFolder).subscribe({
+              next: (response) => {
+                this.isUploading = false;
+                console.log("Cancellazione completata:", response);
+                this.disabledMoreVertButton = false;
+                this.mostraMessaggioSnakBar(
+                  "Cancellazione avvenuta con successo, media eliminati: " + this.tutteLeUrl.length,
+                  false
+                );
+                // Notifica ad altri componenti che la cache è cambiata
+                this.sharedService.notifyCacheIsChanged();
+              },
+              error: (err) => {
+                this.isUploading = false;
+                console.error("Errore durante la cancellazione:", err);
+              }
+            });
           }
-          else{
+          else {
             console.log("Non hai scelto di cancellare nulla");
           }
-          
+
         })
 
 
@@ -1728,17 +1742,17 @@ Il valore è un numero:
   }
 
 
-  filesCaricatiManualmente(event: Event){
+  filesCaricatiManualmente(event: Event) {
     this.isDropped = false;
-    this.isDragging = true;
-      const input = event.target as HTMLInputElement;
-      const files = input.files;
+    this.isDraggingByEditor = true;
+    const input = event.target as HTMLInputElement;
+    const files = input.files;
 
-      console.log("Files inseriti ancora non caricati: ", files);
-      if (!files || files.length === 0) {
-        console.warn("Non e stato inserito nessun file");
-        return;
-      }
+    console.log("Files inseriti ancora non caricati: ", files);
+    if (!files || files.length === 0) {
+      console.warn("Non e stato inserito nessun file");
+      return;
+    }
     // Converto la FileList in un array per una gestione più comoda
     const arrayFiles = Array.from(files);
     console.log("Array di file: ", arrayFiles);
@@ -1749,7 +1763,7 @@ Il valore è un numero:
       return this.tipiSupportati.includes(tipo);
     });
 
-        // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
+    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
     if (filesSupportati.length === 0) {
       this.mostraMessaggioSnakBar(
         "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
@@ -1758,7 +1772,7 @@ Il valore è un numero:
       return;
     }
 
-        // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
+    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
     const tipiContati: { [tipo: string]: number } = {};
     filesSupportati.forEach(file => {
       const tipoGenerico = file.type.split('/')[0];
@@ -1770,7 +1784,7 @@ Il valore è un numero:
       return tipiContati[a] > tipiContati[b] ? a : b;
     });
 
-        // Verifico che il tipo prevalente sia uno di quelli accettati
+    // Verifico che il tipo prevalente sia uno di quelli accettati
     if (!this.tipiSupportati.includes(tipoPrevalente)) {
       this.mostraMessaggioSnakBar(
         "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
@@ -1779,7 +1793,7 @@ Il valore è un numero:
       return;
     }
 
-        // Imposto il tipo accettato e lo comunico anche al componente figlio
+    // Imposto il tipo accettato e lo comunico anche al componente figlio
     this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
     this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
 
@@ -1788,13 +1802,13 @@ Il valore è un numero:
       return file.type.split('/')[0] === this.tipoAccettato;
     });
 
-        // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
+    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
     const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
     const estensioniScartate = Array.from(new Set(
       filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
     ));
 
-        // Se ci sono file scartati, mostro un messaggio di errore informativo
+    // Se ci sono file scartati, mostro un messaggio di errore informativo
     if (filesScartati.length > 0) {
       const tipoEstensione = this.tipoAccettato;
       const msg = filesScartati.length === 1
@@ -1804,7 +1818,7 @@ Il valore è un numero:
       this.mostraMessaggioSnakBar(msg, true);
     }
 
-        // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
+    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
     if (filesValidi.length === 0) {
       this.mostraMessaggioSnakBar(
         "Nessun file valido da caricare. Tutti i file sono stati scartati.",
@@ -1817,13 +1831,13 @@ Il valore è un numero:
     console.log("Inizio a chiamare il component hidden di upload per caricare i file");
     console.log("File validi: ", this.fileArray);
 
-        //  Mostro il componente per gestire l’upload
+    //  Mostro il componente per gestire l’upload
     this.showUploadComponent = true;
     this.isUploading = true;
     this.isDropped = true;
-    this.isDragging = false;
+    this.isDraggingByEditor = false;
 
-}
+  }
 
 
 
