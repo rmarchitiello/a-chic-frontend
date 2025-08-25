@@ -1727,4 +1727,104 @@ Il valore è un numero:
     return 'image';
   }
 
+
+  filesCaricatiManualmente(event: Event){
+    this.isDropped = false;
+    this.isDragging = true;
+      const input = event.target as HTMLInputElement;
+      const files = input.files;
+
+      console.log("Files inseriti ancora non caricati: ", files);
+      if (!files || files.length === 0) {
+        console.warn("Non e stato inserito nessun file");
+        return;
+      }
+    // Converto la FileList in un array per una gestione più comoda
+    const arrayFiles = Array.from(files);
+    console.log("Array di file: ", arrayFiles);
+
+    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+    const filesSupportati = arrayFiles.filter(file => {
+      const tipo = file.type.split('/')[0];
+      return this.tipiSupportati.includes(tipo);
+    });
+
+        // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
+    if (filesSupportati.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+        // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
+    const tipiContati: { [tipo: string]: number } = {};
+    filesSupportati.forEach(file => {
+      const tipoGenerico = file.type.split('/')[0];
+      tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
+    });
+
+    // Determino il tipo prevalente: quello con il maggior numero di file presenti
+    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
+      return tipiContati[a] > tipiContati[b] ? a : b;
+    });
+
+        // Verifico che il tipo prevalente sia uno di quelli accettati
+    if (!this.tipiSupportati.includes(tipoPrevalente)) {
+      this.mostraMessaggioSnakBar(
+        "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+        true
+      );
+      return;
+    }
+
+        // Imposto il tipo accettato e lo comunico anche al componente figlio
+    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
+    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+
+    // Seleziono solo i file che appartengono al tipo prevalente
+    const filesValidi = filesSupportati.filter(file => {
+      return file.type.split('/')[0] === this.tipoAccettato;
+    });
+
+        // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
+    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
+    const estensioniScartate = Array.from(new Set(
+      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+    ));
+
+        // Se ci sono file scartati, mostro un messaggio di errore informativo
+    if (filesScartati.length > 0) {
+      const tipoEstensione = this.tipoAccettato;
+      const msg = filesScartati.length === 1
+        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+      console.warn(msg);
+      this.mostraMessaggioSnakBar(msg, true);
+    }
+
+        // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
+    if (filesValidi.length === 0) {
+      this.mostraMessaggioSnakBar(
+        "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+        true
+      );
+      return;
+    }
+
+    this.fileArray = filesValidi;
+    console.log("Inizio a chiamare il component hidden di upload per caricare i file");
+    console.log("File validi: ", this.fileArray);
+
+        //  Mostro il componente per gestire l’upload
+    this.showUploadComponent = true;
+    this.isUploading = true;
+    this.isDropped = true;
+    this.isDragging = false;
+
+}
+
+
+
 }
