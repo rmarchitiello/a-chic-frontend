@@ -639,72 +639,87 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
   }
 
 
-  //mi fa capire se sono sull area di drop
-  isDraggingAnteprime: boolean = false;
-  isDraggingAnteprimePiuAltre: boolean = false;
+  // Stati di dragging delle due dropzone
+  isDraggingAnteprime = false;
+  isDraggingAnteprimePiuAltre = false;
 
-  //gestisco lo spinner con una variabile diversa
-  isUploading: boolean = false;
+  // True se almeno una dropzone è in stato di drag
+  isDraggingByEditor = false;
 
-  isDraggingByEditor: boolean = false;
-  checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre: string, value: boolean) {
-    this.isDraggingByEditor = true;
-    let logMsg = '';
+  // Aggiorna lo stato di dragging per la dropzone indicata
+  checkAndSetValueAnteprimeOrAltre(
+    anteprimeOrAltre: 'anteprime' | 'anteprime-altre',
+    value: boolean
+  ): void {
+    // Stato attuale della DZ target (per evitare update/log inutili)
+    const corrente = anteprimeOrAltre === 'anteprime'
+      ? this.isDraggingAnteprime
+      : this.isDraggingAnteprimePiuAltre;
+
+    // Se non cambia nulla, esci (riduce spam da dragover)
+    if (corrente === value) return;
+
+    // Aggiorna la DZ specifica
     if (anteprimeOrAltre === 'anteprime') {
       this.isDraggingAnteprime = value;
-      logMsg = 'anteprime'
-    } else if (anteprimeOrAltre === 'anteprime-altre') {
+    } else {
       this.isDraggingAnteprimePiuAltre = value;
-      logMsg = 'anteprime piu altre'
     }
-    console.log("Sono entrato nel drag " + logMsg);
-  }
-  //per attivare l'altro component a ricevere i dati
-  showUploadComponent: boolean = false
-  onDragEnter(anteprimeOrAltre: string): void {
-    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
-  }
 
-  onDragOver(event: DragEvent, anteprimeOrAltre: string): void {
-    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
-    event.preventDefault(); //  necessario per consentire il drop
-    console.log("Ora mi sto spostando nella drop area");
+    // Riallinea il flag aggregato
+    this.isDraggingByEditor = this.isDraggingAnteprime || this.isDraggingAnteprimePiuAltre;
+
+    // Log più significativo (enter/leave)
+    console.log(`${value ? '[drag enter/over]' : '[drag leave]'} ${anteprimeOrAltre}`);
   }
 
-  fileArray!: File[];               // Qui salvo i file validi da caricare
-  tipoAccettato: string | null = null;  // Uso questa variabile per tenere traccia del tipo generico accettato (es. 'image', 'video', 'audio')
-  mediaTypeDropped: 'image' | 'video' | 'audio' | '' = '';
 
-  readonly tipiSupportati = ['image', 'video', 'audio']; // Definisco i soli tipi MIME che accetto
+  // per attivare l'altro component a ricevere i dati
+  showUploadComponent: boolean = false;
+  // Spinner overlay globale (mostra/nasconde lo spinner)
+  isUploading: boolean = false;
+  onDragEnter(ctx: 'anteprime' | 'anteprime-altre'): void {
+    this.checkAndSetValueAnteprimeOrAltre(ctx, true);
+  }
 
-  isDropped: boolean = false;
-  // Metodo invocato quando l'utente rilascia i file nell'area di drop
-  // Metodo invocato quando l'utente rilascia dei file nell'area di drop
-  /* Quando chiamo la on drop si abilita a true la variabile che passa gli input al figlio*/
-  onDrop(event: DragEvent, anteprimeOrAltre: string) {
-    // Attivo il flag visivo per segnalare che un'area di drop è attiva
-    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, true);
-    this.isDropped = true;
-    console.log("Variabile is dropped: ", this.isDropped);
-    console.log("Ho droppato nell'area");
 
-    // Impedisco il comportamento di default del browser (es. apertura file)
-    event.preventDefault();
+  onDragOver(event: DragEvent, ctx: 'anteprime' | 'anteprime-altre'): void {
+    event.preventDefault(); // necessario per consentire il drop
+    this.checkAndSetValueAnteprimeOrAltre(ctx, true);
+  }
+
+
+  fileArray!: File[]; // Qui salvo i file validi da caricare
+  tipoAccettato: 'image' | 'video' | 'audio' | null = null; // Tipo generico accettato
+  mediaTypeDropped: 'image' | 'video' | 'audio' | '' = '';  // Tipo comunicato al figlio
+
+  readonly tipiSupportati: ReadonlyArray<'image' | 'video' | 'audio'> = ['image', 'video', 'audio'];
+
+  // Flag "sto caricando" per ciascuna dropzone
+  isDroppedAnteprime = false;
+  isDroppedAnteprimePiuAltre = false;
+
+  onDrop(event: DragEvent, ctx: 'anteprime' | 'anteprime-altre'): void {
+    event.preventDefault(); // necessario per consentire il drop
+    this.checkAndSetValueAnteprimeOrAltre(ctx, true);
+
+    // Mostra "Sto caricando" SOLO nella DZ interessata
+    this.isDroppedAnteprime = ctx === 'anteprime';
+    this.isDroppedAnteprimePiuAltre = ctx === 'anteprime-altre';
 
     // Recupero i file trascinati
     const files = event.dataTransfer?.files;
     if (!files || files.length === 0) return;
 
-    // Converto la FileList in un array per una gestione più comoda
+    // Converto la FileList in array
     const arrayFiles = Array.from(files);
 
-    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
+    // Tieni solo i file con tipo MIME generico supportato (image, video, audio)
     const filesSupportati = arrayFiles.filter(file => {
-      const tipo = file.type.split('/')[0];
-      return this.tipiSupportati.includes(tipo);
+      const tipo = (file.type || '').split('/')[0] as 'image' | 'video' | 'audio' | '';
+      return this.tipiSupportati.includes(tipo as 'image' | 'video' | 'audio');
     });
 
-    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
     if (filesSupportati.length === 0) {
       this.mostraMessaggioSnakBar(
         "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
@@ -713,19 +728,18 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
-    const tipiContati: { [tipo: string]: number } = {};
-    filesSupportati.forEach(file => {
-      const tipoGenerico = file.type.split('/')[0];
+    // Conta i tipi generici presenti
+    const tipiContati: Record<string, number> = {};
+    for (const file of filesSupportati) {
+      const tipoGenerico = (file.type || '').split('/')[0];
       tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
-    });
+    }
 
-    // Determino il tipo prevalente: quello con il maggior numero di file presenti
-    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
-      return tipiContati[a] > tipiContati[b] ? a : b;
-    });
+    // Tipo prevalente tra quelli supportati
+    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) =>
+      tipiContati[a] > tipiContati[b] ? a : b
+    ) as 'image' | 'video' | 'audio';
 
-    // Verifico che il tipo prevalente sia uno di quelli accettati
     if (!this.tipiSupportati.includes(tipoPrevalente)) {
       this.mostraMessaggioSnakBar(
         "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
@@ -734,32 +748,26 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Imposto il tipo accettato e lo comunico anche al componente figlio
-    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
-    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+    // Imposto tipo accettato e lo comunico al figlio
+    this.tipoAccettato = tipoPrevalente;
+    this.mediaTypeDropped = tipoPrevalente;
 
-    // Seleziono solo i file che appartengono al tipo prevalente
-    const filesValidi = filesSupportati.filter(file => {
-      return file.type.split('/')[0] === this.tipoAccettato;
-    });
+    // Filtra solo i file del tipo prevalente
+    const filesValidi = filesSupportati.filter(f => (f.type || '').split('/')[0] === this.tipoAccettato);
 
-    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
-    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
-    const estensioniScartate = Array.from(new Set(
-      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
-    ));
-
-    // Se ci sono file scartati, mostro un messaggio di errore informativo
+    // File supportati ma non del tipo prevalente (da segnalare)
+    const filesScartati = filesSupportati.filter(f => !filesValidi.includes(f));
     if (filesScartati.length > 0) {
+      const estensioniScartate = Array.from(new Set(
+        filesScartati.map(f => f.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+      ));
       const tipoEstensione = this.tipoAccettato;
       const msg = filesScartati.length === 1
         ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
-        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
-      console.warn(msg);
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
       this.mostraMessaggioSnakBar(msg, true);
     }
 
-    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
     if (filesValidi.length === 0) {
       this.mostraMessaggioSnakBar(
         "Nessun file valido da caricare. Tutti i file sono stati scartati.",
@@ -768,50 +776,72 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Salvo i file validi in memoria per l’upload
+    // Salvo e apro il componente di upload
     this.fileArray = filesValidi;
-    //  Mostro il componente per gestire l’upload
     this.showUploadComponent = true;
     this.isUploading = true;
-    // L’upload o l’apertura di un popup sarà gestita in seguito (non lo eseguo qui direttamente)
   }
 
 
 
 
 
-  onDragLeave(event: DragEvent, anteprimeOrAltre: string) {
-    console.log("Sono uscito dalla area");
-    this.checkAndSetValueAnteprimeOrAltre(anteprimeOrAltre, false);
+
+  onDragLeave(event: DragEvent, ctx: 'anteprime' | 'anteprime-altre'): void {
+    // Evita flicker: ignora i leave che passano a un figlio della stessa dropzone
+    const current = event.currentTarget as HTMLElement | null;
+    const next = (event.relatedTarget as Node | null);
+    if (current && next && current.contains(next)) return;
+
+    this.checkAndSetValueAnteprimeOrAltre(ctx, false);
   }
 
-  //serve per cambiare l'icone da cloud_upload a cloud_upload_done per poi ritornare dopo 2 secondi a quella normale
-  uploadSuccess: boolean = false;
+  // Flag di successo per ciascuna dropzone (mostra cloud_done per 2s)
+  uploadSuccessAnteprime = false;
+  uploadSuccessAnteprimePiuAltre = false;
 
+  // Ultima dropzone coinvolta (settata in onDrop / filesCaricatiManualmente)
+  currentDropZone: 'anteprime' | 'anteprime-altre' | null = null;
 
   gestisciChiusuraUpload(valore: boolean): void {
-    // Nasconde il componente di upload
+    // Nasconde il componente di upload e ferma lo spinner
     this.showUploadComponent = false;
-
-    // Ferma lo spinner
     this.isUploading = false;
 
-    // Disattiva qualsiasi stato di trascinamento residuo
+    // Reset stati di dragging
     this.isDraggingByEditor = false;
     this.isDraggingAnteprime = false;
     this.isDraggingAnteprimePiuAltre = false;
-    // Mostra il messaggio di esito
-    if (valore) {
-      this.uploadSuccess = true; //  Mostra icona success
 
-      // Dopo 2 secondi, torna a quella normale
-      setTimeout(() => this.uploadSuccess = false, 2000);
+    // Reset "Sto caricando" su entrambe le DZ
+    this.isDroppedAnteprime = false;
+    this.isDroppedAnteprimePiuAltre = false;
+
+    if (valore) {
+      // Mostra icona di successo SOLO sulla DZ interessata
+      if (this.currentDropZone === 'anteprime') {
+        this.uploadSuccessAnteprime = true;
+        setTimeout(() => (this.uploadSuccessAnteprime = false), 2000);
+      } else if (this.currentDropZone === 'anteprime-altre') {
+        this.uploadSuccessAnteprimePiuAltre = true;
+        setTimeout(() => (this.uploadSuccessAnteprimePiuAltre = false), 2000);
+      } else {
+        // fallback: se il contesto non è noto, mostra su entrambe
+        this.uploadSuccessAnteprime = true;
+        this.uploadSuccessAnteprimePiuAltre = true;
+        setTimeout(() => {
+          this.uploadSuccessAnteprime = false;
+          this.uploadSuccessAnteprimePiuAltre = false;
+        }, 2000);
+      }
 
       this.mostraMessaggioSnakBar("File caricati correttamente.", false);
-      this.isDropped = false;
     } else {
       this.mostraMessaggioSnakBar("Si è verificato un errore durante il caricamento.", true);
     }
+
+    // reset del contesto
+    this.currentDropZone = null;
   }
 
 
@@ -1560,135 +1590,132 @@ Il valore è un numero:
   }
 
   arrayFilesDroppatiOnCard: File[] = [];
-  onDropOnCard(event: DragEvent, url: string) {
-    this.isDraggingOnCard = null;
 
-    const files = event.dataTransfer?.files;
-    if (!files || files.length === 0) return;
+onDropOnCard(event: DragEvent, url: string): void {
+  event.preventDefault();
+  this.isDraggingOnCard = null;
 
-    this.arrayFilesDroppatiOnCard = Array.from(files);
+  const filesList = event.dataTransfer?.files;
+  if (!filesList || filesList.length === 0) return;
 
+  const arrayFiles = Array.from(filesList);
 
-    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
-    const filesSupportati = this.arrayFilesDroppatiOnCard.filter(file => {
-      const tipo = file.type.split('/')[0];
-      return this.tipiSupportati.includes(tipo);
-    });
+  // Tieni solo i file con tipo generico supportato (image, video, audio)
+  const filesSupportati = arrayFiles.filter(f => {
+    const tipo = (f.type || '').split('/')[0] as 'image' | 'video' | 'audio' | '';
+    return this.tipiSupportati.includes(tipo as 'image' | 'video' | 'audio');
+  });
 
-    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
-    if (filesSupportati.length === 0) {
-      this.mostraMessaggioSnakBar(
-        "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
-        true
-      );
-      return;
-    }
-
-
-    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
-    const tipiContati: { [tipo: string]: number } = {};
-    filesSupportati.forEach(file => {
-      const tipoGenerico = file.type.split('/')[0];
-      tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
-    });
-
-    // Determino il tipo prevalente: quello con il maggior numero di file presenti
-    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
-      return tipiContati[a] > tipiContati[b] ? a : b;
-    });
-
-    // Verifico che il tipo prevalente sia uno di quelli accettati
-    if (!this.tipiSupportati.includes(tipoPrevalente)) {
-      this.mostraMessaggioSnakBar(
-        "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
-        true
-      );
-      return;
-    }
-
-    // Imposto il tipo accettato e lo comunico anche al componente figlio
-    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
-    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
-
-    // Seleziono solo i file che appartengono al tipo prevalente
-    const filesValidi = filesSupportati.filter(file => {
-      return file.type.split('/')[0] === this.tipoAccettato;
-    });
-
-    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
-    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
-    const estensioniScartate = Array.from(new Set(
-      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
-    ));
-
-    // Se ci sono file scartati, mostro un messaggio di errore informativo
-    if (filesScartati.length > 0) {
-      const tipoEstensione = this.tipoAccettato;
-      const msg = filesScartati.length === 1
-        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
-        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
-      console.warn(msg);
-      this.mostraMessaggioSnakBar(msg, true);
-
-    }
-
-    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
-    if (filesValidi.length === 0) {
-      this.mostraMessaggioSnakBar(
-        "Nessun file valido da caricare. Tutti i file sono stati scartati.",
-        true
-      );
-      return;
-    }
-
-    // Salvo i file validi in memoria per l’upload
-    this.arrayFilesDroppatiOnCard = filesValidi;
-    console.log("Totale dei file da caricare: ", this.arrayFilesDroppatiOnCard);
-
-    //inizio a costruire il form data in base a quanti file devo caricare e la folder di input
-    //non do un context iniziale perche il backend cosa dovra fare
-    /* 1 effettuare una chiamata sul cloud per verificare se quel public id esiste a sistema
-       2 se esiste recuperare il context
-       3 effettuare l'upload delle altre angolazioni con il context recuperato
-       4 aggiornare la cache */
-    if (this.arrayFilesDroppatiOnCard.length > 0) {
-      const formData: FormData = new FormData();
-
-      //appendo tutti i file
-      console.log("File da appendere", this.arrayFilesDroppatiOnCard);
-      this.arrayFilesDroppatiOnCard.forEach(file => {
-        formData.append('file', file);
-      })
-      //appendo la folder
-      console.log("Folder da appendere: ", this.folderInput);
-      formData.append('folder', this.folderInput);
-
-      //appendo anche la url da fornire al backend
-      console.log("Url frontale da appendere: ", url);
-      formData.append('urlFrontaleDiInput', url);
-
-      this.isUploading = true;
-      console.log("Form Data finale da inviare all'upload exist frontale nuovo metodo: ", JSON.stringify(formData));
-      this.adminService.uploadMediaExistFrontale(formData, this.isConfigFolder).subscribe({
-        next: (response) => {
-          this.isUploading = false;
-          console.log('Upload riuscito:', response);
-          this.sharedService.notifyCacheIsChanged();
-          this.mostraMessaggioSnakBar('File caricati correttamente', false);
-        },
-        error: (err) => {
-          this.isUploading = false;
-          console.error('Errore durante l\'upload:', err);
-          this.mostraMessaggioSnakBar('Errore durante il caricamento dei file', true);
-        }
-      });
-    }
-    else {
-      this.isUploading = false;
-      this.mostraMessaggioSnakBar('Errore nel caricamento di altri file', true);
-    }
-
+  if (filesSupportati.length === 0) {
+    this.mostraMessaggioSnakBar(
+      "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+      true
+    );
+    return;
   }
+
+  // Conta i tipi presenti
+  const tipiContati: Record<string, number> = {};
+  for (const f of filesSupportati) {
+    const key = (f.type || '').split('/')[0];
+    tipiContati[key] = (tipiContati[key] || 0) + 1;
+  }
+
+  type MediaKind = 'image' | 'video' | 'audio';
+  const priority: MediaKind[] = ['image', 'video', 'audio'];
+  const keys = Object.keys(tipiContati) as MediaKind[];
+
+  if (keys.length === 0) {
+    this.mostraMessaggioSnakBar(
+      "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+      true
+    );
+    return;
+  }
+
+  // Tipo prevalente con tie-breaker (image > video > audio)
+  const tipoPrevalente = keys.reduce<MediaKind>((best, curr) => {
+    const bc = tipiContati[best] ?? 0;
+    const cc = tipiContati[curr] ?? 0;
+    if (cc > bc) return curr;
+    if (cc === bc && priority.indexOf(curr) < priority.indexOf(best)) return curr;
+    return best;
+  }, keys[0]);
+
+  if (!this.tipiSupportati.includes(tipoPrevalente)) {
+    this.mostraMessaggioSnakBar(
+      "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+      true
+    );
+    return;
+  }
+
+  // Set tipo accettato e comunica al figlio
+  this.tipoAccettato = tipoPrevalente;
+  this.mediaTypeDropped = tipoPrevalente;
+
+  // Filtra solo i file del tipo prevalente
+  const filesValidi = filesSupportati.filter(f => (f.type || '').split('/')[0] === this.tipoAccettato);
+
+  // File supportati ma scartati perché non del tipo prevalente
+  const filesScartati = filesSupportati.filter(f => !filesValidi.includes(f));
+  if (filesScartati.length > 0) {
+    const estensioniScartate = Array.from(new Set(
+      filesScartati.map(f => f.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+    ));
+    const t = this.tipoAccettato;
+    const msg = filesScartati.length === 1
+      ? `Hai cercato di caricare 1 file che non è un${t === 'image' ? "’immagine" : ` ${t.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
+      : `Hai cercato di caricare ${filesScartati.length} file che non sono ${t === 'image' ? 'immagini' : t.toLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
+    this.mostraMessaggioSnakBar(msg, true);
+  }
+
+  if (filesValidi.length === 0) {
+    this.mostraMessaggioSnakBar(
+      "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+      true
+    );
+    return;
+  }
+
+  // Pronti per l'upload su card
+  this.arrayFilesDroppatiOnCard = filesValidi;
+  console.log("Totale dei file da caricare: ", this.arrayFilesDroppatiOnCard);
+
+  if (this.arrayFilesDroppatiOnCard.length > 0) {
+    const formData: FormData = new FormData();
+
+    // Appendo tutti i file
+    this.arrayFilesDroppatiOnCard.forEach(file => {
+      formData.append('file', file);
+    });
+
+    // Appendo la folder
+    formData.append('folder', this.folderInput);
+
+    // Appendo la url frontale per il backend
+    formData.append('urlFrontaleDiInput', url);
+
+    this.isUploading = true;
+    this.adminService.uploadMediaExistFrontale(formData, this.isConfigFolder).subscribe({
+      next: (response) => {
+        this.isUploading = false;
+        console.log('Upload riuscito:', response);
+        this.sharedService.notifyCacheIsChanged();
+        this.mostraMessaggioSnakBar('File caricati correttamente', false);
+      },
+      error: (err) => {
+        this.isUploading = false;
+        console.error('Errore durante l\'upload:', err);
+        this.mostraMessaggioSnakBar('Errore durante il caricamento dei file', true);
+      }
+    });
+  } else {
+    this.isUploading = false;
+    this.mostraMessaggioSnakBar('Errore nel caricamento di altri file', true);
+  }
+}
+
 
   /* Nuovo metodo che serve per individuare il tipo di tag da utilizzare in base alla url corrente. Questo perche 
   Supponiamo in una card ho 5 media di cui 1 media un jpg (di cui frontale) e 2 media mp3 2 media mp4
@@ -1742,106 +1769,123 @@ Il valore è un numero:
   }
 
 
-  filesCaricatiManualmente(event: Event, anteprimeOrAnteprimeEAltre: string) {
+  filesCaricatiManualmente(event: Event, ctx: 'anteprime' | 'anteprime-altre'): void {
+    console.log('Selezione manuale dalla DZ:', ctx);
 
-    console.log("Sto per caricare manualmente le " + anteprimeOrAnteprimeEAltre);
-    
+    // --- Stati UI: mostra "Sto caricando" SOLO nella DZ interessata
+    this.isDroppedAnteprime = ctx === 'anteprime';
+    this.isDroppedAnteprimePiuAltre = ctx === 'anteprime-altre';
+    this.currentDropZone = ctx;
 
-    this.isDropped = false;
-    this.isDraggingByEditor = true;
     const input = event.target as HTMLInputElement;
     const files = input.files;
 
-    console.log("Files inseriti ancora non caricati: ", files);
     if (!files || files.length === 0) {
-      console.warn("Non e stato inserito nessun file");
+      console.warn('Nessun file selezionato');
+      // reset dello stato "sto caricando" se non c'è nulla
+      this.isDroppedAnteprime = false;
+      this.isDroppedAnteprimePiuAltre = false;
       return;
     }
-    // Converto la FileList in un array per una gestione più comoda
-    const arrayFiles = Array.from(files);
-    console.log("Array di file: ", arrayFiles);
 
-    // Filtro solo i file il cui tipo MIME rientra tra quelli supportati (image, video, audio)
-    const filesSupportati = arrayFiles.filter(file => {
-      const tipo = file.type.split('/')[0];
-      return this.tipiSupportati.includes(tipo);
+    // FileList -> Array per lavorarci comodamente
+    const arrayFiles = Array.from(files);
+
+    // Tieni solo MIME generici supportati (image, video, audio)
+    const filesSupportati = arrayFiles.filter(f => {
+      const tipo = (f.type || '').split('/')[0] as 'image' | 'video' | 'audio' | '';
+      return this.tipiSupportati.includes(tipo as 'image' | 'video' | 'audio');
     });
 
-    // Se nessuno dei file è supportato, blocco l’operazione e avviso l’utente
     if (filesSupportati.length === 0) {
       this.mostraMessaggioSnakBar(
-        "I file rilasciati non sono supportati. Puoi caricare solo immagini, video o audio.",
+        'I file selezionati non sono supportati. Puoi caricare solo immagini, video o audio.',
         true
       );
+      this.isDroppedAnteprime = false;
+      this.isDroppedAnteprimePiuAltre = false;
       return;
     }
 
-    // Calcolo quanti file supportati ci sono per ciascun tipo generico (image, video, audio)
-    const tipiContati: { [tipo: string]: number } = {};
-    filesSupportati.forEach(file => {
-      const tipoGenerico = file.type.split('/')[0];
-      tipiContati[tipoGenerico] = (tipiContati[tipoGenerico] || 0) + 1;
-    });
+    // Conta i tipi generici presenti
+    const tipiContati: Record<string, number> = {};
+    for (const f of filesSupportati) {
+      const key = (f.type || '').split('/')[0];
+      tipiContati[key] = (tipiContati[key] || 0) + 1;
+    }
 
-    // Determino il tipo prevalente: quello con il maggior numero di file presenti
-    const tipoPrevalente = Object.keys(tipiContati).reduce((a, b) => {
-      return tipiContati[a] > tipiContati[b] ? a : b;
-    });
+    // Determina tipo prevalente con tie-breaker (image > video > audio)
+    type MediaKind = 'image' | 'video' | 'audio';
+    const keys = Object.keys(tipiContati) as MediaKind[];
+    const priority: MediaKind[] = ['image', 'video', 'audio'];
 
-    // Verifico che il tipo prevalente sia uno di quelli accettati
+    if (keys.length === 0) {
+      this.mostraMessaggioSnakBar(
+        'Nessun file valido da caricare. Tutti i file sono stati scartati.',
+        true
+      );
+      this.isDroppedAnteprime = false;
+      this.isDroppedAnteprimePiuAltre = false;
+      return;
+    }
+
+    const tipoPrevalente = keys.reduce<MediaKind>((best, curr) => {
+      const bc = tipiContati[best] ?? 0;
+      const cc = tipiContati[curr] ?? 0;
+      if (cc > bc) return curr;
+      if (cc === bc && priority.indexOf(curr) < priority.indexOf(best)) return curr;
+      return best;
+    }, keys[0]);
+
     if (!this.tipiSupportati.includes(tipoPrevalente)) {
       this.mostraMessaggioSnakBar(
-        "Tipo di file non supportato. Puoi caricare solo immagini, video o audio.",
+        'Tipo di file non supportato. Puoi caricare solo immagini, video o audio.',
         true
       );
+      this.isDroppedAnteprime = false;
+      this.isDroppedAnteprimePiuAltre = false;
       return;
     }
 
-    // Imposto il tipo accettato e lo comunico anche al componente figlio
-    this.tipoAccettato = tipoPrevalente as 'image' | 'video' | 'audio';
-    this.mediaTypeDropped = tipoPrevalente as 'image' | 'video' | 'audio';
+    // Imposta tipo accettato e comunicalo al figlio
+    this.tipoAccettato = tipoPrevalente;
+    this.mediaTypeDropped = tipoPrevalente;
 
-    // Seleziono solo i file che appartengono al tipo prevalente
-    const filesValidi = filesSupportati.filter(file => {
-      return file.type.split('/')[0] === this.tipoAccettato;
-    });
+    // Tieni solo i file del tipo prevalente
+    const filesValidi = filesSupportati.filter(f => (f.type || '').split('/')[0] === this.tipoAccettato);
 
-    // Identifico i file che, pur essendo supportati, non corrispondono al tipo prevalente
-    const filesScartati = filesSupportati.filter(file => !filesValidi.includes(file));
-    const estensioniScartate = Array.from(new Set(
-      filesScartati.map(file => file.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
-    ));
-
-    // Se ci sono file scartati, mostro un messaggio di errore informativo
+    // Segnala i supportati ma non del tipo prevalente
+    const filesScartati = filesSupportati.filter(f => !filesValidi.includes(f));
     if (filesScartati.length > 0) {
-      const tipoEstensione = this.tipoAccettato;
+      const estensioniScartate = Array.from(new Set(
+        filesScartati.map(f => f.name.split('.').pop()?.toLowerCase() || 'sconosciuto')
+      ));
+      const t = this.tipoAccettato;
       const msg = filesScartati.length === 1
-        ? `Hai cercato di caricare 1 file che non è un${tipoEstensione === 'image' ? "’immagine" : ` ${tipoEstensione.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
-        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
-      console.warn(msg);
+        ? `Hai cercato di caricare 1 file che non è un${t === 'image' ? "’immagine" : ` ${t.toUpperCase()}`}. Scartato: ${estensioniScartate.join(', ')}`
+        : `Hai cercato di caricare ${filesScartati.length} file che non sono ${t === 'image' ? 'immagini' : t.toLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
       this.mostraMessaggioSnakBar(msg, true);
     }
 
-    // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
     if (filesValidi.length === 0) {
       this.mostraMessaggioSnakBar(
-        "Nessun file valido da caricare. Tutti i file sono stati scartati.",
+        'Nessun file valido da caricare. Tutti i file sono stati scartati.',
         true
       );
+      this.isDroppedAnteprime = false;
+      this.isDroppedAnteprimePiuAltre = false;
       return;
     }
 
+    // Pronti per l'upload
     this.fileArray = filesValidi;
-    console.log("Inizio a chiamare il component hidden di upload per caricare i file");
-    console.log("File validi: ", this.fileArray);
-
-    //  Mostro il componente per gestire l’upload
     this.showUploadComponent = true;
     this.isUploading = true;
-    this.isDropped = true;
-    this.isDraggingByEditor = false;
 
+    // Reset dell'input per permettere di riselezionare gli stessi file in futuro
+    input.value = '';
   }
+
 
 
 

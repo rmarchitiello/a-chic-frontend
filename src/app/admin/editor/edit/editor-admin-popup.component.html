@@ -15,62 +15,112 @@
     </button>
   </div>
 
+  
   <!-- DROP ZONE PER ANTEPRIME-->
-  <!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
-  <div (click)="inputDaInvocareAnteprime.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprime"
-    (dragenter)="onDragEnter('anteprime')" (dragover)="onDragOver($event,'anteprime')" (dragleave)="onDragLeave($event,'anteprime')"
-    (drop)="onDrop($event,'anteprime')">
-    <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
-       metto change perche se metto click il metodo prova viene chiamato istant, invece a me serve sapere
-       prima i dati e poi quando invio chiama onDrop con la lista dei file 
-       Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
-       e chiamo questo tag di input passando un template #inputDaInvocare
-       cosi quando clicco il box mi si apre la finestra nativa di upload-->
-    <input #inputDaInvocareAnteprime hidden type="file" multiple (change)="filesCaricatiManualmente($event,'anteprime')">
-    <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
+<!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
+<!--
+  Riga contenitore che CENTRA orizzontalmente le due dropzone.
+  (Ricordati di avere lo SCSS per .dropzones-row con display:flex; justify-content:center; gap:24px;)
+-->
+<div class="dropzones-row">
+
+  <!-- =========================================
+       DROP ZONE PER SOLE ANTEPRIME
+       - Click su tutta l'area => apre l'input file nascosto
+       - Stati usati:
+         * isDraggingAnteprime              -> evidenzia drag-over
+         * isDroppedAnteprime               -> mostra "Sto caricando" solo qui
+         * uploadSuccessAnteprime           -> icona cloud_done solo qui per 2s
+     ========================================= -->
+  <div (click)="inputDaInvocareAnteprime.click()"
+       class="upload-dropzone anteprime"
+       [class.drag-over]="isDraggingAnteprime"
+       (dragenter)="onDragEnter('anteprime')"
+       (dragover)="onDragOver($event,'anteprime')"
+       (dragleave)="onDragLeave($event,'anteprime')"
+       (drop)="onDrop($event,'anteprime')">
+
+    <!--
+      Input file NASCOSTO:
+      - apertura nativa (Explorer/Finder/Foto) al click della dropzone
+      - uso (change) perché i file sono disponibili SOLO dopo la selezione
+      - ctx = 'anteprime' per distinguere la zona
+    -->
+    <input #inputDaInvocareAnteprime
+           hidden
+           type="file"
+           multiple
+           (change)="filesCaricatiManualmente($event,'anteprime')">
 
     <div class="upload-content">
-      <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
-      <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
+      <!-- Icona stato: di default nuvola; su successo (solo per questa DZ) cloud_done -->
+      <mat-icon *ngIf="!uploadSuccessAnteprime" class="upload-icon">cloud_upload</mat-icon>
+      <mat-icon *ngIf="uploadSuccessAnteprime"  class="upload-icon">cloud_done</mat-icon>
 
-      <!-- <p class="upload-text" *ngIf="!isDragging">
-          Trascina qui i file<br><strong>oppure clicca</strong>
-        </p> -->
-      <p class="upload-text" *ngIf="!isDraggingAnteprime && !isDropped">
+      <!-- Testi di stato (solo per questa DZ) -->
+      <p class="upload-text" *ngIf="!isDraggingAnteprime && !isDroppedAnteprime">
         <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare solo le ANTEPRIME</strong>
       </p>
-      <p class="upload-text" *ngIf="isDraggingAnteprime && !isDropped"><strong>Rilascia i file per caricarli</strong></p>
-      <p class="upload-text" *ngIf="isDropped"><strong>Sto caricando</strong></p>
+      <p class="upload-text" *ngIf="isDraggingAnteprime && !isDroppedAnteprime">
+        <strong>Rilascia i file per caricarli</strong>
+      </p>
+      <p class="upload-text" *ngIf="isDroppedAnteprime">
+        <strong>Sto caricando</strong>
+      </p>
     </div>
   </div>
 
-  <!-- DROP ZONE PER ANTEPRIME + FRONTALI -->
-  <div (click)="inputDaInvocareAnteprimeEAltre.click()" class="upload-dropzone" [class.drag-over]="isDraggingAnteprimePiuAltre"
-    (dragenter)="onDragEnter('anteprime-altre')" (dragover)="onDragOver($event,'anteprime-altre')" (dragleave)="onDragLeave($event,'anteprime-altre')"
-    (drop)="onDrop($event,'anteprime-altre')">
-    <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
-       metto change perche se metto click il metodo prova viene chiamato istant, invece a me serve sapere
-       prima i dati e poi quando invio chiama onDrop con la lista dei file 
-       Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
-       e chiamo questo tag di input passando un template #inputDaInvocare
-       cosi quando clicco il box mi si apre la finestra nativa di upload-->
-    <input #inputDaInvocareAnteprimeEAltre hidden type="file" multiple (change)="filesCaricatiManualmente($event,'anteprime-altre')">
-    <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
+  <!-- =========================================
+       DROP ZONE PER ANTEPRIME + ALTRE ANGOLAZIONI
+       - Click su tutta l'area => apre l'input file nascosto
+       - Stati usati:
+         * isDraggingAnteprimePiuAltre         -> evidenzia drag-over
+         * isDroppedAnteprimePiuAltre          -> mostra "Sto caricando" solo qui
+         * uploadSuccessAnteprimePiuAltre      -> icona cloud_done solo qui per 2s
+     ========================================= -->
+  <div (click)="inputDaInvocareAnteprimeEAltre.click()"
+       class="upload-dropzone anteprime-altre"
+       [class.drag-over]="isDraggingAnteprimePiuAltre"
+       (dragenter)="onDragEnter('anteprime-altre')"
+       (dragover)="onDragOver($event,'anteprime-altre')"
+       (dragleave)="onDragLeave($event,'anteprime-altre')"
+       (drop)="onDrop($event,'anteprime-altre')">
+
+    <!--
+      Input file NASCOSTO:
+      - apertura nativa
+      - uso (change) perché i file sono disponibili SOLO dopo la selezione
+      - ctx = 'anteprime-altre' per distinguere la zona
+    -->
+    <input #inputDaInvocareAnteprimeEAltre
+           hidden
+           type="file"
+           multiple
+           (change)="filesCaricatiManualmente($event,'anteprime-altre')">
 
     <div class="upload-content">
-      <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
-      <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
+      <!-- Icona stato per QUESTA DZ -->
+      <mat-icon *ngIf="!uploadSuccessAnteprimePiuAltre" class="upload-icon">cloud_upload</mat-icon>
+      <mat-icon *ngIf="uploadSuccessAnteprimePiuAltre"  class="upload-icon">cloud_done</mat-icon>
 
-      <!-- <p class="upload-text" *ngIf="!isDragging">
-          Trascina qui i file<br><strong>oppure clicca</strong>
-        </p> -->
-      <p class="upload-text" *ngIf="!isDraggingAnteprimePiuAltre && !isDropped">
-        <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare le ANTEPRIME piu ALTRE ANGOLAZIONI</strong>
+      <!-- Testi di stato (solo per questa DZ) -->
+      <p class="upload-text" *ngIf="!isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
+        <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo e caricare le ANTEPRIME più ALTRE ANGOLAZIONI</strong>
       </p>
-      <p class="upload-text" *ngIf="isDraggingAnteprimePiuAltre && !isDropped"><strong>Rilascia i file per caricarli</strong></p>
-      <p class="upload-text" *ngIf="isDropped"><strong>Sto caricando</strong></p>
+      <p class="upload-text" *ngIf="isDraggingAnteprimePiuAltre && !isDroppedAnteprimePiuAltre">
+        <strong>Rilascia i file per caricarli</strong>
+      </p>
+      <p class="upload-text" *ngIf="isDroppedAnteprimePiuAltre">
+        <strong>Sto caricando</strong>
+      </p>
     </div>
   </div>
+
+</div>
+
+
+
+
 
   <!-- Griglia card -->
   <div class="preview-container" (click)="onChiudiMetaDati()">

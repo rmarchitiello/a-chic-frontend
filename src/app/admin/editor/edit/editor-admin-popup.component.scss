@@ -1,172 +1,175 @@
 
-
-
 /* =======================================
    Contenitore principale del dialog
+   - gestisce padding, layering e colori base
 ======================================= */
 .dialog-content {
-  position: relative;
-  height: 100%;
-  padding: 2.5rem;
-  padding-top: 4rem;   /* spazio extra sopra per i bottoni */
-  padding-right: 4rem; /* spazio extra a destra */
-  overflow: visible;
-  z-index: 1000;
-  color: #111827;
+  position: relative;          /* serve per posizionare assolutamente elementi interni (es. .top-actions) */
+  height: 100%;                /* il dialog occupa tutta l’altezza disponibile */
+  padding: 2.5rem;             /* padding generale interno */
+  padding-top: 4rem;           /* spazio extra per i pulsanti nell’angolo in alto a destra */
+  padding-right: 4rem;         /* spazio extra a destra per non sovrapporre i pulsanti */
+  overflow: visible;           /* permette a overlay interni di “uscire” (menu, tooltip, ecc.) */
+  z-index: 1000;               /* layer base del contenuto del dialog */
+  color: #111827;              /* colore testo principale (grigio molto scuro) */
 
   /* =======================================
-     Overlay spinner
+     Overlay spinner (quando isUploading = true)
+     - copre l’intero viewport, blocca input, mostra loader
   ======================================= */
   .spinner-overlay {
-    position: fixed;
-    inset: 0;
-    display: flex;
+    position: fixed;                           /* fisso rispetto alla finestra */
+    inset: 0;                                  /* top/right/bottom/left: 0 => copre tutto */
+    display: flex;                             /* centra lo spinner */
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.7);
-    z-index: 2000;
-    pointer-events: all;
+    background: rgba(255, 255, 255, 0.7);      /* velo chiaro traslucido */
+    z-index: 2000;                             /* sopra il contenuto del dialog */
+    pointer-events: all;                       /* intercetta click per bloccare interazione sotto */
   }
 
   /* =======================================
-     Azioni in alto a destra
+     Azioni in alto a destra (chiudi / elimina tutto)
+     - posizionate in overlay rispetto al contenuto
   ======================================= */
   .top-actions {
-    position: absolute;
-    top: 1.25rem;
-    right: 1.25rem;
-    z-index: 2100;
-    display: flex;
-    gap: 1rem;
+    position: absolute;        /* agganciato al .dialog-content */
+    top: 1.25rem;              /* distanza dal top */
+    right: 1.25rem;            /* distanza dal right */
+    z-index: 2100;             /* sopra altri contenuti (es. immagini) */
+    display: flex;             /* allinea i pulsanti su una riga */
+    gap: 1rem;                 /* spaziatura tra i bottoni */
   }
 
   .icon-btn {
-    background: transparent !important;
-    border: none;
-    padding: 0;
-    width: 36px;
+    background: transparent !important;  /* nessuno sfondo di default */
+    border: none;                        /* niente bordi */
+    padding: 0;                          /* reset padding */
+    width: 36px;                         /* area clic consistente */
     height: 36px;
-    border-radius: 50%;
-    display: inline-flex;
+    border-radius: 50%;                  /* forma circolare */
+    display: inline-flex;                /* centra l’icona */
     align-items: center;
     justify-content: center;
-    cursor: pointer;
+    cursor: pointer;                     /* mano su hover */
 
     mat-icon {
-      font-size: 26px;
+      font-size: 26px;                   /* dimensione icona */
       width: 26px;
       height: 26px;
       line-height: 26px;
-      color: #000;
+      color: #000;                       /* icona scura */
     }
 
     &:hover {
-      background: transparent !important;
+      background: transparent !important; /* niente highlight aggressivo */
       box-shadow: none !important;
     }
 
     &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25);
+      outline: none;                      /* rimuove outline default */
+      box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.25); /* alone di focus accessibile */
     }
 
     &:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
+      opacity: 0.45;                      /* attenuato */
+      cursor: not-allowed;                 /* cursore disabilitato */
     }
   }
 
-  .chiudi-btn mat-icon {
-    color: #111;
-  }
-
-  .elimina-tutto mat-icon {
-    color: #b00020;
-  }
-
+  /* Colorazioni specifiche delle icone in alto */
+  .chiudi-btn mat-icon { color: #111; }           /* chiudi = grigio scuro */
+  .elimina-tutto mat-icon { color: #b00020; }     /* elimina = rosso acceso */
   .elimina-tutto:focus-visible {
-    box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25);
+    box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25); /* alone rosso al focus */
   }
 
   /* =======================================
-     Dropzone in alto
+     Dropzone (riutilizzabile) – base
+     Nota: qui definiamo lo stile comune a TUTTE le dropzone
   ======================================= */
   .upload-dropzone {
-    width: 260px;
+    width: 260px;                         /* dimensione “card” */
     height: 260px;
-    margin: 0 auto 2rem; /* centrata e separata dalle card */
-    border: 2px dashed #4caf50;
-    border-radius: 16px;
-    background: #fff;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    /* Niente margin: 0 auto; perché le allineiamo orizzontalmente (vedi layout sotto) */
+    border: 2px dashed #4caf50;           /* bordo tratteggiato (colore di default; verrà sovrascritto dalle varianti) */
+    border-radius: 16px;                  /* angoli arrotondati “card” */
+    background: #ffffff;                  /* sfondo bianco */
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1); /* ombra leggera */
+    cursor: pointer;                      /* indica che è cliccabile */
+    display: inline-flex;                 /* così due dropzone si mettono una accanto all’altra */
+    vertical-align: top;                  /* allineamento top tra elementi inline-flex */
+    align-items: center;                  /* centra contenuto verticalmente */
+    justify-content: center;              /* centra contenuto orizzontalmente */
+    text-align: center;                   /* testo centrato */
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* transizioni morbide */
+    position: relative;                   /* base per overlay interni */
+    overflow: hidden;                     /* evita overflow del contenuto animato */
+    margin: 0 12px 2rem 0;                /* spazio a destra per affiancarle; spazio sotto per separarle dal resto */
 
+    /* Contenuto interno “muto” per non interferire con drag&drop */
     .upload-content {
-      pointer-events: none;
-      user-select: none;
-      padding: 1rem;
-      display: flex;
+      pointer-events: none;               /* lascia che i click/drag vadano al contenitore */
+      user-select: none;                  /* evita selezione di testo durante il drag */
+      padding: 1rem;                      /* respiro interno */
+      display: flex;                      /* icona + testo in colonna */
       flex-direction: column;
       align-items: center;
-      gap: 0.75rem;
-      transition: transform 0.3s ease, opacity 0.3s ease;
+      gap: 0.75rem;                       /* spazio tra icona e testo */
+      transition: transform 0.3s ease, opacity 0.3s ease; /* per eventuali animazioni */
     }
 
+    /* Icona Material principale (nuvola / done) */
     .upload-icon {
-      font-family: 'Material Icons' !important;
-      font-size: 48px;
-      color: #4caf50;
-      height: 48px;
-      width: 48px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-feature-settings: 'liga';
+      font-family: 'Material Icons' !important;  /* forza font corretto */
+      font-size: 48px;                           /* dimensione icona */
+      color: #4caf50;                            /* colore predefinito (verde) – varianti lo sovrascrivono */
+      height: 48px; width: 48px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-feature-settings: 'liga';             /* migliora resa font */
       -webkit-font-feature-settings: 'liga';
       -webkit-font-smoothing: antialiased;
-      transition: transform 0.3s ease, color 0.3s ease;
+      transition: transform 0.3s ease, color 0.3s ease; /* animazione su hover/drag-over */
     }
 
+    /* Testo guida */
     .upload-text {
       font-size: 0.95rem;
       line-height: 1.4;
-      color: #4caf50;
+      color: #4caf50;                             /* colore predefinito (verde) – varianti lo sovrascrivono */
       transition: color 0.3s ease, opacity 0.3s ease;
 
       strong {
         display: block;
         font-weight: 600;
-        color: inherit;
+        color: inherit;                           /* eredita il colore dal parent */
       }
     }
 
+    /* Stato hover (mouse sopra, non drag) */
     &:hover {
-      background: rgba(76, 175, 80, 0.06);
-      border-color: #388e3c;
+      background: rgba(76, 175, 80, 0.06);        /* leggero highlight di sfondo */
+      border-color: #388e3c;                      /* bordo più scuro */
 
       .upload-icon {
-        color: #388e3c;
-        transform: scale(1.05);
+        color: #388e3c;                           /* icona più scura */
+        transform: scale(1.05);                   /* leggera crescita */
       }
 
-      .upload-text {
-        color: #388e3c;
-      }
+      .upload-text { color: #388e3c; }
     }
 
+    /* Stato drag-over (quando un file è sopra la zona) */
     &.drag-over {
-      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(200, 230, 201, 0.2));
-      border-color: #2e7d32;
+      background: linear-gradient(
+        135deg,
+        rgba(76, 175, 80, 0.08),
+        rgba(200, 230, 201, 0.2)
+      );                                          /* sfondo più evidente durante il drag */
+      border-color: #2e7d32;                      /* bordo ancora più scuro */
 
       .upload-icon {
-        color: #047857;
+        color: #047857;                           /* tono differente per feedback immediato */
         transform: scale(1.1);
       }
 
@@ -177,18 +180,99 @@
     }
   }
 
+  /* Eliminazione del margine destro sull’ultima dropzone affiancata */
+  .upload-dropzone:last-of-type { margin-right: 0; }
+
   /* =======================================
-     Griglia card
+     Varianti di stile per le due dropzone
+     - .anteprime            => accento verde
+     - .anteprime-altre      => accento blu
+     (stesse regole, colori diversi)
+  ======================================= */
+  .upload-dropzone.anteprime {
+    border-color: #4caf50;             /* verde */
+    .upload-icon, .upload-text { color: #4caf50; }
+
+    &:hover {
+      background: rgba(76, 175, 80, 0.06);
+      border-color: #388e3c;
+      .upload-icon { color: #388e3c; transform: scale(1.05); }
+      .upload-text { color: #388e3c; }
+    }
+
+    &.drag-over {
+      background: linear-gradient(135deg, rgba(76,175,80,.08), rgba(200,230,201,.2));
+      border-color: #2e7d32;
+      .upload-icon { color: #047857; transform: scale(1.1); }
+      .upload-text { color: #2e7d32; opacity: .85; }
+    }
+  }
+
+  .upload-dropzone.anteprime-altre {
+    border-color: #0288d1;             /* blu */
+    .upload-icon, .upload-text { color: #0288d1; }
+
+    &:hover {
+      background: rgba(2, 136, 209, 0.06);
+      border-color: #0277bd;
+      .upload-icon { color: #0277bd; transform: scale(1.05); }
+      .upload-text { color: #0277bd; }
+    }
+
+    &.drag-over {
+      background: linear-gradient(135deg, rgba(2,136,209,.08), rgba(179,229,252,.22));
+      border-color: #01579b;
+      .upload-icon { color: #01579b; transform: scale(1.1); }
+      .upload-text { color: #01579b; opacity: .85; }
+    }
+  }
+
+  /* =======================================
+     Griglia card (card media)
+     - flex-wrap per andare a capo
+     - centrata, con gap coerente
   ======================================= */
   .preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    justify-content: center;
-    align-items: flex-start;
-    margin-bottom: 2.5rem;
+    display: flex;            /* layout flessibile delle card */
+    flex-wrap: wrap;          /* le card vanno a capo quando non c’è spazio */
+    gap: 2rem;                /* distanza tra card */
+    justify-content: center;  /* centratura orizzontale card */
+    align-items: flex-start;  /* allineamento in alto delle righe */
+    margin-bottom: 2.5rem;    /* respiro sotto la griglia */
   }
+
+  /* =======================================
+     Responsive (facoltativo)
+     - Sotto 768px, le dropzone vanno a capo e si centrano
+  ======================================= */
+  @media (max-width: 768px) {
+    .upload-dropzone {
+      display: block;         /* occupa tutta la riga */
+      margin: 0 auto 1.25rem; /* centrata e con spazio sotto */
+    }
+  }
+
+  /* =======================================
+     (OPZIONALE) Sticky header per dropzone
+     - Se vuoi che restino “appiccicate” in alto mentre si scrollano le card,
+       abilita overflow/altezza sul contenitore scrollante e rendi sticky le dropzone
+     - Lasciato commentato per non alterare il tuo layout attuale
+  ======================================= */
+  /*
+  .contenitore-scrollante {          // es.: il wrapper che scrolla le card
+    max-height: calc(100vh - 240px);
+    overflow: auto;
+  }
+  .upload-dropzone {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;               // evita trasparenze su scroll
+  }
+  */
 }
+
+
 
 
 /* =======================================
