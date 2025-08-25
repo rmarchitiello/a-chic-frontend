@@ -1,4 +1,3 @@
-
 /* =======================================
    Contenitore principale del dialog
    - gestisce padding, layering e colori base
@@ -85,19 +84,33 @@
   }
 
   /* =======================================
+     Riga che CENTRA le due dropzone
+  ======================================= */
+  .dropzones-row {
+    display: flex;
+    justify-content: center;    /* centra orizzontalmente le DZ */
+    align-items: flex-start;    /* allinea in alto se hanno altezze diverse */
+    gap: 24px;                  /* spazio tra le DZ */
+    flex-wrap: wrap;            /* vanno a capo su schermi stretti */
+    margin-bottom: 2rem;        /* respiro sotto la riga */
+  }
+  .dropzones-row .upload-dropzone {
+    margin: 0;                  /* il gap della riga gestisce la spaziatura */
+  }
+
+  /* =======================================
      Dropzone (riutilizzabile) – base
      Nota: qui definiamo lo stile comune a TUTTE le dropzone
   ======================================= */
   .upload-dropzone {
     width: 260px;                         /* dimensione “card” */
     height: 260px;
-    /* Niente margin: 0 auto; perché le allineiamo orizzontalmente (vedi layout sotto) */
     border: 2px dashed #4caf50;           /* bordo tratteggiato (colore di default; verrà sovrascritto dalle varianti) */
     border-radius: 16px;                  /* angoli arrotondati “card” */
     background: #ffffff;                  /* sfondo bianco */
     box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1); /* ombra leggera */
     cursor: pointer;                      /* indica che è cliccabile */
-    display: inline-flex;                 /* così due dropzone si mettono una accanto all’altra */
+    display: inline-flex;                 /* mantiene dimensioni “intrinseche” anche fuori dalla row */
     vertical-align: top;                  /* allineamento top tra elementi inline-flex */
     align-items: center;                  /* centra contenuto verticalmente */
     justify-content: center;              /* centra contenuto orizzontalmente */
@@ -105,7 +118,7 @@
     transition: background-color 0.3s ease, border-color 0.3s ease; /* transizioni morbide */
     position: relative;                   /* base per overlay interni */
     overflow: hidden;                     /* evita overflow del contenuto animato */
-    margin: 0 12px 2rem 0;                /* spazio a destra per affiancarle; spazio sotto per separarle dal resto */
+    margin: 0 12px 2rem 0;                /* usato SOLO fuori da .dropzones-row (dove viene azzerato) */
 
     /* Contenuto interno “muto” per non interferire con drag&drop */
     .upload-content {
@@ -180,7 +193,7 @@
     }
   }
 
-  /* Eliminazione del margine destro sull’ultima dropzone affiancata */
+  /* Eliminazione del margine destro sull’ultima dropzone affiancata (utile fuori da .dropzones-row) */
   .upload-dropzone:last-of-type { margin-right: 0; }
 
   /* =======================================
@@ -246,20 +259,20 @@
      - Sotto 768px, le dropzone vanno a capo e si centrano
   ======================================= */
   @media (max-width: 768px) {
+    .dropzones-row {
+      gap: 16px;
+    }
     .upload-dropzone {
-      display: block;         /* occupa tutta la riga */
+      display: block;         /* occupa tutta la riga quando fuori dalla row */
       margin: 0 auto 1.25rem; /* centrata e con spazio sotto */
     }
   }
 
   /* =======================================
      (OPZIONALE) Sticky header per dropzone
-     - Se vuoi che restino “appiccicate” in alto mentre si scrollano le card,
-       abilita overflow/altezza sul contenitore scrollante e rendi sticky le dropzone
-     - Lasciato commentato per non alterare il tuo layout attuale
   ======================================= */
   /*
-  .contenitore-scrollante {          // es.: il wrapper che scrolla le card
+  .contenitore-scrollante {
     max-height: calc(100vh - 240px);
     overflow: auto;
   }
@@ -267,10 +280,11 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    background: #fff;               // evita trasparenze su scroll
+    background: #fff;
   }
   */
 }
+
 
 
 
