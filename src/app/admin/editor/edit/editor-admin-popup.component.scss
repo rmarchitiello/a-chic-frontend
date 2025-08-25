@@ -1,16 +1,15 @@
+
+
+
 /* =======================================
    Contenitore principale del dialog
 ======================================= */
 .dialog-content {
   position: relative;
   height: 100%;
-  /* padding generale */
   padding: 2.5rem;
-
-  /* spazio extra per i bottoni in alto a dx */
-  padding-top: 4rem;     /* spazio sufficiente sopra le card */
-  padding-right: 4rem;   /* spazio sufficiente a destra */
-  
+  padding-top: 4rem;   /* spazio extra sopra per i bottoni */
+  padding-right: 4rem; /* spazio extra a destra */
   overflow: visible;
   z-index: 1000;
   color: #111827;
@@ -34,11 +33,11 @@
   ======================================= */
   .top-actions {
     position: absolute;
-    top: 1.25rem;        /* margine verticale leggermente maggiore */
-    right: 1.25rem;      /* margine orizzontale leggermente maggiore */
+    top: 1.25rem;
+    right: 1.25rem;
     z-index: 2100;
     display: flex;
-    gap: 1rem;           /* spazio tra i due bottoni */
+    gap: 1rem;
   }
 
   .icon-btn {
@@ -61,7 +60,6 @@
       color: #000;
     }
 
-    /* nessun effetto hover invasivo */
     &:hover {
       background: transparent !important;
       box-shadow: none !important;
@@ -78,21 +76,105 @@
     }
   }
 
-  /* specifici */
   .chiudi-btn mat-icon {
-    color: #111;          /* grigio scuro */
+    color: #111;
   }
 
   .elimina-tutto mat-icon {
-    color: #b00020;       /* rosso */
-  }
-
-  .elimina-tutto:hover {
-    background: transparent !important;
+    color: #b00020;
   }
 
   .elimina-tutto:focus-visible {
     box-shadow: 0 0 0 2px rgba(176, 0, 32, 0.25);
+  }
+
+  /* =======================================
+     Dropzone in alto
+  ======================================= */
+  .upload-dropzone {
+    width: 260px;
+    height: 260px;
+    margin: 0 auto 2rem; /* centrata e separata dalle card */
+    border: 2px dashed #4caf50;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    overflow: hidden;
+
+    .upload-content {
+      pointer-events: none;
+      user-select: none;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .upload-icon {
+      font-family: 'Material Icons' !important;
+      font-size: 48px;
+      color: #4caf50;
+      height: 48px;
+      width: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-feature-settings: 'liga';
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .upload-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      color: #4caf50;
+      transition: color 0.3s ease, opacity 0.3s ease;
+
+      strong {
+        display: block;
+        font-weight: 600;
+        color: inherit;
+      }
+    }
+
+    &:hover {
+      background: rgba(76, 175, 80, 0.06);
+      border-color: #388e3c;
+
+      .upload-icon {
+        color: #388e3c;
+        transform: scale(1.05);
+      }
+
+      .upload-text {
+        color: #388e3c;
+      }
+    }
+
+    &.drag-over {
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(200, 230, 201, 0.2));
+      border-color: #2e7d32;
+
+      .upload-icon {
+        color: #047857;
+        transform: scale(1.1);
+      }
+
+      .upload-text {
+        color: #2e7d32;
+        opacity: 0.85;
+      }
+    }
   }
 
   /* =======================================
@@ -107,8 +189,6 @@
     margin-bottom: 2.5rem;
   }
 }
-
-
 
 
 /* =======================================
@@ -818,99 +898,6 @@
 
 }
 
-/* =======================================
-   Card “Aggiungi Prodotto” – Drag & Drop
-======================================= */
-.upload-dropzone {
-  width: 260px;
-  height: 260px;
-  border: 2px dashed #4caf50;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-  position: relative;
-  overflow: hidden;
-
-  .upload-content {
-    pointer-events: none;
-    user-select: none;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  .upload-icon {
-    font-family: 'Material Icons' !important;
-    font-size: 48px;
-    font-style: normal;
-    font-weight: normal;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: #4caf50;
-    height: 48px;
-    width: 48px;
-    text-align: center;
-    font-feature-settings: 'liga'; // ✅ Standard version
-    -webkit-font-feature-settings: 'liga'; // ✅ WebKit-prefixed version
-    -webkit-font-smoothing: antialiased;
-    transition: transform 0.3s ease, color 0.3s ease;
-  }
-
-
-
-  .upload-text {
-    font-size: 0.95rem;
-    line-height: 1.4;
-    color: #4caf50;
-    transition: color 0.3s ease, opacity 0.3s ease;
-
-    strong {
-      display: block;
-      font-weight: 600;
-      color: inherit;
-    }
-  }
-
-  &:hover {
-    background: rgba(76, 175, 80, 0.06);
-    border-color: #388e3c;
-
-    .upload-icon {
-      color: #388e3c;
-      transform: scale(1.05);
-    }
-
-    .upload-text {
-      color: #388e3c;
-    }
-  }
-
-  &.drag-over {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.08), rgba(200, 230, 201, 0.2));
-    border-color: #2e7d32;
-
-    .upload-icon {
-      color: #047857;
-      transform: scale(1.1);
-    }
-
-    .upload-text {
-      color: #2e7d32;
-      opacity: 0.85;
-    }
-  }
-}
 
 
 

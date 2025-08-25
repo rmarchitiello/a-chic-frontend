@@ -4,18 +4,48 @@
   </div>
 
   <div class="top-actions">
-    <button *ngIf="tutteLeUrl.length > 0" mat-icon-button class="icon-btn elimina-tutto" [matTooltipClass]="'tooltip-custom'" matTooltip="Elimina tutti i media"
-            (click)="cancellaMedia('not defined url',false,true)" [disabled]="isUploading || disabledMoreVertButton">
+    <button *ngIf="tutteLeUrl.length > 0" mat-icon-button class="icon-btn elimina-tutto"
+      [matTooltipClass]="'tooltip-custom'" matTooltip="Elimina tutti i media"
+      (click)="cancellaMedia('not defined url',false,true)" [disabled]="isUploading || disabledMoreVertButton">
       <mat-icon>delete</mat-icon>
     </button>
-    <button [disabled]="isUploading || disabledMoreVertButton" mat-icon-button class="icon-btn chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
+    <button [disabled]="isUploading || disabledMoreVertButton" mat-icon-button class="icon-btn chiudi-btn"
+      [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
+  <!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
+    <div (click)="inputDaInvocare.click()" class="upload-dropzone" [class.drag-over]="isDragging"
+      (dragenter)="onDragEnter($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)">
+      <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
+       metto change perche se metto click il metodo prova viene chiamato istant, invece a me serve sapere
+       prima i dati e poi quando invio chiama onDrop con la lista dei file 
+       Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
+       e chiamo questo tag di input passando un template #inputDaInvocare
+       cosi quando clicco il box mi si apre la finestra nativa di upload-->
+      <input #inputDaInvocare hidden type="file" multiple (change)="filesCaricatiManualmente($event)">
+      <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
+
+      <div class="upload-content">
+        <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
+        <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
+
+        <!-- <p class="upload-text" *ngIf="!isDragging">
+          Trascina qui i file<br><strong>oppure clicca</strong>
+        </p> -->
+        <p class="upload-text" *ngIf="!isDragging && !isDropped">
+          <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo</strong>
+        </p>
+        <p class="upload-text" *ngIf="isDragging"><strong>Rilascia i file per caricarli</strong></p>
+        <p class="upload-text" *ngIf="isDropped"><strong>Sto caricando</strong></p>
+      </div>
+    </div>
 
   <!-- Griglia card -->
   <div class="preview-container" (click)="onChiudiMetaDati()">
+
 
     <!-- CARD per ogni URL frontale 
     Perche stop propagation Perche quando clicco per espandere i metadati vieme abilitata la variabile espandiMetadati con la url corrente che va ad abilitare 
@@ -325,32 +355,7 @@
           <div class="upload-dropzone" (click)="apriPopUpUploadMedia()" [class.drag-over]="isDragging"
  
     -->
-          <!-- se clicco il div mi chiama input hidden sotto che mi apre la finetra di upload-->
-    <div (click)="inputDaInvocare.click()" class="upload-dropzone" [class.drag-over]="isDragging" (dragenter)="onDragEnter($event)"
-      
-      (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-      <!-- Questa parte qui serve per aprire il pop up nativo di windows o iphone per caricare una lista di file
-       metto change perche se metto click il metodo prova viene chiamato istant, invece a me serve sapere
-       prima i dati e poi quando invio chiama onDrop con la lista dei file 
-       Solo che lo tengo hidden perche altrimenti vedrei la lista dei file da caricare
-       e chiamo questo tag di input passando un template #inputDaInvocare
-       cosi quando clicco il box mi si apre la finestra nativa di upload-->
-      <input #inputDaInvocare hidden type="file" multiple  (change)="filesCaricatiManualmente($event)" > <!-- multiple piu file uso change perche il metodo prova viene chiamato appena decido quali file caricare esempio clicco pop up caricare file invio e poi parte il metodo-->
-
-      <div class="upload-content">
-        <mat-icon *ngIf="!uploadSuccess" class="upload-icon">cloud_upload</mat-icon>
-        <mat-icon *ngIf="uploadSuccess" class="upload-icon">cloud_done</mat-icon>
-
-        <!-- <p class="upload-text" *ngIf="!isDragging">
-          Trascina qui i file<br><strong>oppure clicca</strong>
-        </p> -->
-        <p class="upload-text" *ngIf="!isDragging && !isDropped">
-          <strong>Trascina qui i tuoi file o fai clic per scegliere dal dispositivo</strong>
-        </p>
-        <p class="upload-text" *ngIf="isDragging"><strong>Rilascia i file per caricarli</strong></p>
-        <p class="upload-text" *ngIf="isDropped"><strong>Sto caricando</strong></p>
-      </div>
-    </div>
+    
 
 
   </div>
