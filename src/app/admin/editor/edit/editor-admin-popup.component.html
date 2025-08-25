@@ -8,7 +8,7 @@
             (click)="cancellaMedia('not defined url',false,true)" [disabled]="isUploading || disabledMoreVertButton">
       <mat-icon>delete</mat-icon>
     </button>
-    <button [disabled]="isUploading" mat-icon-button class="icon-btn chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
+    <button [disabled]="isUploading || disabledMoreVertButton" mat-icon-button class="icon-btn chiudi-btn" [matTooltipClass]="'tooltip-custom'" matTooltip="Chiudi" (click)="chiudiDialog()">
       <mat-icon>close</mat-icon>
     </button>
   </div>
