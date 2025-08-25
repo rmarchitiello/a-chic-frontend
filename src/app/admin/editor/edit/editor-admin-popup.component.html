@@ -4,7 +4,7 @@
   </div>
 
   <div class="top-actions">
-    <button mat-icon-button class="icon-btn elimina-tutto" [matTooltipClass]="'tooltip-custom'" matTooltip="Elimina tutti i media"
+    <button *ngIf="tutteLeUrl.length > 0" mat-icon-button class="icon-btn elimina-tutto" [matTooltipClass]="'tooltip-custom'" matTooltip="Elimina tutti i media"
             (click)="cancellaMedia('not defined url',false,true)" [disabled]="isUploading || disabledMoreVertButton">
       <mat-icon>delete</mat-icon>
     </button>

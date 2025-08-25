@@ -1,0 +1,17 @@
+<div class="conferma-eliminazione">
+  <p class="messaggio">Sei sicuro di voler eliminare <strong>tutti i media</strong>?</p>
+
+  <div class="azioni">
+    <!-- X -->
+    <button mat-stroked-button class="btn-x" (click)="chiudiDialog(false)">
+      <mat-icon>close</mat-icon>
+      <span>Annulla</span>
+    </button>
+
+    <!-- ✓ -->
+    <button mat-flat-button class="btn-v" cdkFocusInitial (click)="chiudiDialog(true)">
+      <mat-icon>check</mat-icon>
+      <span>Conferma</span>
+    </button>
+  </div>
+</div>

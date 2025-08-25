@@ -1,0 +1,97 @@
+.conferma-eliminazione {
+  padding: 1.5rem;
+  min-width: 320px;
+  border-radius: 0 !important;
+  text-align: center;
+  background: #fff;
+
+  .titolo {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111;
+  }
+
+  .messaggio {
+    margin: 0 0 1.25rem;
+    font-size: 1rem;
+    color: #444;
+  }
+
+  .azioni {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+
+    /* base pill per entrambi */
+    button[mat-stroked-button],
+    button[mat-flat-button] {
+      border-radius: 9999px;
+      height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      letter-spacing: .2px;
+      transition: transform .12s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+      }
+
+      &:hover { transform: translateY(-1px); }
+      &:active { transform: translateY(0); }
+      &:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,0,0,.08); }
+    }
+
+    /* X (secondario, ghost) */
+    .btn-x {
+      background: #fff;
+      border: 1px solid #dcdcdc;
+      color: #1f1f1f;
+
+      &:hover { background: #f7f7f7; border-color: #cfcfcf; }
+      &:active { background: #f1f1f1; }
+    }
+
+    /* ✓ (azione distruttiva ma con check) */
+    .btn-v {
+      background: #e53935;          /* rosso pieno */
+      border: 1px solid #d33531;
+      color: #fff;
+
+      &:hover { background: #d33531; border-color: #c4302d; }
+      &:active { background: #c4302d; }
+      &:focus-visible { box-shadow: 0 0 0 3px rgba(229, 57, 53, .28); }
+    }
+  }
+}
+
+/* animazione ingresso */
+:host {
+  display: block;
+  animation: pop-in 160ms cubic-bezier(.2,.6,.2,1);
+}
+@keyframes pop-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* backdrop: invariato, resta come ce l’hai */
+::ng-deep .cdk-overlay-backdrop {
+  position: absolute;
+  background-color: #fff !important;
+  top: 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  opacity: 0;
+  touch-action: manipulation;
+}

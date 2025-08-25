@@ -104,6 +104,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ConfermaDeleteMassivaComponent } from '../../common/conferma-delete-massiva/conferma-delete-massiva.component';
 /* NUOVO METODO DI UPLOAD DI UN MEDIA. . .
 Voglio implementare una nuova funzionalita quando dall editor
 
@@ -198,7 +199,7 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
     private adminService: AdminService,
-    @Inject(MAT_DIALOG_DATA) public data: { isConfigMode: boolean}
+    @Inject(MAT_DIALOG_DATA) public data: { isConfigMode: boolean }
   ) { }
 
   caricaMediaCollection(data: MediaCollection) {
@@ -279,61 +280,61 @@ export class EditorAdminPopUpComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
 
-  // Previene l'apertura del file nel browser se droppato fuori dalla zona consentita
-  window.addEventListener('dragover', this.preventBrowserDefault, false);
-  window.addEventListener('drop', this.preventBrowserDefault, false);
+    // Previene l'apertura del file nel browser se droppato fuori dalla zona consentita
+    window.addEventListener('dragover', this.preventBrowserDefault, false);
+    window.addEventListener('drop', this.preventBrowserDefault, false);
 
-  if (this.data.isConfigMode) {
-    // Primo caricamento (Home apre pop up in modalità config)
-    this.sharedService.mediaCollectionConfig$.subscribe(data => {
-      console.log("[EditorComponent] sto ricevendo i dati (config): ", JSON.stringify(data));
-      if (data) {
-        this.caricaMediaCollection(data);
-      }
-    });
+    if (this.data.isConfigMode) {
+      // Primo caricamento (Home apre pop up in modalità config)
+      this.sharedService.mediaCollectionConfig$.subscribe(data => {
+        console.log("[EditorComponent] sto ricevendo i dati (config): ", JSON.stringify(data));
+        if (data) {
+          this.caricaMediaCollection(data);
+        }
+      });
 
-    // Secondo caricamento (upload notifica AppComponent → aggiorna lista config)
-    this.sharedService.mediasCollectionsConfig$.subscribe(data => {
-      this.gestisciAggiornamentoLista(data);
-    });
+      // Secondo caricamento (upload notifica AppComponent → aggiorna lista config)
+      this.sharedService.mediasCollectionsConfig$.subscribe(data => {
+        this.gestisciAggiornamentoLista(data);
+      });
 
-  } else {
-    // Primo caricamento (Cloudinary apre pop up in modalità non-config)
-    this.sharedService.mediaCollectionNonConfig$.subscribe(data => {
-      console.log("[EditorComponent] sto ricevendo i dati (non-config): ", data);
-      if (data) {
-        this.caricaMediaCollection(data);
-      }
-    });
-
-    // Secondo caricamento (upload notifica AppComponent → aggiorna lista non-config)
-    this.sharedService.mediasCollectionsNonConfig$.subscribe(data => {
-      console.log("Secondo caricamento da app component a editor", this.data.isConfigMode);
-      this.gestisciAggiornamentoLista(data);
-    });
-  }
-}
-
-private gestisciAggiornamentoLista(data: MediaCollection[]): void {
-  if (data.length > 0) {
-    this.folderSelezionata = this.folderInput;
-    if (this.folderSelezionata) {
-      console.log("Folder selezionata: ", this.folderSelezionata);
-      this.inputFromFatherComponent = data.find(
-        mediaColl => mediaColl.folder === this.folderSelezionata
-      ) || { folder: '', items: [] };
-      console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
-      console.log("Re invio i nuovi media collection: ");
-      this.caricaMediaCollection(this.inputFromFatherComponent);
     } else {
-      console.log("La folder selezionata è vuota, quindi i dati li ha passati tramite pop up");
+      // Primo caricamento (Cloudinary apre pop up in modalità non-config)
+      this.sharedService.mediaCollectionNonConfig$.subscribe(data => {
+        console.log("[EditorComponent] sto ricevendo i dati (non-config): ", data);
+        if (data) {
+          this.caricaMediaCollection(data);
+        }
+      });
+
+      // Secondo caricamento (upload notifica AppComponent → aggiorna lista non-config)
+      this.sharedService.mediasCollectionsNonConfig$.subscribe(data => {
+        console.log("Secondo caricamento da app component a editor", this.data.isConfigMode);
+        this.gestisciAggiornamentoLista(data);
+      });
     }
-  } else {
-    console.warn("Nessuna media collection ricevuta.");
-    this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
-    this.caricaMediaCollection(this.inputFromFatherComponent);
   }
-}
+
+  private gestisciAggiornamentoLista(data: MediaCollection[]): void {
+    if (data.length > 0) {
+      this.folderSelezionata = this.folderInput;
+      if (this.folderSelezionata) {
+        console.log("Folder selezionata: ", this.folderSelezionata);
+        this.inputFromFatherComponent = data.find(
+          mediaColl => mediaColl.folder === this.folderSelezionata
+        ) || { folder: '', items: [] };
+        console.log("Ricalcolo input from father: ", this.inputFromFatherComponent);
+        console.log("Re invio i nuovi media collection: ");
+        this.caricaMediaCollection(this.inputFromFatherComponent);
+      } else {
+        console.log("La folder selezionata è vuota, quindi i dati li ha passati tramite pop up");
+      }
+    } else {
+      console.warn("Nessuna media collection ricevuta.");
+      this.inputFromFatherComponent = { folder: this.folderInput ?? '', items: [] };
+      this.caricaMediaCollection(this.inputFromFatherComponent);
+    }
+  }
 
 
 
@@ -1258,110 +1259,130 @@ Il valore è un numero:
 
   cancellaMedia(url: string, all: boolean, cancellazioneMassiva: boolean): void {
     //se non e una cancellazione massiva allora esegui la cancellazione normale
-    if(!cancellazioneMassiva){
-    // Attiva lo spinner per la card associata a questa URL
-    this.isDeletingMap[url] = true;
-    this.disabledMoreVertButton = true;
-    // Inizializza l'elenco delle URL da eliminare
-    let urlOrUrlsDaEliminare: string[] = [];
+    if (!cancellazioneMassiva) {
+      // Attiva lo spinner per la card associata a questa URL
+      this.isDeletingMap[url] = true;
+      this.disabledMoreVertButton = true;
+      // Inizializza l'elenco delle URL da eliminare
+      let urlOrUrlsDaEliminare: string[] = [];
 
-    if (all) {
-      // Caso "Elimina tutto": elimina sia la URL frontale sia tutte le sue secondarie
-      const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
+      if (all) {
+        // Caso "Elimina tutto": elimina sia la URL frontale sia tutte le sue secondarie
+        const urlsNoFrontali: string[] = this.mapUrlsNoFrontali?.[url] || [];
 
-      console.log("URL non frontali da eliminare:", urlsNoFrontali);
-      console.log("URL frontale da eliminare:", url);
+        console.log("URL non frontali da eliminare:", urlsNoFrontali);
+        console.log("URL frontale da eliminare:", url);
 
-      // Costruisce un array completo delle URL da eliminare
-      urlOrUrlsDaEliminare = [...urlsNoFrontali, url];
+        // Costruisce un array completo delle URL da eliminare
+        urlOrUrlsDaEliminare = [...urlsNoFrontali, url];
 
-      console.log("Tutte le URL da eliminare:", urlOrUrlsDaEliminare);
+        console.log("Tutte le URL da eliminare:", urlOrUrlsDaEliminare);
 
-    } else {
-      // Caso "Elimina il media corrente" (solo una URL)
-
-      let checkIsUrlFrontale: boolean = false;
-
-      // Verifica se l'URL corrisponde a un media frontale con altre angolazioni
-      if (this.mapUrlsNoFrontali[url]) {
-        checkIsUrlFrontale = this.mediasUrlsFrontale.includes(url) && this.mapUrlsNoFrontali[url]?.length > 0;
-      }
-
-      if (checkIsUrlFrontale) {
-        // Non permettere di eliminare una media usata come anteprima
-        console.warn("Tentativo di eliminazione del media frontale bloccato.");
-        this.mostraMessaggioSnakBar("Non puoi eliminare un media utilizzato come anteprima", true);
       } else {
-        // Elimina solo la URL richiesta
-        urlOrUrlsDaEliminare = [url];
-        console.log("Eliminiamo solo la seguente URL:", urlOrUrlsDaEliminare);
+        // Caso "Elimina il media corrente" (solo una URL)
+
+        let checkIsUrlFrontale: boolean = false;
+
+        // Verifica se l'URL corrisponde a un media frontale con altre angolazioni
+        if (this.mapUrlsNoFrontali[url]) {
+          checkIsUrlFrontale = this.mediasUrlsFrontale.includes(url) && this.mapUrlsNoFrontali[url]?.length > 0;
+        }
+
+        if (checkIsUrlFrontale) {
+          // Non permettere di eliminare una media usata come anteprima
+          console.warn("Tentativo di eliminazione del media frontale bloccato.");
+          this.mostraMessaggioSnakBar("Non puoi eliminare un media utilizzato come anteprima", true);
+        } else {
+          // Elimina solo la URL richiesta
+          urlOrUrlsDaEliminare = [url];
+          console.log("Eliminiamo solo la seguente URL:", urlOrUrlsDaEliminare);
+        }
+      }
+
+      // Se ci sono URL da eliminare, procedi con la chiamata al servizio
+      if (urlOrUrlsDaEliminare.length > 0) {
+        console.log("Avvio procedura di eliminazione...");
+
+        console.log("Tasto disabilitato: ", this.disabledMoreVertButton);
+        this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
+          next: (response) => {
+            console.log("Cancellazione completata:", response);
+            this.disabledMoreVertButton = false;
+            this.mostraMessaggioSnakBar(
+              "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
+              false
+            );
+
+            // Reset degli indici a -1 per la galleria corrispondente alla URL frontale
+            this.currentSecondaryIndex[url] = -1;
+            this.indiciAngolazioniMap[url] = -1;
+
+            // Notifica ad altri componenti che la cache è cambiata
+            this.sharedService.notifyCacheIsChanged();
+
+            // Disattiva lo spinner
+            this.isDeletingMap[url] = false;
+          },
+          error: (err) => {
+            console.error("Errore durante la cancellazione:", err);
+            this.disabledMoreVertButton = false;
+            this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
+
+            // Disattiva lo spinner anche in caso di errore
+            this.isDeletingMap[url] = false;
+          }
+        });
+      } else {
+        this.disabledMoreVertButton = false;
+        // Nessuna eliminazione da eseguire
+        this.isDeletingMap[url] = false;
       }
     }
+    else {
+      //cancellazione massiva in corso
+      if (this.tutteLeUrl.length > 0) {
 
-    // Se ci sono URL da eliminare, procedi con la chiamata al servizio
-    if (urlOrUrlsDaEliminare.length > 0) {
-      console.log("Avvio procedura di eliminazione...");
-      
-      console.log("Tasto disabilitato: ", this.disabledMoreVertButton);
-      this.adminService.deleteImages(urlOrUrlsDaEliminare, this.isConfigFolder).subscribe({
-        next: (response) => {
-          console.log("Cancellazione completata:", response);
-          this.disabledMoreVertButton= false;
-          this.mostraMessaggioSnakBar(
-            "Cancellazione avvenuta con successo, media eliminati: " + urlOrUrlsDaEliminare.length,
-            false
-          );
+        //prima di cancellare apro un pop up per confermare l'eliminazione
 
-          // Reset degli indici a -1 per la galleria corrispondente alla URL frontale
-          this.currentSecondaryIndex[url] = -1;
-          this.indiciAngolazioniMap[url] = -1;
+        const confermaDeleteMassivaDialogRef = this.dialog.open(ConfermaDeleteMassivaComponent, {
+          panelClass: 'conferma-cancellazione-dialog', // Questo collega lo stile alla .cdk-overlay-pane
+            disableClose: false, // consente chiusura con
+        });
 
-          // Notifica ad altri componenti che la cache è cambiata
-          this.sharedService.notifyCacheIsChanged();
-
-          // Disattiva lo spinner
-          this.isDeletingMap[url] = false;
-        },
-        error: (err) => {
-          console.error("Errore durante la cancellazione:", err);
-          this.disabledMoreVertButton = false;
-          this.mostraMessaggioSnakBar("Errore durante l'eliminazione", true);
-
-          // Disattiva lo spinner anche in caso di errore
-          this.isDeletingMap[url] = false;
-        }
-      });
-    } else {
-      this.disabledMoreVertButton = false;
-      // Nessuna eliminazione da eseguire
-      this.isDeletingMap[url] = false;
-    }
-  }
-  else{
-      if(this.tutteLeUrl.length > 0){
-        //mostro lo spinner overlay (non fa niente se e quello di upload)
-        this.isUploading = true;
+        confermaDeleteMassivaDialogRef.afterClosed().subscribe(data => {
+          console.log("Hai scelto di cancellare tutto: ", data);
+          //mostro lo spinner overlay (non fa niente se e quello di upload)
+          if(data === true){ //se confermiamo di eliminare allora procediamo
+            this.isUploading = true;
           this.adminService.deleteImages(this.tutteLeUrl, this.isConfigFolder).subscribe({
-        next: (response) => {
-          this.isUploading = false;
-          console.log("Cancellazione completata:", response);
-          this.disabledMoreVertButton= false;
-          this.mostraMessaggioSnakBar(
-            "Cancellazione avvenuta con successo, media eliminati: " + this.tutteLeUrl.length,
-            false
-          );
-          // Notifica ad altri componenti che la cache è cambiata
-          this.sharedService.notifyCacheIsChanged();
-        },
-        error: (err) => {
-          this.isUploading = false;
-          console.error("Errore durante la cancellazione:", err);
-        }
-      });
-        
-        
+            next: (response) => {
+              this.isUploading = false;
+              console.log("Cancellazione completata:", response);
+              this.disabledMoreVertButton = false;
+              this.mostraMessaggioSnakBar(
+                "Cancellazione avvenuta con successo, media eliminati: " + this.tutteLeUrl.length,
+                false
+              );
+              // Notifica ad altri componenti che la cache è cambiata
+              this.sharedService.notifyCacheIsChanged();
+            },
+            error: (err) => {
+              this.isUploading = false;
+              console.error("Errore durante la cancellazione:", err);
+            }
+          });
+          }
+          else{
+            console.log("Non hai scelto di cancellare nulla");
+          }
+          
+        })
+
+
+
+
       }
-  }
+    }
 
   }
 
@@ -1594,7 +1615,7 @@ Il valore è un numero:
         : `Hai cercato di caricare ${filesScartati.length} file che non sono ${tipoEstensione === 'image' ? 'immagini' : tipoEstensione.toLocaleLowerCase() + ' dello stesso tipo'}. Scartati: ${estensioniScartate.join(', ')}`;
       console.warn(msg);
       this.mostraMessaggioSnakBar(msg, true);
-      
+
     }
 
     // Se dopo il filtro non rimane nessun file valido, interrompo e mostro messaggio
@@ -1652,7 +1673,7 @@ Il valore è un numero:
       this.isUploading = false;
       this.mostraMessaggioSnakBar('Errore nel caricamento di altri file', true);
     }
-    
+
   }
 
   /* Nuovo metodo che serve per individuare il tipo di tag da utilizzare in base alla url corrente. Questo perche 
@@ -1676,34 +1697,34 @@ Il valore è un numero:
               </ng-container>
 
   */
-/**
- * Determina il tipo del media attualmente visibile in una card,
- * tenendo conto del fatto che potrebbe essere selezionato un media secondario.
- *
- * Se esiste una secondaria con indice valido, si analizza quella.
- * Altrimenti si usa il media frontale come riferimento.
- *
- * Il tipo viene dedotto dal suffisso del file (estensione).
- * Sono supportati i principali formati:
- * - Immagini: .jpg, .jpeg, .png, .webp, .gif, .bmp, .tiff, .svg
- * - Video: .mp4, .webm, .mov, .avi, .mkv, .mpeg, .ogv
- * - Audio: .mp3, .wav, .ogg, .aac, .flac, .m4a
- *
- * Restituisce 'image' se nessuna estensione nota è trovata.
- */
-getTipoMediaCorrente(urlFrontale: string): 'image' | 'video' | 'audio' {
-  const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
-  const indiceSecondaria = this.currentSecondaryIndex[urlFrontale] ?? -1;
+  /**
+   * Determina il tipo del media attualmente visibile in una card,
+   * tenendo conto del fatto che potrebbe essere selezionato un media secondario.
+   *
+   * Se esiste una secondaria con indice valido, si analizza quella.
+   * Altrimenti si usa il media frontale come riferimento.
+   *
+   * Il tipo viene dedotto dal suffisso del file (estensione).
+   * Sono supportati i principali formati:
+   * - Immagini: .jpg, .jpeg, .png, .webp, .gif, .bmp, .tiff, .svg
+   * - Video: .mp4, .webm, .mov, .avi, .mkv, .mpeg, .ogv
+   * - Audio: .mp3, .wav, .ogg, .aac, .flac, .m4a
+   *
+   * Restituisce 'image' se nessuna estensione nota è trovata.
+   */
+  getTipoMediaCorrente(urlFrontale: string): 'image' | 'video' | 'audio' {
+    const secondarie = this.mapUrlsNoFrontali[urlFrontale] || [];
+    const indiceSecondaria = this.currentSecondaryIndex[urlFrontale] ?? -1;
 
-  const urlCorrente = (secondarie.length > 0 && indiceSecondaria >= 0)
-    ? secondarie[indiceSecondaria]
-    : urlFrontale;
+    const urlCorrente = (secondarie.length > 0 && indiceSecondaria >= 0)
+      ? secondarie[indiceSecondaria]
+      : urlFrontale;
 
-  if (urlCorrente.match(/\.(mp4|webm|mov|avi|mkv|mpeg|ogv)$/i)) return 'video';
-  if (urlCorrente.match(/\.(mp3|wav|ogg|aac|flac|m4a)$/i)) return 'audio';
-  if (urlCorrente.match(/\.(jpg|jpeg|png|webp|gif|bmp|tiff|svg)$/i)) return 'image';
+    if (urlCorrente.match(/\.(mp4|webm|mov|avi|mkv|mpeg|ogv)$/i)) return 'video';
+    if (urlCorrente.match(/\.(mp3|wav|ogg|aac|flac|m4a)$/i)) return 'audio';
+    if (urlCorrente.match(/\.(jpg|jpeg|png|webp|gif|bmp|tiff|svg)$/i)) return 'image';
 
-  return 'image';
-}
+    return 'image';
+  }
 
 }

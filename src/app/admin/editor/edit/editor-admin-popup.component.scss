@@ -999,3 +999,41 @@
     background-color: rgba(244, 67, 54, 0.08);
   }
 }
+
+
+// Pop-up di conferma
+/* Pane: posizionamento alto-dx */
+::ng-deep .cdk-overlay-pane.conferma-cancellazione-dialog {
+  top: 1.5rem !important;
+  right: 1.5rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  position: absolute !important;
+  z-index: 3100 !important;
+  overflow: hidden; /* evita eccedenze */
+}
+
+/* Surface: NIENTE sfondo/ombra/bordo → niente angoli grigi */
+::ng-deep .cdk-overlay-pane.conferma-cancellazione-dialog .mat-mdc-dialog-surface {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;       /* padding lo gestiamo dentro */
+  overflow: visible !important;
+}
+
+/* Wrapper interno del TUO contenuto (nel template):
+   <div class="conferma-eliminazione"> ... </div>  */
+::ng-deep .cdk-overlay-pane.conferma-cancellazione-dialog .conferma-eliminazione {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.25);
+  border: 1px solid rgba(255,255,255,.25);
+  min-width: 280px;
+  max-width: 360px;
+  padding: 1rem;
+  overflow: hidden; /* clip perfetto agli angoli */
+}
