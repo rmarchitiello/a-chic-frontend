@@ -639,7 +639,7 @@ showGuida() {
     this.dialog.open(UploadDataAdminComponent, {
       panelClass: 'upload-dialog',
       disableClose: false,
-      data: { inputFolder: this.folderInput, files: files } //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor
+      data: { inputFolder: this.folderInput, files: files, onlyAnteprime: false } //se viene droppato dall editor allora aggiungiamo i file direttamente dall editor. //quando apro il pop up praticamente sto caricando frontali + anteprime
     });
 
 
@@ -712,7 +712,20 @@ showGuida() {
   isDroppedAnteprime = false;
   isDroppedAnteprimePiuAltre = false;
 
+  //passo questa variabile al component di upload
+  isOnlyAnteprima: boolean = false; //variabile che serve all'admin service per settare se caricare solo anteprime oppure no
+  
   onDrop(event: DragEvent, ctx: 'anteprime' | 'anteprime-altre'): void {
+    if(ctx === 'anteprime'){
+      this.isOnlyAnteprima = true;
+    }else if(ctx === 'anteprime-altre'){
+        this.isOnlyAnteprima = false;
+    }
+    else{
+      console.warn("Non hai settato un anteprima valida se solo frontali oppure frontali + altre");
+      return;
+    }
+
     event.preventDefault(); // necessario per consentire il drop
     this.checkAndSetValueAnteprimeOrAltre(ctx, true);
 

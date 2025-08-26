@@ -127,7 +127,7 @@ const body = {
   return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
 }
 
-uploadMedia(formData: FormData, config?: boolean): Observable<any> {
+uploadMedia(formData: FormData, config: boolean, isOnlyAnteprima: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaUpload}`;
   let params = new HttpParams();
 
@@ -135,9 +135,10 @@ uploadMedia(formData: FormData, config?: boolean): Observable<any> {
   if (config) {
     params = params.set('config', 'true');
   }
+  params = params.set('anteprime', isOnlyAnteprima);
 
   // Log dettagliato del contenuto del FormData
-  console.log("📤 Avvio uploadMedia() con il seguente contenuto:");
+  console.log(" Avvio uploadMedia() con il seguente contenuto:");
   for (const [key, value] of formData.entries()) {
     if (value instanceof File) {
       console.log(`📎 ${key}: FILE - ${value.name} (${value.type}, ${value.size} bytes)`);
@@ -147,7 +148,7 @@ uploadMedia(formData: FormData, config?: boolean): Observable<any> {
   }
 
   // Uso i miei headers con token recuperato da sessionStorage
-  const headers = this.getAuthHeaders(); // ✅ Metodo già esistente nella classe
+  const headers = this.getAuthHeaders(); //  Metodo già esistente nella classe
 
   // Invio la richiesta POST con FormData e parametri eventuali
   return this.http.post<any>(url, formData, {

@@ -62,7 +62,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private sharedService: SharedDataService,
     private dialogRef: MatDialogRef<UploadDataAdminComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { inputFolder: string, files?: File[] } // La cartella viene fornita dal padre
+    @Inject(MAT_DIALOG_DATA) public data: { inputFolder: string, files?: File[], onlyAnteprime: boolean } // La cartella viene fornita dal padre
     /* Se viene inviata anche la lista dei file vuol dire che editor component non ha premuto il tasto per aggiungere  ma ha droppato direttamente lui */
   ) { }
 
@@ -86,7 +86,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   @Input() droppedByEditorOneWayBinding!: boolean;
   @Input() filesDroppedFromEditorOneWayBinding!: File[];
   @Input() typeMediaFromEditorOneWayBinding: 'image' | 'video' | 'audio' | '' = '';
-
+  @Input() isOnlyAnteprima!: boolean; //variabile che mi viene passata dall editor per capire se devo caricare anteprime o anteprime + altre (serve al backend praticamente);
   @Output() eventoChiudiUpload = new EventEmitter<boolean>(); //emetto al padre l'evento di fine upload
 
   isDroppedByEditor: boolean = false;
@@ -157,6 +157,18 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    //quest if, serve al massimo per gestire l'apertura del pop up dall editor, ma al momento non viene aperto piu
+    if(this.data.onlyAnteprime){
+      this.isOnlyAnteprima = this.data.onlyAnteprime;
+    }
+
+    if(this.isOnlyAnteprima){
+      console.log("[UploadDataAdminComponent] stai caricando solo le anteprime");
+    }
+    else{
+      console.log("[UploadDataAdminComponent] stai caricando anteprime + altre angolazioni");
+    }
+
     console.log("UploadDataAdminComponent inizializzato", this.dialogRef);
     this.isDroppedByEditor = this.droppedByEditorOneWayBinding
     console.log("Droppato dall editor ? ", this.isDroppedByEditor)
@@ -553,7 +565,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     try {
       // Utilizziamo firstValueFrom per trasformare l'observable (restituito da uploadMedia)
       // in una Promise. Questo ci consente di usare 'await' e scrivere codice più lineare.
-      const response = await firstValueFrom(this.adminService.uploadMedia(formData, isConfig));
+      const response = await firstValueFrom(this.adminService.uploadMedia(formData, isConfig,this.isOnlyAnteprima));
 
       // Verifica che la risposta contenga un array valido
       if (Array.isArray(response?.data)) {

@@ -532,5 +532,6 @@
 <!-- Upload dialog (one-way bindings) -->
 <app-upload-data-admin hidden *ngIf="showUploadComponent" [inputFolderFromEdiorOneWayBinding]="folderInput"
   [droppedByEditorOneWayBinding]="true" [filesDroppedFromEditorOneWayBinding]="fileArray"
+  [isOnlyAnteprima]="isOnlyAnteprima"
   [typeMediaFromEditorOneWayBinding]="mediaTypeDropped" (eventoChiudiUpload)="gestisciChiusuraUpload($event)">
 </app-upload-data-admin>
