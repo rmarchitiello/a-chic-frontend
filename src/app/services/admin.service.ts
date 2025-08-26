@@ -127,7 +127,7 @@ const body = {
   return this.http.put<any>(url, body, {params,headers: this.getAuthHeaders()}); // 
 }
 
-uploadMedia(formData: FormData, config: boolean, isOnlyAnteprima: boolean): Observable<any> {
+uploadMedia(formData: FormData, config: boolean): Observable<any> {
   const url = `${this.baseUrl}${this.mediaUpload}`;
   let params = new HttpParams();
 
@@ -135,7 +135,6 @@ uploadMedia(formData: FormData, config: boolean, isOnlyAnteprima: boolean): Obse
   if (config) {
     params = params.set('config', 'true');
   }
-  params = params.set('anteprime', isOnlyAnteprima);
 
   // Log dettagliato del contenuto del FormData
   console.log(" Avvio uploadMedia() con il seguente contenuto:");

@@ -353,210 +353,246 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
   /**
  * Avvia l'upload dei file (singolo o multiplo)
  */
-  async uploadFiles(): Promise<void> {
-    console.log("Inizio metodo di upload")
-    // Verifica che l'utente abbia specificato una cartella
-    const folder = this.inputFolder?.trim();
-    console.log("folder input: ", folder);
-    const isConfig = folder.toLowerCase().includes('config');
+  /**
+ * Avvia l'upload dei file (singolo o multiplo) applicando la logica:
+ * - isOnlyAnteprima = true  → TUTTI i file come 'frontale' (item separati)
+ * - isOnlyAnteprima = false → 1° file 'frontale' + gli altri 'altra' (stesso display_name del frontale)
+ */
+async uploadFiles(): Promise<void> {
+  console.log("Inizio metodo di upload");
 
-    if (!folder) {
-      alert("Errore: specifica una cartella di destinazione.");
-      return;
-    }
-    let risultatiTotali: string[] = []; // variabile che inserisco tutti i risultati se qui dentro trovo almeno un ko non chiudo il pop up 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 1) Validazioni iniziali e setup
+  // ─────────────────────────────────────────────────────────────────────────────
+  const folder = this.inputFolder?.trim();
+  console.log("folder input: ", folder);
 
-    if (this.isDroppedByEditor) {
-      // Log iniziale per debugging
-      console.log("UPLOAD DA EDITOR");
-      console.log("File da caricare droppati dall'editor:", this.filesDaCaricare); // Array di File
-      console.log("Media input type ricevuto:", this.typeMediaFromEditorOneWayBinding);
-
-      if (this.isDroppedByEditor) {
-        // Log iniziale per verificare cosa sto gestendo
-        console.log("UPLOAD DA EDITOR");
-        console.log("File da caricare droppati dall'editor:", this.filesDaCaricare); // Array di File
-        console.log("Media input type ricevuto:", this.typeMediaFromEditorOneWayBinding);
-
-        // Timestamp per generare nomi univoci
-        const timestamp = Date.now();
-
-        // Ciclo su ogni file droppato per creare un FormData dedicato
-        this.filesDaCaricare.forEach((file, index) => {
-          // Imposto dinamicamente l’angolazione: la prima è 'frontale', le altre 'altra'
-          const angolazione = index === 0 ? 'frontale' : 'altra';
-
-          // Creo un context base con i valori predefiniti
-          const context: MediaContext = {
-            display_name: 'Nome_' + timestamp + '_' + index,
-            type: this.typeMediaFromEditorOneWayBinding, // Deve essere 'image' | 'video' | 'audio'
-            descrizione: "Da inserire",
-            quantita: "0",
-            angolazione: angolazione
-          };
-
-          // Salvo il context nella mappa per poterlo recuperare in fase successiva se serve
-          this.metadatiPerFile.set(file, context);
-        });
-      }
-
-    }
-    // Controlla che ci siano file da caricare
-    if (this.filesDaCaricare.length === 0) {
-      alert("Errore: seleziona almeno un file da caricare.");
-      return;
-    }
-
-
-
-    // ───── Step 1: Recupero del file frontale (se presente) ─────
-    const fileDaCaricareFrontale = this.filesDaCaricare.find(f => {
-      const meta = this.metadatiPerFile.get(f);
-      return meta?.['angolazione'] === 'frontale';
-    });
-
-    console.log("ahjahahaha: ", fileDaCaricareFrontale);
-
-    if (fileDaCaricareFrontale) {
-      console.log("File frontale identificato:", fileDaCaricareFrontale.name);
-      console.log("Metadati del file frontale:", this.metadatiPerFile.get(fileDaCaricareFrontale));
-    } else {
-      console.warn("Nessun file frontale trovato tra i file selezionati.");
-    }
-
-    const filesDaCaricareNonFrontali = this.filesDaCaricare.filter(f => this.metadatiPerFile.get(f)?.['angolazione'] !== 'frontale');
-
-    console.log("File con altre angolazioni da caricare:");
-    filesDaCaricareNonFrontali.forEach(f => {
-      const meta = this.metadatiPerFile.get(f);
-      console.log(`- ${f.name} → angolazione: ${meta?.['angolazione']}`);
-    });
-
-    const numeroDeiFileDaCaricare =
-      filesDaCaricareNonFrontali.length + (fileDaCaricareFrontale ? 1 : 0);
-    console.log("Numero totale di file da caricare:", numeroDeiFileDaCaricare);
-
-    this.uploadInCorso = true;
-    this.statoUpload.clear();
-    this.motiviErroreUpload.clear();
-
-    // Prepara il FormData per il file frontale
-    const formDataFrontale = new FormData();
-    let contextFrontale: MediaContext | undefined;
-    if (fileDaCaricareFrontale) {
-      contextFrontale = this.metadatiPerFile.get(fileDaCaricareFrontale);
-      console.log("Context recuperato per il file frontale:", contextFrontale);
-
-      if (contextFrontale) {
-        formDataFrontale.append('file', fileDaCaricareFrontale);
-        formDataFrontale.append('folder', folder);
-        formDataFrontale.append('cloudinary', JSON.stringify(contextFrontale));
-        console.log("Lalalalalal", JSON.stringify(contextFrontale));
-      }
-    }
-
-
-    // ───── Caricamento del file frontale con attesa risposta ─────
-    const risultatoCaricamentoFrontale = await this.caricaMediaInToCloud(formDataFrontale, isConfig);
-    console.log("Inizio a caricare la frontale", JSON.stringify(risultatoCaricamentoFrontale));
-
-    //recupero il campo status
-    const statusFrontale = risultatoCaricamentoFrontale.find(r => r.angolazione === 'frontale')?.status;
-    console.log("Risultato caricamento della frontale (solo status):", statusFrontale);
-
-    let statusNonFrontale: string[] = [];
-    if (statusFrontale === 'ok') {
-      if (filesDaCaricareNonFrontali.length > 0) {
-
-
-        console.log(" La frontale è stata caricata correttamente, adesso procedo al caricamento delle altre angolazioni...");
-        risultatiTotali.push(statusFrontale); //inizio a inserire il primo stato
-        let formDataNonFrontale = new FormData();
-        //creo il contex per la non frontale sovrascrivendo l'angolazione
-        let contextNonFrontale: MediaContext | undefined = contextFrontale;
-        if (contextFrontale) {
-          contextNonFrontale = {
-            ...contextFrontale,
-            angolazione: 'altra'  // Sovrascrive solo la chiave angolazione
-          };
-
-          console.log("Anche per le non frontali carico il seguente context: ", contextFrontale);
-
-
-        }
-        for (const file of filesDaCaricareNonFrontali) {
-          // Crea un nuovo FormData per ogni file non frontale
-          formDataNonFrontale.append('file', file);
-          formDataNonFrontale.append('folder', folder);
-          formDataNonFrontale.append('cloudinary', JSON.stringify(contextNonFrontale));
-        }
-
-
-        // Attende il caricamento e stampa il risultato
-        const risultatoCaricamentoNonFrontali = await this.caricaMediaInToCloud(formDataNonFrontale, isConfig);
-        console.log("aaaaa", JSON.stringify(risultatoCaricamentoNonFrontali));
-        // Trova il primo risultato che NON è frontale e recupera solo il campo 'status'
-        statusNonFrontale = risultatoCaricamentoNonFrontali.map(r => r.status);
-        // Logga correttamente lo status del file non frontale
-        console.log("Risultato caricamento della non frontale (solo status):", statusNonFrontale);
-        // Aggiunge lo status alla lista dei risultati totali (string[])
-
-
-      } else {
-        console.log("Non ci sono altre angolazioni per quest immagine");
-      }
-
-      //mi serve sapere se c e almeno un ko 
-      statusNonFrontale.push(statusFrontale);
-      const statusFinale: boolean = statusNonFrontale.some(s => s === 'ko')
-
-      const rapportinoUpload = {
-        totale_file: numeroDeiFileDaCaricare,
-        status_frontali_caricati: statusFrontale,
-        status_non_frontali_caricati: statusNonFrontale,
-        status_finale: statusFinale ? 'ko' : 'ok' // se in totale, ci sono dei ko non chiudere il pop up altrimenti chiudi il pop up e invia la notifica ad app component
-
-      }
-      console.log("Rapportino finale: ", rapportinoUpload);
-
-      if (rapportinoUpload.status_finale === 'ko') {
-        console.log("Ci sono stati errori durante l'upload di una non frontale")
-      }
-      else {
-        //quando tutto è ok
-        if(this.isDroppedByEditor){
-          console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
-          //notifico al padre
-          this.sharedService.notifyCacheIsChanged();
-          this.eventoChiudiUpload.emit(true); //emetto l'evento al padre per dire guarda è finito l'upload mostra una snackbar ok
-        }
-        else{
-
-        
-        this.chiudiDialog();
-        }
-      }
-
-    } else {
-      if(this.isDroppedByEditor){
-                      console.log("Non devo chiudere nessun dialog perche non apro nessun pop up essendo che l'editor sta caricando")
-          //notifico al padre
-          this.sharedService.notifyCacheIsChanged();
-          this.eventoChiudiUpload.emit(false);
-      }else{
-
-      console.error(" Errore nel caricamento della frontale. Upload interrotto.");
-
-      }
-    }
-
-
-    this.uploadInCorso = false; //disabilito lo spinner di caricamento
-
-
-
-
+  if (!folder) {
+    alert("Errore: specifica una cartella di destinazione.");
+    return;
   }
+
+  const isConfig = folder.toLowerCase().includes('config');
+  let risultatiTotali: string[] = []; // per eventuali aggregazioni di stato (resto della tua logica)
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 2) Preparazione metadati per ogni file (solo se upload da editor)
+  //    Genero display_name univoci e assegno l'angolazione in base a isOnlyAnteprima
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (this.isDroppedByEditor) {
+    console.log("UPLOAD DA EDITOR");
+    console.log("File da caricare droppati dall'editor:", this.filesDaCaricare);
+    console.log("Media input type ricevuto:", this.typeMediaFromEditorOneWayBinding);
+
+    const timestamp = Date.now();
+
+    this.filesDaCaricare.forEach((file, index) => {
+      // Se SOLO ANTEPRIME → tutti 'frontale'
+      // Altrimenti → primo 'frontale', gli altri 'altra'
+      const angolazione = this.isOnlyAnteprima
+        ? 'frontale'
+        : (index === 0 ? 'frontale' : 'altra');
+
+      const context: MediaContext = {
+        display_name: 'Nome_' + timestamp + '_' + index,      // univoco per file
+        type: this.typeMediaFromEditorOneWayBinding,           // 'image' | 'video' | 'audio'
+        descrizione: "Da inserire",
+        quantita: "0",
+        angolazione
+      };
+
+      this.metadatiPerFile.set(file, context);
+    });
+  }
+
+  // Verifica minimi: deve esserci almeno 1 file
+  if (this.filesDaCaricare.length === 0) {
+    alert("Errore: seleziona almeno un file da caricare.");
+    return;
+  }
+
+  // Pulizia stato UI upload
+  this.uploadInCorso = true;
+  this.statoUpload.clear();
+  this.motiviErroreUpload.clear();
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 3) BRANCH A → SOLO ANTEPRIME (this.isOnlyAnteprima === true)
+  //    Invia un unico POST con N file e per ciascuno il proprio metadato 'frontale'.
+  //    Ogni file è un item separato (display_name univoco).
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (this.isOnlyAnteprima) {
+    console.log("Modalità attiva: SOLO ANTEPRIME → tutti i file saranno 'frontale'");
+
+    const formDataAllFrontali = new FormData();
+
+    for (const file of this.filesDaCaricare) {
+      const ctx = this.metadatiPerFile.get(file);
+      // sicurezza: se per qualunque motivo mancasse, costruisco un context minimo
+      const ctxFront = ctx ? { ...ctx, angolazione: 'frontale' } : {
+        display_name: 'Nome_' + Date.now() + '_0',
+        type: this.typeMediaFromEditorOneWayBinding,
+        descrizione: "Da inserire",
+        quantita: "0",
+        angolazione: 'frontale'
+      };
+
+      formDataAllFrontali.append('file', file);                               // file corrente
+      formDataAllFrontali.append('folder', folder);                           // cartella
+      formDataAllFrontali.append('cloudinary', JSON.stringify(ctxFront));     // metadato per quel file
+    }
+
+    try {
+      const res = await this.caricaMediaInToCloud(formDataAllFrontali, isConfig);
+      const hasKo = Array.isArray(res) && res.some(r => r.status === 'ko');
+
+      if (hasKo) {
+        console.warn("Alcuni upload (solo anteprime) non sono andati a buon fine");
+        this.eventoChiudiUpload.emit(false);
+      } else {
+        if (this.isDroppedByEditor) {
+          console.log("Editor mode: non chiudo dialog, notifico aggiornamento cache");
+          this.sharedService.notifyCacheIsChanged();
+          this.eventoChiudiUpload.emit(true);
+        } else {
+          this.chiudiDialog();
+        }
+      }
+    } catch (e) {
+      console.error("Errore durante upload (solo anteprime):", e);
+      this.eventoChiudiUpload.emit(false);
+    } finally {
+      this.uploadInCorso = false;
+    }
+
+    return; // IMPORTANTISSIMO: non eseguire il branch successivo
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 4) BRANCH B → FRONTALE + ALTRE ANGOLAZIONI (this.isOnlyAnteprima === false)
+  //    4.1) Invio il frontale (1 file + 1 metadato)
+  //    4.2) Se ok, invio le altre angolazioni (N file + N metadati con CONTEXT DEL FRONTALE)
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // 4.1 Individua il file frontale (da mappa metadati)
+  let fileDaCaricareFrontale = this.filesDaCaricare.find(
+    f => this.metadatiPerFile.get(f)?.['angolazione'] === 'frontale'
+  );
+
+  // Se non lo troviamo (caso limite), forziamo il primo come frontale per robustezza
+  if (!fileDaCaricareFrontale) {
+    console.warn("Nessun file marcato 'frontale' trovato: forzo il primo file come frontale");
+    const primo = this.filesDaCaricare[0];
+    const metaPrimo = this.metadatiPerFile.get(primo) || {
+      display_name: 'Nome_' + Date.now() + '_0',
+      type: this.typeMediaFromEditorOneWayBinding,
+      descrizione: "Da inserire",
+      quantita: "0",
+      angolazione: 'frontale'
+    };
+    this.metadatiPerFile.set(primo, { ...metaPrimo, angolazione: 'frontale' });
+    fileDaCaricareFrontale = primo;
+  }
+
+  const filesDaCaricareNonFrontali = this.filesDaCaricare.filter(
+    f => this.metadatiPerFile.get(f)?.['angolazione'] !== 'frontale'
+  );
+
+  console.log("File frontale identificato:", fileDaCaricareFrontale?.name);
+  console.log("File con altre angolazioni da caricare:",
+    filesDaCaricareNonFrontali.map(f => f.name));
+
+  // 4.2 Prepara e invia il POST del FRONTALE
+  const formDataFrontale = new FormData();
+  const contextFrontale = this.metadatiPerFile.get(fileDaCaricareFrontale)!; // context del frontale
+
+  formDataFrontale.append('file', fileDaCaricareFrontale);
+  formDataFrontale.append('folder', folder);
+  formDataFrontale.append('cloudinary', JSON.stringify({
+    ...contextFrontale,
+    angolazione: 'frontale'  // sicurezza
+  }));
+
+  const risultatoCaricamentoFrontale = await this.caricaMediaInToCloud(formDataFrontale, isConfig);
+  console.log("Inizio a caricare la frontale", JSON.stringify(risultatoCaricamentoFrontale));
+
+  // Status del frontale
+  const statusFrontale = risultatoCaricamentoFrontale.find(r => r.angolazione === 'frontale')?.status;
+  console.log("Risultato caricamento della frontale (solo status):", statusFrontale);
+
+  if (statusFrontale !== 'ok') {
+    // Se il frontale fallisce, interrompo il processo (senza altre angolazioni)
+    if (this.isDroppedByEditor) {
+      console.log("Editor mode: notifico comunque la cache e l'esito KO");
+      this.sharedService.notifyCacheIsChanged();
+      this.eventoChiudiUpload.emit(false);
+    } else {
+      console.error("Errore nel caricamento della frontale. Upload interrotto.");
+      this.eventoChiudiUpload.emit(false);
+    }
+    this.uploadInCorso = false;
+    return;
+  }
+
+  // 4.3 Se non ci sono altre angolazioni da caricare → chiusura positiva
+  if (filesDaCaricareNonFrontali.length === 0) {
+    console.log("Frontale caricato, nessuna 'altra' angolazione presente");
+    if (this.isDroppedByEditor) {
+      this.sharedService.notifyCacheIsChanged();
+      this.eventoChiudiUpload.emit(true);
+    } else {
+      this.chiudiDialog();
+    }
+    this.uploadInCorso = false;
+    return;
+  }
+
+  // 4.4 Prepara il POST per le ALTRE angolazioni
+  //     CORRELAZIONE: uso lo STESSO context del frontale ma con 'angolazione: altra'
+  const formDataNonFrontale = new FormData();
+  const contextNonFrontale = { ...contextFrontale, angolazione: 'altra' };
+
+  for (const file of filesDaCaricareNonFrontali) {
+    formDataNonFrontale.append('file', file);                                   // aggiungo ogni file "altra"
+    formDataNonFrontale.append('folder', folder);                               // stessa cartella
+    formDataNonFrontale.append('cloudinary', JSON.stringify(contextNonFrontale)); // STESSO display_name del frontale
+  }
+
+  const risultatoCaricamentoNonFrontali = await this.caricaMediaInToCloud(formDataNonFrontale, isConfig);
+  console.log("Risultati upload 'altra' angolazione:", JSON.stringify(risultatoCaricamentoNonFrontali));
+
+  // 4.5 Costruisco esito complessivo per decidere chiusura/notifica
+  let statusNonFrontale: string[] = risultatoCaricamentoNonFrontali.map(r => r.status);
+  statusNonFrontale.push(statusFrontale as string);
+  const statusFinaleKo = statusNonFrontale.some(s => s === 'ko');
+
+  const rapportinoUpload = {
+    totale_file: filesDaCaricareNonFrontali.length + 1,
+    status_frontali_caricati: statusFrontale,
+    status_non_frontali_caricati: statusNonFrontale,
+    status_finale: statusFinaleKo ? 'ko' : 'ok'
+  };
+  console.log("Rapportino finale: ", rapportinoUpload);
+
+  if (statusFinaleKo) {
+    console.log("Ci sono stati errori durante l'upload di almeno una 'altra' angolazione");
+    this.eventoChiudiUpload.emit(false);
+  } else {
+    if (this.isDroppedByEditor) {
+      console.log("Editor mode: notifico aggiornamento cache e chiudo OK");
+      this.sharedService.notifyCacheIsChanged();
+      this.eventoChiudiUpload.emit(true);
+    } else {
+      this.chiudiDialog();
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 5) Fine → disabilito lo spinner
+  // ─────────────────────────────────────────────────────────────────────────────
+  this.uploadInCorso = false;
+}
+
 
 
 
@@ -565,7 +601,7 @@ export class UploadDataAdminComponent implements OnInit, OnDestroy {
     try {
       // Utilizziamo firstValueFrom per trasformare l'observable (restituito da uploadMedia)
       // in una Promise. Questo ci consente di usare 'await' e scrivere codice più lineare.
-      const response = await firstValueFrom(this.adminService.uploadMedia(formData, isConfig,this.isOnlyAnteprima));
+      const response = await firstValueFrom(this.adminService.uploadMedia(formData, isConfig));
 
       // Verifica che la risposta contenga un array valido
       if (Array.isArray(response?.data)) {
