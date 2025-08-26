@@ -1796,6 +1796,15 @@ onDropOnCard(event: DragEvent, url: string): void {
 
 
   filesCaricatiManualmente(event: Event, ctx: 'anteprime' | 'anteprime-altre'): void {
+        if(ctx === 'anteprime'){
+      this.isOnlyAnteprima = true;
+    }else if(ctx === 'anteprime-altre'){
+        this.isOnlyAnteprima = false;
+    }
+    else{
+      console.warn("Non hai settato un anteprima valida se solo frontali oppure frontali + altre");
+      return;
+    }
     console.log('Selezione manuale dalla DZ:', ctx);
 
     // --- Stati UI: mostra "Sto caricando" SOLO nella DZ interessata
