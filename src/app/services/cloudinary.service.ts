@@ -36,6 +36,9 @@ getMediaFromCache(pathImages?: string, config?: boolean): Observable<any> {
 
 
 //leggo dalla cache text
+/* Cosa succede, tramite questo servizio andiamo a chiamare il backend che legge la cache dei test 
+viene utilizzato una volta nell oninit di app component, Una volta caricata la cache text di tipo TextConfigFromCache 
+andiamo a settare un subject (dentro admin service)*/
 getTextFromCache(): Observable<any> {
   console.log("Start chiamata a get text dalla cache: . . . ");
   const url = `${this.baseUrl}${this.textPath}`;
