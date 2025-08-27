@@ -1,5 +1,9 @@
 /* ============================================================
-   TOP BANNER COMPONENT — mobile statico, desktop statico
+   TOP BANNER COMPONENT — mobile + desktop
+   Obiettivi:
+   - Loop continuo stile “snake” (nessun vuoto tra uscite/entrate).
+   - In editing: niente animazione, riga a larghezza piena.
+   - Input monolinea che non viene clippato dal banner.
    ============================================================ */
 
 /* Contenitore componente (neutro) */
@@ -8,38 +12,73 @@
   box-sizing: border-box;
 }
 
-/* Nodo banner (colore + clipping orizzontale per marquee) */
+/* Nodo banner (colore + maschera orizzontale) */
 .top-banner {
   background: #000;           /* colore del banner */
   color: #fff;                /* colore del testo */
-  overflow: hidden;           /* taglia il testo ai bordi */
+  overflow: hidden;           /* taglia il contenuto ai bordi */
   transform: none;            /* evita nuovi stacking/contesti */
 }
+
+/* Utility per aggiungere il puntatore quando serve */
+.cursor-pointer { cursor: pointer; }
 
 /* Riga testuale che scorre (loop continuo) */
 .marquee {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 2rem;
   white-space: nowrap;
-  width: max-content;         /* la riga si misura sul contenuto */
+
+  /* NESSUN GAP tra gli item: per lo “snake” i due segmenti devono essere adiacenti.
+     Lo spazio si ottiene con padding sul segmento, così ogni metà è IDENTICA. */
+  gap: 0;
+
+  /* La traccia si misura sul contenuto (due segmenti). */
+  width: max-content;
+
   will-change: transform;     /* hint prestazioni */
 }
 
+/* Ciascun segmento è identico e include lo "spazio di respiro" a destra.
+   Così ogni metà della traccia ha la stessa larghezza (testo + spacing). */
 .marquee-segment {
-  display: inline-block;      /* no a-capo; resta inline */
+  display: inline-block;      /* niente a-capo */
+  padding-right: 2rem;        /* spazio tra ripetizioni */
+}
+
+/* Stato di editing: spegni SOLO il movimento e mantieni il layout
+   + forza la riga a larghezza piena per evitare il “restringimento”. */
+.marquee.no-anim {
+  animation: none !important;
+  transform: none !important;
+  width: 100% !important;     /* riga a tutta larghezza in edit */
+}
+
+/* Input monolinea dentro il banner (solo quando in edit):
+   occupa l'altezza del banner, eredita font/colore, niente bordi. */
+.top-banner .marquee input {
+  height: 100%;
+  line-height: inherit;
+  padding: 0 0.5rem;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ============================
-   MOBILE (≤ 768px): statico
+   MOBILE (≤ 768px)
    ============================ */
 @media (max-width: 768px) {
-    
   .top-banner {
     position: static;         /* scorre nel flusso */
-    height: 32px;             /* fisso (coerente con header offset) */
-    line-height: 32px;        /* opz.: centra verticalmente il testo */
+    height: 32px;             /* fisso: allinea al tuo header */
+    line-height: 32px;        /* centratura verticale del testo */
     padding-inline: 0.5rem;
   }
 
@@ -49,15 +88,13 @@
 }
 
 /* ============================
-   DESKTOP (≥ 769px): statico
+   DESKTOP (≥ 769px)
    ============================ */
 @media (min-width: 769px) {
-    .cursor-pointer { cursor: pointer; }
-
   .top-banner {
     position: static;         /* resta nel flusso (non sticky) */
     height: 1.8rem;           /* ≈ 28.8px */
-    line-height: 1.8rem;      /* opz.: centratura verticale */
+    line-height: 1.8rem;      /* centratura verticale del testo */
     padding-inline: 0.6rem;
     z-index: auto;            /* nessun layering speciale necessario */
   }
@@ -66,7 +103,7 @@
     animation: marquee-desktop 28s linear infinite;
   }
 
-  /* —— Opzionale: se un giorno lo vuoi sticky su desktop ——
+  /* —— Opzionale: sticky su desktop —— 
   .top-banner {
     position: sticky;
     top: 0;
@@ -77,6 +114,8 @@
 
 /* ============================
    Animazioni marquee
+   - Il track è composto da DUE segmenti identici.
+   - Trasliamo da 0 a -50%: a metà, la seconda metà combacia esattamente con la prima.
    ============================ */
 @keyframes marquee-mobile {
   from { transform: translateX(0); }
@@ -91,9 +130,5 @@
    Accessibilità: riduzione movimento
    ============================ */
 @media (prefers-reduced-motion: reduce) {
-  .marquee { animation-duration: 999s; }  /* quasi fermo, niente “salti” */
+  .marquee { animation: none !important; }  /* fermo, niente “salti” */
 }
-
-
-
-.marquee.no-anim { animation: none !important; }

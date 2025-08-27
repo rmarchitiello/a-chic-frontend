@@ -1,109 +1,311 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  OnDestroy,
+  ElementRef,
+  ViewChild,
+  HostListener,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { SharedDataService } from '../../services/shared-data.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
-import { TextConfigFromCache, PageConfig, ComponentBlock, DynamicItem } from '../../app.component';
+import {
+  TextConfigFromCache,
+  PageConfig,
+  ComponentBlock,
+  DynamicItem,
+} from '../../app.component';
 import { FormsModule } from '@angular/forms';
-import { ViewChild } from '@angular/core';
-import { ElementRef } from '@angular/core';
+
 @Component({
   selector: 'app-top-banner',
-  standalone: true,               // componente standalone (senza modulo dedicato)
-  imports: [CommonModule,MatTooltipModule,MatIconModule,FormsModule],        // importa CommonModule per *ngIf, *ngFor ecc.
+  standalone: true, // componente standalone (niente NgModule dedicato)
+  imports: [CommonModule, MatTooltipModule, MatIconModule, FormsModule],
   templateUrl: './top-banner.component.html',
-  styleUrls: ['./top-banner.component.scss']
+  styleUrls: ['./top-banner.component.scss'],
 })
-export class TopBannerComponent implements OnInit {
-  // Subject usato come notifica di distruzione per cancellare le subscription
+export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
+  // ================
+  // Stato & riferimenti
+  // ================
+
+  /** Notifica di distruzione per cancellare le subscription (pattern takeUntil). */
   private readonly destroy$ = new Subject<void>();
 
-imEditing = false;
-@ViewChild('bannerInput') bannerInput?: ElementRef<HTMLInputElement>;
+  /** Flag: siamo in modalità editing? (mostra input, ferma animazione, ecc.) */
+  imEditing = false;
 
-abilitaModifica(): void {
-  this.imEditing = !this.imEditing;
-  setTimeout(() => {
-    const el = this.bannerInput?.nativeElement;
-    if (el) {
-      el.focus();
-      el.setSelectionRange(el.value.length, el.value.length); // cursore a fine testo (facoltativo)
-    }
-  });
-  console.log("Banner text: ", this.bannerText);
-}
-  // Flag che indica se l’utente è su mobile (<= 768px)
+  /** Riferimento all’input mostrato in editing, per applicare focus/cursore. */
+  @ViewChild('bannerInput') bannerInput?: ElementRef<HTMLInputElement>;
+
+  /** Flag: viewport mobile (<= 768px). Gestito via BreakpointObserver. */
   isMobile = false;
-  isAdmin: boolean = false;
-  // Testo da mostrare nel banner (duplicato in HTML per lo scroll continuo)
-  bannerText: string =
-    '🚧 Sito in aggiornamento // Tutti gli articoli sono sold out // Seguici sui social per restare aggiornati sulle prossime novità ✨';
 
-  constructor(private breakpointObserver: BreakpointObserver, private readonly sharedDataService: SharedDataService) {}
+  /** Flag: utente è admin? (abilita tooltip, cursor-pointer, edit, ecc.) */
+  isAdmin = false;
+
+  /** Testo “vero” del banner (quello che modifichi da input). */
+  bannerText = '';
+
+  /**
+   * Testo “esteso” per la marquee: è lo stesso messaggio, ma replicato più volte
+   * con un separatore per assicurare che un singolo segmento copra almeno la
+   * larghezza visibile. Viene usato solo nei due <span> della marquee.
+   *
+   * ⚠️ Importante:
+   * - L’input deve restare legato a `bannerText`.
+   * - I due <span> visivi dovrebbero usare `bannerTextLoop` per lo “snake”.
+   */
+  bannerTextLoop = '';
+  bannerBackupText = ''
+  /** Separatore tra ripetizioni (trattino lungo con spazi). */
+  private readonly sep = ' — ';
+
+  // ================
+  // Costruttore & Lifecycle
+  // ================
+
+  constructor(
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly sharedDataService: SharedDataService,
+    private readonly el: ElementRef<HTMLElement>
+  ) {}
 
   ngOnInit(): void {
-
-        // Sottoscrizione ai testi condivisi. Si assume che l'observable emetta TextConfigFromCache.
+    // 1) Sorgente testi condivisi: estrai il testo del banner dalla cache configurazioni.
     this.sharedDataService.configTextShared$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: TextConfigFromCache | null) => {
-
-          // Estrazione del testo del banner dalla pagina "home" e dal componente "TopBannerComponent"
+          // Aggiorna il testo “originale”
           this.bannerText = this.getTopBannerText(data) ?? '';
+          this.bannerBackupText = this.bannerText;
+          // Ricalcola il testo “loop” appena il DOM è pronto per la misura.
+          // Usiamo setTimeout per posticipare al prossimo microtask (il DOM può aver appena montato la view).
+          setTimeout(() => this.ensureLoopWidth());
         },
         error: (err) => {
-          // Gestione semplice dell'errore. In produzione valuta un logger centralizzato.
           console.error('configTextShared$ error:', err);
           this.bannerText = '';
+          this.bannerTextLoop = '';
         },
       });
 
-          this.sharedDataService.isAdmin$
+    // 2) Stato admin: abilita/disabilita UI avanzate.
+    this.sharedDataService.isAdmin$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(isAdmin => {
+      .subscribe((isAdmin) => {
         this.isAdmin = isAdmin;
-        console.log("Banner in admin?: ", this.isAdmin);
+        // Nessun ricalcolo necessario qui, ma lascio il log utile in debug.
+        // console.log('Banner in admin?: ', this.isAdmin);
       });
 
-
-    // Osserva i cambi di dimensione dello schermo
-    // Se la viewport è <= 768px imposta isMobile = true
+    // 3) Breakpoint mobile.
     this.breakpointObserver
       .observe(['(max-width: 768px)'])
-      .subscribe(result => {
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((result) => {
         this.isMobile = result.matches;
+        // Se cambia la larghezza disponibile, ricalcola la stringa replicata.
+        setTimeout(() => this.ensureLoopWidth());
       });
   }
 
+  ngAfterViewInit(): void {
+    // Il DOM è montato: possiamo misurare le larghezze e generare il loop.
+    this.ensureLoopWidth();
+  }
+
+  ngOnDestroy(): void {
+    // Completa il subject per chiudere tutte le subscription.
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ================
+  // Eventi UI
+  // ================
 
   /**
- * Ritorna tutti il testo dei banner (TopBannerComponent) della pagina "home".
- */
-private getTopBannerText(cfg: TextConfigFromCache | null, sep = ' // '): string {
-  if (!cfg) return '';
+   * Abilita la modalità editing (se admin).
+   * - Ferma l’animazione (CSS: .marquee.no-anim).
+   * - Mostra l’input e porta il focus con il cursore alla fine.
+   */
+  abilitaModifica(): void {
+    if (!this.isAdmin) return; // sicurezza: non entrare in edit se non admin
+    if (this.imEditing) return; // già in edit
 
-  const homePage = cfg.pages.find((p: PageConfig) => p.name === 'home');
-  if (!homePage) return '';
+    this.imEditing = true;
+    console.log("Sto editando" , this.imEditing);
+    // Posticipa il focus: l’input viene creato da *ngIf, serve attendere il tick successivo.
+    setTimeout(() => {
+      const el = this.bannerInput?.nativeElement;
+      if (el) {
+        el.focus();
+        try {
+          const v = el.value ?? '';
+          el.setSelectionRange(v.length, v.length); // cursore a fine testo
+        } catch {
+          // no-op: alcuni browser possono lanciare eccezioni se il campo non è focusable.
+        }
+      }
+    });
+  }
 
-  const topBannerComp = homePage.components.find(
-    (c: ComponentBlock) => c.type === 'TopBannerComponent'
-  );
-  if (!topBannerComp || !Array.isArray(topBannerComp.items)) return '';
+  /**
+   * Conferma l’editing e ricostruisce la stringa replicata per la marquee.
+   * Puoi chiamarlo su blur, Enter, pulsante “Salva”, ecc.
+   */
+  terminaModifica(): void {
+    if (!this.imEditing) return;
+    this.imEditing = false;
+    // Ricalcola il loop col nuovo testo inserito.
+    setTimeout(() => this.ensureLoopWidth());
+  }
 
-  const texts = topBannerComp.items
-    .map((it: DynamicItem) => {
-      const raw = it['text'];
-      return typeof raw === 'string' ? raw.trim() : '';
-    })
-    .filter(t => t.length > 0);
+  /**
+   * (Opzionale) Chiamalo da (ngModelChange) se vuoi ricalcolare “live”
+   * mentre l’utente digita. Altrimenti basta ricalcolare in terminaModifica().
+   */
+  onBannerTextChange(value: string): void {
+    this.bannerText = value ?? '';
+    // Se vuoi l’aggiornamento live del loop, decommenta la riga sotto:
+    // this.ensureLoopWidth();
+  }
 
-  // deduplica e concatena
-  const unique = Array.from(new Set(texts));
-  return unique.join(sep);
-}
+  /** Ricalcola quando cambia la larghezza della finestra (evita “buchi” in snake). */
+  @HostListener('window:resize')
+  onResize(): void {
+    this.ensureLoopWidth();
+  }
 
+  /** Testo tooltip dinamico in base allo stato. */
+  getTooltipText(): string {
+    if (!this.isAdmin) return '';
+    return this.imEditing
+      ? 'Clicca fuori per confermare la modifica al banner'
+      : 'Clicca per modificare il banner';
+  }
 
+  // ================
+  // Logica di contenuto
+  // ================
+
+  /**
+   * Estrae e concatena tutti i testi del componente “TopBannerComponent”
+   * dalla pagina “home” presenti nella cache condivisa.
+   * - Deduplica le stringhe non vuote.
+   * - Concatena con separatore configurabile (default: " // ").
+   */
+  private getTopBannerText(
+    cfg: TextConfigFromCache | null,
+    sep = ' // '
+  ): string {
+    if (!cfg) return '';
+
+    const homePage = cfg.pages.find((p: PageConfig) => p.name === 'home');
+    if (!homePage) return '';
+
+    const topBannerComp = homePage.components.find(
+      (c: ComponentBlock) => c.type === 'TopBannerComponent'
+    );
+    if (!topBannerComp || !Array.isArray(topBannerComp.items)) return '';
+
+    const texts = topBannerComp.items
+      .map((it: DynamicItem) => {
+        const raw = it['text'];
+        return typeof raw === 'string' ? raw.trim() : '';
+      })
+      .filter((t) => t.length > 0);
+
+    const unique = Array.from(new Set(texts));
+    return unique.join(sep);
+  }
+
+  // ================
+  // Cuore dello “snake”
+  // ================
+
+  /**
+   * Garantisce che **un singolo segmento** della marquee (cioè il contenuto
+   * di UNO dei due <span>) sia largo almeno quanto la maschera visibile
+   * (.top-banner). Così quando la riga trasla a -50% non compaiono “buchi”.
+   *
+   * Implementazione:
+   * - Misura la larghezza del contenitore (.top-banner).
+   * - Costruisce progressivamente `bannerTextLoop` ripetendo `bannerText`
+   *   con un separatore (this.sep) finché un segmento non copre la maschera.
+   * - Non tocca `bannerText`: l’input continua a mostrare l’originale.
+   *
+   * Note:
+   * - In editing (`imEditing = true`) la marquee è ferma e mostra un input,
+   *   quindi il loop non serve (early return).
+   * - Usa un “measurer” offscreen che eredita lo stile reale
+   *   (classe .marquee-segment) per misurazioni attendibili.
+   */
+  private ensureLoopWidth(): void {
+    // In edit mostri l’input e la marquee è ferma: nessun calcolo necessario.
+    if (this.imEditing) return;
+
+    const base = (this.bannerText || '').trim();
+    if (!base) {
+      this.bannerTextLoop = '';
+      return;
+    }
+
+    // Trova il contenitore “maschera” (quello con overflow: hidden).
+    const container = this.el.nativeElement.querySelector(
+      '.top-banner'
+    ) as HTMLElement | null;
+
+    if (!container) {
+      // Se per qualche motivo il DOM non è pronto, usa il testo base.
+      this.bannerTextLoop = base;
+      return;
+    }
+
+    const containerWidth = container.clientWidth || 0;
+
+    // Crea un misuratore invisibile per calcolare la larghezza del segmento.
+    // NB: stessa classe dei segmenti reali per ereditare font, padding, ecc.
+    const measurer = document.createElement('span');
+    measurer.className = 'marquee-segment';
+    measurer.style.visibility = 'hidden';
+    measurer.style.position = 'absolute';
+    measurer.style.whiteSpace = 'nowrap';
+    measurer.style.pointerEvents = 'none';
+
+    // Append temporaneo nel container per ereditare gli stili corretti (media query incluse).
+    container.appendChild(measurer);
+
+    let loopText = base;
+    let guard = 0;
+
+    // Prima misura (aggiungo anche il separatore per simulare la reale spaziatura a destra).
+    measurer.textContent = loopText + this.sep;
+    let segmentWidth = measurer.offsetWidth;
+
+    // Continua a replicare finché un segmento non copre la maschera.
+    // Il "guard" evita loop infiniti su casi patologici.
+    while (segmentWidth < containerWidth && guard < 50) {
+      loopText += this.sep + base;
+      measurer.textContent = loopText + this.sep;
+      segmentWidth = measurer.offsetWidth;
+      guard++;
+    }
+
+    // Pulizia: rimuovi il misuratore dal DOM.
+    container.removeChild(measurer);
+
+    // Aggiorna il testo “esteso” usato dai due <span> della marquee.
+    this.bannerTextLoop = loopText;
+  }
+
+  annullaModifica(){
+    this.bannerText = this.bannerBackupText;
+  }
 }

@@ -1,28 +1,67 @@
 <!-- ============================================================================
      TOP BANNER – TEMPLATE UNICO (desktop + mobile)
-     - Un solo markup; differenze di altezza, font-size, spaziatura e velocità
-       si gestiscono via SCSS con media query (.top-banner, .marquee, ecc.).
-     - Doppio <span> identico per ottenere l’effetto “marquee” in loop continuo.
-       Il secondo è aria-hidden per non ripetere il testo ai lettori di schermo.
+     - Un solo markup; differenze (altezza, spazi, velocità) via SCSS.
+     - Doppio <span> identico per creare il loop continuo senza “salti”.
+     - Il secondo <span> è aria-hidden per non duplicare la lettura screen-reader.
      - aria-live="off" evita annunci continui mentre scorre.
      ============================================================================ -->
-    
-     <!-- quando la modalita admin e attiva abilito il cursor pointer attivo il tooltip
-      al click attivo imEditing dove non mostro le scritte si abilita un input e diabilito la rotazione animata
-      del banner-->
-<div 
-(click)="abilitaModifica()"
-  matTooltip="Modifica il banner"
+
+<!--
+  Quando la modalità admin è attiva:
+  - abilitiamo il cursor pointer (solo feedback visivo, non cambia layout)
+  - abilitiamo il tooltip
+  - al click attiviamo imEditing: in edit nascondiamo i due <span> e mostriamo un <input>
+  - in SCSS: .marquee.no-anim disattiva l’animazione (ma mantiene il layout flex)
+  Nota: per “effetto snake” assicurati che tra i due <span> non ci sia gap/margine,
+  altrimenti si vedrà uno stacco nel loop.
+-->
+<div
+  (click)="abilitaModifica()"
+  [matTooltip]="getTooltipText()"
   [matTooltipDisabled]="!isAdmin"
   [matTooltipClass]="'tooltip-custom'"
   [class.cursor-pointer]="isAdmin"
-  class="top-banner" 
-  *ngIf="bannerText || imEditing" 
+  class="top-banner"
+  *ngIf="bannerText || imEditing"
   role="region"
   aria-label="Annuncio">
-  <p class="marquee" [class.no-anim]="imEditing"  aria-live="off">
-    <span *ngIf="!imEditing" class="marquee-segment">{{ bannerText }}</span>
-    <span *ngIf="!imEditing" class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
-    <input #bannerInput *ngIf="imEditing" [(ngModel)]="bannerText">
+
+  <!--
+    .marquee: riga in scorrimento.
+    - In modalità normale ha l’animazione (definita in SCSS).
+    - Quando imEditing === true aggiungiamo .no-anim (SCSS spegne SOLO il movimento).
+    Importante per il tuo caso:
+    - In SCSS imposta .marquee.no-anim { width: 100%; } per evitare che la riga
+      si stringa alla lunghezza del testo quando mostri l’input.
+  -->
+  <p class="marquee" [class.no-anim]="imEditing" aria-live="off">
+
+    <!--
+      Modalità normale (non in editing): due <span> identici consecutivi.
+      Servono entrambi per il loop. Per “snake” non usare gap tra i segmenti.
+      Se il testo è corto, potresti dover ripetere ulteriormente via TS (es. duplicare
+      bannerText fino a superare la larghezza del viewport) per evitare “vuoti”.
+    -->
+<span *ngIf="!imEditing" class="marquee-segment">{{ bannerTextLoop }}</span>
+<span *ngIf="!imEditing" class="marquee-segment" aria-hidden="true">{{ bannerTextLoop }}</span>
+
+    <!--
+      Modalità editing: mostriamo un input al posto dei due <span>.
+      - Con [(ngModel)] le modifiche sono live.
+      - In SCSS dai all’input stile “one-line” e altezza pari al banner,
+        così non viene clippato da overflow hidden del contenitore.
+      - Suggerito: blocca la propagazione del click sull’input se il toggle è sul container.
+      (blur) = uscita cliccando fuori 
+    -->
+    <input
+  #bannerInput
+  *ngIf="imEditing"
+  [(ngModel)]="bannerText"
+  name="bannerText"
+  (click)="$event.stopPropagation()"     
+  (blur)="terminaModifica()"             
+  (keydown.enter)="terminaModifica()"    
+  (keydown.escape)="annullaModifica()"   
+/>
   </p>
 </div>
