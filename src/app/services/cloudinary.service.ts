@@ -12,7 +12,7 @@ export class CloudinaryService {
 
   private baseUrl = environment.apiBaseUrl + 'api/cache';
   private images = '/medias';
-
+  private textPath = '/text/get-text'
   constructor(private http: HttpClient) {}
 
   // Recupera tutte le immagini
@@ -33,6 +33,20 @@ getMediaFromCache(pathImages?: string, config?: boolean): Observable<any> {
   // Esegui la richiesta con o senza parametri
   return this.http.get<any>(url, { params });
 }
+
+
+//leggo dalla cache text
+getTextFromCache(): Observable<any> {
+  console.log("Start chiamata a get text dalla cache: . . . ");
+  const url = `${this.baseUrl}${this.textPath}`;
+
+  
+
+  
+  // Esegui la richiesta con o senza parametri
+  return this.http.get<any>(url);
+}
+
 
 
 }

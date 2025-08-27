@@ -69,6 +69,28 @@ export interface MediaCollection {
   }[];
 }
 
+// text-config.ts
+export interface TextConfigFromCache {
+  pages: PageConfig[];
+}
+
+export interface PageConfig {
+  name: string;
+  components: ComponentBlock[];
+}
+
+export interface ComponentBlock {
+  type: string;
+  items: DynamicItem[];
+}
+
+// ogni item ha almeno un id; il resto è libero
+export interface DynamicItem {
+  id: string;
+  [key: string]: unknown; // "text", "lalla", "prova", numeri, boolean, ecc.
+}
+
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -229,13 +251,16 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
      */
     this.caricaMediaFromCache(true);
     this.caricaMediaFromCache(false);
-
+    
+    //carico anche i test da utilizzare nell'app
+    this.caricaTextFromCache();
     /**
      * 4) Se la cache cambia (qualunque fonte), ricarico.
      */
     this.sharedDataService.allCacheChanged$.subscribe(() => {
       this.caricaMediaFromCache(true);
       this.caricaMediaFromCache(false);
+      this.caricaTextFromCache();
     });
   }
 
@@ -349,6 +374,19 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       error: err => console.error('Errore caricamento media', err)
     });
   }
+
+  caricaTextFromCache(): void {
+    this.cloudinaryService.getTextFromCache().subscribe({
+      next: (data: TextConfigFromCache) => {
+
+        console.log("CacheText letta: ", JSON.stringify(data));
+          this.sharedDataService.setConfigTextShared(data);
+        
+      },
+      error: err => console.error('Errore caricamento media', err)
+    });
+  }
+
 
   /** Ricostruisco mappa cartelle → segmenti e calcolo i padri (L1). */
   calcolaCategoriePiuSottoCategorieEAltre(entryMedias: MediaCollection[]): void {

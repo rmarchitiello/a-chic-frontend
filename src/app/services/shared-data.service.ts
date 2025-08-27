@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { MediaCollection } from '../app.component';
+import { TextConfigFromCache } from '../app.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -121,6 +122,17 @@ mediaCollectionNonConfig$ = this.mediaCollectionNonConfig.asObservable();
 
 setMediaCollectionNonConfig(mediaCollection: MediaCollection): void {
   this.mediaCollectionNonConfig.next(mediaCollection);
+}
+
+
+// === SHARED CONFIG TEXT ===
+/* Utilizziamo questo behavior subject per leggere nella cache config-text nel backend
+li ci sono tutte le stringhe property che possiamo poi andare a modificare dinamicamente*/
+private configTextShared = new BehaviorSubject<TextConfigFromCache | null>(null);
+configTextShared$ = this.configTextShared.asObservable();
+
+setConfigTextShared(text: TextConfigFromCache): void {
+  this.configTextShared.next(text);
 }
 
 }
