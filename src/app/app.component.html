@@ -5,15 +5,7 @@
      - Le differenze visive tra mobile/desktop si gestiscono via media queries
      ============================================================================ -->
 
-<!-- =============================================================================
-     BLOCCO: ACCESSO ADMIN BLOCCATO SU MOBILE
-     - Se l’utente è admin e si trova su mobile, mostriamo un messaggio e nascondiamo
-       il resto del layout per evitare l’uso dell’area admin su dispositivi mobili.
-     ============================================================================ -->
-<div *ngIf="isMobile && isAdmin" class="mobile-blocked">
-  <h2>Accesso ADMIN non disponibile su mobile</h2>
-  <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
-</div>
+
 
 <!-- =============================================================================
      LAYOUT PRINCIPALE (UNICO)
