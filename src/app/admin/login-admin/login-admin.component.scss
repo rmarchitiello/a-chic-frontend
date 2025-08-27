@@ -3,54 +3,188 @@
    ======================================================= */
 
 /* ===============================
-   CONTENITORE DESKTOP
+   LAYOUT CONTENITORE (nuovo)
+   =============================== */
+.admin-login-layout {
+  box-sizing: border-box;
+  max-width: 1200px;   /* larghezza massima della pagina / area contenuti */
+  margin: 0 auto;      /* centra il layout nella pagina */
+  padding: 1rem;       /* respiro sui lati, specialmente su mobile */
+}
+
+/* ===============================
+   COLONNA SINISTRA: LOGIN (tuo)
    =============================== */
 .admin-login-wrapper {
-  max-width: 400px;
-  margin: 5rem auto;
+  max-width: 600px;
+  margin: 0;
   padding: 2rem;
-  border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
   font-family: 'Arial', sans-serif;
 }
 
-/* Titolo Admin */
 .admin-title {
   text-align: center;
   font-size: 1.8rem;
   font-weight: bold;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
-/* Estende i campi su tutta la larghezza */
 .full-width {
   width: 100%;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 /* ===============================
-   STILI MOBILE - BLOCCO ADMIN
+   COLONNA DESTRA: INFO (nuovo)
    =============================== */
-.mobile-blocked {
-  max-width: 90%;
-  margin: 5rem auto;
-  padding: 2rem;
-  text-align: center;
-  background-color: #fef2f2;
-  border: 1px solid #f5c2c7;
-  border-radius: 8px;
-  color: #b02a37;
+.info-login-wrapper {
   font-family: 'Arial', sans-serif;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  color: #111;
 
   h2 {
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
+    margin: 0 0 .5rem 0;
+    font-size: 1.25rem;
   }
 
-  p {
-    font-size: 1rem;
-    color: #721c24;
+  .info-subtitle {
+    margin: 0 0 .75rem 0;
+    color: #444;
+    line-height: 1.5;
+  }
+
+  .info-list {
+    list-style: none;
+    padding: 0;
+    margin: .5rem 0 0 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      line-height: 1.5;
+      margin: .35rem 0;
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .info-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: .5rem;
+    margin-top: 1rem;
+
+    mat-icon { margin-top: 2px; }
+    p { margin: 0; line-height: 1.5; }
+  }
+}
+
+/* =======================================================
+   MOBILE (≤ 768px) — impilati
+   ======================================================= */
+@media (max-width: 768px) {
+  /* layout a colonna */
+  .admin-login-layout {
+    display: block;
+    padding: 1rem;
+  }
+
+  .admin-login-wrapper {
+    max-width: 92%;
+    margin: 0 auto 1rem auto;
+    padding: 1.1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  }
+
+  .admin-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .full-width { margin-bottom: 1rem; }
+
+  .mat-mdc-form-field { width: 100%; }
+
+  button[type="submit"] {
+    width: 100%;
+    min-height: 44px;
+    font-weight: 600;
+    letter-spacing: .2px;
+  }
+
+  .info-login-wrapper {
+    max-width: 92%;
+    margin: 0 auto;
+    padding: 1.1rem;
+  }
+}
+
+/* =======================================================
+   DESKTOP (≥ 769px) — affiancati
+   ======================================================= */
+@media (min-width: 769px) {
+  .admin-login-layout {
+    display: grid;
+    grid-template-columns: minmax(520px, 640px) 1fr; /* login fisso + info fluido */
+    gap: 2rem;
+    align-items: start;
+    padding: 2rem;
+  }
+
+  .admin-login-wrapper {
+    max-width: none; /* la larghezza la decide la colonna del grid */
+    margin: 0;       /* niente margini extra nel grid */
+  }
+
+  .info-login-wrapper {
+    align-self: start;      /* allinea in alto */
+    height: fit-content;    /* card della sola altezza contenuto */
+  }
+}
+
+/* =======================================================
+   SFONDO LAYOUT (forza bianco dietro al form)
+   — metti questi selettori nel componente che CONTIENE il sidenav
+   (es. app.component.scss) se necessario
+   ======================================================= */
+:host ::ng-deep .mat-drawer-container,
+:host ::ng-deep .mat-drawer-content,
+:host ::ng-deep .mat-sidenav-content,
+:host ::ng-deep .mat-app-background,
+:host ::ng-deep .page-container {
+  background-color: #fff !important;
+}
+
+:host ::ng-deep .mat-drawer-content,
+:host ::ng-deep .mat-sidenav-content {
+  min-height: 100dvh;
+}
+
+@media (min-width: 769px) {
+  .mat-sidenav-container .mat-sidenav-content,
+  .mat-sidenav-content,
+  .mat-drawer-content {
+    min-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background-color: #fff !important;
+    position: relative !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable;
+    padding: 0 !important;
   }
 }

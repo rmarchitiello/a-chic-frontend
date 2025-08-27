@@ -1,11 +1,6 @@
-<!-- MOBILE: accesso disabilitato -->
-<div *ngIf="isMobile" class="mobile-blocked">
-  <h2>Accesso ADMIN non disponibile su mobile</h2>
-  <p>Per motivi di sicurezza e usabilità, accedi da un dispositivo desktop.</p>
-</div>
 
-<!-- DESKTOP: login admin -->
-<div *ngIf="!isMobile" class="admin-login-wrapper">
+<div class="admin-login-layout">
+<div  class="admin-login-wrapper">
   <h1 class="admin-title">Accedi in modalità admin</h1>
 
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
@@ -71,3 +66,43 @@
 
   </form>
 </div>
+
+<!-- Colonna destra: box informativo -->
+  <aside class="info-login-wrapper" aria-labelledby="info-admin-title" role="complementary">
+    <h2 id="info-admin-title">Cosa puoi fare qui</h2>
+    <p class="info-subtitle">
+      Questa console ti permette di gestire i contenuti del sito in modo semplice e veloce.
+    </p>
+
+    <ul class="info-list" aria-label="Funzionalità disponibili">
+      <li>
+        <mat-icon aria-hidden="true">upload</mat-icon>
+        <span>Caricare immagini, video e audio nelle cartelle dedicate</span>
+      </li>
+      <li>
+        <mat-icon aria-hidden="true">edit</mat-icon>
+        <span>Modificare metadati (titolo, descrizione, quantità, tipo)</span>
+      </li>
+      <li>
+        <mat-icon aria-hidden="true">view_list</mat-icon>
+        <span>Visualizzare collezioni e anteprime</span>
+      </li>
+      <li>
+        <mat-icon aria-hidden="true">swap_horiz</mat-icon>
+        <span>Gestire angolazioni (frontale / altre) dei media</span>
+      </li>
+      <li>
+        <mat-icon aria-hidden="true">delete</mat-icon>
+        <span>Rimuovere media non necessari</span>
+      </li>
+      <li>
+        <mat-icon aria-hidden="true">download</mat-icon>
+        <span>Scaricare i file originali quando necessario</span>
+      </li>
+    </ul>
+
+
+  </aside>
+
+</div>
+
