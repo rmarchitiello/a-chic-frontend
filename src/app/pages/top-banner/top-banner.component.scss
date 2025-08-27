@@ -35,6 +35,7 @@
    MOBILE (≤ 768px): statico
    ============================ */
 @media (max-width: 768px) {
+    
   .top-banner {
     position: static;         /* scorre nel flusso */
     height: 32px;             /* fisso (coerente con header offset) */
@@ -51,6 +52,8 @@
    DESKTOP (≥ 769px): statico
    ============================ */
 @media (min-width: 769px) {
+    .cursor-pointer { cursor: pointer; }
+
   .top-banner {
     position: static;         /* resta nel flusso (non sticky) */
     height: 1.8rem;           /* ≈ 28.8px */
@@ -90,3 +93,7 @@
 @media (prefers-reduced-motion: reduce) {
   .marquee { animation-duration: 999s; }  /* quasi fermo, niente “salti” */
 }
+
+
+
+.marquee.no-anim { animation: none !important; }

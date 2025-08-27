@@ -6,9 +6,23 @@
        Il secondo è aria-hidden per non ripetere il testo ai lettori di schermo.
      - aria-live="off" evita annunci continui mentre scorre.
      ============================================================================ -->
-<div class="top-banner" *ngIf="bannerText" role="region" aria-label="Annuncio">
-  <p class="marquee" aria-live="off">
-    <span class="marquee-segment">{{ bannerText }}</span>
-    <span class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
+    
+     <!-- quando la modalita admin e attiva abilito il cursor pointer attivo il tooltip
+      al click attivo imEditing dove non mostro le scritte si abilita un input e diabilito la rotazione animata
+      del banner-->
+<div 
+(click)="abilitaModifica()"
+  matTooltip="Modifica il banner"
+  [matTooltipDisabled]="!isAdmin"
+  [matTooltipClass]="'tooltip-custom'"
+  [class.cursor-pointer]="isAdmin"
+  class="top-banner" 
+  *ngIf="bannerText || imEditing" 
+  role="region"
+  aria-label="Annuncio">
+  <p class="marquee" [class.no-anim]="imEditing"  aria-live="off">
+    <span *ngIf="!imEditing" class="marquee-segment">{{ bannerText }}</span>
+    <span *ngIf="!imEditing" class="marquee-segment" aria-hidden="true">{{ bannerText }}</span>
+    <input #bannerInput *ngIf="imEditing" [(ngModel)]="bannerText">
   </p>
 </div>
