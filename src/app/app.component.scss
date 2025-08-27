@@ -50,22 +50,6 @@
 }
 
 
-/* =========================================================
-   Pulsanti amministrazione in overlay fisso
-   ========================================================= */
-.admin-managing {
-  position: fixed;
-  top: 30px;
-  right: 10px;
-  z-index: 1000;
-
-  button {
-    font-weight: 700;
-    font-size: 14px;
-    padding: 6px 12px;
-  }
-}
-
 
 /* ==================================================================
    MOBILE (<= 768px)
@@ -456,3 +440,129 @@
 :host ::ng-deep .mat-sidenav {
   z-index: 2000;
 }
+
+
+
+
+/* =============================================================================
+   SEZIONE PULSANTI ADMIN — MOBILE + DESKTOP
+   - .admin-managing: toolbar icone (view / edit / logout / refresh)
+   - .admin-edit-cta : CTA “Entra in modalità editing”
+   ============================================================================ */
+
+/* Base overlay */
+.admin-managing,
+.admin-edit-cta {
+  position: fixed;
+  z-index: 1003;
+  pointer-events: auto;
+}
+
+/* =========================
+   MOBILE (≤ 768px)
+   ========================= */
+@media (max-width: 768px) {
+  /* Toolbar: pill nera in basso centrata */
+  .admin-managing {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 9999px;
+    padding: 6px;
+
+    button {
+      width: 40px; height: 40px; min-width: 40px; min-height: 40px; line-height: 40px;
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+
+      mat-icon { font-size: 22px; width: 22px; height: 22px; line-height: 22px; }
+    }
+  }
+
+  /* CTA: stessa pill nera, una sola icona */
+  .admin-edit-cta {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1002; /* sotto la toolbar, se mai coesistessero */
+
+    display: flex;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 9999px;
+    padding: 6px;
+    width: fit-content;
+    margin: 0 auto;
+
+    button {
+      width: 40px; height: 40px; min-width: 40px; min-height: 40px; line-height: 40px;
+      color: #fff;
+
+      mat-icon { font-size: 22px; width: 22px; height: 22px; line-height: 22px; }
+    }
+  }
+}
+
+/* =========================
+   DESKTOP (≥ 769px)
+   ========================= */
+@media (min-width: 769px) {
+  /* Toolbar: in alto a destra, icone nere, senza pill */
+  .admin-managing {
+    top: 24px;
+    right: 12px;
+    left: auto !important;
+    bottom: auto !important;
+
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+
+    background: transparent;
+    padding: 0;
+
+    button {
+      width: 36px; height: 36px; min-width: 36px; min-height: 36px; line-height: 36px;
+      color: inherit;               /* icone nere (tema corrente) */
+      border-color: currentColor;
+
+      mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }
+    }
+  }
+
+  /* CTA: uguale alle altre 3 — icon button in alto a destra */
+  .admin-edit-cta {
+    top: 24px;
+    right: 12px;
+    left: auto !important;
+    bottom: auto !important;
+
+    /* nessuna pill su desktop */
+    display: flex;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    width: auto;
+
+    button {
+      width: 36px; height: 36px; min-width: 36px; min-height: 36px; line-height: 36px;
+      color: inherit;               /* icona nera come le altre */
+      border-color: currentColor;
+
+      mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }
+    }
+  }
+}
+
+/* Spin per l’icona di refresh */
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

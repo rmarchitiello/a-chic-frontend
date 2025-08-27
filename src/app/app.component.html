@@ -33,20 +33,64 @@
        - Visibili quando l’utente è in modalità admin (tipicamente su desktop)
        - Puoi regolare la visibilità via CSS per nasconderle su mobile, se necessario
        ======================================================================== -->
-  <div *ngIf="isAdmin" class="admin-managing">
-    <button mat-stroked-button color="warn" (click)="setViewOrEditMode(false)">
-      Modalita visualizzazione
-    </button>
-    <button mat-stroked-button color="warn" (click)="logoutAdmin()">
-      Esci da modalità admin
-    </button>
-    <button mat-stroked-button color="warn" (click)="refreshCache()">
-      Refresh della cache
-    </button>
-  </div>
-    <button mat-stroked-button class="admin-managing" *ngIf="setEditModeAfterSetViewMode" color="warn" (click)="setViewOrEditMode(true)">
-      <strong>Entra in modalita editing</strong>
-    </button>
+  <!-- Toolbar azioni admin (overlay) -->
+<!-- ========================================================================
+     TOOLBAR ADMIN (icone in pill nera su mobile, compatta in alto a dx su desktop)
+     Nessuna modifica strutturale rispetto al tuo codice, solo mantenuto come riferimento.
+     ======================================================================== -->
+<div *ngIf="isAdmin" class="admin-managing" role="toolbar" aria-label="Azioni amministrazione">
+  <!-- Modalità visualizzazione -->
+  <button mat-icon-button color="primary"
+          (click)="setViewOrEditMode(false)"
+          aria-label="Modalità visualizzazione"
+          [matTooltipClass]="'tooltip-custom'"
+          matTooltip="Modalità visualizzazione">
+    <mat-icon>visibility</mat-icon>
+  </button>
+
+  <!-- Esci da modalità admin -->
+  <button mat-icon-button color="warn"
+          (click)="logoutAdmin()"
+          aria-label="Esci da modalità admin"
+          [matTooltipClass]="'tooltip-custom'"
+          matTooltip="Esci da modalità admin">
+    <mat-icon>logout</mat-icon> <!-- alternativa: exit_to_app -->
+  </button>
+
+  <!-- Refresh della cache -->
+  <button mat-icon-button color="warn"
+          (click)="refreshCache()"
+          [disabled]="isRefreshing"
+          aria-label="Refresh della cache"
+          [matTooltipClass]="'tooltip-custom'"
+          matTooltip="Refresh della cache">
+    <mat-icon [class.spin]="isRefreshing">autorenew</mat-icon> <!-- alternative: refresh, sync -->
+  </button>
+</div>
+
+<!-- ========================================================================
+     CTA "ENTRA IN MODALITÀ EDITING"
+     MODIFICA #1: sostituito il <button mat-stroked-button ... class="admin-edit-cta">
+                  con un WRAPPER <div class="admin-edit-cta"> che disegna la pill nera,
+                  identico alla toolbar mobile.
+     MODIFICA #2: dentro il wrapper c’è un SOLO <button mat-icon-button> con l’icona.
+                  NIENTE color="accent": il colore dell’icona lo forza lo SCSS (bianco).
+     MODIFICA #3: mantenuto il tooltip; aria-label sul bottone per accessibilità.
+     ======================================================================== -->
+<div *ngIf="setEditModeAfterSetViewMode"
+     class="admin-edit-cta"
+     role="region"
+     aria-label="Entra in modalità editing">
+  <button mat-icon-button
+          (click)="setViewOrEditMode(true)"
+          aria-label="Entra in modalità editing"
+          [matTooltipClass]="'tooltip-custom'"
+          matTooltip="Entra in modalità editing">
+    <mat-icon>edit</mat-icon>
+  </button>
+</div>
+
+
   <!-- ===========================================================================
        CONTENITORE SIDENAV CONDIVISO
        - Unico container per mobile e desktop
