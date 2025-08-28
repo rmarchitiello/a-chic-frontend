@@ -14,19 +14,6 @@
 
 
 /* Pulsante “modifica” per sezioni admin */
-.edit-admin-icon{
-  position:absolute;
-  top:1rem;
-  right:1rem;
-  background:#fff;
-  color:#1976d2;
-  border-radius:50%;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
-  z-index:10;
-  transition:background .3s ease;
-  &:hover{ background:#e3f2fd; }
-  mat-icon{ font-size:24px; }
-}
 
 /* Reveal */
 .scroll-reveal{

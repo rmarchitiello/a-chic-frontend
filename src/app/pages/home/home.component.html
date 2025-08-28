@@ -16,20 +16,17 @@
          - Supporta image / video / audio
          - Pulsante admin per aprire l’editor del carosello
          ========================================================= -->
-    <div class="carousel-wrapper">
-      <div class="carousel-container">
-
         <!-- Pulsante modifica (admin) -->
+    <div class="carousel-wrapper">
         <button
           *ngIf="isAdmin"
           mat-icon-button
-          class="edit-admin-icon"
           (click)="apriPopUpEditorAdmin('carosello')"
           matTooltip="Modifica carosello"
           [matTooltipClass]="'tooltip-custom'">
           <mat-icon>edit</mat-icon>
         </button>
-
+      <div class="carousel-container">
         <!-- Slide dinamiche -->
         <div
           *ngFor="let c of carosello.items; let i = index"
