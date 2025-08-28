@@ -496,3 +496,21 @@ o cosi
   }
 }
 
+
+
+
+/* Rimuovi state layer e ripple dai mat-icon-button */
+button.mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+button.mat-mdc-icon-button .mdc-icon-button__ripple::before,
+button.mat-mdc-icon-button .mdc-icon-button__ripple::after {
+  display: none !important;
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Disattiva le opacità ripple via variabili MDC */
+button.mat-mdc-icon-button {
+  --mdc-ripple-hover-opacity: 0 !important;
+  --mdc-ripple-focus-opacity: 0 !important;
+  --mdc-ripple-pressed-opacity: 0 !important;
+}
