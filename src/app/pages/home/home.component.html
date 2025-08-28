@@ -5,8 +5,6 @@
      - I nomi delle classi sono unificati (niente suffissi -desktop / -mobile)
      ============================================================================ -->
 
-
-
 <section class="home" aria-label="Sezione principale Home">
   <div class="home-container">
 
@@ -16,16 +14,18 @@
          - Supporta image / video / audio
          - Pulsante admin per aprire l’editor del carosello
          ========================================================= -->
-        <!-- Pulsante modifica (admin) -->
     <div class="carousel-wrapper">
-        <button
-          *ngIf="isAdmin"
-          mat-icon-button
-          (click)="apriPopUpEditorAdmin('carosello')"
-          matTooltip="Modifica carosello"
-          [matTooltipClass]="'tooltip-custom'">
-          <mat-icon>edit</mat-icon>
-        </button>
+      <!-- Pulsante modifica (admin) -->
+      <button
+        *ngIf="isAdmin"
+        mat-icon-button
+        class="carousel-admin-btn"
+        (click)="apriPopUpEditorAdmin('carosello')"
+        matTooltip="Modifica carosello"
+        [matTooltipClass]="'tooltip-custom'">
+        <mat-icon>edit</mat-icon>
+      </button>
+
       <div class="carousel-container">
         <!-- Slide dinamiche -->
         <div
@@ -141,7 +141,7 @@
 
       <h2 class="titolo-creazioni">Best Seller</h2>
       <p class="testo-creazioni">
-          I prodotti più cliccati
+        I prodotti più cliccati
       </p>
 
       <div class="creazioni-gallery">
