@@ -18,9 +18,11 @@ import {
   PageConfig,
   ComponentBlock,
   DynamicItem,
+  RequestUpdateText,
 } from '../../app.component';
 import { FormsModule } from '@angular/forms';
-
+import { AdminService } from '../../services/admin.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-top-banner',
   standalone: true, // componente standalone (niente NgModule dedicato)
@@ -29,6 +31,8 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./top-banner.component.scss'],
 })
 export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
+  private homeName: string = 'home';
+  private componentName: string = 'TopBannerComponent';
   // ================
   // Stato & riferimenti
   // ================
@@ -63,7 +67,7 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
   bannerTextLoop = '';
   bannerBackupText = ''
   /** Separatore tra ripetizioni (trattino lungo con spazi). */
-  private readonly sep = ' — ';
+  private readonly sep = ' // ';
 
   // ================
   // Costruttore & Lifecycle
@@ -71,9 +75,11 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private readonly breakpointObserver: BreakpointObserver,
+    private adminService: AdminService,
     private readonly sharedDataService: SharedDataService,
-    private readonly el: ElementRef<HTMLElement>
-  ) {}
+    private readonly el: ElementRef<HTMLElement>,
+    private snackBar: MatSnackBar
+  ) { }
 
   ngOnInit(): void {
     // 1) Sorgente testi condivisi: estrai il testo del banner dalla cache configurazioni.
@@ -140,7 +146,7 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.imEditing) return; // già in edit
 
     this.imEditing = true;
-    console.log("Sto editando" , this.imEditing);
+    console.log("Sto editando", this.imEditing);
     // Posticipa il focus: l’input viene creato da *ngIf, serve attendere il tick successivo.
     setTimeout(() => {
       const el = this.bannerInput?.nativeElement;
@@ -161,11 +167,58 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
    * Puoi chiamarlo su blur, Enter, pulsante “Salva”, ecc.
    */
   terminaModifica(): void {
-    if (!this.imEditing) return;
-    this.imEditing = false;
-    // Ricalcola il loop col nuovo testo inserito.
-    setTimeout(() => this.ensureLoopWidth());
-  }
+  // Evita doppie submit o chiamate fuori contesto
+  if (!this.imEditing) return;
+
+  const requestUpdateText: RequestUpdateText = {
+    page: this.homeName,
+    component: this.componentName,
+    id: 'banner1',
+    campiDaEditare: { text: this.bannerText }
+  };
+
+  this.adminService.updateText(requestUpdateText)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (res: any) => {
+        // Avvisa l’app che la cache testo è cambiata (trigghera il subscribe in OnInit)
+        this.sharedDataService.notifyCacheIsChanged();
+
+        // Congela questo testo come “ultimo buono”
+        this.bannerBackupText = this.bannerText;
+
+        // Esci dall’editing SOLO dopo successo
+        this.imEditing = false;
+
+        this.mostraMessaggioSnakBar('Banner aggiornato correttamente', false);
+
+        // Ricalcola il loop dopo che l’UI ha applicato gli aggiornamenti
+        setTimeout(() => this.ensureLoopWidth());
+      },
+      error: (err) => {
+        console.error('Errore ricevuto dal backend', err);
+        this.imEditing = false;
+        // Ripristina il testo precedente e RESTA in edit
+        this.bannerText = this.bannerBackupText;
+
+        this.mostraMessaggioSnakBar("Errore durante l'aggiornamento del banner", true);
+
+        // (opzionale) riporta il focus all’input per far riprovare subito
+        setTimeout(() => {
+          const el = this.bannerInput?.nativeElement;
+          if (el) {
+            el.focus();
+            try {
+              const v = el.value ?? '';
+              el.setSelectionRange(v.length, v.length);
+            } catch {}
+          }
+        });
+        // Niente ensureLoopWidth qui: in edit la marquee è ferma e il metodo fa early return.
+      },
+    });
+}
+
 
   /**
    * (Opzionale) Chiamalo da (ngModelChange) se vuoi ricalcolare “live”
@@ -207,11 +260,11 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
   ): string {
     if (!cfg) return '';
 
-    const homePage = cfg.pages.find((p: PageConfig) => p.name === 'home');
+    const homePage = cfg.pages.find((p: PageConfig) => p.name === this.homeName);
     if (!homePage) return '';
 
     const topBannerComp = homePage.components.find(
-      (c: ComponentBlock) => c.type === 'TopBannerComponent'
+      (c: ComponentBlock) => c.type === this.componentName
     );
     if (!topBannerComp || !Array.isArray(topBannerComp.items)) return '';
 
@@ -305,7 +358,28 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.bannerTextLoop = loopText;
   }
 
-  annullaModifica(){
+  annullaModifica() {
     this.bannerText = this.bannerBackupText;
+  }
+
+
+    //snackbar
+  mostraMessaggioSnakBar(messaggio: string, isError: boolean) {
+    let panelClassCustom;
+    let duration;
+    if (isError) {
+      panelClassCustom = 'snackbar-errore';
+      duration = 1000;
+    }
+    else {
+      panelClassCustom = 'snackbar-ok';
+      duration = 500;
+    }
+    this.snackBar.open(messaggio, 'Chiudi', {
+      duration: duration, // durata in ms
+      panelClass: panelClassCustom, // classe CSS personalizzata
+      horizontalPosition: 'center',
+      verticalPosition: 'top'
+    });
   }
 }

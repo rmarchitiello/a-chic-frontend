@@ -91,6 +91,14 @@ export interface DynamicItem {
   [key: string]: unknown; // "text", "lalla", "prova", numeri, boolean, ecc.
 }
 
+export interface RequestUpdateText {
+  page: string; // es. "home"
+  component: string; // es. "banners"
+  id: string; // es. "banner1"
+  campiDaEditare: {
+    [key: string]: string; // es. { "lalla": "ciao", text: testo da editare e cosi via }
+  }
+};
 
 @Component({
   selector: 'app-root',

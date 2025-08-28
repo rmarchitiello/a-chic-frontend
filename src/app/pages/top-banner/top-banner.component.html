@@ -22,7 +22,7 @@
   [matTooltipClass]="'tooltip-custom'"
   [class.cursor-pointer]="isAdmin"
   class="top-banner"
-  *ngIf="bannerText || imEditing"
+  *ngIf="bannerText || imEditing || isAdmin"
   role="region"
   aria-label="Annuncio">
 
@@ -59,7 +59,6 @@
   [(ngModel)]="bannerText"
   name="bannerText"
   (click)="$event.stopPropagation()"     
-  (blur)="terminaModifica()"             
   (keydown.enter)="terminaModifica()"    
   (keydown.escape)="annullaModifica()"   
 />

@@ -3,7 +3,7 @@ import { HttpClient, HttpParams,HttpHeaders  } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { UpdateAngolazioneMedia } from '../admin/editor/edit/editor-admin-popup.component';
-import { MediaContext } from '../app.component';
+import { MediaContext, RequestUpdateText } from '../app.component';
 import { RenameFolderRequest } from '../admin/editor/admin-folder-popup/admin-folder-popup.component';
 @Injectable({
   providedIn: 'root'
@@ -18,7 +18,7 @@ export class AdminService {
   private mediaUpdateAngolazione = '/media-update-angolazione'
   private mediaUploadOnExistFrontale = '/media-upload-exist-frontale'
   private refreshCachePath = '/refresh-cache'
-
+  private updateTextPath = '/text/update-or-add'
   constructor(private http: HttpClient) {}
 
 
@@ -215,5 +215,27 @@ refreshCache(): Observable<any> {
 }
 
 
+
+
+/* Metodo che va a modificare il text di un component ecc..
+{
+    "page": "home",
+    "component": "banners",
+    "id": "banner1",
+    "campiDaEditare": {
+        "lalla" : "ciao"
+    }
+}
+*/
+updateText(requestUpdateText: RequestUpdateText): Observable<any> {
+  const url = `${this.baseUrl}${this.updateTextPath}`;
+
+  console.log("Update text partita: ", requestUpdateText)
+
+  // Uso i miei headers con token recuperato da sessionStorage
+  const headers = this.getAuthHeaders(); //  Metodo già esistente nella classe
+
+  return this.http.put<any>(url, requestUpdateText, {headers});
+}
 
 }
