@@ -382,4 +382,9 @@ export class TopBannerComponent implements OnInit, AfterViewInit, OnDestroy {
       verticalPosition: 'top'
     });
   }
+
+  onInputBlur(){
+    console.log("Blur esterno cliccato");
+    this.terminaModifica();
+  }
 }

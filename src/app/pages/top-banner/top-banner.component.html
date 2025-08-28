@@ -60,7 +60,8 @@
   name="bannerText"
   (click)="$event.stopPropagation()"     
   (keydown.enter)="terminaModifica()"    
-  (keydown.escape)="annullaModifica()"   
+  (keydown.escape)="annullaModifica()"
+  (blur)="onInputBlur()"
 />
   </p>
 </div>
