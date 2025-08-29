@@ -80,6 +80,42 @@ box-sizing: border-box;
 }
 */
 
+/* Per i caroselli installo 
+• @egjs/ngx-flicking (il componente Angular del carosello)
+• @egjs/flicking-plugins (autoplay, frecce, pallini, ecc.)
+
+npm i @egjs/ngx-flicking @egjs/flicking-plugins
+
+Come faccio a vedere i plugin a disposizione?
+vado qui C:\aChicConsole\a-chic-frontend\node_modules\@egjs\flicking-plugins\dist
+ci sono vari css se voglio utilizzare per esempio i pagination faccio nel ts cosi 
+
+import { Pagination } from '@egjs/flicking-plugins';
+e in plugin faccio
+plugins: Plugin[] = [
+  new Arrow(),
+  new Pagination({ type: 'bullet' })
+];
+
+Pero se poi voglio usare i pallini devo importare anche il css dei pallini e questo mi conviene farlo nello style.css
+@import "@egjs/flicking-plugins/dist/pagination.css";
+
+per mettere i pallini uso questo tag html
+<div in-viewport class="flicking-pagination"></div>
+
+Se voglio sovrascrivere questo stile basta andare in a-chic-console ecc e prendere il css pagination.css
+prendo la classe flicking-pagination e magari voglio cambiare come devono essewre i bullet quindi la copio dal  file 
+.flicking-pagination-bullet {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: rgb(10 10 10 / 10%); --> imposto red !important per esempio cosi vado a sovrascrivere
+  cursor: pointer;
+  font-size: 1rem;
+}
+*/
 
 
 
@@ -110,7 +146,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MediaCollection, MediaMeta } from '../../app.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import { NgxFlickingModule } from '@egjs/ngx-flicking';
+import { Plugin } from '@egjs/ngx-flicking';
+import { Arrow,Pagination } from '@egjs/flicking-plugins';
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -122,7 +160,8 @@ import { takeUntil } from 'rxjs/operators';
     MatButtonModule,
     MatCardModule,
     ScrollRevealDirective,
-    MatTooltipModule
+    MatTooltipModule,
+    NgxFlickingModule
   ],
   animations: [
     trigger('fadeInOut', [
@@ -137,6 +176,11 @@ import { takeUntil } from 'rxjs/operators';
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  plugins: Plugin[] = [ new Arrow(), 
+                        new Pagination({ type: 'bullet' }) ];
+
+
   /**
    * Stato admin reattivo.
    */
@@ -180,6 +224,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     private sharedDataService: SharedDataService,
     private dialog: MatDialog
   ) {}
+
+    slides = [1, 2, 3, 4];
+
 
   ngOnInit(): void {
     // Scroll iniziale in alto.

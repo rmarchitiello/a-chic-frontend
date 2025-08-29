@@ -1,3 +1,19 @@
+/* Carosello dinamico vedi la home */
+
+//qui importo le frecce next prev ecc.. in modo da fare import { Arrow } from '@egjs/flicking-plugins';
+/* Qualsiasi cosa aggiungo deve andare dentro all import plugin in questo modo 
+plugins: Plugin[] = [
+  new Arrow(),                        // frecce
+  new Pagination({ type: "bullet" }), // pallini
+  new AutoPlay({ duration: 3000 })    // autoplay
+];
+*/
+//qua importo le frecce 
+@import "@egjs/flicking-plugins/dist/arrow.css";
+//import dei pallini
+@import "@egjs/flicking-plugins/dist/pagination.css";
+
+
 /* =========================================================
    GESTIONE DI CHI SCROLLA — styles.scss (fonte unica)
    - MOBILE  (<=768px): scorre il DOCUMENTO (html/body)
