@@ -530,3 +530,68 @@ button.mat-mdc-icon-button {
   --mdc-ripple-focus-opacity: 0 !important;
   --mdc-ripple-pressed-opacity: 0 !important;
 }
+
+
+
+//stili globali per il carosello flicking
+ /* Li ho sovrascritti dall import di sopra*/
+  /* --- Contenitore frecce: ben visibili e centrate verticalmente --- */
+  .flicking-arrow-prev,
+  .flicking-arrow-next {
+    position: absolute !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;   /* centra verticalmente */
+    width: 32px !important;                   /* area cliccabile */
+    height: 32px !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+    pointer-events: auto !important;
+    z-index: 5 !important;                    /* sopra al contenuto */
+    opacity: 0.7 !important;                  /* un filo più visibili */
+  }
+
+  /* posizione laterale chiara (dentro al viewport, non tagliate) */
+  .flicking-arrow-prev  { left: 8px !important;  } //qui cambio il padding delle frecce se le voglio piu al centro del carosello ovviamente se le voglio sovrascirvere lo metto nell scss dedicato
+  .flicking-arrow-next  { right: 8px !important; }
+
+  /* --- Elimina del tutto le barrette/arancioni del plugin --- */
+  .flicking-arrow-prev::before,
+  .flicking-arrow-prev::after,
+  .flicking-arrow-next::before,
+  .flicking-arrow-next::after {
+    content: "" !important;
+    background: transparent !important;
+    width: 0 !important; height: 0 !important;
+    top: auto !important; left: auto !important; right: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+    position: static !important;
+  }
+
+  /* --- Ridisegno chevron nero sottile --- */
+  .flicking-arrow-prev::before,
+  .flicking-arrow-next::before {
+    content: "" !important;
+    display: block !important;
+    width: 14px !important;   /* leggermente più grandi per leggibilità */
+    height: 14px !important;
+    border-top: 2px solid #000 !important;
+    border-right: 2px solid #000 !important;
+    background: transparent !important;
+    margin: 0 auto !important;  /* centra dentro l’area 32x32 */
+  }
+  .flicking-arrow-prev::before  { transform: rotate(-135deg) !important; } /* ← */
+  .flicking-arrow-next::before  { transform: rotate(45deg) !important;   } /* → */
+
+  /* --- Pagination: grigio/nero, niente arancione --- */
+  .flicking-pagination-bullet        { background: #cfcfcf !important; opacity: .6 !important; }
+  .flicking-pagination-bullet-active { background: #000 !important;     opacity: 1   !important; }
+
+
+/* QUEST IMPORT LO INSERISCO QUALORA VOGLIO CAMBIARE IL PADDING DEL CAROSELLO DELLE FRECCE NEI COMPONENT FIGLI
+:host ::ng-deep .flicking-arrow-prev { left: 6px !important; }
+:host ::ng-deep .flicking-arrow-next { right: 6px !important; }
+*/
