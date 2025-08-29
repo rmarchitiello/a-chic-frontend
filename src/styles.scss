@@ -545,59 +545,159 @@ button.mat-mdc-icon-button {
   <!-- pallini -->
   <div in-viewport class="flicking-pagination"></div>
   */
+  /* ============================================================================
+   Ngx-Flicking: frecce + pagination (stile minimale)
+   Inserito nello SCSS globale → non serve :host o ::ng-deep
+   ========================================================================== */
+
+/* --- FRECCE ------------------------------------------------------------- */
+
+/* ============================================================================
+   Ngx-Flicking — stile globale: frecce + pagination
+   Base comune + media queries per mobile e desktop
+   ========================================================================== */
+
+/* ——— BASE COMUNE ———————————————————————————————————————————————— */
+
+/* reset grafica di default del plugin (barrette arancioni) */
+.flicking-arrow-prev::before,
+.flicking-arrow-prev::after,
+.flicking-arrow-next::before,
+.flicking-arrow-next::after {
+  content: "" !important;
+  background: transparent !important;
+  width: 0 !important;
+  height: 0 !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  box-shadow: none !important;
+  position: static !important;
+}
+
+/* contenitore frecce */
+.flicking-arrow-prev,
+.flicking-arrow-next {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+  pointer-events: auto !important;
+  z-index: 5 !important;
+  opacity: 0.7 !important; /* discrete */
+}
+
+/* pagination wrapper */
+.flicking-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px !important;
+}
+
+/* pallini base (verranno ridimensionati nelle media query) */
+.flicking-pagination-bullet {
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.35) !important; /* chiaro trasparente */
+  border: 1px solid rgba(0,0,0,0.7) !important;  /* contorno nero */
+  box-shadow: none !important;
+  opacity: .6 !important;
+  transition: opacity 150ms ease, transform 150ms ease !important;
+}
+.flicking-pagination-bullet-active {
+  background: #000 !important;
+  border-color: #000 !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ——— MOBILE (≤ 767px) ———————————————————————————————————————— */
+@media (max-width: 767px) {
+
+  /* area cliccabile più compatta, frecce vicine al bordo */
   .flicking-arrow-prev,
   .flicking-arrow-next {
-    position: absolute !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;   /* centra verticalmente */
-    width: 32px !important;                   /* area cliccabile */
-    height: 32px !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-    outline: none !important;
-    pointer-events: auto !important;
-    z-index: 5 !important;                    /* sopra al contenuto */
-    opacity: 0.7 !important;                  /* un filo più visibili */
+    width: 28px !important;
+    height: 28px !important;
   }
+  .flicking-arrow-prev { left: 8px !important; }
+  .flicking-arrow-next { right: 8px !important; }
 
-  /* posizione laterale chiara (dentro al viewport, non tagliate) */
-  .flicking-arrow-prev  { left: 8px !important;  } //qui cambio il padding delle frecce se le voglio piu al centro del carosello ovviamente se le voglio sovrascirvere lo metto nell scss dedicato
-  .flicking-arrow-next  { right: 8px !important; }
-
-  /* --- Elimina del tutto le barrette/arancioni del plugin --- */
-  .flicking-arrow-prev::before,
-  .flicking-arrow-prev::after,
-  .flicking-arrow-next::before,
-  .flicking-arrow-next::after {
-    content: "" !important;
-    background: transparent !important;
-    width: 0 !important; height: 0 !important;
-    top: auto !important; left: auto !important; right: auto !important;
-    transform: none !important;
-    box-shadow: none !important;
-    position: static !important;
-  }
-
-  /* --- Ridisegno chevron nero sottile --- */
+  /* chevron neri sottili */
   .flicking-arrow-prev::before,
   .flicking-arrow-next::before {
     content: "" !important;
     display: block !important;
-    width: 14px !important;   /* leggermente più grandi per leggibilità */
+    width: 12px !important;
+    height: 12px !important;
+    border-top: 2px solid #000 !important;
+    border-right: 2px solid #000 !important;
+    background: transparent !important;
+    margin: 0 auto !important;
+  }
+  .flicking-arrow-prev::before  { transform: rotate(-135deg) !important; } /* ← */
+  .flicking-arrow-next::before  { transform: rotate(45deg)  !important; }  /* → */
+
+  /* pagination più piccola e soft */
+  .flicking-pagination-bullet {
+    width: 7px !important;
+    height: 7px !important;
+    opacity: .55 !important;
+  }
+}
+
+/* ——— DESKTOP (≥ 768px) ——————————————————————————————————————— */
+@media (min-width: 768px) {
+
+  /* area cliccabile più ampia e più dentro il carosello */
+  .flicking-arrow-prev,
+  .flicking-arrow-next {
+    width: 36px !important;
+    height: 36px !important;
+    opacity: .75 !important;
+  }
+  .flicking-arrow-prev { left: 14px !important; }
+  .flicking-arrow-next { right: 14px !important; }
+
+  /* chevron un filo più grande */
+  .flicking-arrow-prev::before,
+  .flicking-arrow-next::before {
+    content: "" !important;
+    display: block !important;
+    width: 14px !important;
     height: 14px !important;
     border-top: 2px solid #000 !important;
     border-right: 2px solid #000 !important;
     background: transparent !important;
-    margin: 0 auto !important;  /* centra dentro l’area 32x32 */
+    margin: 0 auto !important;
   }
-  .flicking-arrow-prev::before  { transform: rotate(-135deg) !important; } /* ← */
-  .flicking-arrow-next::before  { transform: rotate(45deg) !important;   } /* → */
+  .flicking-arrow-prev::before  { transform: rotate(-135deg) !important; }
+  .flicking-arrow-next::before  { transform: rotate(45deg)  !important;  }
 
-  /* --- Pagination: grigio/nero, niente arancione --- */
-  .flicking-pagination-bullet        { background: #cfcfcf !important; opacity: .6 !important; }
-  .flicking-pagination-bullet-active { background: #000 !important;     opacity: 1   !important; }
+  /* pagination più leggibile ma non invadente */
+  .flicking-pagination-bullet {
+    width: 9px !important;
+    height: 9px !important;
+    opacity: .6 !important;
+  }
+
+  /* hover solo su device con hover */
+  @media (hover: hover) {
+    .flicking-arrow-prev:hover,
+    .flicking-arrow-next:hover { opacity: .9 !important; }
+
+    .flicking-pagination-bullet:hover {
+      opacity: .8 !important;
+      transform: scale(1.05) !important;
+    }
+  }
+}
+
 
 
 /* QUEST IMPORT LO INSERISCO QUALORA VOGLIO CAMBIARE IL PADDING DEL CAROSELLO DELLE FRECCE NEI COMPONENT FIGLI
