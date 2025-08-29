@@ -147,8 +147,12 @@ import { MediaCollection, MediaMeta } from '../../app.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NgxFlickingModule } from '@egjs/ngx-flicking';
-import { Plugin } from '@egjs/ngx-flicking';
-import { Arrow,Pagination } from '@egjs/flicking-plugins';
+import { Plugin,FlickingOptions  } from '@egjs/ngx-flicking';
+import { Arrow,Pagination, AutoPlay,Fade } from '@egjs/flicking-plugins'; //qui Fade fa lo switch a dissolvenza, 
+//per ricevere l index corrente della slide devo lavorare sul tag quindi
+import { ViewChild } from '@angular/core';
+import { NgxFlickingComponent } from '@egjs/ngx-flicking';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -176,9 +180,166 @@ import { Arrow,Pagination } from '@egjs/flicking-plugins';
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+// ScrollOption è tipizzato come Partial<FlickingOptions>
+// → significa che puoi definire solo le proprietà che ti servono
+//   senza dover scrivere tutte quelle disponibili in FlickingOptions.
+scrollOption: Partial<FlickingOptions> = {
+  // rende il carosello "circolare" (loop infinito)
+  // → se sei all’ultima slide e vai avanti, torni alla prima
+  // → se sei alla prima e vai indietro, vai all’ultima
+  circular: true,
 
-  plugins: Plugin[] = [ new Arrow(), 
-                        new Pagination({ type: 'bullet' }) ];
+  // durata dell’animazione della *camera* quando cambia slide
+  // valore predefinito = 500 (ms)
+  // se lo imposti a 0:
+  //   → disattivi l’animazione della camera
+  //   → la camera salta subito alla nuova posizione
+  //   → utile insieme al plugin Fade, perché così non vedi lo "scorrimento" laterale
+  duration: 0, //funziona al click subito cambia slide con inputType[] che non imposto nulla non slida piu
+
+  // tipo di movimento usato quando fai swipe o cambi slide
+  // - "snap" (default): la slide si "aggancia" sempre alla più vicina
+  // - "freeScroll": scorrimento libero con inerzia (puoi fermarti a metà slide)
+  // - "strict": simile a snap, ma più rigido sul conteggio delle slide
+  // NB: se usi "freeScroll", il plugin Fade perde senso perché la camera continuerà a muoversi
+  moveType: "snap",
+  inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
+};
+
+plugins: Plugin[] = [
+  new Fade(),   // gestisce la transizione a dissolvenza
+  new Arrow(),
+  new Pagination({ type: 'bullet' }),
+  new AutoPlay({ duration: 100000 })
+];
+
+/* Esempio, come ottengo l indice corrente? 
+voglio fare in modo da ottenere l indice corrente del carosello
+purtroppo non esiste un opzione index quindi cosa faccio, 
+intercetto l'evento NON NATIVO di angular ma NATIVO DI ngx-flicking
+quest evento si chiama (changed)="getIndiceCorrente($event)"
+e in questo evento ci sono N proprita una di queste e index. ogni volta che cambia quel tag
+assegno l index a una variabile di classe
+Se la voglio leggere per esempio al click, creo un evento in questo caso NATIVO di angular (click)="ottengoIndiceCorrente()" ma non faccio $event
+perche altrimenti catturo l'evento di click. Al click vado a leggere esempioIndex
+di seguito l'html  di esempio
+<ngx-flicking
+  [options]="scrollOption"
+  (changed)="getIndiceCorrente($event)"
+  (click)="ottengoIndiceCorrente()"
+  [plugins]="plugins"
+  style="display:block; width:100%;"
+>
+Supponiamo che al click voglio andare nell indice 4   
+
+ottengoIndiceCorrente(){
+  console.log("Sono nell indice: ", this.esempioIndex)
+  //voglio andare all indice 3 faccio
+  this.esempioIndex = 3
+  pero devo dire al tag guarda devi andare all indice 3 allora uso view child quindi inizio a lavorare sul tag tramite #flickingTag 
+
+  <ngx-flicking
+  #flickingTag
+  [options]="scrollOption"
+  (changed)="getIndiceCorrente($event)"
+  (click)="ottengoIndiceCorrente()"
+  [plugins]="plugins"
+  style="display:block; width:100%;"
+>
+  import import { ViewChild } from "@angular/core";
+import { NgxFlickingComponent } from "@egjs/ngx-flicking";
+
+poi   @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
+e nella
+
+ottengoIndiceCorrente(){
+  console.log("Sono nell indice: ", this.esempioIndex)
+  //voglio andare all indice 3 faccio
+  this.esempioIndex = 3
+  this.flickingTag?.moveTo(this.esempioIndex)
+}
+*/
+@ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
+
+
+
+/* Essendo che il carosello flicking non ha un evento nativo di no scroll (nel senso quando scrollo)
+non voglio vedere un effetto rullo voglio che l immagine cambia ma non con un effetto rullo allora cosa faccio
+metto 
+duration 0 e inputType[], mettendo inputType[] sto dicendo il carosello scrolla solo premendo nei tasti pre e next, allora cosa faccio.
+simulo io uno swipe sia da mouse che da touch utilizzando gli eventi nativi mousedown scatta quando tengo premuto il click del mouse
+mouseup (scatta) quando stacco il dito dal mouse e uguale a un click ma non deve essere cosi perche tra mouse down e up deve starci mouse move
+*/
+
+//simulo uno swipe
+asseX: number = 0;
+saveAsseX(event: any){
+  this.asseX = event.clientX;
+  console.log("AsseX iniziale ", this.asseX)
+}
+
+//prendo l'asse x settato col mouse down e lo calcolo con quello corrente
+checkIfScrollDxorSx(event: MouseEvent) {
+
+  //vedo prima se l'evento appartiene a una freccia se si non continuo  e procedo col carosello did efault 
+  if ((event.target as HTMLElement).closest('.flicking-arrow-prev, .flicking-arrow-next')) {
+  return; // clic su freccia: esci
+}
+
+
+  //salvo gli elementi totali perche in base a che sto scrollando a destra e a sinistra ricalcolo l indice corrente e faccio la moveTo
+  const elementiTotaliInCarosello = this.flickingTag?.panels.length;
+
+
+  console.log("Questo è l'asse X dove ho rilasciato il click:", event.clientX);
+
+  // delta = posizione finale - posizione iniziale
+  const deltaX = event.clientX - this.asseX;
+  console.log("Scostamento dell'asse X:", deltaX);
+
+  if (deltaX > 0) {
+    console.log("Swipe da sinistra verso destra → scroll a sinistra");
+    this.prevIndex(elementiTotaliInCarosello)
+  } else if (deltaX < 0) {
+    console.log("Swipe da destra verso sinistra → scroll a destra");
+    this.nextIndex(elementiTotaliInCarosello)
+  } else {
+    console.log("Nessuno spostamento, probabilmente click");
+  }
+}
+
+prevIndex(totaleElementiCarosello: number | undefined) {
+  // Leggo l'indice corrente del carosello
+  const currentIndex = this.flickingTag?.index;
+
+  // Controllo che currentIndex e totale siano definiti
+  if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
+    // Calcolo il nuovo indice andando indietro di 1
+    // Aggiungo totaleElementiCarosello per evitare valori negativi
+    // E poi faccio il modulo per restare nel range 0..(totale-1)
+    const nuovoIndex = (currentIndex - 1 + totaleElementiCarosello) % totaleElementiCarosello;
+
+    // Muovo il carosello al nuovo indice
+    this.flickingTag?.moveTo(nuovoIndex);
+    console.log(`Prev: da ${currentIndex} a ${nuovoIndex}`);
+  }
+}
+
+nextIndex(totaleElementiCarosello: number | undefined) {
+  // Leggo l'indice corrente del carosello
+  const currentIndex = this.flickingTag?.index;
+
+  // Controllo che currentIndex e totale siano definiti
+  if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
+    // Calcolo il nuovo indice andando avanti di 1
+    // Uso il modulo per tornare a 0 quando supero l'ultima slide
+    const nuovoIndex = (currentIndex + 1) % totaleElementiCarosello;
+
+    // Muovo il carosello al nuovo indice
+    this.flickingTag?.moveTo(nuovoIndex);
+    console.log(`Next: da ${currentIndex} a ${nuovoIndex}`);
+  }
+}
 
 
   /**
