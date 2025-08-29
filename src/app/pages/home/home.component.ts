@@ -263,50 +263,162 @@ ottengoIndiceCorrente(){
 
 
 
-/* Essendo che il carosello flicking non ha un evento nativo di no scroll (nel senso quando scrollo)
-non voglio vedere un effetto rullo voglio che l immagine cambia ma non con un effetto rullo allora cosa faccio
-metto 
-duration 0 e inputType[], mettendo inputType[] sto dicendo il carosello scrolla solo premendo nei tasti pre e next, allora cosa faccio.
-simulo io uno swipe sia da mouse che da touch utilizzando gli eventi nativi mousedown scatta quando tengo premuto il click del mouse
-mouseup (scatta) quando stacco il dito dal mouse e uguale a un click ma non deve essere cosi perche tra mouse down e up deve starci mouse move
-*/
+/* Contesto: Flicking con { duration: 0, inputType: [] }.
+   Lo swipe è simulato con eventi nativi mouse/touch.
+   Obiettivo: bloccare lo scroll del body solo quando l’utente sta realmente “agendo col carosello”
+   (swipe orizzontale deciso), ma consentire sempre lo scroll verticale del body quando lo scostamento su Y è alto. */
 
-//simulo uno swipe
+// Coordinate iniziali del gesto (start)
 asseX: number = 0;
-saveAsseX(event: any){
-  this.asseX = event.clientX;
-  console.log("AsseX iniziale ", this.asseX)
+asseY: number = 0;
+
+// Soglia in px per distinguere tap/movimento minimo da gesto intenzionale
+private readonly THRESHOLD = 15;
+
+// Stato interno per la durata del gesto corrente
+private _bodyLocked = false; // true se è stato bloccato lo scroll del body durante il gesto
+private _decided = false;    // true quando è stata decisa l’intenzione (orizzontale vs verticale)
+
+/**
+ * START gesto (mousedown/touchstart)
+ * - Salva X/Y iniziali.
+ * - Su touch, attacca un listener temporaneo a touchmove (passive:false) per decidere presto
+ *   se il gesto è orizzontale o verticale:
+ *     • Orizzontale oltre soglia → blocca body per evitare scroll della pagina.
+ *     • Verticale oltre soglia → non bloccare, lascia scorrere il body.
+ */
+saveAsseX(event: any) {
+  // reset stato a ogni nuovo gesto
+  this._decided = false;
+  this._bodyLocked = false;
+
+  if (event instanceof TouchEvent) {
+    // Punto iniziale del dito
+    this.asseX = event.touches[0].clientX;
+    this.asseY = event.touches[0].clientY;
+
+    // Listener temporanei legati al solo gesto corrente
+    const onMove = (e: TouchEvent) => {
+      const x = e.touches[0].clientX;
+      const y = e.touches[0].clientY;
+      const dx = Math.abs(x - this.asseX);
+      const dy = Math.abs(y - this.asseY);
+
+      // Decidi una sola volta quando si supera la soglia di intenzione
+      if (!this._decided && (dx > this.THRESHOLD || dy > this.THRESHOLD)) {
+        this._decided = true;
+
+        if (dx > dy) {
+          // Gesto prevalentemente orizzontale → si sta “agendo col carosello”
+          // Blocca lo scroll verticale del body durante il trascinamento
+          document.body.style.overflow = 'hidden';
+          this._bodyLocked = true;
+
+          // Impedisci lo scroll del body mentre si trascina orizzontalmente
+          e.preventDefault();
+        } else {
+          // Gesto prevalentemente verticale → non bloccare lo scroll del body
+          // Puoi staccare subito onMove: la decisione è presa
+          window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
+        }
+      } else if (this._bodyLocked) {
+        // Se il body è già lockato (gesto orizzontale deciso), continua a prevenire lo scroll del body
+        e.preventDefault();
+      }
+    };
+
+    const onEnd = () => {
+      // Pulizia listener a fine gesto
+      window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
+      window.removeEventListener('touchend', onEnd as any, { capture: false } as any);
+      window.removeEventListener('touchcancel', onEnd as any, { capture: false } as any);
+    };
+
+    // Registra i listener SOLO per questo gesto
+    // Importante: passive:false su touchmove per poter chiamare preventDefault()
+    window.addEventListener('touchmove', onMove as any, { passive: false });
+    window.addEventListener('touchend', onEnd as any);
+    window.addEventListener('touchcancel', onEnd as any);
+
+  } else if (event instanceof MouseEvent) {
+    // Punto iniziale del mouse (di norma non si blocca lo scroll del body su desktop)
+    this.asseX = event.clientX;
+    this.asseY = event.clientY;
+  }
+
+  // Debug opzionale
+  // console.log('Start X/Y:', this.asseX, this.asseY);
 }
 
-//prendo l'asse x settato col mouse down e lo calcolo con quello corrente
-checkIfScrollDxorSx(event: MouseEvent) {
+/**
+ * END gesto (mouseup/touchend)
+ * - Confronta le coordinate finali con quelle iniziali.
+ * - Regole:
+ *    • Se lo scostamento verticale è prevalente e sopra soglia → non muovere il carosello, lascia scorrere il body.
+ *    • Se lo scostamento orizzontale è prevalente e sopra soglia → muovi il carosello (prev/next).
+ *    • Se movimento minimo → nessuna azione (click/tap).
+ * - Sblocca sempre il body se era stato bloccato durante il gesto.
+ */
+checkIfScrollDxorSx(event: any) {
+  // Se il target è una freccia, lascia gestire al plugin Arrow
+  const isArrow = (event.target as HTMLElement)?.closest('.flicking-arrow-prev, .flicking-arrow-next');
+  if (isArrow) return;
 
-  //vedo prima se l'evento appartiene a una freccia se si non continuo  e procedo col carosello did efault 
-  if ((event.target as HTMLElement).closest('.flicking-arrow-prev, .flicking-arrow-next')) {
-  return; // clic su freccia: esci
-}
+  const totale = this.flickingTag?.panels.length;
 
+  // Coordinate finali
+  let endX = 0;
+  let endY = 0;
+  if (event instanceof MouseEvent) {
+    endX = event.clientX;
+    endY = event.clientY;
+  } else if (event instanceof TouchEvent) {
+    endX = event.changedTouches[0].clientX;
+    endY = event.changedTouches[0].clientY;
+  }
 
-  //salvo gli elementi totali perche in base a che sto scrollando a destra e a sinistra ricalcolo l indice corrente e faccio la moveTo
-  const elementiTotaliInCarosello = this.flickingTag?.panels.length;
+  // Delta rispetto al punto iniziale
+  const deltaX = endX - this.asseX;
+  const deltaY = endY - this.asseY;
 
+  // Decisione finale:
+  // 1) Prevalgono i movimenti verticali oltre soglia → non muovere il carosello, lascia scorrere la pagina.
+  if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > this.THRESHOLD) {
+    // Sblocco body se era stato bloccato per errore
+    if (this._bodyLocked) {
+      document.body.style.overflow = '';
+      this._bodyLocked = false;
+    }
+    // console.log('Gesto verticale → scroll body');
+    return;
+  }
 
-  console.log("Questo è l'asse X dove ho rilasciato il click:", event.clientX);
-
-  // delta = posizione finale - posizione iniziale
-  const deltaX = event.clientX - this.asseX;
-  console.log("Scostamento dell'asse X:", deltaX);
-
-  if (deltaX > 0) {
-    console.log("Swipe da sinistra verso destra → scroll a sinistra");
-    this.prevIndex(elementiTotaliInCarosello)
-  } else if (deltaX < 0) {
-    console.log("Swipe da destra verso sinistra → scroll a destra");
-    this.nextIndex(elementiTotaliInCarosello)
+  // 2) Prevalgono i movimenti orizzontali oltre soglia → naviga nel carosello
+  if (Math.abs(deltaX) > this.THRESHOLD) {
+    if (deltaX > 0) {
+      // Gesto da sinistra verso destra → slide precedente
+      this.prevIndex(totale);
+      // console.log('Swipe orizzontale → prev');
+    } else {
+      // Gesto da destra verso sinistra → slide successiva
+      this.nextIndex(totale);
+      // console.log('Swipe orizzontale → next');
+    }
   } else {
-    console.log("Nessuno spostamento, probabilmente click");
+    // 3) Movimento minimo → nessuna azione (click/tap)
+    // console.log('Movimento minimo → nessuna navigazione');
+  }
+
+  // In ogni caso, a fine gesto sblocca il body se era stato bloccato
+  if (this._bodyLocked) {
+    document.body.style.overflow = '';
+    this._bodyLocked = false;
   }
 }
+
+
+
+
 
 prevIndex(totaleElementiCarosello: number | undefined) {
   // Leggo l'indice corrente del carosello
