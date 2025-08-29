@@ -535,7 +535,16 @@ button.mat-mdc-icon-button {
 
 //stili globali per il carosello flicking
  /* Li ho sovrascritti dall import di sopra*/
-  /* --- Contenitore frecce: ben visibili e centrate verticalmente --- */
+  /* --- Contenitore frecce: ben visibili e centrate verticalmente 
+  Potevo anche importare direttamente l'scss e andare poi a sovrascrivere nel senso copiavo e incollare arrow e pagination e li mettevo qua pero io qua sto 
+  sovrascrivendo non tutto per esempio le frecce nell arrow.css sono cursor pointer invece qua non sto dicendo cursor pointer (ma lo sono questo perche)
+  stiamo prendendo sia le classi dell import che le mie sovrascritte a patto che nel template utilizziamo gli stessi nomi
+    <span in-viewport class="flicking-arrow-prev"></span>
+  <span in-viewport class="flicking-arrow-next"></span>
+
+  <!-- pallini -->
+  <div in-viewport class="flicking-pagination"></div>
+  */
   .flicking-arrow-prev,
   .flicking-arrow-next {
     position: absolute !important;
