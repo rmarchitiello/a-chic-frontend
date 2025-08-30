@@ -486,10 +486,24 @@ nextIndex(totaleElementiCarosello: number | undefined) {
 }
 
 //evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
+/* Cosa succede qui quando cambia qualcosa nel tag flicking viene scaturito l on changed di quell onchanged possiamo prendere qualsiasi cosa
+uno degli eventi è recuperare il flicking-panel corrente che in questo caso e il miotag img audio video o quello che si vuole
+e applicare per esempio una classe zoom-enter quindi ogni volta che cambia il media la classe sara carosello-panel piu zoom enter
+class="carosello-panel ng-tns-c3646714685-1 ng-star-inserted zoom-enter"
+Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente     class="carosello-panel zoom-enter" funziona ma solo alla prima slide 
+perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
+la cancelliamo e poi la rimettiamo 
+*/
 onChangedCarosello(event: any) {
-  const newIndex = event.index;
-  const el = event.panel?.element as HTMLElement | undefined; //punta al div elemento html della slide attiva dove il div deve essere di tipo flicking-panel 
-  console.log('newIndex:', newIndex, 'element:', el);
+  const el = event.panel?.element as HTMLElement | undefined;
+  if (!el) return;
+
+  // reset eventuale (così la stessa animazione può ripartire più volte)
+  el.classList.remove('zoom-enter');
+  void el.offsetWidth; // forza un reflow
+
+  // applica animazione
+  el.classList.add('zoom-enter');
 }
 
 
