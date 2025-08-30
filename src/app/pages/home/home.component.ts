@@ -238,7 +238,15 @@ scrollOption: Partial<FlickingOptions> = {
   inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
 };
 
+//occhio che ogni plugin si attacca a un solo flicking quindi piu flicking piu plugin
 plugins: Plugin[] = [
+  new Fade(),   // gestisce la transizione a dissolvenza
+  new Arrow(),
+  new Pagination({ type: 'bullet' }),
+  new AutoPlay({ duration: 3000 })
+];
+
+plugins2: Plugin[] = [
   new Fade(),   // gestisce la transizione a dissolvenza
   new Arrow(),
   new Pagination({ type: 'bullet' }),
@@ -291,8 +299,10 @@ ottengoIndiceCorrente(){
   this.flickingTag?.moveTo(this.esempioIndex)
 }
 */
+/* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
 @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
-
+@ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
+*/
 
 
 /* Contesto: Flicking con { duration: 0, inputType: [] }.
@@ -319,7 +329,7 @@ private _decided = false;    // true quando è stata decisa l’intenzione (oriz
  *     • Orizzontale oltre soglia → blocca body per evitare scroll della pagina.
  *     • Verticale oltre soglia → non bloccare, lascia scorrere il body.
  */
-saveAsseX(event: any) {
+saveAsseX(event: any ) {
   // reset stato a ogni nuovo gesto
   this._decided = false;
   this._bodyLocked = false;
@@ -377,9 +387,7 @@ saveAsseX(event: any) {
     this.asseX = event.clientX;
     this.asseY = event.clientY;
   }
-
-  // Debug opzionale
-  // console.log('Start X/Y:', this.asseX, this.asseY);
+  console.log('Start X/Y:', this.asseX, this.asseY);
 }
 
 /**
@@ -391,13 +399,14 @@ saveAsseX(event: any) {
  *    • Se movimento minimo → nessuna azione (click/tap).
  * - Sblocca sempre il body se era stato bloccato durante il gesto.
  */
-checkIfScrollDxorSx(event: any) {
+checkIfScrollDxorSx(event: any, refFlickingComponent: NgxFlickingComponent) {
   // Se il target è una freccia, lascia gestire al plugin Arrow
   const isArrow = (event.target as HTMLElement)?.closest('.flicking-arrow-prev, .flicking-arrow-next');
   if (isArrow) return;
 
-  const totale = this.flickingTag?.panels.length;
+  const totale = refFlickingComponent?.panels.length; //anziche fare
 
+  console.log("Totale slide: ", totale )
   // Coordinate finali
   let endX = 0;
   let endY = 0;
@@ -429,11 +438,11 @@ checkIfScrollDxorSx(event: any) {
   if (Math.abs(deltaX) > this.THRESHOLD) {
     if (deltaX > 0) {
       // Gesto da sinistra verso destra → slide precedente
-      this.prevIndex(totale);
+      this.prevIndex(totale, refFlickingComponent);
       // console.log('Swipe orizzontale → prev');
     } else {
       // Gesto da destra verso sinistra → slide successiva
-      this.nextIndex(totale);
+      this.nextIndex(totale, refFlickingComponent);
       // console.log('Swipe orizzontale → next');
     }
   } else {
@@ -452,9 +461,9 @@ checkIfScrollDxorSx(event: any) {
 
 
 
-prevIndex(totaleElementiCarosello: number | undefined) {
+prevIndex(totaleElementiCarosello: number | undefined , refFlickingComponent: NgxFlickingComponent) {
   // Leggo l'indice corrente del carosello
-  const currentIndex = this.flickingTag?.index;
+  const currentIndex = refFlickingComponent?.index;
 
   // Controllo che currentIndex e totale siano definiti
   if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
@@ -464,14 +473,14 @@ prevIndex(totaleElementiCarosello: number | undefined) {
     const nuovoIndex = (currentIndex - 1 + totaleElementiCarosello) % totaleElementiCarosello;
 
     // Muovo il carosello al nuovo indice
-    this.flickingTag?.moveTo(nuovoIndex);
+    refFlickingComponent?.moveTo(nuovoIndex);
     console.log(`Prev: da ${currentIndex} a ${nuovoIndex}`);
   }
 }
 
-nextIndex(totaleElementiCarosello: number | undefined) {
+nextIndex(totaleElementiCarosello: number | undefined, refFlickingComponent: NgxFlickingComponent) {
   // Leggo l'indice corrente del carosello
-  const currentIndex = this.flickingTag?.index;
+  const currentIndex = refFlickingComponent?.index;
 
   // Controllo che currentIndex e totale siano definiti
   if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
@@ -480,7 +489,7 @@ nextIndex(totaleElementiCarosello: number | undefined) {
     const nuovoIndex = (currentIndex + 1) % totaleElementiCarosello;
 
     // Muovo il carosello al nuovo indice
-    this.flickingTag?.moveTo(nuovoIndex);
+    refFlickingComponent?.moveTo(nuovoIndex);
     console.log(`Next: da ${currentIndex} a ${nuovoIndex}`);
   }
 }
@@ -494,7 +503,7 @@ Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente    
 perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
 la cancelliamo e poi la rimettiamo 
 */
-onChangedCarosello(event: any) {
+onChangedCarosello(event: any, refFlickingComponent: NgxFlickingComponent) {
   const el = event.panel?.element as HTMLElement | undefined;
   if (!el) return;
 
@@ -556,7 +565,7 @@ onChangedCarosello(event: any) {
   ) {}
 
     slides = [1, 2, 3, 4];
-
+    slides2 = [1, 2, 3, 5,6,7,8,9,10];
 
   ngOnInit(): void {
     // Scroll iniziale in alto.
