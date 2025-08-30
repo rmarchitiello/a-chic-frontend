@@ -80,6 +80,7 @@ box-sizing: border-box;
 }
 */
 
+/* INIZIO SPIEGAZIONE CAROSELLI CON NGX-FLICKING*/
 /* Per i caroselli installo 
 • @egjs/ngx-flicking (il componente Angular del carosello)
 • @egjs/flicking-plugins (autoplay, frecce, pallini, ecc.)
@@ -147,8 +148,109 @@ si inserisce questo tag e poi tutto sotto di lui deve avere tag flicking-panel p
   >
     Slide {{ n }}
   </div>
-*/
 
+  // ScrollOption è tipizzato come Partial<FlickingOptions>
+  // → significa che puoi definire solo le proprietà che ti servono
+  //   senza dover scrivere tutte quelle disponibili in FlickingOptions.
+  scrollOption: Partial<FlickingOptions> = {
+    // rende il carosello "circolare" (loop infinito)
+    // → se sei all’ultima slide e vai avanti, torni alla prima
+    // → se sei alla prima e vai indietro, vai all’ultima
+    circular: true,
+
+    // durata dell’animazione della *camera* quando cambia slide
+    // valore predefinito = 500 (ms)
+    // se lo imposti a 0:
+    //   → disattivi l’animazione della camera
+    //   → la camera salta subito alla nuova posizione
+    //   → utile insieme al plugin Fade, perché così non vedi lo "scorrimento" laterale
+    duration: 0, //funziona al click subito cambia slide con inputType[] che non imposto nulla non slida piu
+
+    // tipo di movimento usato quando fai swipe o cambi slide
+    // - "snap" (default): la slide si "aggancia" sempre alla più vicina
+    // - "freeScroll": scorrimento libero con inerzia (puoi fermarti a metà slide)
+    // - "strict": simile a snap, ma più rigido sul conteggio delle slide
+    // NB: se usi "freeScroll", il plugin Fade perde senso perché la camera continuerà a muoversi
+    moveType: "snap",
+    inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
+  };
+
+  //occhio che ogni plugin si attacca a un solo flicking quindi piu flicking piu plugin
+  plugins: Plugin[] = [
+    new Fade(),   // gestisce la transizione a dissolvenza
+    new Arrow(),
+    new Pagination({ type: 'bullet' }),
+    new AutoPlay({ duration: 3000 })
+  ];
+
+
+
+  /* Esempio, come ottengo l indice corrente? 
+  voglio fare in modo da ottenere l indice corrente del carosello
+  purtroppo non esiste un opzione index quindi cosa faccio, 
+  intercetto l'evento NON NATIVO di angular ma NATIVO DI ngx-flicking
+  quest evento si chiama (changed)="getIndiceCorrente($event)"
+  e in questo evento ci sono N proprita una di queste e index. ogni volta che cambia quel tag
+  assegno l index a una variabile di classe
+  Se la voglio leggere per esempio al click, creo un evento in questo caso NATIVO di angular (click)="ottengoIndiceCorrente()" ma non faccio $event
+  perche altrimenti catturo l'evento di click. Al click vado a leggere esempioIndex
+  di seguito l'html  di esempio
+  <ngx-flicking
+    [options]="scrollOption"
+    (changed)="getIndiceCorrente($event)"
+    (click)="ottengoIndiceCorrente()"
+    [plugins]="plugins"
+    style="display:block; width:100%;"
+  >
+  Supponiamo che al click voglio andare nell indice 4   
+  
+  ottengoIndiceCorrente(){
+    console.log("Sono nell indice: ", this.esempioIndex)
+    //voglio andare all indice 3 faccio
+    this.esempioIndex = 3
+    pero devo dire al tag guarda devi andare all indice 3 allora uso view child quindi inizio a lavorare sul tag tramite #flickingTag 
+  
+    <ngx-flicking
+    #flickingTag
+    [options]="scrollOption"
+    (changed)="getIndiceCorrente($event)"
+    (click)="ottengoIndiceCorrente()"
+    [plugins]="plugins"
+    style="display:block; width:100%;"
+  >
+    import import { ViewChild } from "@angular/core";
+  import { NgxFlickingComponent } from "@egjs/ngx-flicking";
+  
+  poi   @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
+  e nella
+  
+  ottengoIndiceCorrente(){
+    console.log("Sono nell indice: ", this.esempioIndex)
+    //voglio andare all indice 3 faccio
+    this.esempioIndex = 3
+    this.flickingTag?.moveTo(this.esempioIndex)
+  }
+  */
+  /* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
+  @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
+  @ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
+  
+  Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)" possiamo leggere gli indici appena starta carosello, applicare classi ecc...
+   
+  --- FINE SPIEGAZIONE CAROSELLO NGX-FLICKING
+  */
+
+
+
+/* Quest interfaccia mi serve per indicare il mio carosello come deve essere 
+data sara mediaCollection al momento mettiamo any e da cambiare
+options sono tutte le opzioni che puo avere esempio settare lo slide l'autoplay ecc ecc qualsiasi
+plugin se deve avere per esempio le frecce gli arrow e cosi via... */
+interface ImieiCaroselli {
+  options: Partial<FlickingOptions>,
+  plugins: Plugin[],
+  data: any
+}
 
 
 import {
@@ -156,7 +258,8 @@ import {
   OnInit,
   OnDestroy,
   AfterViewInit,
-  HostListener
+  HostListener,
+  QueryList
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -179,10 +282,10 @@ import { MediaCollection, MediaMeta } from '../../app.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NgxFlickingModule } from '@egjs/ngx-flicking';
-import { Plugin,FlickingOptions  } from '@egjs/ngx-flicking';
-import { Arrow,Pagination, AutoPlay,Fade } from '@egjs/flicking-plugins'; //qui Fade fa lo switch a dissolvenza, 
+import { Plugin, FlickingOptions } from '@egjs/ngx-flicking';
+import { Arrow, Pagination, AutoPlay, Fade } from '@egjs/flicking-plugins'; //qui Fade fa lo switch a dissolvenza, 
 //per ricevere l index corrente della slide devo lavorare sul tag quindi
-import { ViewChild } from '@angular/core';
+import { ViewChildren } from '@angular/core';
 import { NgxFlickingComponent } from '@egjs/ngx-flicking';
 
 @Component({
@@ -212,323 +315,281 @@ import { NgxFlickingComponent } from '@egjs/ngx-flicking';
   ]
 })
 export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
-// ScrollOption è tipizzato come Partial<FlickingOptions>
-// → significa che puoi definire solo le proprietà che ti servono
-//   senza dover scrivere tutte quelle disponibili in FlickingOptions.
-scrollOption: Partial<FlickingOptions> = {
-  // rende il carosello "circolare" (loop infinito)
-  // → se sei all’ultima slide e vai avanti, torni alla prima
-  // → se sei alla prima e vai indietro, vai all’ultima
-  circular: true,
+  
 
-  // durata dell’animazione della *camera* quando cambia slide
-  // valore predefinito = 500 (ms)
-  // se lo imposti a 0:
-  //   → disattivi l’animazione della camera
-  //   → la camera salta subito alla nuova posizione
-  //   → utile insieme al plugin Fade, perché così non vedi lo "scorrimento" laterale
-  duration: 0, //funziona al click subito cambia slide con inputType[] che non imposto nulla non slida piu
+  /* Essendo che ho inserito adesso dei caroselli dinamici, per recupeare tutte le ref dei miei caroselli devo creare un query list di flickingTag
+  Quindi flickingRefs contiene tutte le reference nel dom di quanti flickingTag ci sono questo perche ogni carosello ha una sua reference e abbiamo visto
+  che con le reference posso agire sugli indici del carosello su classi attributi e cosi via  */
+  @ViewChildren('flickingTag') flickingRefs!: QueryList<NgxFlickingComponent>;
 
-  // tipo di movimento usato quando fai swipe o cambi slide
-  // - "snap" (default): la slide si "aggancia" sempre alla più vicina
-  // - "freeScroll": scorrimento libero con inerzia (puoi fermarti a metà slide)
-  // - "strict": simile a snap, ma più rigido sul conteggio delle slide
-  // NB: se usi "freeScroll", il plugin Fade perde senso perché la camera continuerà a muoversi
-  moveType: "snap",
-  inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
-};
+  /* Definisco un array di flickingRefs per convertire il query list in array perche . . . 
+  Inizialmente il metodo checkIfScrollDxorSx( $event, flickingTag) prendeva in ingresso l'evento e la reference statica esempio ho due caroselli allora
+  checkIfScrollDxorSx( $event, flickingTagCarosello1) e checkIfScrollDxorSx( $event, flickingTagCarosello2), invece ora faccio checkIfScrollDxorSx( $event, 0)
+  o checkIfScrollDxorSx( $event, 1) e cosi via in base a quanti caroselli ho allora cosa faccio nell afterview initi quando tutto il dom e caricato
+  prendo la reference dei flickingTag e costruisco prima la query list e converto l'array di quanti flicking component di tipo flickingTag esistono nel dom
+  cosi che nel metodo checkIfScrollDxorSx recupero esempio flickingRefsArray[0] cosi che da passarlo a prev index ecc per fare cose */
+  flickingRefsArray: NgxFlickingComponent[] = [];
 
-//occhio che ogni plugin si attacca a un solo flicking quindi piu flicking piu plugin
-plugins: Plugin[] = [
-  new Fade(),   // gestisce la transizione a dissolvenza
-  new Arrow(),
-  new Pagination({ type: 'bullet' }),
-  new AutoPlay({ duration: 3000 })
+
+  /* CAROSELLI DI PROVA */
+  
+  iMieICaroselli: ImieiCaroselli[] = [{
+    //primo carosello
+    data: [1, 2, 3],
+    options: {
+      circular: true,
+      duration: 0,
+      moveType: "snap",
+      inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
+    },
+    plugins: [
+      new Fade(),   // gestisce la transizione a dissolvenza
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 3000 })
+    ]
+  },
+  {
+    //secondo carosello
+    data: [1, 2, 3,4,5,6,7,8,9],
+    options: {
+      circular: true,
+      duration: 0,
+      moveType: "snap",
+      inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
+    },
+    plugins: [
+      new Fade(),   // gestisce la transizione a dissolvenza
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 10000 })
+    ]
+  }
+
 ];
 
-plugins2: Plugin[] = [
-  new Fade(),   // gestisce la transizione a dissolvenza
-  new Arrow(),
-  new Pagination({ type: 'bullet' }),
-  new AutoPlay({ duration: 3000 })
-];
 
-/* Esempio, come ottengo l indice corrente? 
-voglio fare in modo da ottenere l indice corrente del carosello
-purtroppo non esiste un opzione index quindi cosa faccio, 
-intercetto l'evento NON NATIVO di angular ma NATIVO DI ngx-flicking
-quest evento si chiama (changed)="getIndiceCorrente($event)"
-e in questo evento ci sono N proprita una di queste e index. ogni volta che cambia quel tag
-assegno l index a una variabile di classe
-Se la voglio leggere per esempio al click, creo un evento in questo caso NATIVO di angular (click)="ottengoIndiceCorrente()" ma non faccio $event
-perche altrimenti catturo l'evento di click. Al click vado a leggere esempioIndex
-di seguito l'html  di esempio
-<ngx-flicking
-  [options]="scrollOption"
-  (changed)="getIndiceCorrente($event)"
-  (click)="ottengoIndiceCorrente()"
-  [plugins]="plugins"
-  style="display:block; width:100%;"
->
-Supponiamo che al click voglio andare nell indice 4   
+  /* Contesto: Flicking con { duration: 0, inputType: [] }.
+     Lo swipe è simulato con eventi nativi mouse/touch.
+     Obiettivo: bloccare lo scroll del body solo quando l’utente sta realmente “agendo col carosello”
+     (swipe orizzontale deciso), ma consentire sempre lo scroll verticale del body quando lo scostamento su Y è alto. */
 
-ottengoIndiceCorrente(){
-  console.log("Sono nell indice: ", this.esempioIndex)
-  //voglio andare all indice 3 faccio
-  this.esempioIndex = 3
-  pero devo dire al tag guarda devi andare all indice 3 allora uso view child quindi inizio a lavorare sul tag tramite #flickingTag 
+  // Coordinate iniziali del gesto (start)
+  asseX: number = 0;
+  asseY: number = 0;
 
-  <ngx-flicking
-  #flickingTag
-  [options]="scrollOption"
-  (changed)="getIndiceCorrente($event)"
-  (click)="ottengoIndiceCorrente()"
-  [plugins]="plugins"
-  style="display:block; width:100%;"
->
-  import import { ViewChild } from "@angular/core";
-import { NgxFlickingComponent } from "@egjs/ngx-flicking";
+  // Soglia in px per distinguere tap/movimento minimo da gesto intenzionale
+  private readonly THRESHOLD = 15;
 
-poi   @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
-e nella
+  // Stato interno per la durata del gesto corrente
+  private _bodyLocked = false; // true se è stato bloccato lo scroll del body durante il gesto
+  private _decided = false;    // true quando è stata decisa l’intenzione (orizzontale vs verticale)
 
-ottengoIndiceCorrente(){
-  console.log("Sono nell indice: ", this.esempioIndex)
-  //voglio andare all indice 3 faccio
-  this.esempioIndex = 3
-  this.flickingTag?.moveTo(this.esempioIndex)
-}
-*/
-/* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
-@ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
-@ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
+  /**
+   * START gesto (mousedown/touchstart)
+   * - Salva X/Y iniziali.
+   * - Su touch, attacca un listener temporaneo a touchmove (passive:false) per decidere presto
+   *   se il gesto è orizzontale o verticale:
+   *     • Orizzontale oltre soglia → blocca body per evitare scroll della pagina.
+   *     • Verticale oltre soglia → non bloccare, lascia scorrere il body.
+   */
+  saveAsseX(event: any) {
+    // reset stato a ogni nuovo gesto
+    this._decided = false;
+    this._bodyLocked = false;
 
-Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)" possiamo leggere gli indici appena starta carosello, applicare classi ecc...
- 
-*/
+    if (event instanceof TouchEvent) {
+      // Punto iniziale del dito
+      this.asseX = event.touches[0].clientX;
+      this.asseY = event.touches[0].clientY;
 
+      // Listener temporanei legati al solo gesto corrente
+      const onMove = (e: TouchEvent) => {
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        const dx = Math.abs(x - this.asseX);
+        const dy = Math.abs(y - this.asseY);
 
-/* Contesto: Flicking con { duration: 0, inputType: [] }.
-   Lo swipe è simulato con eventi nativi mouse/touch.
-   Obiettivo: bloccare lo scroll del body solo quando l’utente sta realmente “agendo col carosello”
-   (swipe orizzontale deciso), ma consentire sempre lo scroll verticale del body quando lo scostamento su Y è alto. */
+        // Decidi una sola volta quando si supera la soglia di intenzione
+        if (!this._decided && (dx > this.THRESHOLD || dy > this.THRESHOLD)) {
+          this._decided = true;
 
-// Coordinate iniziali del gesto (start)
-asseX: number = 0;
-asseY: number = 0;
+          if (dx > dy) {
+            // Gesto prevalentemente orizzontale → si sta “agendo col carosello”
+            // Blocca lo scroll verticale del body durante il trascinamento
+            document.body.style.overflow = 'hidden';
+            this._bodyLocked = true;
 
-// Soglia in px per distinguere tap/movimento minimo da gesto intenzionale
-private readonly THRESHOLD = 15;
-
-// Stato interno per la durata del gesto corrente
-private _bodyLocked = false; // true se è stato bloccato lo scroll del body durante il gesto
-private _decided = false;    // true quando è stata decisa l’intenzione (orizzontale vs verticale)
-
-/**
- * START gesto (mousedown/touchstart)
- * - Salva X/Y iniziali.
- * - Su touch, attacca un listener temporaneo a touchmove (passive:false) per decidere presto
- *   se il gesto è orizzontale o verticale:
- *     • Orizzontale oltre soglia → blocca body per evitare scroll della pagina.
- *     • Verticale oltre soglia → non bloccare, lascia scorrere il body.
- */
-saveAsseX(event: any ) {
-  // reset stato a ogni nuovo gesto
-  this._decided = false;
-  this._bodyLocked = false;
-
-  if (event instanceof TouchEvent) {
-    // Punto iniziale del dito
-    this.asseX = event.touches[0].clientX;
-    this.asseY = event.touches[0].clientY;
-
-    // Listener temporanei legati al solo gesto corrente
-    const onMove = (e: TouchEvent) => {
-      const x = e.touches[0].clientX;
-      const y = e.touches[0].clientY;
-      const dx = Math.abs(x - this.asseX);
-      const dy = Math.abs(y - this.asseY);
-
-      // Decidi una sola volta quando si supera la soglia di intenzione
-      if (!this._decided && (dx > this.THRESHOLD || dy > this.THRESHOLD)) {
-        this._decided = true;
-
-        if (dx > dy) {
-          // Gesto prevalentemente orizzontale → si sta “agendo col carosello”
-          // Blocca lo scroll verticale del body durante il trascinamento
-          document.body.style.overflow = 'hidden';
-          this._bodyLocked = true;
-
-          // Impedisci lo scroll del body mentre si trascina orizzontalmente
+            // Impedisci lo scroll del body mentre si trascina orizzontalmente
+            e.preventDefault();
+          } else {
+            // Gesto prevalentemente verticale → non bloccare lo scroll del body
+            // Puoi staccare subito onMove: la decisione è presa
+            window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
+          }
+        } else if (this._bodyLocked) {
+          // Se il body è già lockato (gesto orizzontale deciso), continua a prevenire lo scroll del body
           e.preventDefault();
-        } else {
-          // Gesto prevalentemente verticale → non bloccare lo scroll del body
-          // Puoi staccare subito onMove: la decisione è presa
-          window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
         }
-      } else if (this._bodyLocked) {
-        // Se il body è già lockato (gesto orizzontale deciso), continua a prevenire lo scroll del body
-        e.preventDefault();
+      };
+
+      const onEnd = () => {
+        // Pulizia listener a fine gesto
+        window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
+        window.removeEventListener('touchend', onEnd as any, { capture: false } as any);
+        window.removeEventListener('touchcancel', onEnd as any, { capture: false } as any);
+      };
+
+      // Registra i listener SOLO per questo gesto
+      // Importante: passive:false su touchmove per poter chiamare preventDefault()
+      window.addEventListener('touchmove', onMove as any, { passive: false });
+      window.addEventListener('touchend', onEnd as any);
+      window.addEventListener('touchcancel', onEnd as any);
+
+    } else if (event instanceof MouseEvent) {
+      // Punto iniziale del mouse (di norma non si blocca lo scroll del body su desktop)
+      this.asseX = event.clientX;
+      this.asseY = event.clientY;
+    }
+    console.log('Start X/Y:', this.asseX, this.asseY);
+  }
+
+  /**
+   * END gesto (mouseup/touchend)
+   * - Confronta le coordinate finali con quelle iniziali.
+   * - Regole:
+   *    • Se lo scostamento verticale è prevalente e sopra soglia → non muovere il carosello, lascia scorrere il body.
+   *    • Se lo scostamento orizzontale è prevalente e sopra soglia → muovi il carosello (prev/next).
+   *    • Se movimento minimo → nessuna azione (click/tap).
+   * - Sblocca sempre il body se era stato bloccato durante il gesto.
+   */
+  checkIfScrollDxorSx(event: any, indexCurrentFlickingRefs: number) {
+    // Se il target è una freccia, lascia gestire al plugin Arrow
+    const isArrow = (event.target as HTMLElement)?.closest('.flicking-arrow-prev, .flicking-arrow-next');
+    if (isArrow) return;
+
+    const totale = this.flickingRefsArray[indexCurrentFlickingRefs]?.panels.length; 
+
+    console.log("Totale slide: ", totale)
+    // Coordinate finali
+    let endX = 0;
+    let endY = 0;
+    if (event instanceof MouseEvent) {
+      endX = event.clientX;
+      endY = event.clientY;
+    } else if (event instanceof TouchEvent) {
+      endX = event.changedTouches[0].clientX;
+      endY = event.changedTouches[0].clientY;
+    }
+
+    // Delta rispetto al punto iniziale
+    const deltaX = endX - this.asseX;
+    const deltaY = endY - this.asseY;
+
+    // Decisione finale:
+    // 1) Prevalgono i movimenti verticali oltre soglia → non muovere il carosello, lascia scorrere la pagina.
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > this.THRESHOLD) {
+      // Sblocco body se era stato bloccato per errore
+      if (this._bodyLocked) {
+        document.body.style.overflow = '';
+        this._bodyLocked = false;
       }
-    };
+      // console.log('Gesto verticale → scroll body');
+      return;
+    }
 
-    const onEnd = () => {
-      // Pulizia listener a fine gesto
-      window.removeEventListener('touchmove', onMove as any, { capture: false } as any);
-      window.removeEventListener('touchend', onEnd as any, { capture: false } as any);
-      window.removeEventListener('touchcancel', onEnd as any, { capture: false } as any);
-    };
+    // 2) Prevalgono i movimenti orizzontali oltre soglia → naviga nel carosello
+    if (Math.abs(deltaX) > this.THRESHOLD) {
+      if (deltaX > 0) {
+        // Gesto da sinistra verso destra → slide precedente
+        this.prevIndex(totale, this.flickingRefsArray[indexCurrentFlickingRefs]);
+        // console.log('Swipe orizzontale → prev');
+      } else {
+        // Gesto da destra verso sinistra → slide successiva
+        this.nextIndex(totale, this.flickingRefsArray[indexCurrentFlickingRefs]);
+        // console.log('Swipe orizzontale → next');
+      }
+    } else {
+      // 3) Movimento minimo → nessuna azione (click/tap)
+      // console.log('Movimento minimo → nessuna navigazione');
+    }
 
-    // Registra i listener SOLO per questo gesto
-    // Importante: passive:false su touchmove per poter chiamare preventDefault()
-    window.addEventListener('touchmove', onMove as any, { passive: false });
-    window.addEventListener('touchend', onEnd as any);
-    window.addEventListener('touchcancel', onEnd as any);
-
-  } else if (event instanceof MouseEvent) {
-    // Punto iniziale del mouse (di norma non si blocca lo scroll del body su desktop)
-    this.asseX = event.clientX;
-    this.asseY = event.clientY;
-  }
-  console.log('Start X/Y:', this.asseX, this.asseY);
-}
-
-/**
- * END gesto (mouseup/touchend)
- * - Confronta le coordinate finali con quelle iniziali.
- * - Regole:
- *    • Se lo scostamento verticale è prevalente e sopra soglia → non muovere il carosello, lascia scorrere il body.
- *    • Se lo scostamento orizzontale è prevalente e sopra soglia → muovi il carosello (prev/next).
- *    • Se movimento minimo → nessuna azione (click/tap).
- * - Sblocca sempre il body se era stato bloccato durante il gesto.
- */
-checkIfScrollDxorSx(event: any, refFlickingComponent: NgxFlickingComponent) {
-  // Se il target è una freccia, lascia gestire al plugin Arrow
-  const isArrow = (event.target as HTMLElement)?.closest('.flicking-arrow-prev, .flicking-arrow-next');
-  if (isArrow) return;
-
-  const totale = refFlickingComponent?.panels.length; //anziche fare
-
-  console.log("Totale slide: ", totale )
-  // Coordinate finali
-  let endX = 0;
-  let endY = 0;
-  if (event instanceof MouseEvent) {
-    endX = event.clientX;
-    endY = event.clientY;
-  } else if (event instanceof TouchEvent) {
-    endX = event.changedTouches[0].clientX;
-    endY = event.changedTouches[0].clientY;
-  }
-
-  // Delta rispetto al punto iniziale
-  const deltaX = endX - this.asseX;
-  const deltaY = endY - this.asseY;
-
-  // Decisione finale:
-  // 1) Prevalgono i movimenti verticali oltre soglia → non muovere il carosello, lascia scorrere la pagina.
-  if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > this.THRESHOLD) {
-    // Sblocco body se era stato bloccato per errore
+    // In ogni caso, a fine gesto sblocca il body se era stato bloccato
     if (this._bodyLocked) {
       document.body.style.overflow = '';
       this._bodyLocked = false;
     }
-    // console.log('Gesto verticale → scroll body');
-    return;
   }
 
-  // 2) Prevalgono i movimenti orizzontali oltre soglia → naviga nel carosello
-  if (Math.abs(deltaX) > this.THRESHOLD) {
-    if (deltaX > 0) {
-      // Gesto da sinistra verso destra → slide precedente
-      this.prevIndex(totale, refFlickingComponent);
-      // console.log('Swipe orizzontale → prev');
-    } else {
-      // Gesto da destra verso sinistra → slide successiva
-      this.nextIndex(totale, refFlickingComponent);
-      // console.log('Swipe orizzontale → next');
+
+
+
+
+  prevIndex(totaleElementiCarosello: number | undefined, refFlickingComponent: NgxFlickingComponent) {
+    // Leggo l'indice corrente del carosello
+    const currentIndex = refFlickingComponent?.index;
+
+    // Controllo che currentIndex e totale siano definiti
+    if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
+      // Calcolo il nuovo indice andando indietro di 1
+      // Aggiungo totaleElementiCarosello per evitare valori negativi
+      // E poi faccio il modulo per restare nel range 0..(totale-1)
+      const nuovoIndex = (currentIndex - 1 + totaleElementiCarosello) % totaleElementiCarosello;
+
+      // Muovo il carosello al nuovo indice
+      refFlickingComponent?.moveTo(nuovoIndex);
+      console.log(`Prev: da ${currentIndex} a ${nuovoIndex}`);
     }
-  } else {
-    // 3) Movimento minimo → nessuna azione (click/tap)
-    // console.log('Movimento minimo → nessuna navigazione');
   }
 
-  // In ogni caso, a fine gesto sblocca il body se era stato bloccato
-  if (this._bodyLocked) {
-    document.body.style.overflow = '';
-    this._bodyLocked = false;
+  nextIndex(totaleElementiCarosello: number | undefined, refFlickingComponent: NgxFlickingComponent) {
+    // Leggo l'indice corrente del carosello
+    const currentIndex = refFlickingComponent?.index;
+
+    // Controllo che currentIndex e totale siano definiti
+    if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
+      // Calcolo il nuovo indice andando avanti di 1
+      // Uso il modulo per tornare a 0 quando supero l'ultima slide
+      const nuovoIndex = (currentIndex + 1) % totaleElementiCarosello;
+
+      // Muovo il carosello al nuovo indice
+      refFlickingComponent?.moveTo(nuovoIndex);
+      console.log(`Next: da ${currentIndex} a ${nuovoIndex}`);
+    }
   }
-}
 
+  //evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
+  /* Cosa succede qui quando cambia qualcosa nel tag flicking viene scaturito l on changed di quell onchanged possiamo prendere qualsiasi cosa
+  uno degli eventi è recuperare il flicking-panel corrente che in questo caso e il miotag img audio video o quello che si vuole
+  e applicare per esempio una classe zoom-enter quindi ogni volta che cambia il media la classe sara carosello-panel piu zoom enter
+  class="carosello-panel ng-tns-c3646714685-1 ng-star-inserted zoom-enter"
+  Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente     class="carosello-panel zoom-enter" funziona ma solo alla prima slide 
+  perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
+  la cancelliamo e poi la rimettiamo 
+  
+  
+  Quando cambia il carosello aggiungiamo una classe*/
+  onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
+    if (classScssToAddWhenChangeCarosello == '') {
+      console.warn("Nessuna classe passata, non fare nulla. . .");
+      return;
+    }
+    const classeDaAggiungereQuandoCambiaIlCarosello = classScssToAddWhenChangeCarosello;
+    const el = event.panel?.element as HTMLElement | undefined;
+    if (!el) return;
 
+    // reset eventuale (così la stessa animazione può ripartire più volte)
+    el.classList.remove(classeDaAggiungereQuandoCambiaIlCarosello);
+    void el.offsetWidth; // forza un reflow
 
-
-
-prevIndex(totaleElementiCarosello: number | undefined , refFlickingComponent: NgxFlickingComponent) {
-  // Leggo l'indice corrente del carosello
-  const currentIndex = refFlickingComponent?.index;
-
-  // Controllo che currentIndex e totale siano definiti
-  if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
-    // Calcolo il nuovo indice andando indietro di 1
-    // Aggiungo totaleElementiCarosello per evitare valori negativi
-    // E poi faccio il modulo per restare nel range 0..(totale-1)
-    const nuovoIndex = (currentIndex - 1 + totaleElementiCarosello) % totaleElementiCarosello;
-
-    // Muovo il carosello al nuovo indice
-    refFlickingComponent?.moveTo(nuovoIndex);
-    console.log(`Prev: da ${currentIndex} a ${nuovoIndex}`);
+    // applica animazione
+    el.classList.add(classeDaAggiungereQuandoCambiaIlCarosello);
   }
-}
-
-nextIndex(totaleElementiCarosello: number | undefined, refFlickingComponent: NgxFlickingComponent) {
-  // Leggo l'indice corrente del carosello
-  const currentIndex = refFlickingComponent?.index;
-
-  // Controllo che currentIndex e totale siano definiti
-  if (currentIndex !== undefined && totaleElementiCarosello !== undefined) {
-    // Calcolo il nuovo indice andando avanti di 1
-    // Uso il modulo per tornare a 0 quando supero l'ultima slide
-    const nuovoIndex = (currentIndex + 1) % totaleElementiCarosello;
-
-    // Muovo il carosello al nuovo indice
-    refFlickingComponent?.moveTo(nuovoIndex);
-    console.log(`Next: da ${currentIndex} a ${nuovoIndex}`);
-  }
-}
-
-//evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
-/* Cosa succede qui quando cambia qualcosa nel tag flicking viene scaturito l on changed di quell onchanged possiamo prendere qualsiasi cosa
-uno degli eventi è recuperare il flicking-panel corrente che in questo caso e il miotag img audio video o quello che si vuole
-e applicare per esempio una classe zoom-enter quindi ogni volta che cambia il media la classe sara carosello-panel piu zoom enter
-class="carosello-panel ng-tns-c3646714685-1 ng-star-inserted zoom-enter"
-Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente     class="carosello-panel zoom-enter" funziona ma solo alla prima slide 
-perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
-la cancelliamo e poi la rimettiamo 
-
-
-Quando cambia il carosello aggiungiamo una classe*/
-onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
-  if(classScssToAddWhenChangeCarosello == ''){
-    console.warn("Nessuna classe passata, non fare nulla. . .");
-    return;
-  }
-  const classeDaAggiungereQuandoCambiaIlCarosello = classScssToAddWhenChangeCarosello;
-  const el = event.panel?.element as HTMLElement | undefined;
-  if (!el) return;
-
-  // reset eventuale (così la stessa animazione può ripartire più volte)
-  el.classList.remove(classeDaAggiungereQuandoCambiaIlCarosello);
-  void el.offsetWidth; // forza un reflow
-
-  // applica animazione
-  el.classList.add(classeDaAggiungereQuandoCambiaIlCarosello);
-}
 
 
 
 
-//fine nuovo carosello
+  //fine nuovo carosello
 
   /**
    * Stato admin reattivo.
@@ -572,10 +633,11 @@ onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
     private metaService: Meta,
     private sharedDataService: SharedDataService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
-    slides = [1, 2, 3, 4];
-    slides2 = [1, 2, 3, 5,6,7,8,9,10];
+
+
+
 
   ngOnInit(): void {
     // Scroll iniziale in alto.
@@ -670,6 +732,11 @@ onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
   }
 
   ngAfterViewInit(): void {
+      console.log('quante refs di tipo flickingTag ci sono ?', this.flickingRefs.length);
+      if(this.flickingRefs.length > 0){
+        this.flickingRefsArray = this.flickingRefs.toArray(); // NgxFlickingComponent[]
+        console.log("Flicking refs in array: ", this.flickingRefsArray);
+      }
     // Avvio silenzioso dei video dopo il rendering, con fallback in caso di policy browser.
     setTimeout(() => {
       const videos: NodeListOf<HTMLVideoElement> = document.querySelectorAll('video');
@@ -758,7 +825,7 @@ onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
       toEdit = this.carosello;
     }
 
-    console.log("Invio i dati all editor, ",JSON.stringify(toEdit));
+    console.log("Invio i dati all editor, ", JSON.stringify(toEdit));
     this.sharedDataService.setMediaCollectionConfig(toEdit);
     this.dialog.open(EditorAdminPopUpComponent, {
       disableClose: false,
@@ -770,17 +837,17 @@ onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
 
 
   checkEstensione(url: string, tipo: 'image' | 'video' | 'audio'): boolean {
-  if (!url) return false;
+    if (!url) return false;
 
-  const lowerUrl = url.toLowerCase();
+    const lowerUrl = url.toLowerCase();
 
-  const estensioni = {
-    image: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'],
-    video: ['.mp4', '.webm', '.ogg', '.mov', '.m4v'],
-    audio: ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac']
-  };
+    const estensioni = {
+      image: ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'],
+      video: ['.mp4', '.webm', '.ogg', '.mov', '.m4v'],
+      audio: ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac']
+    };
 
-  return estensioni[tipo].some(ext => lowerUrl.endsWith(ext));
-}
+    return estensioni[tipo].some(ext => lowerUrl.endsWith(ext));
+  }
 
 }
