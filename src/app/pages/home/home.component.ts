@@ -302,6 +302,9 @@ ottengoIndiceCorrente(){
 /* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
 @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
 @ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
+
+Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)" possiamo leggere gli indici appena starta carosello, applicare classi ecc...
+ 
 */
 
 
@@ -502,17 +505,24 @@ class="carosello-panel ng-tns-c3646714685-1 ng-star-inserted zoom-enter"
 Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente     class="carosello-panel zoom-enter" funziona ma solo alla prima slide 
 perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
 la cancelliamo e poi la rimettiamo 
-*/
-onChangedCarosello(event: any, refFlickingComponent: NgxFlickingComponent) {
+
+
+Quando cambia il carosello aggiungiamo una classe*/
+onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
+  if(classScssToAddWhenChangeCarosello == ''){
+    console.warn("Nessuna classe passata, non fare nulla. . .");
+    return;
+  }
+  const classeDaAggiungereQuandoCambiaIlCarosello = classScssToAddWhenChangeCarosello;
   const el = event.panel?.element as HTMLElement | undefined;
   if (!el) return;
 
   // reset eventuale (così la stessa animazione può ripartire più volte)
-  el.classList.remove('zoom-enter');
+  el.classList.remove(classeDaAggiungereQuandoCambiaIlCarosello);
   void el.offsetWidth; // forza un reflow
 
   // applica animazione
-  el.classList.add('zoom-enter');
+  el.classList.add(classeDaAggiungereQuandoCambiaIlCarosello);
 }
 
 
