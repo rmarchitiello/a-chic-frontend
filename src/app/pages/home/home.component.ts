@@ -115,6 +115,38 @@ prendo la classe flicking-pagination e magari voglio cambiare come devono essewr
   cursor: pointer;
   font-size: 1rem;
 }
+
+Come funziona ngx-flicking
+si inserisce questo tag e poi tutto sotto di lui deve avere tag flicking-panel per collegarlo al pannello di sopra
+<ngx-flicking
+  #flickingTag
+  [options]="scrollOption"
+  (mousedown)="saveAsseX($event)"
+  (mouseup)="checkIfScrollDxorSx($event)"
+  (touchstart)="saveAsseX($event)" 
+  (touchend)="checkIfScrollDxorSx($event)"
+  (changed)="onChangedCarosello($event)"
+  [plugins]="plugins"
+  style="display:block; width:100%;"
+>
+  <div
+    flicking-panel
+    *ngFor="let n of slides"
+    style="
+      width:100%;
+      height:220px;
+      display:flex;
+      cursor: pointer;
+      align-items:center;
+      justify-content:center;
+      background:#eee;
+      border-radius:12px;
+      margin:0 8px;
+      font-weight:600;
+    "
+  >
+    Slide {{ n }}
+  </div>
 */
 
 
@@ -210,7 +242,7 @@ plugins: Plugin[] = [
   new Fade(),   // gestisce la transizione a dissolvenza
   new Arrow(),
   new Pagination({ type: 'bullet' }),
-  new AutoPlay({ duration: 100000 })
+  new AutoPlay({ duration: 3000 })
 ];
 
 /* Esempio, come ottengo l indice corrente? 
@@ -453,6 +485,17 @@ nextIndex(totaleElementiCarosello: number | undefined) {
   }
 }
 
+//evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
+onChangedCarosello(event: any) {
+  const newIndex = event.index;
+  const el = event.panel?.element as HTMLElement | undefined; //punta al div elemento html della slide attiva dove il div deve essere di tipo flicking-panel 
+  console.log('newIndex:', newIndex, 'element:', el);
+}
+
+
+
+
+//fine nuovo carosello
 
   /**
    * Stato admin reattivo.
