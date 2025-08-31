@@ -1,251 +1,33 @@
-<!-- =============================================================================
-     HOME TEMPLATE UNICO (desktop + mobile)
-     - Un solo markup; differenze di layout e tipografia gestite via media queries nello SCSS della Home
-     - Mantengo la logica Angular già esistente (isAdmin, funzioni TS, indici dei caroselli)
-     - I nomi delle classi sono unificati (niente suffissi -desktop / -mobile)
-     ============================================================================ -->
 
-<section class="home" aria-label="Sezione principale Home">
-  <div class="home-container">
 
-    <!-- =========================================================
-         CAROSELLO PRINCIPALE
-         - Usa currentIndex per la slide attiva
-         - Supporta image / video / audio
-         - Pulsante admin per aprire l’editor del carosello
-         ========================================================= -->
-    <div class="carousel-wrapper">
-      <!-- Pulsante modifica (admin) -->
-      <button
-        *ngIf="isAdmin"
-        mat-icon-button
-        class="carousel-admin-btn"
-        (click)="apriPopUpEditorAdmin('carosello')"
-        matTooltip="Modifica carosello"
-        [matTooltipClass]="'tooltip-custom'">
-        <mat-icon>edit</mat-icon>
-      </button>
 
-      <div class="carousel-container">
-        <!-- Slide dinamiche -->
-        <div
-          *ngFor="let c of carosello.items; let i = index"
-          class="carousel-slide"
-          [class.active]="i === currentIndex">
 
-          <ng-container *ngIf="getMediaFrontale(c.media) as src">
-            <!-- Immagine -->
-            <img
-              *ngIf="checkEstensione(src, 'image')"
-              [src]="src"
-              class="carousel-image"
-              alt="Media carosello" />
-
-            <!-- Video -->
-            <video
-              *ngIf="checkEstensione(src, 'video')"
-              class="carousel-image"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="auto">
-              <source [src]="src" />
-            </video>
-
-            <!-- Audio -->
-            <audio
-              *ngIf="checkEstensione(src, 'audio')"
-              class="carousel-audio"
-              controls>
-              <source [src]="src" />
-            </audio>
-          </ng-container>
-        </div>
-      </div>
-    </div>
-
-    <!-- =========================================================
-         MODELLI IN EVIDENZA
-         - Card responsive con media frontale
-         - Titolo card = display_name
-         - Pulsante admin per aprire editor “modelliEvidenza”
-         ========================================================= -->
-    <div class="modelli-evidenza scroll-reveal" appScrollReveal>
-      <button
-        *ngIf="isAdmin"
-        mat-icon-button
-        class="edit-admin-icon"
-        (click)="apriPopUpEditorAdmin('modelliEvidenza')"
-        matTooltip="Modifica Modelli in Evidenza"
-        [matTooltipClass]="'tooltip-custom'">
-        <mat-icon>edit</mat-icon>
-      </button>
-
-      <mat-card
-        *ngFor="let modello of modelliInEvidenza.items"
-        class="modello-card">
-
-        <ng-container *ngIf="getMediaFrontale(modello.media) as src">
-          <!-- Immagine -->
-          <img
-            *ngIf="checkEstensione(src, 'image')"
-            [src]="src"
-            class="media-responsive"
-            mat-card-image
-            alt="{{ modello.context.display_name }}" />
-
-          <!-- Video -->
-          <video
-            *ngIf="checkEstensione(src, 'video')"
-            class="media-responsive"
-            mat-card-image
-            autoplay
-            muted
-            loop
-            playsinline
-            preload="auto">
-            <source [src]="src" />
-          </video>
-
-          <!-- Audio -->
-          <audio
-            *ngIf="checkEstensione(src, 'audio')"
-            class="media-audio"
-            controls>
-            <source [src]="src" />
-          </audio>
-        </ng-container>
-
-        <mat-card-title class="card-title">
-          {{ modello.context.display_name }}
-        </mat-card-title>
-      </mat-card>
-    </div>
-
-    <!-- =========================================================
-         LE MIE CREAZIONI
-         - Griglia responsive di card media
-         - Pulsante admin per aprire editor “creazioni”
-         ========================================================= -->
-    <div class="creazioni scroll-reveal" appScrollReveal>
-      <button
-        *ngIf="isAdmin"
-        mat-icon-button
-        class="edit-admin-icon"
-        (click)="apriPopUpEditorAdmin('creazioni')"
-        matTooltip="Modifica le mie creazioni"
-        [matTooltipClass]="'tooltip-custom'">
-        <mat-icon>edit</mat-icon>
-      </button>
-
-      <h2 class="titolo-creazioni">Best Seller</h2>
-      <p class="testo-creazioni">
-        I prodotti più cliccati
-      </p>
-
-      <div class="creazioni-gallery">
-        <div class="creazione-card" *ngFor="let creazione of creazioni.items">
-          <ng-container *ngIf="getMediaFrontale(creazione.media) as src">
-
-            <!-- Immagine -->
-            <img
-              *ngIf="checkEstensione(src, 'image')"
-              [src]="src"
-              alt="{{ creazione.context.display_name }}" />
-
-            <!-- Video -->
-            <video
-              *ngIf="checkEstensione(src, 'video')"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="auto">
-              <source [src]="src" />
-            </video>
-
-            <!-- Audio -->
-            <audio
-              *ngIf="checkEstensione(src, 'audio')"
-              controls>
-              <source [src]="src" />
-            </audio>
-          </ng-container>
-        </div>
-      </div>
-    </div>
-
-    <!-- =========================================================
-         VALORI / PERCHÉ SCEGLIERE A-CHIC
-         - Lista punti chiave del brand
-         ========================================================= -->
-    <div class="valori scroll-reveal" appScrollReveal>
-      <h2 class="titolo-valori">Perché scegliere A-Chic</h2>
-      <ul class="lista-valori">
-        <li>Realizzato a mano con amore</li>
-        <li>Personalizzazioni uniche</li>
-        <li>Materiali di qualità</li>
-        <li>Assistenza diretta</li>
-      </ul>
-    </div>
-
-    <!-- =========================================================
-         RECENSIONI
-         - Carosello dedicato con indice currentRecensioneIndex
-         - Supporta image / video / audio
-         - Pulsante admin per aprire editor “recensioni”
-         ========================================================= -->
-    <div class="recensioni scroll-reveal" appScrollReveal>
-      <button
-        *ngIf="isAdmin"
-        mat-icon-button
-        class="edit-admin-icon"
-        (click)="apriPopUpEditorAdmin('recensioni')"
-        matTooltip="Modifica le recensioni"
-        [matTooltipClass]="'tooltip-custom'">
-        <mat-icon>edit</mat-icon>
-      </button>
-
-      <h2 class="titolo-recensioni">Dicono di noi</h2>
-
-      <div class="carousel-container-recensioni">
-        <div
-          *ngFor="let recensione of recensioni.items; let i = index"
-          class="carousel-slide-recensioni"
-          [class.active]="i === currentRecensioneIndex">
-
-          <ng-container *ngIf="getMediaFrontale(recensione.media) as src">
-            <!-- Immagine -->
-            <img
-              *ngIf="checkEstensione(src, 'image')"
-              [src]="src"
-              class="carousel-image-recensioni"
-              alt="Recensione cliente" />
-
-            <!-- Video -->
-            <video
-              *ngIf="checkEstensione(src, 'video')"
-              class="carousel-image-recensioni"
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="auto">
-              <source [src]="src" />
-            </video>
-
-            <!-- Audio -->
-            <audio
-              *ngIf="checkEstensione(src, 'audio')"
-              class="carousel-audio-recensioni"
-              controls>
-              <source [src]="src" />
-            </audio>
-          </ng-container>
-        </div>
-      </div>
-    </div>
-
+<ng-container *ngFor="let ilMioCarosello of iMieICaroselli; let i = index">
+<ngx-flicking
+  #flickingTag
+  [options]="ilMioCarosello.options"
+  (mousedown)="saveAsseX($event)"
+  (mouseup)="checkIfScrollDxorSx($event,i)"
+  (touchstart)="saveAsseX($event)" 
+  (touchend)="checkIfScrollDxorSx($event,i)"
+  (changed)="onChangedCarosello($event, 'zoom-enter')"
+  [plugins]="ilMioCarosello.plugins"
+  style="display:block; width:100%;"
+>
+  <div
+    flicking-panel
+    *ngFor="let n of ilMioCarosello.data"
+    class="carosello-panel"
+  >
+    Slide {{ n }}
   </div>
-</section>
+
+  <!-- frecce -->
+  <span in-viewport class="flicking-arrow-prev"></span>
+  <span in-viewport class="flicking-arrow-next"></span>
+
+  <!-- pallini -->
+  <div in-viewport class="flicking-pagination"></div>
+</ngx-flicking>
+</ng-container>
+

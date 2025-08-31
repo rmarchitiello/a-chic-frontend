@@ -1,329 +1,63 @@
-/* =============================================================================
-   HOME COMPONENT (unico template per desktop + mobile)
-   - Background SEMPRE bianco (#fff)
-   - Alcune sezioni (caroselli) vanno "a tutta larghezza" → full-bleed
-   - Layout mobile/desktop via media queries
-   ========================================================================== */
-
-:host { display: block; background: #fff; }
-
-.home,
-.home-container { 
-  /* Contenitore logico della pagina: può avere padding o larghezza max
-     ma NON deve impedire ad alcune sezioni di “sanguinare” a pieno schermo. */
-  background: #fff; 
-  width: 100%; 
-  margin: 0 auto; 
+.carosello-panel {
+    overflow: hidden; //per non tagliare l immagine quando zoommiamo ok
+    width: 100%;
+    height: 220px;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    border-radius: 12px;
+    margin: 0 8px;
+    font-weight: 600;
 }
 
-/* =============================================================================
-   Pulsanti admin (icone “edit”)
-   - Posizionati assoluti rispetto alla sezione/box relativo
-   - Z-index alto per restare sopra ai media
-   ========================================================================== */
 
-/* Pulsante sul carosello principale */
-.carousel-admin-btn {
-  position: absolute;    /* relativo al .carousel-wrapper (che è position:relative) */
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-  /* Sfondo chiaro per leggibilità a prescindere dal media sottostante */
-  background: rgba(255, 255, 255, 0.8);
 
-  mat-icon { color: #000; }
-}
 
-/* Pulsanti edit generici delle altre sezioni (modelli, creazioni, recensioni) */
-.edit-admin-icon {
-  position: absolute;    /* la sezione padre deve essere position:relative */
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.8);
 
-  mat-icon { color: #000; }
-}
 
-/* =============================================================================
-   Reveal on scroll (effetto entrata)
-   ========================================================================== */
-.scroll-reveal{
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity .8s ease-out, transform .8s ease-out;
-  will-change: opacity, transform;
-}
-.scroll-reveal.revealed{ opacity: 1; transform: translateY(0); }
 
-/* =============================================================================
-   FULL-BLEED MIXIN — “sanguinare” a tutta larghezza
-   --------------------------------------------------------------------------
-   PROBLEMA: il container centrale (es. .home-container) spesso ha padding
-   orizzontale o una max-width; se metto dentro un carosello a 100%, rimarrà
-   “incastrato” entro quei gutter.
 
-   SOLUZIONE: questo mixin:
-   - imposta width: 100vw (tutta la larghezza della viewport)
-   - sposta l’elemento di metà della sua larghezza verso destra (left: 50%)
-   - poi compensa con un margin-left negativo di metà viewport (-50vw)
-     → così il blocco esce dal flusso del container e si allinea ai bordi
-       sinistro e destro dello schermo, ignorando i padding del wrapper.
 
-   NOTE:
-   - l’elemento che usa il mixin deve rimanere in un contesto normale (non
-     trasformato con scale/rotate del genitore) per evitare artefatti.
-   - se hai scrollbar verticale, 100vw include anche la larghezza della barra
-     su alcuni browser → se noti un micro overflow, valuta:
-       overflow-x: hidden sul body, oppure usare calc(100vw) con fine-tuning.
-   ========================================================================== */
-@mixin full-bleed {
-  width: 100vw;       /* larghezza = intera viewport */
-  position: relative; /* necessario per left/right */
-  left: 50%;          /* sposta il box a metà viewport */
-  right: 50%;
-  margin-left: -50vw; /* tira indietro a sinistra di metà viewport */
-  margin-right: -50vw;/* idem a destra → il blocco “sanguina” ai bordi */
-  background: #fff;   /* sfondo coerente col tema */
-}
 
-/* =============================================================================
-   CAROSELLO PRINCIPALE
-   - full-bleed per andare a tutta larghezza
-   - altezza: 100vh (hero a schermo pieno)
-   - le slide sono assolute e si sovrappongono: la “active” è visibile
-   ========================================================================== */
-.carousel-wrapper{
-  @include full-bleed();  /* <<< QUI usiamo il trucco full-bleed */
-  height: 100vh;          /* hero full-screen; regola se vuoi */
-  overflow: hidden;       /* evita sbordi dei media */
-  position: relative;     /* riferimento per .carousel-admin-btn */
-}
 
-.carousel-container{ 
-  height: 100%; 
-  position: relative; 
-  background:#fff; 
-}
 
-.carousel-slide{ 
-  position: absolute; 
-  inset: 0;              /* top/right/bottom/left: 0 */
-}
 
-/* Media della slide:
-   - object-fit: contain → l’immagine/video non viene tagliato
-   - pointer-events: none finché non è active (così non cattura click) */
-.carousel-slide img,
-.carousel-slide video,
-.carousel-slide audio{
-  position: absolute; inset: 0;
-  width: 100%; height: 100%;
-  object-fit: contain; object-position: center;
-  opacity: 0; transition: opacity 1s ease-in-out;
-  pointer-events: none; background: #fff;
-}
-.carousel-slide.active img,
-.carousel-slide.active video,
-.carousel-slide.active audio{
-  opacity: 1; pointer-events: auto;
-}
-
-/* Audio centrale nel carosello principale */
-.carousel-audio{
-  position: absolute; left: 50%; top: 50%;
-  width: min(600px, 80vw); height: auto;
-  transform: translate(-50%, -50%);
-  background: transparent;
-}
-
-/* =============================================================================
-   MODELLI IN EVIDENZA
-   - Card con media frontale
-   - .modelli-evidenza è position:relative per ancorare il bottone edit
-   ========================================================================== */
-.modelli-evidenza{ position: relative; background:#fff; }
-.modello-card{
-  background: transparent;
-  border-radius: 0;
-  box-shadow: none;
-  position: relative; /* per sovrapporre titolo su media */
-}
-.media-responsive{
-  width: 100%; height: auto;
-  aspect-ratio: 3/4;           /* rapporto elegante per immagini verticali */
-  object-fit: cover; 
-  object-position: center;
-  display: block; background:#fff;
-}
-.media-audio{ width: 100%; display: block; margin-top: .5rem; }
-.card-title{
-  position: absolute; left: 0; right: 0; bottom: 1.5rem;
-  padding: .5rem 1rem; text-align: center;
-  background: rgba(0,0,0,.5); color: #fff; font-weight: 700;
-}
-
-/* =============================================================================
-   LE MIE CREAZIONI
-   ========================================================================== */
-.creazioni{ background:#fff; text-align:center; position:relative; }
-.titolo-creazioni{ font-weight:800; color:#222; margin:0 0 1rem; }
-.testo-creazioni{
-  color:#444; margin:0 auto 2rem; line-height:1.6; max-width:800px;
-}
-
-/* Grid fluida:
-   - auto-fit con minmax permette di riempire la riga con il numero
-     di card che ci sta, senza breakpoint rigidi. */
-.creazioni-gallery{
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  align-items: start;
-}
-.creazione-card{ display:flex; flex-direction:column; align-items:center; }
-.creazioni-gallery .creazione-card img,
-.creazioni-gallery .creazione-card video{
-  width:100%; height:auto; border-radius:8px; background:#fff; display:block;
-}
-.creazioni-gallery .creazione-card audio{ width:100%; display:block; }
-
-/* =============================================================================
-   VALORI
-   ========================================================================== */
-.valori{ background:#fff; text-align:center; }
-.titolo-valori{ font-weight:800; color:#222; margin-bottom:1rem; }
-.lista-valori{
-  list-style:none; padding:0; margin:0; color:#333;
-  display:flex; gap:2rem; justify-content:center; flex-wrap:wrap;
-}
-.lista-valori li::before{ content:'✓ '; color:#27ae60; font-weight:bold; }
-
-/* =============================================================================
-   RECENSIONI (carosello)
-   - anche qui full-bleed, così le review media possono “toccare” i bordi
-   ========================================================================== */
-.recensioni{ position: relative; background:#fff; text-align:center; }
-.titolo-recensioni{
-  font-weight:700; color:#333; text-transform:uppercase;
-  letter-spacing:.5px; margin:2rem 0 1rem;
-}
-
-.carousel-container-recensioni{
-  @include full-bleed(); /* <<< full-bleed anche per questo carosello */
-  position: relative; 
-  display: flex; 
-  justify-content: center; 
-  align-items: center;
-  overflow: hidden;
-}
-.carousel-slide-recensioni{ position: absolute; inset: 0; }
-.carousel-slide-recensioni img,
-.carousel-slide-recensioni video,
-.carousel-slide-recensioni audio{
-  position: absolute; top: 50%; left: 50%;
-  width: auto; transform: translate(-50%, -50%);
-  object-fit: contain; opacity: 0; transition: opacity 1s ease-in-out;
-  pointer-events: none; background: #fff; z-index: 0;
-}
-.carousel-slide-recensioni.active img,
-.carousel-slide-recensioni.active video,
-.carousel-slide-recensioni.active audio{
-  opacity: 1; pointer-events: auto; z-index: 1;
-}
-.carousel-audio-recensioni{ width: min(600px, 80vw); }
-
-/* =============================================================================
-   MOBILE (≤ 768px)
-   - Padding più contenuti
-   - Bottoni admin un filo più grandi e più vicini ai bordi
-   ========================================================================== */
-@media (max-width: 768px){
-  .home-container{ padding: 0; } /* i blocchi full-bleed gestiscono i bordi */
-
-  /* Carosello recensioni mobile */
-  .carousel-container-recensioni{ padding: 2rem 0; min-height: 400px; }
-  .carousel-slide-recensioni img,
-  .carousel-slide-recensioni video,
-  .carousel-slide-recensioni audio{
-    max-width: 90vw; max-height: 65vh;
+/* 
+ * Definisco l’animazione "zoomInReturnLinear".
+ * Voglio un movimento uniforme (velocità costante), quindi uso solo i fotogrammi 0% e 100%
+ * e applico un easing lineare. Parto ingrandito e leggermente trasparente, arrivo alla scala normale.
+ */
+@keyframes zoomInReturnLinear {
+  0% {
+    transform: scale(1.5);   /* all’inizio ingrandisco l’elemento */
+    opacity: 0.7;            /* all’inizio lo rendo parzialmente trasparente */
   }
-
-  /* Modelli in evidenza */
-  .modelli-evidenza{
-    padding: 2rem 1rem; 
-    display: flex; flex-direction: column; gap: 1.5rem; align-items: center;
-  }
-  .modello-card{ width: 100%; max-width: 520px; margin: 0 auto; }
-
-  /* Creazioni */
-  .creazioni{ padding: 3rem 1rem; }
-  .titolo-creazioni{ font-size: 1.6rem; }
-  .testo-creazioni{ font-size: 1rem; max-width: 95%; }
-
-  /* Valori */
-  .valori{ padding: 3rem 1rem; }
-  .titolo-valori{ font-size: 1.6rem; }
-  .lista-valori{
-    flex-direction: column; gap: .8rem; align-items: center; font-size: 1rem;
-  }
-
-  .titolo-recensioni{ font-size: 1.1rem; }
-
-  /* Pulsanti admin su mobile */
-  .carousel-admin-btn,
-  .edit-admin-icon {
-    top: 8px;
-    right: 8px;
-    background: rgba(255,255,255,0.9);
-
-    button, mat-icon { font-size: 22px; }
+  100% {
+    transform: scale(1);     /* alla fine riporto l’elemento alla dimensione normale */
+    opacity: 1;              /* alla fine lo rendo completamente visibile */
   }
 }
 
-/* =============================================================================
-   DESKTOP (≥ 769px)
-   - Spazi più ampi
-   - Griglie più larghe
-   - Bottoni admin leggermente più piccoli e con margini maggiori
-   ========================================================================== */
-@media (min-width: 769px){
-  .home-container{ padding: 0; }
+/* 
+ * Applico l’animazione con velocità uniforme.
+ * Uso "linear" per mantenere costante la velocità lungo tutta la durata.
+ * Uso "both" per mantenere gli stili del frame finale (scala 1 e opacità 1).
+ * Imposto il transform-origin al centro per uno scaling simmetrico.
+ */
+.zoom-enter {
+  animation: zoomInReturnLinear 1000ms linear both;
+  transform-origin: center center;
+}
 
-  /* Carosello recensioni desktop */
-  .carousel-container-recensioni{ padding: 3rem 0; min-height: 500px; }
-  .carousel-slide-recensioni img,
-  .carousel-slide-recensioni video,
-  .carousel-slide-recensioni audio{
-    max-width: 80vw; max-height: 70vh;
-  }
 
-  /* Modelli in evidenza */
-  .modelli-evidenza{
-    padding: 2rem 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;
-  }
-  .modello-card{ width: 30%; min-width: 280px; max-width: 400px; }
-  .card-title{ bottom: 2.5rem; font-size: 1.2rem; }
 
-  /* Creazioni */
-  .creazioni{ padding: 4rem 2rem; }
-  .titolo-creazioni{ font-size: 2rem; }
-  .testo-creazioni{ font-size: 1.1rem; }
-  .creazioni-gallery{ grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-  .creazioni-gallery .creazione-card audio{ width: 100%; }
+//gestione delle frecce
+:host ::ng-deep .flicking-arrow-prev {
+    left: 40px !important;
+}
 
-  /* Valori */
-  .valori{ padding: 4rem 2rem; }
-  .titolo-valori{ font-size: 2rem; }
-  .lista-valori{ font-size: 1.1rem; }
-
-  /* Pulsanti admin su desktop */
-  .carousel-admin-btn,
-  .edit-admin-icon {
-    top: 16px;
-    right: 16px;
-    background: rgba(255,255,255,0.7);
-
-    button, mat-icon { font-size: 20px; }
-  }
+:host ::ng-deep .flicking-arrow-next {
+    right: 40px !important;
 }
