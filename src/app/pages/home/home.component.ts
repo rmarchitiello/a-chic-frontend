@@ -247,11 +247,15 @@ data sara mediaCollection al momento mettiamo any e da cambiare
 options sono tutte le opzioni che puo avere esempio settare lo slide l'autoplay ecc ecc qualsiasi
 plugin se deve avere per esempio le frecce gli arrow e cosi via... */
 interface ImieiCaroselli {
-  options: Partial<FlickingOptions>,
-  plugins: Plugin[],
+  options: Partial<FlickingOptions>, //opzioni del carosello indichiamo se il carosello e circolare o no, la duarata delle slide
+  otherOption: OtherOption,  // qui metto se per esempio quando chiamo l'onchanged deve zoommare il carosello quando cambio slide, al momento c e la chiamata al metodo nell (changed)
+  plugins: Plugin[],      //plugin del carosello se deve avere l'arrow o i pallini
   data: any
 }
 
+interface OtherOption {
+  onChangedCarosello: string
+}
 
 import {
   Component,
@@ -342,6 +346,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
       moveType: "snap",
       inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
     },
+    otherOption: {
+      onChangedCarosello: 'zoom-enter'
+    },
     plugins: [
       new Fade(),   // gestisce la transizione a dissolvenza
       new Arrow(),
@@ -354,15 +361,17 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     data: [1, 2, 3,4,5,6,7,8,9],
     options: {
       circular: true,
-      duration: 0,
+      duration: 1000,
       moveType: "snap",
-      inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
+    },
+    otherOption: {
+      onChangedCarosello: ''
     },
     plugins: [
       new Fade(),   // gestisce la transizione a dissolvenza
       new Arrow(),
       new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 10000 })
+      new AutoPlay({ duration: 3000 })
     ]
   }
 
