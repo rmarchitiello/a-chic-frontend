@@ -1,63 +1,280 @@
-.carosello-panel {
-    overflow: hidden; //per non tagliare l immagine quando zoommiamo ok
-    width: 100%;
-    height: 220px;
-    display: flex;
-    cursor: pointer;
-    align-items: center;
-    justify-content: center;
-    background: #eee;
-    border-radius: 12px;
-    margin: 0 8px;
-    font-weight: 600;
+/* =============================================================================
+   HOME COMPONENT (unico template per desktop + mobile) — versione NGX-FLICKING
+   - Mantiene background bianco
+   - Alcune sezioni “sanguinano” a tutta larghezza (full-bleed)
+   - Gestione pannelli/carousel con @egjs/ngx-flicking
+   ========================================================================== */
+
+:host {
+  display: block;
+  background: #fff; /* sfondo coerente con il resto della pagina */
 }
 
+.home,
+.home-container {
+  /* Container semantico: non impedisce il full-bleed alle sezioni che lo richiedono */
+  background: #fff;
+  width: 100%;
+  margin: 0 auto;
+}
 
+/* =============================================================================
+   HEADER DI SEZIONE (titolo + pulsante admin)
+   - Usato prima di ciascun <ngx-flicking>
+   - Il pulsante admin è assoluto nella sezione, così resta cliccabile sopra i media
+   ========================================================================== */
+.carousel-section-header {
+  position: relative; /* riferimento per il posizionamento del pulsante admin */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
 
+  h2 {
+    margin: 0;
+    color: #222;
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
 
+  .edit-admin-icon {
+    position: absolute; /* resta sopra il carosello */
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.85);
 
+    /* L’icona deve restare leggibile su media scuri/chiari */
+    mat-icon {
+      color: #000;
+    }
+  }
+}
 
+/* =============================================================================
+   UTILITY FULL-BLEED
+   - Consente a blocchi specifici di estendersi ai bordi viewport
+   - Usa width: 100vw e correzione con margini negativi
+   ========================================================================== */
+@mixin full-bleed {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  background: #fff;
+}
 
+/* Se desideri “sanguinare” il carosello, applica la classe al wrapper superiore */
+.carousel-fullbleed {
+  @include full-bleed();
+}
 
+/* =============================================================================
+   PANNELLI NGX-FLICKING
+   - Ogni <div flicking-panel> usa questa classe
+   - Altezza/padding cambiano su mobile/desktop (vedi media queries sotto)
+   ========================================================================== */
+.carosello-panel {
+  overflow: hidden;       /* impedisce che lo zoom o i media escano dai bordi */
+  width: 100%;
+  height: 220px;          /* altezza base (mobile); su desktop verrà aumentata */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #eee;       /* grigio chiaro neutro */
+  border-radius: 12px;
+  margin: 0 8px;          /* spazio orizzontale tra i pannelli */
+  font-weight: 600;
 
+  /* I media devono adattarsi all’area visibile senza deformarsi */
+  img,
+  video {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;    /* copre l’area, ritagliando eventuali eccedenze */
+    object-position: center;
+    border-radius: inherit;
+    display: block;
+    background: #fff;     /* garantisce sfondo chiaro dietro immagini trasparenti */
+  }
 
+  /* L’audio non ha “altezza” utile come img/video; si centra e si limita la larghezza */
+  audio {
+    width: 80%;
+    display: block;
+  }
+}
 
+/* Placeholder visivo quando un item non ha media */
+.media-placeholder {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  padding: 1rem;
+}
 
-
-/* 
- * Definisco l’animazione "zoomInReturnLinear".
- * Voglio un movimento uniforme (velocità costante), quindi uso solo i fotogrammi 0% e 100%
- * e applico un easing lineare. Parto ingrandito e leggermente trasparente, arrivo alla scala normale.
- */
+/* =============================================================================
+   ANIMAZIONI
+   - Classe usata via onChangedCarosello(..., 'zoom-enter')
+   ========================================================================== */
 @keyframes zoomInReturnLinear {
   0% {
-    transform: scale(1.5);   /* all’inizio ingrandisco l’elemento */
-    opacity: 0.7;            /* all’inizio lo rendo parzialmente trasparente */
+    transform: scale(1.5); /* partenza ingrandita */
+    opacity: 0.7;          /* più trasparente in partenza */
   }
   100% {
-    transform: scale(1);     /* alla fine riporto l’elemento alla dimensione normale */
-    opacity: 1;              /* alla fine lo rendo completamente visibile */
+    transform: scale(1);   /* scala normale */
+    opacity: 1;            /* opacità piena */
   }
 }
 
-/* 
- * Applico l’animazione con velocità uniforme.
- * Uso "linear" per mantenere costante la velocità lungo tutta la durata.
- * Uso "both" per mantenere gli stili del frame finale (scala 1 e opacità 1).
- * Imposto il transform-origin al centro per uno scaling simmetrico.
- */
 .zoom-enter {
   animation: zoomInReturnLinear 1000ms linear both;
   transform-origin: center center;
 }
 
+/* =============================================================================
+   FRECCE E PAGINAZIONE DI NGX-FLICKING
+   - Le frecce/pallini sono resi nel DOM anche quando hidden via *ngIf in HTML
+   - Qui gestiamo solo il layout/posizionamento
+   - ::ng-deep è necessario perché le classi sono fuori dall’incapsulamento del componente
+   ========================================================================== */
 
-
-//gestione delle frecce
+/* Frecce: posizionate ai lati del carosello */
 :host ::ng-deep .flicking-arrow-prev {
-    left: 40px !important;
+  left: 40px !important;   /* distanza dal bordo sinistro */
 }
 
 :host ::ng-deep .flicking-arrow-next {
-    right: 40px !important;
+  right: 40px !important;  /* distanza dal bordo destro */
 }
+
+/* Paginazione a pallini: centrata sotto il carosello */
+:host ::ng-deep .flicking-pagination {
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* Aspetto base dei pallini */
+:host ::ng-deep .flicking-pagination-bullet {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  border-radius: 50%;
+  background-color: rgba(10, 10, 10, 0.2);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Stato attivo del pallino corrente */
+:host ::ng-deep .flicking-pagination-bullet-active {
+  background-color: #333;
+}
+
+/* =============================================================================
+   RESPONSIVE — MOBILE (≤ 768px)
+   - Altezza pannelli più contenuta
+   - Pulsanti admin leggermente più marcati e vicini al bordo
+   - Paginazione con margine verticale più stretto
+   ========================================================================== */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 0; /* i blocchi full-bleed gestiscono i bordi della viewport */
+  }
+
+  /* Altezza pannello adatta al mobile; mantiene la proporzione visiva senza schiacciare */
+  .carosello-panel {
+    height: 220px;
+    margin: 0 6px; /* pannelli un filo più vicini su schermi piccoli */
+    border-radius: 10px;
+  }
+
+  /* Paginazione sotto il carosello con spazio ridotto */
+  :host ::ng-deep .flicking-pagination {
+    margin-top: 8px;
+  }
+
+  /* Frecce più vicine ai bordi e più “presenti” su mobile */
+  :host ::ng-deep .flicking-arrow-prev {
+    left: 16px !important;
+  }
+  :host ::ng-deep .flicking-arrow-next {
+    right: 16px !important;
+  }
+
+  /* Header sezione: tipografia e pulsante */
+  .carousel-section-header {
+    margin: 0.75rem 0;
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .edit-admin-icon {
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.9);
+    }
+  }
+}
+
+/* =============================================================================
+   RESPONSIVE — DESKTOP (≥ 769px)
+   - Altezza pannelli più generosa
+   - Spaziature aumentate
+   - Paginazione con margine maggiore
+   ========================================================================== */
+@media (min-width: 769px) {
+  .home-container {
+    padding: 0; /* lascia al carosello la possibilità di estendersi */
+  }
+
+  /* Pannelli più alti per valorizzare i media su desktop */
+  .carosello-panel {
+    height: 360px;  /* altezza desktop tipica per righe di card/carousel orizzontali */
+    margin: 0 10px;
+    border-radius: 12px;
+  }
+
+  /* Paginazione con margine aumentato per respiro visivo */
+  :host ::ng-deep .flicking-pagination {
+    margin-top: 14px;
+  }
+
+  /* Frecce distanziate maggiormente dai bordi */
+  :host ::ng-deep .flicking-arrow-prev {
+    left: 40px !important;
+  }
+  :host ::ng-deep .flicking-arrow-next {
+    right: 40px !important;
+  }
+
+  /* Header sezione: spazi e tipografia maggiorati */
+  .carousel-section-header {
+    margin: 1rem 0 1.25rem;
+
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+
+    .edit-admin-icon {
+      top: 16px;
+      right: 16px;
+      background: rgba(255, 255, 255, 0.75);
+    }
+  }
+}
+
+/* =============================================================================
+   NOTE OPERATIVE
+   - Se una sezione deve andare full-bleed, applica .carousel-fullbleed al wrapper
+   - Le frecce/pallini vengono mostrati/nascosti dal template via *ngIf
+     (otherOption.haveArrow / otherOption.haveBullet); questo SCSS gestisce solo l’aspetto
+   - L’animazione .zoom-enter viene aggiunta/rimossa dal TS in onChangedCarosello()
+   ========================================================================== */

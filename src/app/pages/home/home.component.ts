@@ -248,19 +248,23 @@ options sono tutte le opzioni che puo avere esempio settare lo slide l'autoplay 
 plugin se deve avere per esempio le frecce gli arrow e cosi via... */
 interface ImieiCaroselli {
   options: Partial<FlickingOptions>, //opzioni del carosello indichiamo se il carosello e circolare o no, la duarata delle slide
-  otherOption: OtherOption,  // qui metto se per esempio quando chiamo l'onchanged deve zoommare il carosello quando cambio slide, al momento c e la chiamata al metodo nell (changed)
+  otherOption: OtherOption,  // qui metto se per esempio quando chiamo l'onchanged deve zoommare il carosello quando cambio slide, al momento c e la chiamata al metodo nell (changed), se domani inserisco un altro metodo che ne so (onstart)="prova()" l input di questo metodo lo inserisco in other option
   plugins: Plugin[],      //plugin del carosello se deve avere l'arrow o i pallini
-  data: any
+  data: MediaCollection
 }
 
 interface OtherOption {
-  onChangedCarosello: string
+  onChangedCarosello: string,
+  editKey: string;              // Chiave da passare ad apriPopUpEditorAdmin()
+  tooltip: string;              // Testo tooltip del pulsante admin
+  titoloSezione?: string;       // Titolo opzionale da mostrare sopra il carosello
+  haveArrow: boolean;  //anche se nei plugin le setto per esempio mettendo Plugin new Arrow metto questa variabile per fare in modo di visualizzare o meno le arrow e i cerchi sotto
+  haveBullet: boolean;
 }
 
 import {
   Component,
   OnInit,
-  OnDestroy,
   AfterViewInit,
   HostListener,
   QueryList
@@ -318,7 +322,7 @@ import { NgxFlickingComponent } from '@egjs/ngx-flicking';
     ])
   ]
 })
-export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit {
   
 
   /* Essendo che ho inserito adesso dei caroselli dinamici, per recupeare tutte le ref dei miei caroselli devo creare un query list di flickingTag
@@ -335,47 +339,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   flickingRefsArray: NgxFlickingComponent[] = [];
 
 
-  /* CAROSELLI DI PROVA */
   
-  iMieICaroselli: ImieiCaroselli[] = [{
-    //primo carosello
-    data: [1, 2, 3],
-    options: {
-      circular: true,
-      duration: 0,
-      moveType: "snap",
-      inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
-    },
-    otherOption: {
-      onChangedCarosello: 'zoom-enter'
-    },
-    plugins: [
-      new Fade(),   // gestisce la transizione a dissolvenza
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  },
-  {
-    //secondo carosello
-    data: [1, 2, 3,4,5,6,7,8,9],
-    options: {
-      circular: true,
-      duration: 1000,
-      moveType: "snap",
-    },
-    otherOption: {
-      onChangedCarosello: ''
-    },
-    plugins: [
-      new Fade(),   // gestisce la transizione a dissolvenza
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  }
-
-];
 
 
   /* Contesto: Flicking con { duration: 0, inputType: [] }.
@@ -613,17 +577,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
   modelliInEvidenza: MediaCollection = { folder: '', items: [] };
   creazioni: MediaCollection = { folder: '', items: [] };
 
-  /**
-   * Indici per rotazioni automatiche.
-   */
-  currentIndex = 0;
-  currentRecensioneIndex = 0;
 
-  /**
-   * ID degli intervalli; avviati solo quando ci sono elementi.
-   */
-  intervalId?: ReturnType<typeof setInterval>;
-  recensioneIntervalId?: ReturnType<typeof setInterval>;
 
   /**
    * Stato responsive e visibilità contenuti successivi.
@@ -704,6 +658,8 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             items: cCarosello?.items ?? []
           };
 
+          console.log("Carosello main caricato: ", JSON.stringify(this.carosello));
+
           // Recensioni
           const cRecensioni = findByTail(tailRecensioni);
           this.recensioni = {
@@ -724,14 +680,9 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
             folder: cCreazioni?.folder ?? 'config/home/le mie creazioni',
             items: cCreazioni?.items ?? []
           };
+          
+          this.caricaTuttiICaroselli();
 
-          // Avvio degli intervalli solo se esistono elementi e non sono già partiti.
-          if (this.carosello.items.length > 0 && !this.intervalId) {
-            this.intervalId = setInterval(() => this.nextImage(), 2000);
-          }
-          if (this.recensioni.items.length > 0 && !this.recensioneIntervalId) {
-            this.recensioneIntervalId = setInterval(() => this.nextRecensione(), 2000);
-          }
         },
         error: err => console.error('Errore caricamento media config', err)
       });
@@ -740,7 +691,117 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.checkScroll();
   }
 
+iMieICaroselli: ImieiCaroselli[] = [];
+  caricaTuttiICaroselli(){
+
+    /* Carico tutti i caroselli*/
+this.iMieICaroselli = [
+  {
+    // Carosello principale
+    data: this.carosello,
+    options: {
+      circular: true,
+      duration: 0,
+      moveType: "snap",
+      inputType: [] // non slideabile a dito, solo via frecce/programmatico
+    },
+    otherOption: {
+      onChangedCarosello: 'zoom-enter',
+      editKey: 'carosello',
+      tooltip: 'Modifica carosello',
+      titoloSezione: 'Carosello principale',
+      haveArrow: true,
+      haveBullet: true
+    },
+    plugins: [
+      new Fade(),
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 3000 })
+    ]
+  },
+  {
+    // Modelli in evidenza
+    data: this.modelliInEvidenza,
+    options: {
+      circular: true,
+      duration: 1000,
+      moveType: "snap",
+    },
+    otherOption: {
+      onChangedCarosello: '',
+      editKey: 'modelliEvidenza',
+      tooltip: 'Modifica Modelli in Evidenza',
+      titoloSezione: 'Modelli in evidenza',
+      haveArrow: true,
+      haveBullet: true
+    },
+    plugins: [
+      new Fade(),
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 3000 })
+    ]
+  },
+  {
+    // Le mie creazioni
+    data: this.creazioni,
+    options: {
+      circular: true,
+      duration: 1000,
+      moveType: "snap",
+    },
+    otherOption: {
+      onChangedCarosello: '',
+      editKey: 'creazioni',
+      tooltip: 'Modifica le mie creazioni',
+      titoloSezione: 'Best Seller',
+      haveArrow: true,
+      haveBullet: true
+    },
+    plugins: [
+      new Fade(),
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 3000 })
+    ]
+  },
+  {
+    // Recensioni
+    data: this.recensioni,
+    options: {
+      circular: true,
+      duration: 1000,
+      moveType: "snap",
+    },
+    otherOption: {
+      onChangedCarosello: '',
+      editKey: 'recensioni',
+      tooltip: 'Modifica recensioni',
+      titoloSezione: 'Dicono di noi',
+      haveArrow: true,
+      haveBullet: true
+    },
+    plugins: [
+      new Fade(),
+      new Arrow(),
+      new Pagination({ type: 'bullet' }),
+      new AutoPlay({ duration: 3000 })
+    ]
+  }
+];
+  }
+  
+
+
+
+trackByIndex(index: number, _: any): number {
+  return index;
+}
+
+
   ngAfterViewInit(): void {
+
       console.log('quante refs di tipo flickingTag ci sono ?', this.flickingRefs.length);
       if(this.flickingRefs.length > 0){
         this.flickingRefsArray = this.flickingRefs.toArray(); // NgxFlickingComponent[]
@@ -754,6 +815,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
         video.play().catch(err => console.warn('Video non avviato:', err));
       });
     }, 300);
+
   }
 
   @HostListener('window:scroll', [])
@@ -769,37 +831,7 @@ export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
     this.mostraContenutoDopoCarosello = window.scrollY > soglia;
   }
 
-  /**
-   * Rotazione del carosello immagini.
-   */
-  private nextImage(): void {
-    const total = this.carosello.items.length;
-    if (total === 0) return;
-    this.currentIndex = (this.currentIndex + 1) % total;
-  }
 
-  /**
-   * Rotazione delle recensioni.
-   */
-  private nextRecensione(): void {
-    const total = this.recensioni.items.length;
-    if (total === 0) return;
-    this.currentRecensioneIndex = (this.currentRecensioneIndex + 1) % total;
-  }
-
-  ngOnDestroy(): void {
-    // Pulizia intervalli e completamento del subject per annullare le subscribe attive.
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = undefined;
-    }
-    if (this.recensioneIntervalId) {
-      clearInterval(this.recensioneIntervalId);
-      this.recensioneIntervalId = undefined;
-    }
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
 
   /**
    * Restituisce la URL del media con angolazione "frontale", se presente.
