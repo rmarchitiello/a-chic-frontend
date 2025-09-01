@@ -260,6 +260,10 @@ interface OtherOption {
   titoloSezione?: string;       // Titolo opzionale da mostrare sopra il carosello
   haveArrow: boolean;  //anche se nei plugin le setto per esempio mettendo Plugin new Arrow metto questa variabile per fare in modo di visualizzare o meno le arrow e i cerchi sotto
   haveBullet: boolean;
+  wrapperClass?: string;  // classe CSS da applicare al <ngx-flicking>
+  panelClass?: string;    // classe CSS da applicare ai singoli pannelli
+
+
 }
 
 import {
@@ -600,7 +604,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 
 
-
+  //array dove salviamo tutti i caroselli cosi cicliamo questi nel template
+  iMieICaroselli: ImieiCaroselli[] = [];
 
   ngOnInit(): void {
     // Scroll iniziale in alto.
@@ -691,107 +696,114 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.checkScroll();
   }
 
-iMieICaroselli: ImieiCaroselli[] = [];
-  caricaTuttiICaroselli(){
+  caricaTuttiICaroselli(): void {
 
-    /* Carico tutti i caroselli*/
-this.iMieICaroselli = [
-  {
-    // Carosello principale
-    data: this.carosello,
-    options: {
-      circular: true,
-      duration: 0,
-      moveType: "snap",
-      inputType: [] // non slideabile a dito, solo via frecce/programmatico
+  /* Carico tutti i caroselli con le impostazioni */
+  this.iMieICaroselli = [
+    {
+      // Carosello principale (hero full-screen)
+      data: this.carosello,
+      options: {
+        circular: true,
+        duration: 0,
+        moveType: "snap",
+        inputType: [] // non slideabile a dito, solo via frecce/programmatico
+      },
+      otherOption: {
+        onChangedCarosello: 'zoom-enter',
+        editKey: 'carosello',
+        tooltip: 'Modifica carosello',
+        titoloSezione: '',
+        haveArrow: true,
+        haveBullet: true,
+        wrapperClass: 'flicking-hero',   // classe per il contenitore
+        panelClass: 'panel-hero'         // classe per i pannelli interni
+      },
+      plugins: [
+        new Fade(),
+        new Arrow(),
+        new Pagination({ type: 'bullet' }),
+        new AutoPlay({ duration: 3000 })
+      ]
     },
-    otherOption: {
-      onChangedCarosello: 'zoom-enter',
-      editKey: 'carosello',
-      tooltip: 'Modifica carosello',
-      titoloSezione: 'Carosello principale',
-      haveArrow: true,
-      haveBullet: true
+    {
+      // Modelli in evidenza
+      data: this.modelliInEvidenza,
+      options: {
+        circular: true,
+        duration: 1000,
+        moveType: "snap",
+      },
+      otherOption: {
+        onChangedCarosello: '',
+        editKey: 'modelliEvidenza',
+        tooltip: 'Modifica Modelli in Evidenza',
+        titoloSezione: 'Modelli in evidenza',
+        haveArrow: true,
+        haveBullet: true,
+        wrapperClass: 'flicking-default',
+        panelClass: 'panel-default'
+      },
+      plugins: [
+        new Fade(),
+        new Arrow(),
+        new Pagination({ type: 'bullet' }),
+        new AutoPlay({ duration: 3000 })
+      ]
     },
-    plugins: [
-      new Fade(),
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  },
-  {
-    // Modelli in evidenza
-    data: this.modelliInEvidenza,
-    options: {
-      circular: true,
-      duration: 1000,
-      moveType: "snap",
+    {
+      // Le mie creazioni
+      data: this.creazioni,
+      options: {
+        circular: true,
+        duration: 1000,
+        moveType: "snap",
+      },
+      otherOption: {
+        onChangedCarosello: '',
+        editKey: 'creazioni',
+        tooltip: 'Modifica le mie creazioni',
+        titoloSezione: 'Best Seller',
+        haveArrow: true,
+        haveBullet: true,
+        wrapperClass: 'flicking-default',
+        panelClass: 'panel-default'
+      },
+      plugins: [
+        new Fade(),
+        new Arrow(),
+        new Pagination({ type: 'bullet' }),
+        new AutoPlay({ duration: 3000 })
+      ]
     },
-    otherOption: {
-      onChangedCarosello: '',
-      editKey: 'modelliEvidenza',
-      tooltip: 'Modifica Modelli in Evidenza',
-      titoloSezione: 'Modelli in evidenza',
-      haveArrow: true,
-      haveBullet: true
-    },
-    plugins: [
-      new Fade(),
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  },
-  {
-    // Le mie creazioni
-    data: this.creazioni,
-    options: {
-      circular: true,
-      duration: 1000,
-      moveType: "snap",
-    },
-    otherOption: {
-      onChangedCarosello: '',
-      editKey: 'creazioni',
-      tooltip: 'Modifica le mie creazioni',
-      titoloSezione: 'Best Seller',
-      haveArrow: true,
-      haveBullet: true
-    },
-    plugins: [
-      new Fade(),
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  },
-  {
-    // Recensioni
-    data: this.recensioni,
-    options: {
-      circular: true,
-      duration: 1000,
-      moveType: "snap",
-    },
-    otherOption: {
-      onChangedCarosello: '',
-      editKey: 'recensioni',
-      tooltip: 'Modifica recensioni',
-      titoloSezione: 'Dicono di noi',
-      haveArrow: true,
-      haveBullet: true
-    },
-    plugins: [
-      new Fade(),
-      new Arrow(),
-      new Pagination({ type: 'bullet' }),
-      new AutoPlay({ duration: 3000 })
-    ]
-  }
-];
-  }
-  
+    {
+      // Recensioni
+      data: this.recensioni,
+      options: {
+        circular: true,
+        duration: 1000,
+        moveType: "snap",
+      },
+      otherOption: {
+        onChangedCarosello: '',
+        editKey: 'recensioni',
+        tooltip: 'Modifica recensioni',
+        titoloSezione: 'Dicono di noi',
+        haveArrow: true,
+        haveBullet: true,
+        wrapperClass: 'flicking-default',
+        panelClass: 'panel-default'
+      },
+      plugins: [
+        new Fade(),
+        new Arrow(),
+        new Pagination({ type: 'bullet' }),
+        new AutoPlay({ duration: 3000 })
+      ]
+    }
+  ];
+}
+
 
 
 

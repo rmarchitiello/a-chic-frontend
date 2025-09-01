@@ -2,7 +2,7 @@
      HOME TEMPLATE UNICO (desktop + mobile) — VERSIONE DINAMICA CON NGX-FLICKING
      - Si itera su iMieICaroselli: ogni voce configura un carosello/sezione
      - Ogni carosello espone: car.options, car.plugins, car.data.items, car.otherOption
-     - Gli eventi mouse/touch delegano la gestione swipe al tuo TS (saveAsseX / checkIfScrollDxorSx)
+     - Gli eventi mouse/touch delegano la gestione swipe al TS (saveAsseX / checkIfScrollDxorSx)
      - Le frecce e i pallini sono visibili solo se otherOption.haveArrow / haveBullet sono true
      - Requisiti lato TS:
          trackByIndex(index: number, _: any): number
@@ -17,13 +17,12 @@
 <section class="home" aria-label="Sezione principale Home">
   <div class="home-container">
 
-    <!-- Iterazione su tutti i caroselli configurati -->
+    <!-- Iterazione dinamica su tutti i caroselli configurati -->
     <ng-container *ngFor="let car of iMieICaroselli; let i = index; trackBy: trackByIndex">
 
-      <!-- Header sezione: pulsante admin e titolo opzionale -->
-      <div class="carousel-section-header">
-        <!-- Pulsante admin: visibile solo se isAdmin è true. 
-             I parametri arrivano da otherOption (editKey, tooltip). -->
+      <!-- Header sezione (opzionale: titolo + pulsante admin) -->
+      <div class="carousel-section-header" *ngIf="car.otherOption.titoloSezione || isAdmin">
+        <!-- Pulsante admin -->
         <button
           *ngIf="isAdmin"
           mat-icon-button
@@ -34,19 +33,19 @@
           <mat-icon>edit</mat-icon>
         </button>
 
-        <!-- Titolo sezione opzionale: mostrato solo se valorizzato. -->
+        <!-- Titolo sezione -->
         <h2 *ngIf="car.otherOption.titoloSezione">
           {{ car.otherOption.titoloSezione }}
         </h2>
       </div>
 
-      <!-- Istanza NGX-FLICKING per il carosello corrente.
-           Nota: il template ref #flickingTag viene raccolto da @ViewChildren nel TS
-           e indicizzato nello stesso ordine dell’*ngFor (coerente con 'i'). -->
+      <!-- Istanza NGX-FLICKING -->
+       <!-- Classe wrapper dinamica -->
       <ngx-flicking
         #flickingTag
         [options]="car.options"
         [plugins]="car.plugins"
+        [ngClass]="car.otherOption.wrapperClass" 
         (changed)="onChangedCarosello($event, car.otherOption.onChangedCarosello)"
         (mousedown)="saveAsseX($event)"
         (mouseup)="checkIfScrollDxorSx($event, i)"
@@ -55,19 +54,19 @@
         aria-roledescription="carousel"
         [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'"
       >
-        <!-- Un pannello per ogni item della collezione corrente -->
+
+        <!-- Pannelli -->
+         <!-- Classe panel dinamica carosello-panel c e sempre e poi applico la classe dinamica-->
         <div
           flicking-panel
           *ngFor="let item of car.data.items; trackBy: trackByIndex"
-          class="carosello-panel"
+          [ngClass]="['carosello-panel', car.otherOption.panelClass]" 
         >
-          <!-- Verifica difensiva: renderizza contenuto solo se esistono media -->
+          <!-- Renderizza media solo se presenti -->
           <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">
-            <!-- Ricava l’URL del media 'frontale' dall’array delle angolazioni -->
             <ng-container *ngIf="getMediaFrontale(item.media) as src">
-              <!-- Smistamento per tipo media dichiarato in item.context.type.
-                   In assenza del tipo, si ricade sul blocco di default (immagine). -->
               <ng-container [ngSwitch]="item.context?.type">
+
                 <!-- Immagine -->
                 <img
                   *ngSwitchCase="'image'"
@@ -81,6 +80,7 @@
                   [src]="src"
                   playsinline
                   muted
+                  preload="auto"
                 ></video>
 
                 <!-- Audio -->
@@ -90,44 +90,43 @@
                   controls
                 ></audio>
 
-                <!-- Fallback (immagine) -->
+                <!-- Fallback: immagine -->
                 <img
                   *ngSwitchDefault
                   [src]="src"
                   [alt]="item.context?.display_name || ''"
                 />
+
               </ng-container>
             </ng-container>
           </ng-container>
 
-          <!-- Stato "nessun media": mostrato quando l'array media è assente o vuoto -->
+          <!-- Placeholder se non ci sono media -->
           <ng-template #noMediaTpl>
             <div class="media-placeholder">Nessun media disponibile</div>
           </ng-template>
         </div>
 
-        <!-- Frecce di navigazione: rese visibili solo se haveArrow è true.
-             Il plugin Arrow deve essere presente in car.plugins per funzionalità completa. -->
+        <!-- Frecce di navigazione 
+         Quando haveArrow è true allora class.none = false non aggiunge la classe -->
         <span
-          *ngIf="car.otherOption.haveArrow"
           in-viewport
           class="flicking-arrow-prev"
+          [class.none]="!car.otherOption.haveArrow"
           aria-label="Slide precedente"
         ></span>
-
         <span
-          *ngIf="car.otherOption.haveArrow"
           in-viewport
           class="flicking-arrow-next"
+          [class.none]="!car.otherOption.haveArrow"
           aria-label="Slide successiva"
         ></span>
 
-        <!-- Paginazione a pallini: resa visibile solo se haveBullet è true.
-             Richiede che il plugin Pagination sia presente in car.plugins. -->
+        <!-- Paginazione -->
         <div
-          *ngIf="car.otherOption.haveBullet"
           in-viewport
           class="flicking-pagination"
+          [class.none]="!car.otherOption.haveBullet"
           aria-label="Paginazione carosello"
         ></div>
       </ngx-flicking>
