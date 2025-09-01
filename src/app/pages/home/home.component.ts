@@ -786,8 +786,8 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
         titoloSezione: 'Modelli in evidenza',
         haveArrow: true,
         haveBullet: true,
-        wrapperClass: 'flicking-default',
-        panelClass: 'panel-default'
+        wrapperClass: 'flicking-hero',
+        panelClass: 'panel-hero'
       },
       plugins: this.caroselloChefaSlideFreeScroll.plugins
     },
@@ -802,8 +802,8 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
         titoloSezione: 'Best Seller',
         haveArrow: true,
         haveBullet: true,
-        wrapperClass: 'flicking-default',
-        panelClass: 'panel-default'
+        wrapperClass: 'flicking-hero',
+        panelClass: 'panel-hero'
       },
       plugins: this.caroselloChefaSlideFreeScroll.plugins
     },

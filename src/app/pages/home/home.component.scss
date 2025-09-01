@@ -65,18 +65,9 @@
   background: #fff;
 }
 
-/* =============================================================================
-   WRAPPERCLASS  (APPLICA QUESTA CLASSE IN HTML: [ngClass]="car.otherOption.wrapperClass")
-   - Passa 'flicking-hero' sul carosello principale (hero)
-   - Passa 'flicking-default' sugli altri caroselli
-   ========================================================================== */
 
-/* Wrapper di default: sezioni standard */
-.flicking-default {
-  width: 100%;
-  margin: 0 auto;
-  position: relative;
-}
+
+
 
 /* Wrapper per il carosello principale (HERO)
    >>> APPLICA: otherOption.wrapperClass = 'flicking-hero' sul primo carosello
@@ -135,13 +126,10 @@
 /* =============================================================================
    PANELCLASS (da passare in TS → otherOption.panelClass)
    - 'panel-hero'    → pannello dell’hero (segue SEMPRE l’altezza del wrapper)
-   - 'panel-default' → pannelli standard
    - 'panel-card'    → pannelli più compatti (modelli/creazioni)
    ========================================================================== */
 
-.panel-default {
-  @extend .carosello-panel;
-}
+
 
 .panel-hero {
   @extend .carosello-panel;
