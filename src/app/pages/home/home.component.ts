@@ -171,9 +171,14 @@ si inserisce questo tag e poi tutto sotto di lui deve avere tag flicking-panel p
     // - "freeScroll": scorrimento libero con inerzia (puoi fermarti a metà slide)
     // - "strict": simile a snap, ma più rigido sul conteggio delle slide
     // NB: se usi "freeScroll", il plugin Fade perde senso perché la camera continuerà a muoversi
-    moveType: "snap",
+    moveType: "snap", 
     inputType: [] //se faccio cosi il carosello non è slideabile ma solo cliccando prev e next
   };
+
+  Il move type puo essere
+  "snap" → scatta sempre alla slide più vicina (default).
+  "freeScroll" → scorrimento libero con inerzia; puoi fermarti “a metà” tra le slide.
+  "strict" → simile a snap ma con controllo più rigido del cambio slide (utile con changeOnHold). 
 
   //occhio che ogni plugin si attacca a un solo flicking quindi piu flicking piu plugin
   plugins: Plugin[] = [
@@ -254,7 +259,7 @@ interface ImieiCaroselli {
 }
 
 interface OtherOption {
-  onChangedCarosello: string,
+  onChangedCarosello: OnChangedCarosello,
   editKey: string;              // Chiave da passare ad apriPopUpEditorAdmin()
   tooltip: string;              // Testo tooltip del pulsante admin
   titoloSezione?: string;       // Titolo opzionale da mostrare sopra il carosello
@@ -265,6 +270,11 @@ interface OtherOption {
 
 
 }
+
+//Valori di input che puo assumere onChangedCarosello (in pratica qui che fa:)
+/* Do il valore zoom-enter vuol dire che quando cambia il carosello viene applicata la classe zoom enter
+Se voglio applicare un altra animazione basta che l'aggiungo*/
+type OnChangedCarosello = '' | 'zoom-enter'
 
 import {
   Component,
@@ -328,6 +338,51 @@ import { NgxFlickingComponent } from '@egjs/ngx-flicking';
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   
+    /* CAROSELLO CHE SLAIDA
+    
+    CAROSELLO CIRCOLARE 
+    La durata di ogni slide è di 1 secondo
+    si muove in tipo stryct quindi subito attaccato alla seconda slide
+
+    Parte ogni 2.5 secondi 
+    */
+  readonly caroselloChefaSlideStrict: { options: Partial<FlickingOptions>, plugins: Plugin[]} = {
+        options:{
+          circular: true,
+          duration: 1000,
+          moveType: "strict",
+          inputType: [] // non slideabile a dito, solo via frecce/programmatico
+        },
+        plugins: [
+          new Fade(),
+          new Arrow(),
+          new Pagination({ type: 'bullet' }),
+          new AutoPlay({ duration: 2500 })
+      ]
+  }
+
+
+  /* CAROSELLO FREE SCROLL
+    
+    CAROSELLO NON CIRCOLARE 
+    La durata di ogni slide è di 400 secondi in free scroll
+    Si muove in free scroll
+    Non parte in automatico perche in free scroll non ha senso
+    */
+   
+readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plugins: Plugin[]} = {
+    options: {
+        circular: false,
+        duration: 400,
+        moveType: "freeScroll"
+    },
+    plugins: [
+        new Fade(),
+        new Arrow(),
+        new Pagination({ type: 'bullet' })      ]
+
+  }
+
 
   /* Essendo che ho inserito adesso dei caroselli dinamici, per recupeare tutte le ref dei miei caroselli devo creare un query list di flickingTag
   Quindi flickingRefs contiene tutte le reference nel dom di quanti flickingTag ci sono questo perche ogni carosello ha una sua reference e abbiamo visto
@@ -696,6 +751,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.checkScroll();
   }
 
+
+
   caricaTuttiICaroselli(): void {
 
   /* Carico tutti i caroselli con le impostazioni */
@@ -703,37 +760,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
     {
       // Carosello principale (hero full-screen)
       data: this.carosello,
-      options: {
-        circular: true,
-        duration: 0,
-        moveType: "snap",
-        inputType: [] // non slideabile a dito, solo via frecce/programmatico
-      },
+      options: this.caroselloChefaSlideStrict.options,
       otherOption: {
-        onChangedCarosello: 'zoom-enter',
+        onChangedCarosello: '',
         editKey: 'carosello',
         tooltip: 'Modifica carosello',
         titoloSezione: '',
-        haveArrow: true,
-        haveBullet: true,
-        wrapperClass: 'flicking-hero',   // classe per il contenitore
-        panelClass: 'panel-hero'         // classe per i pannelli interni
+        haveArrow: false,
+        haveBullet: false,
+        wrapperClass: 'flicking-hero',   // classe per il contenitore padre ngx-flicking
+        panelClass: 'panel-hero'         // classe per i pannelli interni quindi per i div
       },
-      plugins: [
-        new Fade(),
-        new Arrow(),
-        new Pagination({ type: 'bullet' }),
-        new AutoPlay({ duration: 3000 })
-      ]
+      plugins: this.caroselloChefaSlideStrict.plugins
     },
     {
       // Modelli in evidenza
       data: this.modelliInEvidenza,
-      options: {
-        circular: true,
-        duration: 1000,
-        moveType: "snap",
-      },
+      options: this.caroselloChefaSlideFreeScroll.options,
       otherOption: {
         onChangedCarosello: '',
         editKey: 'modelliEvidenza',
@@ -744,21 +787,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         wrapperClass: 'flicking-default',
         panelClass: 'panel-default'
       },
-      plugins: [
-        new Fade(),
-        new Arrow(),
-        new Pagination({ type: 'bullet' }),
-        new AutoPlay({ duration: 3000 })
-      ]
+      plugins: this.caroselloChefaSlideFreeScroll.plugins
     },
     {
-      // Le mie creazioni
+      // Le mie creazioni (best seller)
       data: this.creazioni,
-      options: {
-        circular: true,
-        duration: 1000,
-        moveType: "snap",
-      },
+      options: this.caroselloChefaSlideFreeScroll.options,
       otherOption: {
         onChangedCarosello: '',
         editKey: 'creazioni',
@@ -769,21 +803,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
         wrapperClass: 'flicking-default',
         panelClass: 'panel-default'
       },
-      plugins: [
-        new Fade(),
-        new Arrow(),
-        new Pagination({ type: 'bullet' }),
-        new AutoPlay({ duration: 3000 })
-      ]
+      plugins: this.caroselloChefaSlideFreeScroll.plugins
     },
     {
       // Recensioni
       data: this.recensioni,
-      options: {
-        circular: true,
-        duration: 1000,
-        moveType: "snap",
-      },
+      options: this.caroselloChefaSlideFreeScroll.options,
       otherOption: {
         onChangedCarosello: '',
         editKey: 'recensioni',
@@ -794,12 +819,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         wrapperClass: 'flicking-default',
         panelClass: 'panel-default'
       },
-      plugins: [
-        new Fade(),
-        new Arrow(),
-        new Pagination({ type: 'bullet' }),
-        new AutoPlay({ duration: 3000 })
-      ]
+      plugins: this.caroselloChefaSlideFreeScroll.plugins
     }
   ];
 }

@@ -17,6 +17,12 @@
   margin: 0 auto;
 }
 
+/* Evita che le immagini/ video siano “trascinabili” dal browser */
+.carosello-panel img,
+.carosello-panel video {
+  -webkit-user-drag: none;   /* Safari/Chrome */
+}
+
 /* =============================================================================
    HEADER DI SEZIONE (titolo + pulsante admin)
    - Da usare sopra ciascun carosello
@@ -41,7 +47,6 @@
     right: 12px;
     z-index: 10;
     background: rgba(255, 255, 255, 0.85);
-
     mat-icon { color: #000; }
   }
 }
@@ -73,39 +78,32 @@
   position: relative;
 }
 
-/* Wrapper per il carosello principale (hero full screen)
+/* Wrapper per il carosello principale (HERO)
    >>> APPLICA: otherOption.wrapperClass = 'flicking-hero' sul primo carosello
+   NOTE:
+   - L’altezza NON è impostata qui per evitare conflitti tra breakpoint.
+   - I breakpoint sotto imposteranno l’altezza (100vh mobile, 70vh desktop).
 */
 .flicking-hero {
   @include full-bleed();
-  /* Se hai un header fixed e vuoi che l’hero non sia coperto,
-     puoi usare questa variante (scommenta e definisci --header-h):
-     height: calc(100vh - var(--header-h)); */
-  height: 100vh;          /* occupa l’intera viewport */
-  overflow: hidden;
-  position: relative;
-
-  /* IMPORTANTE:
-     Se non vuoi vedere una fascia colorata sotto i pannelli,
-     evita un colore pieno qui (usa transparent o lo stesso sfondo pagina) */
-  background: transparent; /* era #000; lo rendiamo neutro */
+  overflow: hidden;       /* evita bande/overflow */
+  position: relative;     /* base per frecce/paginazione in assoluto */
+  background: transparent;/* evita “fasce” sotto il media */
 }
 
 /* =============================================================================
-   PANNELLI NGX-FLICKING
+   PANNELLI NGX-FLICKING (stile base)
    ========================================================================== */
-
-/* Stile base per OGNI pannello; le varianti estendono questo */
 .carosello-panel {
   overflow: hidden;
   width: 100%;
-  height: 220px;        /* altezza base (mobile) */
+  height: 220px;        /* altezza base per pannelli NON-hero su mobile */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   background: #eee;
-  border-radius: 12px;
+  border-radius: 0;     /* bordo dei pannelli (0 = squadrato) */
   margin: 0 8px;
   font-weight: 600;
 
@@ -113,9 +111,9 @@
   video {
     max-width: 100%;
     max-height: 100%;
-    object-fit: cover;
+    object-fit: cover;      /* copre l’area del pannello */
     object-position: center;
-    border-radius: inherit;
+    border-radius: inherit; /* eredita la curvatura del pannello */
     display: block;
     background: #fff;
   }
@@ -135,28 +133,29 @@
 }
 
 /* =============================================================================
-   PANELCLASS  (APPLICA QUESTA CLASSE IN HTML: [ngClass]="['carosello-panel', car.otherOption.panelClass]")
-   - 'panel-hero' per pannelli fullscreen dell’hero
-   - 'panel-default' per pannelli standard
-   - 'panel-card' per card più compatte (modelli/creazioni)
+   PANELCLASS (da passare in TS → otherOption.panelClass)
+   - 'panel-hero'    → pannello dell’hero (segue SEMPRE l’altezza del wrapper)
+   - 'panel-default' → pannelli standard
+   - 'panel-card'    → pannelli più compatti (modelli/creazioni)
    ========================================================================== */
 
-.panel-default { @extend .carosello-panel; }
+.panel-default {
+  @extend .carosello-panel;
+}
 
-/* >>> APPLICA: otherOption.panelClass = 'panel-hero' sul primo carosello */
 .panel-hero {
   @extend .carosello-panel;
-  /* Se usi --header-h nel wrapper, usa la stessa calc qui:
-     height: calc(100vh - var(--header-h)); */
-  height: 100vh;
-  border-radius: 0;
+  /* Punto chiave: l’hero NON definisce qui un’altezza fissa,
+     ma segue quella del wrapper (.flicking-hero) */
+  height: auto;
+  border-radius: 0;   /* full-bleed: niente bordi arrotondati */
   margin: 0;
 
   img,
   video {
     width: 100%;
     height: 100%;
-    object-fit: cover;  /* copre tutto senza bande */
+    object-fit: cover; /* copre tutto senza bande */
   }
 }
 
@@ -173,7 +172,7 @@
    ========================================================================== */
 @keyframes zoomInReturnLinear {
   0% { transform: scale(1.5); opacity: 0.7; }
-  100% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 .zoom-enter {
@@ -181,30 +180,18 @@
   transform-origin: center center;
 }
 
-
-//aggiungi none quindi non mostrare piu quella classe
-/* display: none
-
-Significa che l’elemento viene completamente nascosto:
-
-non occupa spazio nel layout,
-
-non è visibile,
-
-non è interattivo.*/
-.none {
-  display: none !important;
-}
-
+/* =============================================================================
+   UTILITY: nascondi elementi via classe (es. frecce condizionali)
+   ========================================================================== */
+.none { display: none !important; }
 
 /* =============================================================================
    FRECCE E PAGINAZIONE NGX-FLICKING
-   - N.B.: la paginazione di default aggiunge spazio sotto (margin-top).
-           Nell'HERO la posizioniamo in ASSOLUTO sopra l'immagine
-           per NON aggiungere altezza extra ⇒ niente “fascia nera”.
+   - Paginazione default aggiunge spazio sotto (margin-top).
+   - Nell’HERO la spostiamo in ASSOLUTO sopra l’immagine per non aumentare l’altezza.
    ========================================================================== */
 
-/* Frecce: posizione generale (verrà raffinata per l’hero sotto) */
+/* Frecce: posizione generale (affinata nell’hero sotto) */
 :host ::ng-deep .flicking-arrow-prev { left: 40px !important; }
 :host ::ng-deep .flicking-arrow-next { right: 40px !important; }
 
@@ -227,21 +214,16 @@ non è interattivo.*/
 
 :host ::ng-deep .flicking-pagination-bullet-active { background-color: #333; }
 
-/* -----------------------------------------------------------------------------
-   HERO: PAGINAZIONE E FRECCE IN POSIZIONE ASSOLUTA
-   >>> QUESTA È LA MODIFICA CHIAVE CHE EVITA LA "FASCIA NERA" SOTTO
-   - Applica SOLO quando il wrapper è .flicking-hero
-   ---------------------------------------------------------------------------*/
+/* HERO: paginazione e frecce in posizione assoluta dentro il wrapper */
 :host ::ng-deep .flicking-hero .flicking-pagination {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 24px;  /* alza/abbassa i pallini dentro l’hero */
-  margin-top: 0; /* annulla lo spazio extra sotto al pannello */
+  bottom: 24px;  /* posiziona i pallini dentro l’hero */
+  margin-top: 0; /* niente spazio extra sotto */
   z-index: 2;    /* sopra al media */
 }
 
-/* Frecce centrate verticalmente dentro l’hero */
 :host ::ng-deep .flicking-hero .flicking-arrow-prev,
 :host ::ng-deep .flicking-hero .flicking-arrow-next {
   position: absolute;
@@ -252,18 +234,25 @@ non è interattivo.*/
 
 /* =============================================================================
    RESPONSIVE — MOBILE (≤ 768px)
+   OBIETTIVO: HERO a schermo pieno (100vh) su mobile
+   - Impostiamo l’altezza SOLO sul wrapper .flicking-hero.
+   - Il pannello .panel-hero segue con height: 100%.
    ========================================================================== */
 @media (max-width: 768px) {
   .home-container { padding: 0; }
 
+  /* HERO mobile: full viewport */
+  .flicking-hero {
+    height: 100vh;  /* <<< richiesta: 100vh su mobile */
+  }
+
+  /* Pannelli NON-hero su mobile */
   .carosello-panel {
-    height: 220px;
     margin: 0 6px;
-    border-radius: 10px;
+    border-radius: 0;
   }
 
   :host ::ng-deep .flicking-pagination { margin-top: 8px; }
-
   :host ::ng-deep .flicking-arrow-prev { left: 16px !important; }
   :host ::ng-deep .flicking-arrow-next { right: 16px !important; }
 
@@ -273,31 +262,33 @@ non è interattivo.*/
     h2 { font-size: 1.2rem; font-weight: 800; }
 
     .edit-admin-icon {
-      top: 8px;
-      right: 8px;
+      top: 8px; right: 8px;
       background: rgba(255, 255, 255, 0.9);
     }
   }
-
-  /* Hero su mobile: spesso meglio NON occupare tutto lo schermo */
-  .flicking-hero { height: 70vh; }      /* wrapper */
-  .panel-hero  { height: 70vh; }        /* pannello */
 }
 
 /* =============================================================================
    RESPONSIVE — DESKTOP (≥ 769px)
+   OBIETTIVO: HERO più basso (70vh) su desktop
+   - Impostiamo 70vh sul wrapper .flicking-hero.
+   - Il pannello .panel-hero segue con height: 100%.
    ========================================================================== */
 @media (min-width: 769px) {
   .home-container { padding: 0; }
 
+  /* HERO desktop: 70vh come richiesto */
+  .flicking-hero {
+    height: 100vh;   /* <<< richiesta: 70vh su desktop */
+  }
+
+  /* Pannelli NON-hero su desktop */
   .carosello-panel {
-    height: 360px;
     margin: 0 10px;
     border-radius: 12px;
   }
 
   :host ::ng-deep .flicking-pagination { margin-top: 14px; }
-
   :host ::ng-deep .flicking-arrow-prev { left: 40px !important; }
   :host ::ng-deep .flicking-arrow-next { right: 40px !important; }
 
@@ -307,30 +298,29 @@ non è interattivo.*/
     h2 { font-size: 1.6rem; font-weight: 800; }
 
     .edit-admin-icon {
-      top: 16px;
-      right: 16px;
+      top: 16px; right: 16px;
       background: rgba(255, 255, 255, 0.75);
     }
   }
-
-  /* Hero desktop fullscreen */
-  .flicking-hero { height: 100vh; }  /* wrapper */
-  .panel-hero  { height: 100vh; }    /* pannello */
 }
 
 /* =============================================================================
    NOTE OPERATIVE — DOVE APPLICARE COSA (RIEPILOGO)
-   - Nel TS: per il primo carosello (HERO)
+   - Nel TS, per l’HERO (primo carosello):
        otherOption.wrapperClass = 'flicking-hero'
        otherOption.panelClass   = 'panel-hero'
-       otherOption.haveBullet   = true/false (a tua scelta)
      Negli altri caroselli:
        otherOption.wrapperClass = 'flicking-default'
        otherOption.panelClass   = 'panel-default' o 'panel-card'
-   - Nel template HTML:
+   - Nel template:
        <ngx-flicking [ngClass]="car.otherOption.wrapperClass"> ...
        <div flicking-panel [ngClass]="['carosello-panel', car.otherOption.panelClass]"> ...
-   - La paginazione nell’HERO è in assoluto (vedi blocco .flicking-hero .flicking-pagination):
-     così non aggiunge margine in basso → niente “fascia nera”.
-   - Se hai header fixed: valuta l’uso di calc(100vh - var(--header-h)) su .flicking-hero e .panel-hero.
+   - L’altezza dell’hero è gestita SOLO via CSS:
+       mobile  → .flicking-hero { height: 100vh; }
+       desktop → .flicking-hero { height: 70vh; }
+     Il pannello dell’hero segue con height: 100%.
+   - La paginazione nell’HERO è in assoluto per non aggiungere margine in basso.
+   - Se hai header fixed e vuoi sottrarlo dall’hero, puoi usare:
+       .flicking-hero { height: calc(100vh - var(--header-h)); }
+     e definire --header-h nel layout.
    ========================================================================== */
