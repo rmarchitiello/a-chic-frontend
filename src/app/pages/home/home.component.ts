@@ -273,8 +273,10 @@ interface OtherOption {
 
 //Valori di input che puo assumere onChangedCarosello (in pratica qui che fa:)
 /* Do il valore zoom-enter vuol dire che quando cambia il carosello viene applicata la classe zoom enter
-Se voglio applicare un altra animazione basta che l'aggiungo*/
-type OnChangedCarosello = '' | 'zoom-enter'
+Se voglio applicare un altra animazione basta che l'aggiungo
+
+Classe zoom enter in pratica ogni slide prima si zoomma e poi ritorna*/
+type OnChangedCarosello = '' | 'zoom-enter' 
 
 import {
   Component,
