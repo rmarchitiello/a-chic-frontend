@@ -42,7 +42,7 @@
       <!-- Istanza NGX-FLICKING -->
        <!-- Classe wrapper dinamica -->
       <ngx-flicking
-        #flickingTag
+        #flickingTags
         [options]="car.options"
         [plugins]="car.plugins"
         [ngClass]="car.otherOption.wrapperClass" 
@@ -108,22 +108,22 @@
          non uso ngif sugli span perche cosi rendo il dom nascosto altrimenti ho problemi di rendering del carosello-->
         <span
           in-viewport
+          [class.none]="!car.hasArrow"
           class="flicking-arrow-prev"
-          [class.none]="!car.otherOption.haveArrow"
           aria-label="Slide precedente"
         ></span>
         <span
           in-viewport
+          [class.none]="!car.hasArrow"
           class="flicking-arrow-next"
-          [class.none]="!car.otherOption.haveArrow"
           aria-label="Slide successiva"
         ></span>
 
         <!-- Paginazione -->
         <div
           in-viewport
+          [class.none]="!car.hasBullet"
           class="flicking-pagination"
-          [class.none]="!car.otherOption.haveBullet"
           aria-label="Paginazione carosello"
         ></div>
       </ngx-flicking>

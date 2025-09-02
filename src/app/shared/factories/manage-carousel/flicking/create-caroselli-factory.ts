@@ -23,6 +23,7 @@ import { makeOptions } from './options.factory';
 import { makePlugins } from './plugins.factory';
 import { CarouselMode } from './options.factory';
 import { MakePluginsOpts } from './plugins.factory';
+import { Arrow,Pagination } from '@egjs/flicking-plugins';
 // ── Tipi condivisi (tengo il file autoconsistente) ───────────────────────────
 
 /**
@@ -36,10 +37,9 @@ export interface OtherOption {
   editKey: string;            // chiave per aprire l'editor admin
   tooltip: string;            // testo tooltip del pulsante admin
   titoloSezione?: string;     // titolo opzionale sopra il carosello
-  haveArrow: boolean;         // controllo visibilità frecce lato UI
-  haveBullet: boolean;        // controllo visibilità bullet lato UI
   wrapperClass?: string;      // classe CSS per il <ngx-flicking>
   panelClass?: string;        // classe CSS per i pannelli interni
+
 }
 
 /**
@@ -54,6 +54,8 @@ export interface ImieiCaroselli {
   otherOption: OtherOption;
   plugins: Plugin[];
   data: MediaCollection;
+  hasArrow: boolean;          //purtroppo serve questa variabile perche dobbiamo dare l info ALL UI che le frecce non devono essere presenti
+  hasBullet: boolean;
 }
 
 // ── La factory vera e propria ────────────────────────────────────────────────
@@ -66,75 +68,112 @@ export interface ImieiCaroselli {
  * NB: `plugins` è nel formato della mia micro-factory (MakePluginsOpts), es:
  *     { fade: true, arrow: { moveByViewportSize: true }, pagination: 'bullet', autoplay: 2500 }
  */
+
+
 export function createCarousel(params: {
   // dati
   data: MediaCollection;
 
   // options (semantiche)
-  mode: CarouselMode;                       // 'no-scroll' | 'freeScroll' | 'snap'
+  mode: CarouselMode;            // 'no-scroll' | 'freeScroll' | 'snap'
   circular: boolean;
   duration: number;
   optionsOverrides?: Partial<FlickingOptions>;
 
-  // plugin (passo i toggle/opzioni della micro-factory)
-  plugins?: MakePluginsOpts;                // se omesso: default sensati sotto
+  // plugin (toggle/opzioni della micro-factory)
+  plugins?: MakePluginsOpts;     // se omesso, userò Fade+Arrow+Bullet, niente autoplay
 
   // meta/UI
   editKey: string;
   tooltip: string;
   titoloSezione?: string;
-  onChangedCarosello?: string;              // nome classe CSS da applicare al cambio slide
+  onChangedCarosello?: string;   // stringa: nome classe CSS che applico al cambio slide (es. 'zoom-enter')
 
   // classi CSS
   wrapperClass?: string;
   panelClass?: string;
-
-  // (opzionali) forzo i flag UI se non voglio la sincronizzazione automatica
-  haveArrow?: boolean;
-  haveBullet?: boolean;
 }): ImieiCaroselli {
-  const {
-    data,
-    mode,
-    circular,
-    duration,
-    optionsOverrides = {},
+  // ───────────────────────────────── 1) OPTIONS  ─────────────────────────────────
+  // Creo le options con la mia micro-factory. Qui decido *comportamento* (no-scroll/free/snap),
+  // e imposto i parametri base `circular` e `duration`. Gli override vincono sempre.
+  const options = makeOptions(
+    params.mode,
+    params.circular,
+    params.duration,
+    params.optionsOverrides ?? {}
+  );
 
-    // default plugin sensati: Fade on, Arrow on, Bullet on, niente autoplay
-    plugins: pluginOpts = { fade: true, arrow: true, pagination: 'bullet', autoplay: false },
+  // ───────────────────────────────── 2) PLUGINS  ─────────────────────────────────
+  // Decido i plugin da usare. Non tocco mai `params` (non mutuo input): lavoro su una *copia*.
+  let pluginOptsEffettive: MakePluginsOpts;
 
-    editKey,
-    tooltip,
-    titoloSezione,
-    onChangedCarosello = '',
+  if (params.plugins) {
+    // Mi hanno passato dei toggle → parto da quelli (copia superficiale)
+    pluginOptsEffettive = { ...params.plugins };
 
-    wrapperClass = 'flicking-default',
-    panelClass = 'panel-default',
+    // Se sono in 'no-scroll', **disabilito sempre Arrow**:
+    // voglio che non funzioni nulla via frecce (solo autoplay/eventuali API).
+    if (params.mode === 'no-scroll') {
+      pluginOptsEffettive.arrow = false;
+      // Se volessi forzare una UI pulita, potrei anche spegnere i bullet qui:
+      // pluginOptsEffettive.pagination = false;
+    }
+  } else {
+    // Non mi hanno passato nulla → imposto io dei default *espliciti*
+    pluginOptsEffettive = {
+      fade: true,
+      arrow: true,
+      pagination: 'bullet',
+      autoplay: false,
+    };
 
-    haveArrow,
-    haveBullet,
-  } = params;
+    // Anche nel ramo default, se è 'no-scroll' spengo Arrow per coerenza.
+    if (params.mode === 'no-scroll') {
+      pluginOptsEffettive.arrow = false;
+      // (facoltativo) pulizia totale: pluginOptsEffettive.pagination = false;
+    }
+  }
 
-  // 1) Options dalla micro-factory (scelgo la modalità e imposto i parametri base)
-  const options = makeOptions(mode, circular, duration, optionsOverrides);
+  // Ora istanzio **NUOVE** istanze dei plugin (mai riusare tra caroselli).
+  const plugins = makePlugins(pluginOptsEffettive);
 
-  // 2) Plugins dalla micro-factory (ogni chiamata → istanze nuove)
-  const plugins = makePlugins(pluginOpts);
+  // ─────────────────────────── 3) FLAG UI (hasArrow / hasBullet) ───────────────────────────
+  // Non mi fido dei toggle passati in ingresso: calcolo i flag **dai plugin reali** creati.
+  const hasArrow = plugins.some(p => p instanceof Arrow);
+  const hasBullet = plugins.some(p => p instanceof Pagination);
 
-  // 3) Flag UI coerenti ai plugin richiesti (posso comunque forzarli via parametri)
-  const inferredHaveArrow = haveArrow ?? !!pluginOpts.arrow;
-  const inferredHaveBullet = haveBullet ?? !!pluginOpts.pagination;
+  // ───────────────────────────── 4) OTHER OPTION (meta UI) ─────────────────────────────
+  // Compongo i metadati UI con default *espliciti* (if/else).
+  // `onChangedCarosello` è una *stringa* con il nome della classe CSS che applico al cambio slide.
+  // Devo assicurarmi che quella classe esista nel mio SCSS locale (es. .zoom-enter).
+  const onChanged = typeof params.onChangedCarosello === 'string' ? params.onChangedCarosello : '';
+
+  const wrapperClass = typeof params.wrapperClass === 'string'
+    ? params.wrapperClass
+    : 'flicking-default';
+
+  const panelClass = typeof params.panelClass === 'string'
+    ? params.panelClass
+    : 'panel-default';
 
   const otherOption: OtherOption = {
-    onChangedCarosello,
-    editKey,
-    tooltip,
-    titoloSezione,
-    haveArrow: inferredHaveArrow,
-    haveBullet: inferredHaveBullet,
+    onChangedCarosello: onChanged,
+    editKey: params.editKey,
+    tooltip: params.tooltip,
+    titoloSezione: params.titoloSezione,
     wrapperClass,
     panelClass,
   };
 
-  return { data, options, plugins, otherOption };
+  // ───────────────────────────── 5) OUTPUT CAROSELLO COMPLETO ─────────────────────────────
+  // Ritorno l’oggetto nel formato atteso dalla UI.
+  // Nota: `hasArrow` / `hasBullet` sono **la verità** che la UI deve usare per mostrare/nascondere.
+  return {
+    data: params.data,
+    options,
+    plugins,
+    otherOption,
+    hasArrow,
+    hasBullet,
+  };
 }

@@ -493,6 +493,16 @@ import { NgxFlickingModule } from '@egjs/ngx-flicking';
 import { ImieiCaroselli } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 import { createCarousel} from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 
+/* 
+  Gestire il singolo carosello 
+  Quando il carosello cambia e ci sono le arrow voglio che "Se l'indice del carosello è 0 oppure il massimo deve applicare la classe class.none
+  In modo da non mostrare la freccia o desta se l'indicde del carosello corrente == carosello.length oppure non mostarre la sinistra se 
+  indiceCorrente == 0"
+
+*/
+import { ViewChildren } from '@angular/core';
+import { NgxFlickingComponent } from '@egjs/ngx-flicking';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -509,8 +519,12 @@ import { createCarousel} from '../../shared/factories/manage-carousel/flicking/c
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
-
-
+  //Leggo tutte le reference di questo flickingTag
+   @ViewChildren('flickingTags') flickingTagRefs!: QueryList<NgxFlickingComponent>;
+  
+  //Variabile per convertire i flickingTagsRefs in flickingTagsArray quindi avere un array di NgxFlickingComponent[] cosi da gestire ogni tag   <ngx-flicking>
+  /* Variabile che setto in afterViewInit in modo da caricare tutto il template e quindi tutti i tag per poi settare la variabile*/
+  flickingTagsArray: NgxFlickingComponent[] = [];
 
 
 
@@ -529,6 +543,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   
   Quando cambia il carosello aggiungiamo una classe*/
   onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
+
+      /* Quando cambia il carosello verifico anche le frecce
+        Vorrei che le frecce non siano visibili se raggiungiamo la grandezza massima del carosello
+        Ovviamente se di quel carosello la modalita circolare è false perche se è true le frecce ci devono essere sempre
+      */
+
+
+
     if (classScssToAddWhenChangeCarosello == '') {
       return;
     }
@@ -599,10 +621,10 @@ caricaTuttiICaroselli(): void {
     // ───────────────────────────────── Hero full-screen ─────────────────────────────────
     createCarousel({
       data: this.carosello,
-      mode: 'no-scroll',
+      mode: 'freeScroll', //quando è no scroll è un carosello automatico non funzionano ne tasti e ne niente
       circular: true,
       duration: 0, //durata delle slide piu e corta piu non c e l animazione
-      plugins: { fade: true, arrow: false, pagination: false, autoplay: 4000 }, // niente frecce/pallini
+      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 4000 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: '',
@@ -610,7 +632,6 @@ caricaTuttiICaroselli(): void {
       panelClass: 'panel-hero',
       onChangedCarosello: 'zoom-enter', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
     }),
-
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
     createCarousel({
       data: this.modelliInEvidenza,
@@ -655,11 +676,15 @@ caricaTuttiICaroselli(): void {
       wrapperClass: 'flicking-default',
       panelClass: 'panel-default',
       onChangedCarosello: '',
-    }),
+    })
   ];
+
+
 }
 
 
+
+/* FINE SPIEGAZIONE */
 
   ngOnInit(): void {
     // Scroll iniziale in alto.
@@ -763,6 +788,9 @@ caricaTuttiICaroselli(): void {
 
   ngAfterViewInit(): void {
 
+    /* Recupero i NgxFlickingComponent[]*/
+    this.flickingTagsArray = this.flickingTagRefs.toArray();
+    console.log("Count di quanti <ngx-flicking> con ref flickingTags abbiamo: ", this.flickingTagsArray.length);
 
 
     // Avvio silenzioso dei video dopo il rendering, con fallback in caso di policy browser.
