@@ -713,7 +713,7 @@ caricaTuttiICaroselli(): void {
       mode: 'no-scroll', //quando è no scroll è un carosello automatico non funzionano ne tasti e ne niente
       circular: true,
       duration: 0, //durata delle slide piu e corta piu non c e l animazione
-      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 2000 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
+      plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: '',
@@ -724,10 +724,10 @@ caricaTuttiICaroselli(): void {
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
     createCarousel({
       data: this.modelliInEvidenza,
-      mode: 'snap',
+      mode: 'freeScroll',
       circular: false,
-      duration: 500,
-      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 },
+      duration: 1000,
+      plugins: { fade: false, arrow: true, pagination: 'bullet' },
       // se voglio “spinta a pagina” in freeScroll: arrow: { moveByViewportSize: true }
       editKey: 'modelliEvidenza',
       tooltip: 'Modifica Modelli in Evidenza',
@@ -743,12 +743,12 @@ caricaTuttiICaroselli(): void {
       mode: 'no-scroll',          // niente drag nativo (inputType: [])
       circular: true,
       duration: 0,                // transizione istantanea (mantengo il tuo valore)
-      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 },
+      plugins: { fade: true, arrow: false, pagination: false },
       editKey: 'creazioni',
       tooltip: 'Modifica le mie creazioni',
-      titoloSezione: 'Best Seller',
-      wrapperClass: 'flicking-default',
-      panelClass: 'panel-default',
+      titoloSezione: 'Best seller',
+      wrapperClass: 'flicking-hero',
+      panelClass: 'panel-hero',
       onChangedCarosello: 'zoom-enter', // devo avere .zoom-enter nel mio SCSS locale
     }),
 
@@ -762,8 +762,8 @@ caricaTuttiICaroselli(): void {
       editKey: 'recensioni',
       tooltip: 'Modifica recensioni',
       titoloSezione: 'Dicono di noi',
-      wrapperClass: 'flicking-default',
-      panelClass: 'panel-default',
+      wrapperClass: 'flicking-hero',
+      panelClass: 'panel-hero',
       onChangedCarosello: '',
     })
   ];
