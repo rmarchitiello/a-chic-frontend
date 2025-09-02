@@ -484,10 +484,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MediaCollection, MediaMeta } from '../../app.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+
+/* Rispetto a quanto spiegato sopra ora è tutto diverso
+  Per creare un carosello basta importare questi tre .ts
+  Poi ci pensano le factory plugins/options e create-caroselli-factory a creare un semplice carosello
+*/
 import { NgxFlickingModule } from '@egjs/ngx-flicking';
 import { ImieiCaroselli } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
-
-
 import { createCarousel} from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 
 @Component({
@@ -596,16 +599,16 @@ caricaTuttiICaroselli(): void {
     // ───────────────────────────────── Hero full-screen ─────────────────────────────────
     createCarousel({
       data: this.carosello,
-      mode: 'freeScroll',
-      circular: false,
-      duration: 400,
-      plugins: { fade: true, arrow: false, pagination: false }, // niente frecce/pallini
+      mode: 'no-scroll',
+      circular: true,
+      duration: 0, //durata delle slide piu e corta piu non c e l animazione
+      plugins: { fade: true, arrow: false, pagination: false, autoplay: 4000 }, // niente frecce/pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: '',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
-      onChangedCarosello: '', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
+      onChangedCarosello: 'zoom-enter', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
     }),
 
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
