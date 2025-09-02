@@ -18,7 +18,7 @@
   <div class="home-container">
 
     <!-- Iterazione dinamica su tutti i caroselli configurati -->
-    <ng-container *ngFor="let car of iMieICaroselli; let i = index; trackBy: trackByIndex">
+    <ng-container *ngFor="let car of carousels; let i = index; trackBy: trackByIndex">
 
       <!-- Header sezione (opzionale: titolo + pulsante admin) -->
       <div class="carousel-section-header" *ngIf="car.otherOption.titoloSezione || isAdmin">
@@ -47,10 +47,6 @@
         [plugins]="car.plugins"
         [ngClass]="car.otherOption.wrapperClass" 
         (changed)="onChangedCarosello($event, car.otherOption.onChangedCarosello)"
-        (mousedown)="saveAsseX($event)"
-        (mouseup)="checkIfScrollDxorSx($event, i)"
-        (touchstart)="saveAsseX($event)"
-        (touchend)="checkIfScrollDxorSx($event, i)"
         aria-roledescription="carousel"
         [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'"
       >

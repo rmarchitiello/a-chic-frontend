@@ -155,18 +155,7 @@
   video { object-fit: contain; }
 }
 
-/* =============================================================================
-   ANIMAZIONI
-   ========================================================================== */
-@keyframes zoomInReturnLinear {
-  0% { transform: scale(1.5); opacity: 0.7; }
-  100% { transform: scale(1);   opacity: 1; }
-}
 
-.zoom-enter {
-  animation: zoomInReturnLinear 1000ms linear both;
-  transform-origin: center center;
-}
 
 /* =============================================================================
    UTILITY: nascondi elementi via classe (es. frecce condizionali)
@@ -312,3 +301,20 @@
        .flicking-hero { height: calc(100vh - var(--header-h)); }
      e definire --header-h nel layout.
    ========================================================================== */
+
+
+
+
+/* Animazioni globali per carosello*/
+/* =============================================================================
+   ANIMAZIONI
+   ========================================================================== */
+@keyframes zoomInReturnLinear {
+  0% { transform: scale(1.5); opacity: 0.7; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+
+.zoom-enter {
+  animation: zoomInReturnLinear 1000ms linear both;
+  transform-origin: center center;
+}

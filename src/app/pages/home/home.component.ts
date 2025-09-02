@@ -81,6 +81,8 @@ box-sizing: border-box;
 */
 
 /* INIZIO SPIEGAZIONE CAROSELLI CON NGX-FLICKING*/
+
+
 /* Per i caroselli installo 
 • @egjs/ngx-flicking (il componente Angular del carosello)
 • @egjs/flicking-plugins (autoplay, frecce, pallini, ecc.)
@@ -119,17 +121,19 @@ prendo la classe flicking-pagination e magari voglio cambiare come devono essewr
 
 Come funziona ngx-flicking
 si inserisce questo tag e poi tutto sotto di lui deve avere tag flicking-panel per collegarlo al pannello di sopra
-<ngx-flicking
-  #flickingTag
-  [options]="scrollOption"
-  (mousedown)="saveAsseX($event)"
-  (mouseup)="checkIfScrollDxorSx($event)"
-  (touchstart)="saveAsseX($event)" 
-  (touchend)="checkIfScrollDxorSx($event)"
-  (changed)="onChangedCarosello($event)"
-  [plugins]="plugins"
-  style="display:block; width:100%;"
->
+      <ngx-flicking
+        #flickingTag
+        [options]="car.options"
+        [plugins]="car.plugins"
+        [ngClass]="car.otherOption.wrapperClass" 
+        (changed)="onChangedCarosello($event, car.otherOption.onChangedCarosello)"
+        (mousedown)="saveAsseX($event)"
+        (mouseup)="checkIfScrollDxorSx($event, i)"
+        (touchstart)="saveAsseX($event)"
+        (touchend)="checkIfScrollDxorSx($event, i)"
+        aria-roledescription="carousel"
+        [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'"
+      >
   <div
     flicking-panel
     *ngFor="let n of slides"
@@ -236,177 +240,35 @@ si inserisce questo tag e poi tutto sotto di lui deve avere tag flicking-panel p
     this.flickingTag?.moveTo(this.esempioIndex)
   }
   */
-  /* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
-  @ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
-  @ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
-  
-  Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)" possiamo leggere gli indici appena starta carosello, applicare classi ecc...
-   
-  --- FINE SPIEGAZIONE CAROSELLO NGX-FLICKING
-  */
+/* ORA QUESTI VIEWCHILD NON SERVONO PIU PERCHE PASSIAMO IL RIFERIMENTO DIRETTAMENTE NEI METODI SENZA LEGGERLO DA QUA
+@ViewChild("flickingTag") flickingTag?: NgxFlickingComponent;
+@ViewChild("flickingTag2") flickingTag2?: NgxFlickingComponent;
+ 
+Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)" possiamo leggere gli indici appena starta carosello, applicare classi ecc...
+ 
 
 
-
-/* Quest interfaccia mi serve per indicare il mio carosello come deve essere 
-data sara mediaCollection al momento mettiamo any e da cambiare
-options sono tutte le opzioni che puo avere esempio settare lo slide l'autoplay ecc ecc qualsiasi
-plugin se deve avere per esempio le frecce gli arrow e cosi via... */
-interface ImieiCaroselli {
-  options: Partial<FlickingOptions>, //opzioni del carosello indichiamo se il carosello e circolare o no, la duarata delle slide
-  otherOption: OtherOption,  // qui metto se per esempio quando chiamo l'onchanged deve zoommare il carosello quando cambio slide, al momento c e la chiamata al metodo nell (changed), se domani inserisco un altro metodo che ne so (onstart)="prova()" l input di questo metodo lo inserisco in other option
-  plugins: Plugin[],      //plugin del carosello se deve avere l'arrow o i pallini
-  data: MediaCollection
-}
-
-interface OtherOption {
-  onChangedCarosello: OnChangedCarosello,
-  editKey: string;              // Chiave da passare ad apriPopUpEditorAdmin()
-  tooltip: string;              // Testo tooltip del pulsante admin
-  titoloSezione?: string;       // Titolo opzionale da mostrare sopra il carosello
-  haveArrow: boolean;  //anche se nei plugin le setto per esempio mettendo Plugin new Arrow metto questa variabile per fare in modo di visualizzare o meno le arrow e i cerchi sotto
-  haveBullet: boolean;
-  wrapperClass?: string;  // classe CSS da applicare al <ngx-flicking>
-  panelClass?: string;    // classe CSS da applicare ai singoli pannelli
-
-
-}
-
-//Valori di input che puo assumere onChangedCarosello (in pratica qui che fa:)
-/* Do il valore zoom-enter vuol dire che quando cambia il carosello viene applicata la classe zoom enter
-Se voglio applicare un altra animazione basta che l'aggiungo
-
-Classe zoom enter in pratica ogni slide prima si zoomma e poi ritorna*/
-type OnChangedCarosello = '' | 'zoom-enter' 
-
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  HostListener,
-  QueryList
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import {
-  trigger,
-  transition,
-  style,
-  animate
-} from '@angular/animations';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { ScrollRevealDirective } from '../../shared/directives/scroll-reveal.directive';
-import { Meta, Title } from '@angular/platform-browser';
-import { SharedDataService } from '../../services/shared-data.service';
-import { MatDialog } from '@angular/material/dialog';
-import { EditorAdminPopUpComponent } from '../../admin/editor/edit/editor-admin-popup.component';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaCollection, MediaMeta } from '../../app.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { NgxFlickingModule } from '@egjs/ngx-flicking';
-import { Plugin, FlickingOptions } from '@egjs/ngx-flicking';
-import { Arrow, Pagination, AutoPlay, Fade } from '@egjs/flicking-plugins'; //qui Fade fa lo switch a dissolvenza, 
-//per ricevere l index corrente della slide devo lavorare sul tag quindi
-import { ViewChildren } from '@angular/core';
-import { NgxFlickingComponent } from '@egjs/ngx-flicking';
-
-@Component({
-  selector: 'app-home',
-  standalone: true,
-  templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
-  imports: [
-    CommonModule,
-    MatIconModule,
-    MatButtonModule,
-    MatCardModule,
-    ScrollRevealDirective,
-    MatTooltipModule,
-    NgxFlickingModule
-  ],
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('2000ms ease-out', style({ opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('2000ms ease-out', style({ opacity: 0 }))
-      ])
-    ])
-  ]
-})
-export class HomeComponent implements OnInit, AfterViewInit {
-  
-    /* CAROSELLO CHE SLAIDA
-    
-    CAROSELLO CIRCOLARE 
-    La durata di ogni slide è di 1 secondo
-    si muove in tipo stryct quindi subito attaccato alla seconda slide
-
-    Parte ogni 2.5 secondi 
-    */
-  readonly caroselloChefaSlideStrict: { options: Partial<FlickingOptions>, plugins: Plugin[]} = {
-        options:{
-          circular: true,
-          duration: 1000,
-          moveType: "strict",
-          inputType: [] // non slideabile a dito, solo via frecce/programmatico
-        },
-        plugins: [
-          new Fade(),
-          new Arrow(),
-          new Pagination({ type: 'bullet' }),
-          new AutoPlay({ duration: 2500 })
-      ]
-  }
-
-
-  /* CAROSELLO FREE SCROLL
-    
-    CAROSELLO NON CIRCOLARE 
-    La durata di ogni slide è di 400 secondi in free scroll
-    Si muove in free scroll
-    Non parte in automatico perche in free scroll non ha senso
-    */
-   
-readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plugins: Plugin[]} = {
-    options: {
-        circular: false,
-        duration: 400,
-        moveType: "freeScroll"
-    },
-    plugins: [
-        new Fade(),
-        new Arrow(),
-        new Pagination({ type: 'bullet' })      ]
-
-  }
-
-
-  /* Essendo che ho inserito adesso dei caroselli dinamici, per recupeare tutte le ref dei miei caroselli devo creare un query list di flickingTag
+/* Essendo che ho inserito adesso dei caroselli dinamici, per recupeare tutte le ref dei miei caroselli devo creare un query list di flickingTag
   Quindi flickingRefs contiene tutte le reference nel dom di quanti flickingTag ci sono questo perche ogni carosello ha una sua reference e abbiamo visto
-  che con le reference posso agire sugli indici del carosello su classi attributi e cosi via  */
+  che con le reference posso agire sugli indici del carosello su classi attributi e cosi via  
   @ViewChildren('flickingTag') flickingRefs!: QueryList<NgxFlickingComponent>;
 
-  /* Definisco un array di flickingRefs per convertire il query list in array perche . . . 
+   Definisco un array di flickingRefs per convertire il query list in array perche . . . 
   Inizialmente il metodo checkIfScrollDxorSx( $event, flickingTag) prendeva in ingresso l'evento e la reference statica esempio ho due caroselli allora
   checkIfScrollDxorSx( $event, flickingTagCarosello1) e checkIfScrollDxorSx( $event, flickingTagCarosello2), invece ora faccio checkIfScrollDxorSx( $event, 0)
   o checkIfScrollDxorSx( $event, 1) e cosi via in base a quanti caroselli ho allora cosa faccio nell afterview initi quando tutto il dom e caricato
   prendo la reference dei flickingTag e costruisco prima la query list e converto l'array di quanti flicking component di tipo flickingTag esistono nel dom
-  cosi che nel metodo checkIfScrollDxorSx recupero esempio flickingRefsArray[0] cosi che da passarlo a prev index ecc per fare cose */
+  cosi che nel metodo checkIfScrollDxorSx recupero esempio flickingRefsArray[0] cosi che da passarlo a prev index ecc per fare cose 
   flickingRefsArray: NgxFlickingComponent[] = [];
 
 
-  
 
 
-  /* Contesto: Flicking con { duration: 0, inputType: [] }.
+
+   Contesto: Flicking con { duration: 0, inputType: [] }.
      Lo swipe è simulato con eventi nativi mouse/touch.
      Obiettivo: bloccare lo scroll del body solo quando l’utente sta realmente “agendo col carosello”
-     (swipe orizzontale deciso), ma consentire sempre lo scroll verticale del body quando lo scostamento su Y è alto. */
+     (swipe orizzontale deciso), ma consentire sempre lo scroll verticale del body quando lo scostamento su Y è alto. 
 
   // Coordinate iniziali del gesto (start)
   asseX: number = 0;
@@ -419,14 +281,14 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
   private _bodyLocked = false; // true se è stato bloccato lo scroll del body durante il gesto
   private _decided = false;    // true quando è stata decisa l’intenzione (orizzontale vs verticale)
 
-  /**
+  
    * START gesto (mousedown/touchstart)
    * - Salva X/Y iniziali.
    * - Su touch, attacca un listener temporaneo a touchmove (passive:false) per decidere presto
    *   se il gesto è orizzontale o verticale:
    *     • Orizzontale oltre soglia → blocca body per evitare scroll della pagina.
    *     • Verticale oltre soglia → non bloccare, lascia scorrere il body.
-   */
+   
   saveAsseX(event: any) {
     // reset stato a ogni nuovo gesto
     this._decided = false;
@@ -488,7 +350,7 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
     console.log('Start X/Y:', this.asseX, this.asseY);
   }
 
-  /**
+  
    * END gesto (mouseup/touchend)
    * - Confronta le coordinate finali con quelle iniziali.
    * - Regole:
@@ -496,13 +358,13 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
    *    • Se lo scostamento orizzontale è prevalente e sopra soglia → muovi il carosello (prev/next).
    *    • Se movimento minimo → nessuna azione (click/tap).
    * - Sblocca sempre il body se era stato bloccato durante il gesto.
-   */
+   
   checkIfScrollDxorSx(event: any, indexCurrentFlickingRefs: number) {
     // Se il target è una freccia, lascia gestire al plugin Arrow
     const isArrow = (event.target as HTMLElement)?.closest('.flicking-arrow-prev, .flicking-arrow-next');
     if (isArrow) return;
 
-    const totale = this.flickingRefsArray[indexCurrentFlickingRefs]?.panels.length; 
+    const totale = this.flickingRefsArray[indexCurrentFlickingRefs]?.panels.length;
 
     console.log("Totale slide: ", totale)
     // Coordinate finali
@@ -590,7 +452,68 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
       refFlickingComponent?.moveTo(nuovoIndex);
       console.log(`Next: da ${currentIndex} a ${nuovoIndex}`);
     }
-  }
+  } 
+
+  */
+
+
+
+
+
+
+
+
+
+import {
+  Component,
+  OnInit,
+  AfterViewInit,
+  HostListener,
+  QueryList
+} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { Meta, Title } from '@angular/platform-browser';
+import { SharedDataService } from '../../services/shared-data.service';
+import { MatDialog } from '@angular/material/dialog';
+import { EditorAdminPopUpComponent } from '../../admin/editor/edit/editor-admin-popup.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MediaCollection, MediaMeta } from '../../app.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { NgxFlickingModule } from '@egjs/ngx-flicking';
+import { ImieiCaroselli } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
+
+import { makeOptions } from '../../shared/factories/manage-carousel/flicking/options.factory';
+import { makePlugins } from '../../shared/factories/manage-carousel/flicking/plugins.factory';
+import { createCarousel} from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
+
+@Component({
+  selector: 'app-home',
+  standalone: true,
+  templateUrl: './home.component.html',
+  styleUrl: './home.component.scss',
+  imports: [
+    CommonModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTooltipModule,
+    NgxFlickingModule
+  ]
+})
+export class HomeComponent implements OnInit, AfterViewInit {
+
+
+
+
+
+
+
+  
 
   //evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
   /* Cosa succede qui quando cambia qualcosa nel tag flicking viene scaturito l on changed di quell onchanged possiamo prendere qualsiasi cosa
@@ -605,7 +528,6 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
   Quando cambia il carosello aggiungiamo una classe*/
   onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
     if (classScssToAddWhenChangeCarosello == '') {
-      console.warn("Nessuna classe passata, non fare nulla. . .");
       return;
     }
     const classeDaAggiungereQuandoCambiaIlCarosello = classScssToAddWhenChangeCarosello;
@@ -662,7 +584,77 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
 
 
   //array dove salviamo tutti i caroselli cosi cicliamo questi nel template
-  iMieICaroselli: ImieiCaroselli[] = [];
+  carousels: ImieiCaroselli[] = [];
+
+
+caricaTuttiICaroselli(): void {
+  // Qui costruisco TUTTI i miei caroselli in modo coerente.
+  // Per ciascuno:
+  //  - genero le options con la mia micro-factory (niente duplicazioni)
+  //  - genero plugin NUOVI (mai riusare istanze tra caroselli)
+  //  - compongo tutto con createCarousel (così otherOption resta allineato)
+
+  this.carousels = [
+    // ───────────────────────────────── Hero full-screen ─────────────────────────────────
+    createCarousel({
+      data: this.carosello,
+      // Al momento lo voglio “libero” (swipe) senza frecce/pallini
+      options: makeOptions('freeScroll', false, 400),
+      plugins: makePlugins({ fade: true, arrow: false, pagination: false }),
+      editKey: 'carosello',
+      tooltip: 'Modifica carosello',
+      titoloSezione: '',
+      wrapperClass: 'flicking-hero',
+      panelClass: 'panel-hero',
+      onChangedCarosello: '', // se metto 'zoom-enter' mi assicuro di avere la classe nel mio SCSS
+    }),
+
+    // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
+    createCarousel({
+      data: this.modelliInEvidenza,
+      options: makeOptions('freeScroll', false, 400),
+      // Attivo frecce + bullet; tengo anche un autoplay leggero (1000 ms come da tua richiesta)
+      // Se voglio che le frecce “spingano a pagina” in freeScroll:
+      // arrow: { moveByViewportSize: true }
+      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 }),
+      editKey: 'modelliEvidenza',
+      tooltip: 'Modifica Modelli in Evidenza',
+      titoloSezione: 'Modelli in evidenza',
+      wrapperClass: 'flicking-hero',
+      panelClass: 'panel-hero',
+      onChangedCarosello: '',
+    }),
+
+    // ────────────────────────────────── Best Seller ─────────────────────────────────────
+    createCarousel({
+      data: this.creazioni,
+      // “no-scroll” = niente drag nativo; le frecce/autoplay, se attive, muovono via API
+      options: makeOptions('no-scroll', true, 0),
+      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 }),
+      editKey: 'creazioni',
+      tooltip: 'Modifica le mie creazioni',
+      titoloSezione: 'Best Seller',
+      wrapperClass: 'flicking-default',
+      panelClass: 'panel-default',
+      onChangedCarosello: 'zoom-enter',
+    }),
+
+    // ─────────────────────────────────── Recensioni ─────────────────────────────────────
+    createCarousel({
+      data: this.recensioni,
+      options: makeOptions('freeScroll', false, 400),
+      // Frecce + bullet (coerenti con haveArrow/haveBullet)
+      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet' }),
+      editKey: 'recensioni',
+      tooltip: 'Modifica recensioni',
+      titoloSezione: 'Dicono di noi',
+      wrapperClass: 'flicking-default',
+      panelClass: 'panel-default',
+      onChangedCarosello: '',
+    }),
+  ];
+}
+
 
   ngOnInit(): void {
     // Scroll iniziale in alto.
@@ -742,7 +734,7 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
             folder: cCreazioni?.folder ?? 'config/home/le mie creazioni',
             items: cCreazioni?.items ?? []
           };
-          
+
           this.caricaTuttiICaroselli();
 
         },
@@ -754,93 +746,20 @@ readonly caroselloChefaSlideFreeScroll: { options: Partial<FlickingOptions>, plu
   }
 
 
-
-  caricaTuttiICaroselli(): void {
-
-  /* Carico tutti i caroselli con le impostazioni */
-  this.iMieICaroselli = [
-    {
-      // Carosello principale (hero full-screen)
-      data: this.carosello,
-      options: this.caroselloChefaSlideStrict.options,
-      otherOption: {
-        onChangedCarosello: '',
-        editKey: 'carosello',
-        tooltip: 'Modifica carosello',
-        titoloSezione: '',
-        haveArrow: false,
-        haveBullet: false,
-        wrapperClass: 'flicking-hero',   // classe per il contenitore padre ngx-flicking
-        panelClass: 'panel-hero'         // classe per i pannelli interni quindi per i div
-      },
-      plugins: this.caroselloChefaSlideStrict.plugins
-    },
-    {
-      // Modelli in evidenza
-      data: this.modelliInEvidenza,
-      options: this.caroselloChefaSlideFreeScroll.options,
-      otherOption: {
-        onChangedCarosello: '',
-        editKey: 'modelliEvidenza',
-        tooltip: 'Modifica Modelli in Evidenza',
-        titoloSezione: 'Modelli in evidenza',
-        haveArrow: true,
-        haveBullet: true,
-        wrapperClass: 'flicking-hero',
-        panelClass: 'panel-hero'
-      },
-      plugins: this.caroselloChefaSlideFreeScroll.plugins
-    },
-    {
-      // Le mie creazioni (best seller)
-      data: this.creazioni,
-      options: this.caroselloChefaSlideFreeScroll.options,
-      otherOption: {
-        onChangedCarosello: '',
-        editKey: 'creazioni',
-        tooltip: 'Modifica le mie creazioni',
-        titoloSezione: 'Best Seller',
-        haveArrow: true,
-        haveBullet: true,
-        wrapperClass: 'flicking-hero',
-        panelClass: 'panel-hero'
-      },
-      plugins: this.caroselloChefaSlideFreeScroll.plugins
-    },
-    {
-      // Recensioni
-      data: this.recensioni,
-      options: this.caroselloChefaSlideFreeScroll.options,
-      otherOption: {
-        onChangedCarosello: '',
-        editKey: 'recensioni',
-        tooltip: 'Modifica recensioni',
-        titoloSezione: 'Dicono di noi',
-        haveArrow: true,
-        haveBullet: true,
-        wrapperClass: 'flicking-default',
-        panelClass: 'panel-default'
-      },
-      plugins: this.caroselloChefaSlideFreeScroll.plugins
-    }
-  ];
-}
+  
 
 
 
 
-trackByIndex(index: number, _: any): number {
-  return index;
-}
+  trackByIndex(index: number, _: any): number {
+    return index;
+  }
 
 
   ngAfterViewInit(): void {
 
-      console.log('quante refs di tipo flickingTag ci sono ?', this.flickingRefs.length);
-      if(this.flickingRefs.length > 0){
-        this.flickingRefsArray = this.flickingRefs.toArray(); // NgxFlickingComponent[]
-        console.log("Flicking refs in array: ", this.flickingRefsArray);
-      }
+
+
     // Avvio silenzioso dei video dopo il rendering, con fallback in caso di policy browser.
     setTimeout(() => {
       const videos: NodeListOf<HTMLVideoElement> = document.querySelectorAll('video');
