@@ -23,12 +23,8 @@
       <!-- Header sezione (opzionale: titolo + pulsante admin) -->
       <div class="carousel-section-header" *ngIf="car.otherOption.titoloSezione || isAdmin">
         <!-- Pulsante admin -->
-        <button
-          *ngIf="isAdmin"
-          mat-icon-button
-          class="edit-admin-icon"
-          (click)="apriPopUpEditorAdmin(car.otherOption.editKey)"
-          [matTooltip]="car.otherOption.tooltip"
+        <button *ngIf="isAdmin" mat-icon-button class="edit-admin-icon"
+          (click)="apriPopUpEditorAdmin(car.otherOption.editKey)" [matTooltip]="car.otherOption.tooltip"
           [matTooltipClass]="'tooltip-custom'">
           <mat-icon>edit</mat-icon>
         </button>
@@ -40,58 +36,31 @@
       </div>
 
       <!-- Istanza NGX-FLICKING -->
-       <!-- Classe wrapper dinamica -->
-      <ngx-flicking
-        #flickingTags
-        [options]="car.options"
-        [plugins]="car.plugins"
-        [ngClass]="car.otherOption.wrapperClass" 
-        (changed)="onChangedCarosello($event, car.otherOption.onChangedCarosello)"
-        aria-roledescription="carousel"
-        [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'"
-      >
+      <!-- Classe wrapper dinamica -->
+      <ngx-flicking #flickingTags [options]="car.options" (ready)="onReadyCarosello($event,car,i)"
+        [plugins]="car.plugins" [ngClass]="car.otherOption.wrapperClass" (changed)="onChangedCarosello($event, car, i)"
+        aria-roledescription="carousel" [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'">
 
         <!-- Pannelli -->
-         <!-- Classe panel dinamica carosello-panel c e sempre e poi applico la classe dinamica-->
-        <div
-          flicking-panel
-          *ngFor="let item of car.data.items; trackBy: trackByIndex"
-          [ngClass]="['carosello-panel', car.otherOption.panelClass]" 
-        >
+        <!-- Classe panel dinamica carosello-panel c e sempre e poi applico la classe dinamica-->
+        <div flicking-panel *ngFor="let item of car.data.items; trackBy: trackByIndex"
+          [ngClass]="['carosello-panel', car.otherOption.panelClass]">
           <!-- Renderizza media solo se presenti -->
           <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">
             <ng-container *ngIf="getMediaFrontale(item.media) as src">
               <ng-container [ngSwitch]="item.context?.type">
 
                 <!-- Immagine -->
-                <img
-                  *ngSwitchCase="'image'"
-                  [src]="src"
-                  [alt]="item.context?.display_name || ''"
-                />
+                <img *ngSwitchCase="'image'" [src]="src" [alt]="item.context?.display_name || ''" />
 
                 <!-- Video -->
-                <video
-                  *ngSwitchCase="'video'"
-                  [src]="src"
-                  playsinline
-                  muted
-                  preload="auto"
-                ></video>
+                <video *ngSwitchCase="'video'" [src]="src" playsinline muted preload="auto"></video>
 
                 <!-- Audio -->
-                <audio
-                  *ngSwitchCase="'audio'"
-                  [src]="src"
-                  controls
-                ></audio>
+                <audio *ngSwitchCase="'audio'" [src]="src" controls></audio>
 
                 <!-- Fallback: immagine -->
-                <img
-                  *ngSwitchDefault
-                  [src]="src"
-                  [alt]="item.context?.display_name || ''"
-                />
+                <img *ngSwitchDefault [src]="src" [alt]="item.context?.display_name || ''" />
 
               </ng-container>
             </ng-container>
@@ -106,26 +75,16 @@
         <!-- Frecce di navigazione 
          Quando haveArrow è true allora class.none = false non aggiunge la classe 
          non uso ngif sugli span perche cosi rendo il dom nascosto altrimenti ho problemi di rendering del carosello-->
-        <span
-          in-viewport
-          [class.none]="!car.hasArrow"
-          class="flicking-arrow-prev"
-          aria-label="Slide precedente"
-        ></span>
-        <span
-          in-viewport
-          [class.none]="!car.hasArrow"
-          class="flicking-arrow-next"
-          aria-label="Slide successiva"
-        ></span>
+        <span in-viewport [class.none]="(!car.hasArrow || !setArrowSxMap[i])" class="flicking-arrow-prev"
+          aria-label="Slide precedente"></span>
+
+        <span in-viewport [class.none]="(!car.hasArrow || setArrowDxMap[i])" class="flicking-arrow-next"
+          aria-label="Slide successiva"></span>
+
 
         <!-- Paginazione -->
-        <div
-          in-viewport
-          [class.none]="!car.hasBullet"
-          class="flicking-pagination"
-          aria-label="Paginazione carosello"
-        ></div>
+        <div in-viewport [class.none]="!car.hasBullet" class="flicking-pagination" aria-label="Paginazione carosello">
+        </div>
       </ngx-flicking>
 
     </ng-container>

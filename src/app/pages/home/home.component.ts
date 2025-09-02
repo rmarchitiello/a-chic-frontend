@@ -253,14 +253,34 @@ Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)"
   che con le reference posso agire sugli indici del carosello su classi attributi e cosi via  
   @ViewChildren('flickingTag') flickingRefs!: QueryList<NgxFlickingComponent>;
 
+
+  // IMPORTANTE SPIEGAZIONE //
    Definisco un array di flickingRefs per convertire il query list in array perche . . . 
   Inizialmente il metodo checkIfScrollDxorSx( $event, flickingTag) prendeva in ingresso l'evento e la reference statica esempio ho due caroselli allora
   checkIfScrollDxorSx( $event, flickingTagCarosello1) e checkIfScrollDxorSx( $event, flickingTagCarosello2), invece ora faccio checkIfScrollDxorSx( $event, 0)
-  o checkIfScrollDxorSx( $event, 1) e cosi via in base a quanti caroselli ho allora cosa faccio nell afterview initi quando tutto il dom e caricato
+  o checkIfScrollDxorSx( $event, 1) e cosi via in base a quanti caroselli ho allora cosa faccio nell afterview initi quando non tutto il dom e caricato
   prendo la reference dei flickingTag e costruisco prima la query list e converto l'array di quanti flicking component di tipo flickingTag esistono nel dom
   cosi che nel metodo checkIfScrollDxorSx recupero esempio flickingRefsArray[0] cosi che da passarlo a prev index ecc per fare cose 
   flickingRefsArray: NgxFlickingComponent[] = [];
+  O meglio La regola è questa quando ho una reference in ngx-flicking nell afterViewInit posso convertire quella lista in un array di NgxFlickingComponent
+  però se poi voglio recuperare il singolo NgxFlickingComponent non lo posso fare nell afterViewInit perche i pannelli interni (cioe le slide interne )
+  non sono ancora caricate perche i pannelli interni vengono renderizzati dopo allora cosa si fa si crea un evento (ready) dove li dice OK è tutto pronto
+  tutto inizializzato adesso possiamo calcolare la lunghezza di ogni pannello recuperare indici in maniera piu corretta.
 
+  " ******In definitiva *****
+  1)  Tutte le reference ovvero tutti i ViewChild o ViewChildre, li salvo nell afterviewinit perche prende i riferimenti angular
+  2)  Tutti i pannelli figli ecc ecc li devo caricare in un evento (ready) 
+  
+  Nel mio caso in after view init converto i miei NgxFlickingComponent per dire guarda ho 4 5 6 caroselli e cosi via..
+
+  Se voglio conoscere in ogni carosello quanta roba ce allora nell evento ready inserisco tutto quello che voglio sapere per esempio loggare 
+  this.console.log("aaaaaa", this.flickingTagsArray[0]?.panels.length);
+  oppure se non voglio caricare subito allora, in un metodo a parte magari in mousedown chiamo la console.log("aaaaaa", this.flickingTagsArray[0]?.panels); e 
+  il valore esiste perche il pannello è caricato e cosi via
+
+  ""
+
+  // FINE IMPORTANTE SPIEGAZIONE //
 
 
 
@@ -528,48 +548,117 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 
 
+  // --- MAPPE STATO FRECCE PER OGNI CAROSELLO ---
+// Creo due mappe indicizzate per `index` del carosello, così ogni carosello
+// ha il proprio stato indipendente delle frecce (sx/dx). Le userò nel template
+// come `setArrowSxMap[i]` e `setArrowDxMap[i]`.
 
-  
+// Semantica che voglio rispettare (coerente col mio template):
+// - sinistra:  [class.none]="(!car.hasArrow || !setArrowSxMap[i])"
+//   → se setArrowSxMap[i] = true  MOSTRO la freccia sinistra
+//   → se setArrowSxMap[i] = false NASCONDO la freccia sinistra
+// - destra:    [class.none]="(!car.hasArrow || setArrowDxMap[i])"
+//   → se setArrowDxMap[i] = true  NASCONDO la freccia destra
+//   → se setArrowDxMap[i] = false MOSTRO la freccia destra
 
-  //evento che scaturisce quando qualcosa sta cambiando in ngx-flicking
-  /* Cosa succede qui quando cambia qualcosa nel tag flicking viene scaturito l on changed di quell onchanged possiamo prendere qualsiasi cosa
-  uno degli eventi è recuperare il flicking-panel corrente che in questo caso e il miotag img audio video o quello che si vuole
-  e applicare per esempio una classe zoom-enter quindi ogni volta che cambia il media la classe sara carosello-panel piu zoom enter
-  class="carosello-panel ng-tns-c3646714685-1 ng-star-inserted zoom-enter"
-  Domanda e perche si fa onchanged ecc.. si fa perche se mettessi direttamente     class="carosello-panel zoom-enter" funziona ma solo alla prima slide 
-  perche l animazione poi rimane rpesente nel dom ma non viene scaturita e per farlo deve essere rimossa e poi rimessa. L unico che ci aiuta e on changed infatti all inizio
-  la cancelliamo e poi la rimettiamo 
-  
-  
-  Quando cambia il carosello aggiungiamo una classe*/
-  onChangedCarosello(event: any, classScssToAddWhenChangeCarosello: string) {
+// Le inizializzo vuote: le valorizzerò su (ready) e le aggiornerò su (changed).
+setArrowSxMap: Record<number, boolean> = {};
+setArrowDxMap: Record<number, boolean> = {};
 
-      /* Quando cambia il carosello verifico anche le frecce
-        Vorrei che le frecce non siano visibili se raggiungiamo la grandezza massima del carosello
-        Ovviamente se di quel carosello la modalita circolare è false perche se è true le frecce ci devono essere sempre
-      */
+onReadyCarosello(event: any, car: ImieiCaroselli, i: number) {
+  // Prendo la ref del carosello corrente dalla mia QueryList.
+  const flick = this.flickingTagsArray?.[i];
 
-
-
-    if (classScssToAddWhenChangeCarosello == '') {
-      return;
-    }
-    const classeDaAggiungereQuandoCambiaIlCarosello = classScssToAddWhenChangeCarosello;
-    const el = event.panel?.element as HTMLElement | undefined;
-    if (!el) return;
-
-    // reset eventuale (così la stessa animazione può ripartire più volte)
-    el.classList.remove(classeDaAggiungereQuandoCambiaIlCarosello);
-    void el.offsetWidth; // forza un reflow
-
-    // applica animazione
-    el.classList.add(classeDaAggiungereQuandoCambiaIlCarosello);
+  // Se per qualsiasi motivo non ho la ref, imposto uno stato sicuro e termino.
+  if (!flick) {
+    this.setArrowSxMap[i] = false; // prev nascosta
+    this.setArrowDxMap[i] = true;  // next nascosta
+    return;
   }
 
+  // Calcolo quanti pannelli ho e se il carosello è circolare.
+  const total = Array.isArray(flick.panels) ? flick.panels.length : 0;
+  const circular = !!car?.options?.circular;
+
+  // Leggo l’indice corrente direttamente dalla ref Angular (niente getIndex).
+  const currentIndex = (flick as any).index ?? 0;
+
+  // Se ho 0 o 1 pannello, spengo entrambe le frecce.
+  if (total <= 1) {
+    this.setArrowSxMap[i] = false; // prev nascosta
+    this.setArrowDxMap[i] = true;  // next nascosta
+    return;
+  }
+
+  // Se è circolare, voglio entrambe visibili (rispettando la semantica del template).
+  if (circular) {
+    this.setArrowSxMap[i] = true;  // prev visibile
+    this.setArrowDxMap[i] = false; // next visibile
+    return;
+  }
+
+  // Caso non circolare: gestisco in base all’indice.
+  this.setArrowSxMap[i] = currentIndex > 0;            // mostro prev se non sono al primo
+  this.setArrowDxMap[i] = currentIndex >= (total - 1); // nascondo next se sono all’ultimo
+}
+
+
+  /* Questo metodo prende il carosello corrente in ingresso ed applica la classe onChangedCarosello se presente ed in più
+   aggiorno lo stato delle frecce:
+   - Se circle == false: nascondo la freccia destra quando arrivo all’ultimo pannello,
+     altrimenti nascondo la sinistra se sono all’indice 0.
+   - Se circle == true: tengo entrambe le frecce visibili (se ci sono > 1 pannelli).
+*/
+onChangedCarosello(event: any, car: ImieiCaroselli, i: number) {
+  // 1) Applico l’animazione (se definita). Uso la classe CSS indicata in car.otherOption.onChangedCarosello.
+  const animationClass = car?.otherOption?.onChangedCarosello as string | undefined;
+  const el = event?.panel?.element as HTMLElement | undefined;
+  if (animationClass && el) {
+    // Resetto la classe per poter ri-triggerare l’animazione ad ogni change.
+    el.classList.remove(animationClass);
+    void el.offsetWidth; // forzo un reflow
+    el.classList.add(animationClass);
+  }
+
+  // 2) Aggiorno le frecce per questo carosello (uso le mie mappe per non interferire con altri caroselli).
+  const flick = this.flickingTagsArray?.[i];
+  if (!flick) {
+    // Se non ho la ref, imposto uno stato "sicuro" e termino.
+    this.setArrowSxMap[i] = false; // prev nascosta
+    this.setArrowDxMap[i] = true;  // next nascosta
+    return;
+  }
+
+  const total = Array.isArray(flick.panels) ? flick.panels.length : 0;
+  const circular = !!car?.options?.circular;
+  const currentIndex = (flick as any).index ?? 0;
+
+  // Se ho 0 o 1 pannello, non mostro frecce.
+  if (total <= 1) {
+    this.setArrowSxMap[i] = false; // prev nascosta
+    this.setArrowDxMap[i] = true;  // next nascosta
+    return;
+  }
+
+  // Se è circolare, tengo entrambe le frecce visibili.
+  if (circular) {
+    this.setArrowSxMap[i] = true;   // prev visibile
+    this.setArrowDxMap[i] = false;  // next visibile
+    return;
+  }
+
+  // Non circolare: gestisco in base all’indice corrente.
+  // - a indice 0 nascondo la sinistra
+  // - all’ultimo indice nascondo la destra
+  // - in mezzo mostro entrambe
+  this.setArrowSxMap[i] = currentIndex > 0;             // true = mostro prev
+  this.setArrowDxMap[i] = currentIndex >= (total - 1);  // true = NASCONDO next
+}
 
 
 
-  //fine nuovo carosello
+  
+
 
   /**
    * Stato admin reattivo.
@@ -621,10 +710,10 @@ caricaTuttiICaroselli(): void {
     // ───────────────────────────────── Hero full-screen ─────────────────────────────────
     createCarousel({
       data: this.carosello,
-      mode: 'freeScroll', //quando è no scroll è un carosello automatico non funzionano ne tasti e ne niente
+      mode: 'no-scroll', //quando è no scroll è un carosello automatico non funzionano ne tasti e ne niente
       circular: true,
       duration: 0, //durata delle slide piu e corta piu non c e l animazione
-      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 4000 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
+      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 2000 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: '',
@@ -635,9 +724,9 @@ caricaTuttiICaroselli(): void {
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
     createCarousel({
       data: this.modelliInEvidenza,
-      mode: 'freeScroll',
+      mode: 'snap',
       circular: false,
-      duration: 400,
+      duration: 500,
       plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 },
       // se voglio “spinta a pagina” in freeScroll: arrow: { moveByViewportSize: true }
       editKey: 'modelliEvidenza',
@@ -780,18 +869,17 @@ caricaTuttiICaroselli(): void {
 
 
 
-
   trackByIndex(index: number, _: any): number {
     return index;
   }
 
+  //variabile che serve per disattivare l'ui delle frecce
 
   ngAfterViewInit(): void {
 
     /* Recupero i NgxFlickingComponent[]*/
     this.flickingTagsArray = this.flickingTagRefs.toArray();
     console.log("Count di quanti <ngx-flicking> con ref flickingTags abbiamo: ", this.flickingTagsArray.length);
-
 
     // Avvio silenzioso dei video dopo il rendering, con fallback in caso di policy browser.
     setTimeout(() => {
