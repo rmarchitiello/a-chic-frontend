@@ -23,7 +23,7 @@ import { makeOptions } from './options.factory';
 import { makePlugins } from './plugins.factory';
 import { CarouselMode } from './options.factory';
 import { MakePluginsOpts } from './plugins.factory';
-import { Arrow,Pagination } from '@egjs/flicking-plugins';
+import { Arrow, Pagination } from '@egjs/flicking-plugins';
 // ── Tipi condivisi (tengo il file autoconsistente) ───────────────────────────
 
 /**
@@ -36,10 +36,10 @@ export interface OtherOption {
   onChangedCarosello: string; // es. 'zoom-enter' → devo avere .zoom-enter nel mio SCSS
   editKey: string;            // chiave per aprire l'editor admin
   tooltip: string;            // testo tooltip del pulsante admin
-  titoloSezione?: string;     // titolo opzionale sopra il carosello
+  titoloSezione?: string;     // titolo opzionale sopra il carosello per introdurlo praticamente
   wrapperClass?: string;      // classe CSS per il <ngx-flicking>
   panelClass?: string;        // classe CSS per i pannelli interni
-
+  panelsNames: string[]       //Nome dei vari pannelli ovvero slides
 }
 
 /**
@@ -86,8 +86,9 @@ export function createCarousel(params: {
   // meta/UI
   editKey: string;
   tooltip: string;
-  titoloSezione?: string;
+  titoloSezione?: string;   //titolo da impostare sopra ogni sezione se vogliamo per presentare magari il carosello che poi viene in basso
   onChangedCarosello?: string;   // stringa: nome classe CSS che applico al cambio slide (es. 'zoom-enter')
+  panelsName: string[];     //nome dei pannelli che sarebbero i display name
 
   // classi CSS
   wrapperClass?: string;
@@ -163,6 +164,7 @@ export function createCarousel(params: {
     titoloSezione: params.titoloSezione,
     wrapperClass,
     panelClass,
+    panelsNames: params.panelsName
   };
 
   // ───────────────────────────── 5) OUTPUT CAROSELLO COMPLETO ─────────────────────────────

@@ -501,7 +501,7 @@ import { SharedDataService } from '../../services/shared-data.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EditorAdminPopUpComponent } from '../../admin/editor/edit/editor-admin-popup.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MediaCollection, MediaMeta } from '../../app.component';
+import { MediaCollection, MediaContext, MediaMeta, MediaItems } from '../../app.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -696,7 +696,29 @@ onChangedCarosello(event: any, car: ImieiCaroselli, i: number) {
 
 
 
-  //array dove salviamo tutti i caroselli cosi cicliamo questi nel template
+
+  /* In base alla folder di ingresso recupero tutti i display name*/
+  getDisplaysNameFromFolder(folder: string): string[]{
+    console.log("Folder in ingresso: ", folder)
+    //recuperata la collection di quella folder recupero il context
+    const getMediaCollection: MediaCollection | undefined = this.saveDataHomeInput.find(data => data.folder.toLowerCase() === folder.toLowerCase());
+    
+    let displayNames: string[] = [];
+    //mappo l'items 
+    if(getMediaCollection){
+         displayNames = getMediaCollection.items
+          .map(item => item.context.display_name ?? '');
+      console.log("Display name from folder context etsratti: ", displayNames);
+    }
+
+    return displayNames;
+     
+
+     
+  }
+
+
+    //array dove salviamo tutti i caroselli cosi cicliamo questi nel template
   carousels: ImieiCaroselli[] = [];
 
 
@@ -705,6 +727,13 @@ caricaTuttiICaroselli(): void {
   // per ognuno passo solo i parametri “semantici” a createCarousel.
   // Dentro createCarousel verranno chiamate le mie micro-factory
   // makeOptions(...) e makePlugins(...), così evito boilerplate.
+
+
+  /* MIGLIORIA
+    Ogni carosello ha dei pannelli (che sono i media) per ogni pannello voglio visualizzare il suo display name 
+    Esempio nel carosello ho 10 media (sempre di tipo frontale) come sappiamo ogni media frontale ha un suo context
+    Di quel media frontale voglio il context da passare alla create perche quando cambio slide voglio visualizzare il nome corrente
+  */
 
   this.carousels = [
     // ───────────────────────────────── Hero full-screen ─────────────────────────────────
@@ -719,6 +748,7 @@ caricaTuttiICaroselli(): void {
       titoloSezione: '',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
+      panelsName: this.getDisplaysNameFromFolder(this.carosello.folder),
       onChangedCarosello: 'zoom-enter', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
     }),
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
@@ -734,6 +764,7 @@ caricaTuttiICaroselli(): void {
       titoloSezione: 'Modelli in evidenza',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
+      panelsName: this.getDisplaysNameFromFolder(this.modelliInEvidenza.folder),
       onChangedCarosello: '',
     }),
 
@@ -749,6 +780,7 @@ caricaTuttiICaroselli(): void {
       titoloSezione: 'Best seller',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
+      panelsName: this.getDisplaysNameFromFolder(this.creazioni.folder),
       onChangedCarosello: 'zoom-enter', // devo avere .zoom-enter nel mio SCSS locale
     }),
 
@@ -764,14 +796,17 @@ caricaTuttiICaroselli(): void {
       titoloSezione: 'Dicono di noi',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
+      panelsName: this.getDisplaysNameFromFolder(this.recensioni.folder),
       onChangedCarosello: '',
     })
   ];
 
+  console.log("Caroselli caricati: ", JSON.stringify(this.carousels));
+
 
 }
 
-
+saveDataHomeInput: MediaCollection[] = [];
 
 /* FINE SPIEGAZIONE */
 
@@ -807,12 +842,17 @@ caricaTuttiICaroselli(): void {
      * Si ricavano le chiavi delle quattro sezioni direttamente dalle folder in input.
      * Il confronto è basato sulla parte finale della folder (tail), senza hard-coding di stringhe intere.
      */
+
+
+    
     this.sharedDataService.mediasCollectionsConfig$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: MediaCollection[]) => {
-          if (!Array.isArray(data)) return;
-
+                    if (!Array.isArray(data)) return;
+                    if(data.length === 0) return; //evito lazy loading
+                    this.saveDataHomeInput = data;
+          console.log("Coll caricata: ", JSON.stringify(this.saveDataHomeInput)); 
           // Funzione locale: trova una collezione la cui folder termina con il tail indicato.
           // Esempio: tail "config/home/carosello" o semplicemente "/carosello".
           const findByTail = (tail: string) =>
@@ -859,6 +899,7 @@ caricaTuttiICaroselli(): void {
         },
         error: err => console.error('Errore caricamento media config', err)
       });
+    
 
     // Valutazione iniziale dello scroll per mostrare il contenuto dopo il carosello.
     this.checkScroll();
