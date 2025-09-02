@@ -487,8 +487,7 @@ import { takeUntil } from 'rxjs/operators';
 import { NgxFlickingModule } from '@egjs/ngx-flicking';
 import { ImieiCaroselli } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 
-import { makeOptions } from '../../shared/factories/manage-carousel/flicking/options.factory';
-import { makePlugins } from '../../shared/factories/manage-carousel/flicking/plugins.factory';
+
 import { createCarousel} from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 
 @Component({
@@ -588,35 +587,35 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 
 caricaTuttiICaroselli(): void {
-  // Qui costruisco TUTTI i miei caroselli in modo coerente.
-  // Per ciascuno:
-  //  - genero le options con la mia micro-factory (niente duplicazioni)
-  //  - genero plugin NUOVI (mai riusare istanze tra caroselli)
-  //  - compongo tutto con createCarousel (così otherOption resta allineato)
+  // Qui costruisco TUTTI i miei caroselli in modo coerente:
+  // per ognuno passo solo i parametri “semantici” a createCarousel.
+  // Dentro createCarousel verranno chiamate le mie micro-factory
+  // makeOptions(...) e makePlugins(...), così evito boilerplate.
 
   this.carousels = [
     // ───────────────────────────────── Hero full-screen ─────────────────────────────────
     createCarousel({
       data: this.carosello,
-      // Al momento lo voglio “libero” (swipe) senza frecce/pallini
-      options: makeOptions('freeScroll', false, 400),
-      plugins: makePlugins({ fade: true, arrow: false, pagination: false }),
+      mode: 'freeScroll',
+      circular: false,
+      duration: 400,
+      plugins: { fade: true, arrow: false, pagination: false }, // niente frecce/pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: '',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
-      onChangedCarosello: '', // se metto 'zoom-enter' mi assicuro di avere la classe nel mio SCSS
+      onChangedCarosello: '', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
     }),
 
     // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
     createCarousel({
       data: this.modelliInEvidenza,
-      options: makeOptions('freeScroll', false, 400),
-      // Attivo frecce + bullet; tengo anche un autoplay leggero (1000 ms come da tua richiesta)
-      // Se voglio che le frecce “spingano a pagina” in freeScroll:
-      // arrow: { moveByViewportSize: true }
-      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 }),
+      mode: 'freeScroll',
+      circular: false,
+      duration: 400,
+      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 },
+      // se voglio “spinta a pagina” in freeScroll: arrow: { moveByViewportSize: true }
       editKey: 'modelliEvidenza',
       tooltip: 'Modifica Modelli in Evidenza',
       titoloSezione: 'Modelli in evidenza',
@@ -628,23 +627,25 @@ caricaTuttiICaroselli(): void {
     // ────────────────────────────────── Best Seller ─────────────────────────────────────
     createCarousel({
       data: this.creazioni,
-      // “no-scroll” = niente drag nativo; le frecce/autoplay, se attive, muovono via API
-      options: makeOptions('no-scroll', true, 0),
-      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 }),
+      mode: 'no-scroll',          // niente drag nativo (inputType: [])
+      circular: true,
+      duration: 0,                // transizione istantanea (mantengo il tuo valore)
+      plugins: { fade: true, arrow: true, pagination: 'bullet', autoplay: 1000 },
       editKey: 'creazioni',
       tooltip: 'Modifica le mie creazioni',
       titoloSezione: 'Best Seller',
       wrapperClass: 'flicking-default',
       panelClass: 'panel-default',
-      onChangedCarosello: 'zoom-enter',
+      onChangedCarosello: 'zoom-enter', // devo avere .zoom-enter nel mio SCSS locale
     }),
 
     // ─────────────────────────────────── Recensioni ─────────────────────────────────────
     createCarousel({
       data: this.recensioni,
-      options: makeOptions('freeScroll', false, 400),
-      // Frecce + bullet (coerenti con haveArrow/haveBullet)
-      plugins: makePlugins({ fade: true, arrow: true, pagination: 'bullet' }),
+      mode: 'freeScroll',
+      circular: false,
+      duration: 400,
+      plugins: { fade: true, arrow: true, pagination: 'bullet' },
       editKey: 'recensioni',
       tooltip: 'Modifica recensioni',
       titoloSezione: 'Dicono di noi',
@@ -654,6 +655,7 @@ caricaTuttiICaroselli(): void {
     }),
   ];
 }
+
 
 
   ngOnInit(): void {
