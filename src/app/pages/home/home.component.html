@@ -1,18 +1,20 @@
-
 <!-- =============================================================================
      HOME TEMPLATE UNICO (desktop + mobile) — VERSIONE DINAMICA CON NGX-FLICKING
-     Obiettivo: il titolo (h2) di ogni carosello è un overlay CENTRATO e BIANCO,
-     visibile su TUTTE le slide del carosello.
-     Nota chiave: l’overlay del titolo NON è figlio di <ngx-flicking>, ma un suo fratello
-     dentro un WRAPPER comune, così non “scorre via” con la camera di Flicking.
 
-     - Itero su `carousels`: ogni voce configura un carosello/sezione.
+     Obiettivi:
+     1) Il titolo (h2) della sezione è un overlay centrato e bianco, visibile su TUTTE
+        le slide del carosello (overlay FRATELLO di <ngx-flicking>, quindi non scorre).
+     2) Il "panel name" (display_name del media corrente) è mostrato al CENTRO
+        di OGNI pannello, come caption interna al singolo flicking-panel.
+
+     Note architetturali:
+     - Iterazione su `carousels` (factory): ogni voce configura un carosello/sezione.
      - Ogni carosello espone: car.options, car.plugins, car.data.items, car.otherOption.
      - Eventi: (ready) e (changed) gestiscono frecce e animazioni via TS.
      - Visibilità frecce/pallini: controllata da car.hasArrow / car.hasBullet e dalle mappe
        setArrowSxMap[i] (true = prev visibile) / setArrowDxMap[i] (true = next nascosta).
 
-     Requisiti lato TS:
+     Requisiti lato TS già previsti:
        trackByIndex(index: number, _: any): number
        hasMedia(media: MediaMeta[]): boolean
        getMediaFrontale(media: MediaMeta[]): string | null
@@ -23,9 +25,19 @@
        setArrowDxMap: Record<number, boolean>  // true = freccia destra nascosta
 
      Accessibilità e layering:
-       - <ngx-flicking> usa aria-roledescription="carousel" e aria-label dal titolo.
-       - L’overlay del titolo è aria-hidden="true" (elemento visivo, non interattivo).
-       - L’overlay non intercetta i tocchi (pointer-events: none in SCSS) e sta sotto le frecce.
+       - <ngx-flicking> usa aria-roledescription="carousel" e aria-label derivato dal titolo.
+       - L’overlay titolo sezione è aria-hidden="true" (elemento visivo, non interattivo).
+       - Le caption per-pannello sono aria-hidden="true" (decorative) e non intercettano tocchi.
+       - Le frecce restano sopra alle caption (z-index superiore) e sono interattive.
+
+     Stili attesi (da definire nello SCSS del componente):
+       .carousel-wrapper { position: relative; }
+       .carousel-title-overlay { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; z-index:2; }
+       .carousel-title { color:#fff; text-align:center; }
+       .carosello-panel { position:relative; }
+       .panel-caption { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; z-index:1; }
+       .panel-caption__text { color:#fff; text-align:center; /* eventuale text-shadow per leggibilità */ }
+       /* Le frecce/paginazione di Flicking hanno z-index > caption per restare cliccabili */
    ============================================================================ -->
 
 <section class="home" aria-label="Sezione principale Home">
@@ -34,8 +46,7 @@
     <!-- Iterazione dinamica su tutti i caroselli configurati -->
     <ng-container *ngFor="let car of carousels; let i = index; trackBy: trackByIndex">
 
-      <!-- Header sezione esterno al carosello:
-           qui mantengo SOLO il pulsante admin. Il titolo è gestito come overlay nel wrapper. -->
+      <!-- Header sezione esterno al carosello: contiene solo il pulsante admin -->
       <div class="carousel-section-header" *ngIf="isAdmin">
         <button
           mat-icon-button
@@ -48,14 +59,13 @@
       </div>
 
       <!-- WRAPPER CAROSELLO:
-           - Questo contenitore è l’“ancora” per SIA il carosello SIA l’overlay del titolo.
-           - Deve avere position: relative (gestito via SCSS sulle classi wrapper).
-           - Uso [ngClass] per applicare la classe wrapper desiderata (es. 'flicking-hero' o 'flicking-default'). -->
+           - Contiene sia il carosello sia l’overlay del titolo sezione.
+           - Deve essere position: relative (gestito via SCSS sulle classi wrapper). -->
       <div class="carousel-wrapper" [ngClass]="car.otherOption.wrapperClass">
 
-        <!-- NGX-FLICKING (solo i pannelli e i controlli del carosello):
-             - Dentro <ngx-flicking> metto esclusivamente i pannelli (div[flicking-panel]) e gli UI interni
-               come frecce e paginazione. L’overlay del titolo NON sta qui per evitare che scorra. -->
+        <!-- NGX-FLICKING:
+             - Include soltanto i pannelli e l’UI interna (frecce/paginazione).
+             - L’overlay titolo sezione NON è figlio di <ngx-flicking>. -->
         <ngx-flicking
           #flickingTags
           [options]="car.options"
@@ -71,26 +81,46 @@
             *ngFor="let item of car.data.items; trackBy: trackByIndex"
             [ngClass]="['carosello-panel', car.otherOption.panelClass]">
 
-            <!-- Renderizzo media solo se presenti -->
+            <!-- Render media solo se presenti; in caso contrario mostra placeholder -->
             <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">
               <ng-container *ngIf="getMediaFrontale(item.media) as src">
                 <ng-container [ngSwitch]="item.context?.type">
 
                   <!-- Immagine -->
-                  <img *ngSwitchCase="'image'" [src]="src" [alt]="item.context?.display_name || ''" />
+                  <img *ngSwitchCase="'image'"
+                       [src]="src"
+                       [alt]="item.context?.display_name || ''" />
 
                   <!-- Video -->
-                  <video *ngSwitchCase="'video'" [src]="src" playsinline muted preload="auto"></video>
+                  <video *ngSwitchCase="'video'"
+                         [src]="src"
+                         playsinline
+                         muted
+                         preload="auto"></video>
 
                   <!-- Audio -->
-                  <audio *ngSwitchCase="'audio'" [src]="src" controls></audio>
+                  <audio *ngSwitchCase="'audio'"
+                         [src]="src"
+                         controls></audio>
 
                   <!-- Fallback: immagine -->
-                  <img *ngSwitchDefault [src]="src" [alt]="item.context?.display_name || ''" />
+                  <img *ngSwitchDefault
+                       [src]="src"
+                       [alt]="item.context?.display_name || ''" />
 
                 </ng-container>
               </ng-container>
             </ng-container>
+
+            <!-- CAPTION PER-PANNELLO (panel name centrato nel pannello)
+                 - Vive DENTRO il pannello per seguirne il lifecycle.
+                 - Non intercetta input (pointer-events:none).
+                 - Usa item.context?.display_name direttamente dal dato. -->
+            <div class="panel-caption" aria-hidden="true">
+              <span class="panel-caption__text">
+                {{ item.context?.display_name }}
+              </span>
+            </div>
 
             <!-- Placeholder se non ci sono media -->
             <ng-template #noMediaTpl>
@@ -98,9 +128,9 @@
             </ng-template>
           </div>
 
-          <!-- FRECCE DI NAVIGAZIONE:
-               - Non uso *ngIf per non rimuovere i nodi dal DOM; nascondo con classe .none.
-               - Logica visibilità via mappe indicizzate per i: setArrowSxMap[i] / setArrowDxMap[i]. -->
+          <!-- FRECCE DI NAVIGAZIONE
+               - Non usare *ngIf per non rimuovere i nodi; nascondere via classe .none.
+               - La visibilità è controllata dalle mappe per indice di carosello. -->
           <span
             in-viewport
             class="flicking-arrow-prev"
@@ -115,9 +145,7 @@
             aria-label="Slide successiva">
           </span>
 
-          <!-- PAGINAZIONE:
-               - Mostro i bullet solo se richiesti.
-               - Lo stile/posizionamento è gestito via SCSS; per l’hero è in assoluto dentro il wrapper. -->
+          <!-- PAGINAZIONE (bullet) -->
           <div
             in-viewport
             class="flicking-pagination"
@@ -126,20 +154,19 @@
           </div>
         </ngx-flicking>
 
-        <!-- TITOLO OVERLAY (FRATELLO DI <ngx-flicking>, NON FIGLIO):
-             - Copre l’area del carosello e resta fermo mentre scorrono le slide.
-             - pointer-events: none in SCSS per non bloccare swipe/click.
-             - z-index inferiore alle frecce per lasciarle interattive. -->
+        <!-- OVERLAY TITOLO SEZIONE (FRATELLO DI <ngx-flicking>)
+             - Copre l’area del carosello e resta fermo su tutte le slide.
+             - Deve avere z-index inferiore alle frecce per lasciarle interattive. -->
         <div
           *ngIf="car.otherOption.titoloSezione"
           class="carousel-title-overlay"
           aria-hidden="true">
-          <h2 class="carousel-title">{{ car.otherOption.titoloSezione }}</h2>
+          <h2 class="carousel-title">
+            {{ car.otherOption.titoloSezione }}
+          </h2>
         </div>
 
       </div> <!-- /carousel-wrapper -->
-
     </ng-container>
   </div>
 </section>
-

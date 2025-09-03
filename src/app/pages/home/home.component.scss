@@ -1,27 +1,16 @@
 /* =============================================================================
    HOME COMPONENT (unico template per desktop + mobile) — versione NGX-FLICKING
-   Obiettivo: titolo overlay centrato e bianco su TUTTI i caroselli, fermo sopra
-   alle slide (perché è fratello del carosello dentro un wrapper comune).
-   Nota: il wrapper del carosello fa da “ancora” (position: relative) per overlay
-   e controlli. L’hero è full-bleed, gli altri caroselli no.
-
-   Perché si mette > tra .flicking-hero e ngx-flicking:
-
-Uso il combinatore di figli diretti (>) per dire “applica questa regola solo all’elemento <ngx-flicking> che è figlio immediato del wrapper hero”.
-
-Questo è importante per due motivi pratici:
-
-Propagazione dell’altezza corretta: voglio che l’istanza di Flicking prenda esattamente l’altezza del wrapper hero (height: 100%). Se scrivessi .flicking-hero ngx-flicking senza >, potrei colpire anche eventuali Flicking nidificati più in profondità, o elementi simili introdotti in futuro, con effetti collaterali.
-
-Specificità strutturale: vincolo lo stile alla struttura prevista (wrapper → flicking). Se domani qualcuno inserisce un <div> intermedio, la regola non si applica “per sbaglio” a discendenti non desiderati; sarà evidente che bisogna aggiornare il selettore.
-
-In breve: il > serve per precisione e per evitare che la regola di altezza venga ereditata da discendenti non intenzionati, garantendo che l’allineamento del titolo sull’hero resti consistente.
+   Obiettivi:
+   1) Titolo di sezione (overlay) centrato e bianco su TUTTE le slide del carosello:
+      è un fratello di <ngx-flicking> dentro un wrapper comune (non scorre).
+   2) Panel name centrato dentro OGNI pannello (caption per-pannello).
+   3) Layering chiaro: frecce/paginazione sopra, overlay titolo sotto, caption pannello sotto.
    ========================================================================== */
 
 /* Struttura base pagina */
 :host {
   display: block;
-  background: #fff; /* sfondo coerente con il resto della pagina */
+  background: #fff;
 }
 
 .home,
@@ -31,7 +20,7 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   margin: 0 auto;
 }
 
-/* Evito che immagini/video siano trascinabili o selezionabili dal browser */
+/* Evitare trascinamento/selelezione nativa di immagini e video */
 .carosello-panel img,
 .carosello-panel video {
   -webkit-user-drag: none; /* Safari/Chrome */
@@ -40,21 +29,20 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 }
 
 /* =============================================================================
-   HEADER DI SEZIONE (solo pulsante admin; il titolo è overlay nel wrapper)
-   - Qui mantengo solo l’icona “edit”; il titolo visivo è gestito come overlay.
+   HEADER DI SEZIONE (solo pulsante admin; il titolo visivo è overlay nel wrapper)
    ========================================================================== */
 .carousel-section-header {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end; /* il titolo non è qui, tengo solo l’icona admin */
+  justify-content: flex-end;
   margin: 1rem 0;
 
   .edit-admin-icon {
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 10; /* superiore ai contenuti circostanti, ma sotto alle frecce del carosello */
+    z-index: 10; /* sopra al contesto circostante, ma non interferisce con le frecce */
     background: rgba(255, 255, 255, 0.85);
 
     mat-icon { color: #000; }
@@ -62,10 +50,9 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 }
 
 /* =============================================================================
-   UTILITY FULL-BLEED
-   - La uso per far “sanguinare” l’hero ai bordi viewport (senza padding laterali).
-   - Attenzione: full-bleed spinge il blocco a 100vw; evito overflow orizzontali
-     lasciando che il wrapper prenda il controllo dell’overflow.
+   UTILITY FULL-BLEED (per l’hero a larghezza viewport)
+   - Spinge il wrapper a 100vw evitando padding orizzontali del container.
+   - Il wrapper controlla overflow ed è l’ancora per overlay/controlli.
    ========================================================================== */
 @mixin full-bleed {
   width: 100vw;
@@ -74,31 +61,29 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background: #fff;
+  background: #000; /* base neutra per evitare bordi bianchi in transizione */
 }
 
 /* =============================================================================
-   WRAPPER CAROSELLO (comune a TUTTI i caroselli)
-   - Questo è il contenitore padre che “ancora” overlay e controlli.
+   WRAPPER CAROSELLO (padre di <ngx-flicking> e dell’overlay titolo di sezione)
    - Deve essere position: relative per consentire posizionamenti assoluti interni.
-   - L’hero eredita full-bleed; i caroselli standard restano nel contenuto.
+   - L’hero eredita il mixin full-bleed; gli altri restano “in pagina”.
    ========================================================================== */
 .carousel-wrapper {
-  position: relative; /* fondamentale: ancora per overlay e controlli */
-  overflow: hidden;   /* evito sbordamenti laterali/verticali del media */
+  position: relative; /* ancora per overlay e controlli */
+  overflow: hidden;   /* evita sbordamenti del media */
   background: transparent;
 }
 
-/* Wrapper specifico per HERO (full-bleed e altezza gestita con media queries) */
+/* Wrapper specifico per HERO (full-bleed; altezza via media queries) */
 .flicking-hero {
   @include full-bleed();
-  /* Mantengo anche le proprietà base del wrapper generico */
   position: relative;
   overflow: hidden;
-  background: transparent;
+  background: #000; /* nero: migliori contrasti su testi bianchi */
 }
 
-/* Wrapper per caroselli non-hero: resta “in pagina” (no full-bleed) */
+/* Wrapper per caroselli non-hero (in contenuto normale) */
 .flicking-default {
   position: relative;
   overflow: hidden;
@@ -106,62 +91,57 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 }
 
 /* =============================================================================
-   OVERLAY TITOLO (valido per TUTTI i caroselli)
-   - Il blocco copre l’area del wrapper (.carousel-wrapper) e centra l’h2.
-   - Non intercetta i tocchi (pointer-events: none) per non bloccare swipe/click.
-   - Layer: sopra ai pannelli, sotto a frecce/paginazione.
+   OVERLAY TITOLO DI SEZIONE (fratello di <ngx-flicking>, non scorre)
+   - Copre l’intero wrapper e non intercetta input (pointer-events: none).
+   - Z-index 2: le frecce/paginazione restano sopra (z-index 3).
    ========================================================================== */
 .carousel-title-overlay {
-  /* L’overlay è FRATELLO di <ngx-flicking> dentro .carousel-wrapper */
   position: absolute;
-  inset: 0;                 /* copre esattamente l’area del wrapper */
-  display: flex;
-  align-items: center;
-  justify-content: center;  /* centro il titolo sia in orizzontale che in verticale */
-  padding: 0 16px;          /* respiro orizzontale su device piccoli */
-  pointer-events: none;     /* i gesti passano al carosello e alle frecce */
-  z-index: 2;               /* sopra ai pannelli (base), sotto alle frecce/paginazione */
+  inset: 0;                    /* top:0 right:0 bottom:0 left:0 */
+  display: grid;
+  place-items: center;         /* centratura perfetta */
+  pointer-events: none;        /* non blocca swipe/click */
+  z-index: 2;
 }
 
 .carousel-title {
   margin: 0;
-  color: #fff;              /* titolo bianco come richiesto */
+  padding: 0 1rem;
+  color: #fff;
   text-align: center;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .02em;
-  line-height: 1.1;
-  /* ombra leggera per leggibilità su foto chiare */
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
-  /* dimensioni regolate nei breakpoint */
+  line-height: 1.15;
+  /* dimensione fluida: leggibile su mobile e desktop */
+  font-weight: 700;
+  font-size: clamp(20px, 3.2vw, 48px);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
 }
 
 /* =============================================================================
-   PANNELLI NGX-FLICKING (stile base)
-   - Questa è la base condivisa; le varianti (hero/card) estendono qui sotto.
+   PANNELLI NGX-FLICKING (stile base) — usati e poi “estesi” dalle varianti
    ========================================================================== */
 .carosello-panel {
+  position: relative;      /* necessario per caption per-pannello */
   overflow: hidden;
   width: 100%;
-  height: 220px;        /* altezza base per pannelli NON-hero su mobile */
+  height: 220px;           /* base per non-hero su mobile */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background: #eee;
+  background: #111;        /* fondo scuro per uniformità col media */
   border-radius: 0;
-  margin: 0 8px;        /* spaziatura orizzontale tra card non-hero */
+  margin: 0 8px;           /* spaziatura orizzontale tra card non-hero */
   font-weight: 600;
 
   img,
   video {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;     /* riempie il pannello senza distorsioni */
     object-position: center;
     border-radius: inherit;
     display: block;
-    background: #fff;
+    background: #000;
   }
 
   audio {
@@ -170,49 +150,68 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   }
 }
 
+/* Caption per-pannello: testo centrato dentro OGNI slide */
+.panel-caption {
+  position: absolute;
+  inset: 0;                 /* copre tutto il pannello */
+  display: grid;
+  place-items: center;      /* centratura orizzontale+verticale */
+  pointer-events: none;     /* non blocca interazioni con media/frecce */
+  z-index: 1;               /* sotto alle frecce/paginazione (z=3) e sotto al titolo sezione (z=2) */
+}
+
+.panel-caption__text {
+  color: #fff;
+  text-align: center;
+  padding: 0 .75rem;
+  line-height: 1.15;
+  font-weight: 600;
+  font-size: clamp(14px, 2.2vw, 28px);
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.55),
+    0 0 1px rgba(0, 0, 0, 0.6); /* nitidezza su fondi complessi */
+  /* opzionale: lieve backdrop per testi su video molto chiari
+     background: rgba(0,0,0,0.15);
+     border-radius: 8px;
+  */
+}
+
 /* Placeholder quando non ci sono media */
 .media-placeholder {
   font-size: 14px;
-  color: #666;
+  color: #ccc;
   text-align: center;
   padding: 1rem;
 }
 
 /* =============================================================================
-   VARIANTI PANELCLASS (da passare in TS → otherOption.panelClass)
-   - 'panel-hero' → pannello dell’hero: segue SEMPRE l’altezza del wrapper
+   VARIANTI PANELCLASS (configurate dal TS → otherOption.panelClass)
+   - 'panel-hero' → pannelli dell’hero: seguono SEMPRE l’altezza del wrapper
    - 'panel-card' → pannelli compatti per sezioni “card”
    ========================================================================== */
 
-/* Pannello hero: riempie l’altezza del wrapper hero */
+/* Pannello hero: riempie l’altezza del wrapper hero e senza gap tra slide */
 .panel-hero {
   @extend .carosello-panel;
   height: 100%;     /* chiave: segue .flicking-hero { height: ... } */
-  border-radius: 0; /* full-bleed: niente angoli arrotondati */
-  margin: 0;        /* nessuna spaziatura orizzontale tra slide hero */
-
-  img,
-  video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* copre completamente l’area dell’hero */
-  }
+  border-radius: 0;
+  margin: 0;
 }
 
-/* Pannelli a “card”: più alti e con media contenuti */
+/* Pannelli a “card” (non-hero): più alti, media contenuti */
 .panel-card {
   @extend .carosello-panel;
   height: 300px;
 
   img,
-  video { object-fit: contain; }
+  video { object-fit: contain; background: #111; }
 }
 
 /* =============================================================================
    FRECCE E PAGINAZIONE NGX-FLICKING
-   - Uso la classe .none per la visibilità (niente *ngIf sugli elementi).
-   - In HERO posiziono controlli in assoluto all’interno del wrapper.
-   - Layering: frecce/paginazione sopra a titolo overlay (z-index maggiore).
+   - Si usa la classe .none per la visibilità (no *ngIf sugli elementi).
+   - In HERO i controlli sono in assoluto dentro il wrapper.
+   - Layering: frecce/paginazione sopra overlay e caption.
    ========================================================================== */
 
 /* Utility per “nascondere” senza rimuovere dal DOM */
@@ -222,7 +221,7 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   pointer-events: none;
 }
 
-/* Posizione generale frecce (affinata nell’hero) */
+/* Posizionamento generale frecce; l’hero le ricalibra con positioning assoluto */
 :host ::ng-deep .flicking-arrow-prev { left: 40px !important; z-index: 3; }
 :host ::ng-deep .flicking-arrow-next { right: 40px !important; z-index: 3; }
 
@@ -230,7 +229,7 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 :host ::ng-deep .flicking-pagination {
   margin-top: 12px;
   text-align: center;
-  z-index: 3; /* mantengo sopra eventuali sovrapposizioni locali */
+  z-index: 3; /* sopra ad overlay/caption */
 }
 
 :host ::ng-deep .flicking-pagination-bullet {
@@ -239,21 +238,23 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   height: 8px;
   margin: 0 4px;
   border-radius: 50%;
-  background-color: rgba(10, 10, 10, 0.2);
+  background-color: rgba(255, 255, 255, 0.35);
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
-:host ::ng-deep .flicking-pagination-bullet-active { background-color: #333; }
+:host ::ng-deep .flicking-pagination-bullet-active {
+  background-color: #fff;
+}
 
-/* HERO: paginazione e frecce in assoluto dentro il wrapper hero */
+/* HERO: paginazione e frecce assolute dentro il wrapper hero */
 :host ::ng-deep .flicking-hero .flicking-pagination {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 24px;  /* pallini all’interno dell’hero, verso il fondo */
-  margin-top: 0; /* nessuno spazio extra sotto */
-  z-index: 3;    /* sopra al titolo overlay (che sta a 2) */
+  margin-top: 0;
+  z-index: 3;    /* sopra a titolo overlay (z=2) e caption (z=1) */
 }
 
 :host ::ng-deep .flicking-hero .flicking-arrow-prev,
@@ -261,24 +262,23 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 3; /* frecce sopra al titolo overlay */
+  z-index: 3;
 }
 
 /* =============================================================================
-   ALTEZZE: propago il 100% dal wrapper hero al contenuto Flicking
-   - Senza questo passaggio il titolo risulta centrato rispetto a un wrapper più alto
-     del contenuto reale e “scivola” nella fascia bianca.
-   - Uso il combinatore di figli diretti (>) per colpire SOLO ngx-flicking figlio
-     del wrapper hero, evitando effetti collaterali.
+   ALTEZZE: propagare 100% dal wrapper hero al contenuto Flicking
+   Perché usare il combinatore '>' tra .flicking-hero e ngx-flicking:
+   - Precisione: colpisce SOLO l’elemento figlio diretto <ngx-flicking>.
+   - Evita effetti collaterali su eventuali discendenti/nidificazioni future.
    ========================================================================== */
 
-/* 1) L’istanza <ngx-flicking> deve occupare tutta l’altezza del wrapper hero */
+/* 1) L’istanza <ngx-flicking> occupa tutta l’altezza del wrapper hero */
 .flicking-hero > ngx-flicking {
-  display: block;   /* di default è inline-level; lo porto a block-level */
-  height: 100%;     /* prendo l’altezza fissata sul wrapper (.flicking-hero) */
+  display: block;   /* il componente Angular diventa block-level */
+  height: 100%;     /* prende l’altezza del wrapper (.flicking-hero) */
 }
 
-/* 2) Anche viewport e camera interne devono allungarsi a 100% dell’hero */
+/* 2) Viewport e camera interne si allungano a 100% dell’hero */
 :host ::ng-deep .flicking-hero .flicking-viewport,
 :host ::ng-deep .flicking-hero .flicking-camera {
   height: 100%;
@@ -286,25 +286,23 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 
 /* =============================================================================
    RESPONSIVE — MOBILE (≤ 768px)
-   - HERO a schermo pieno (100vh)
-   - Titolo dimensionato per mobile
-   - Card non-hero più “piatte” e senza angoli
+   - HERO a schermo pieno (100vh). Valutare 100svh/100dvh per iOS se necessario.
+   - Titoli e caption dimensionati per schermi piccoli.
    ========================================================================== */
 @media (max-width: 768px) {
   .home-container { padding: 0; }
 
-  /* HERO mobile: full viewport (valuta 100dvh/svh su iOS se serve) */
+  /* HERO mobile: full viewport */
   .flicking-hero { height: 100vh; }
 
-  /* Titolo in scala per mobile */
-  .carousel-title { font-size: 24px; }
+  /* Pannelli non-hero: margini più stretti */
+  .carosello-panel { margin: 0 6px; border-radius: 0; }
 
-  /* Pannelli NON-hero su mobile: margini più stretti, senza radius */
-  .carosello-panel {
-    margin: 0 6px;
-    border-radius: 0;
-  }
+  /* Testi */
+  .carousel-title { font-size: clamp(20px, 5.2vw, 36px); }
+  .panel-caption__text { font-size: clamp(14px, 3.8vw, 22px); }
 
+  /* Controlli */
   :host ::ng-deep .flicking-pagination { margin-top: 8px; }
   :host ::ng-deep .flicking-arrow-prev { left: 16px !important; }
   :host ::ng-deep .flicking-arrow-next { right: 16px !important; }
@@ -322,24 +320,23 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 /* =============================================================================
    RESPONSIVE — DESKTOP (≥ 769px)
    - HERO più basso (70vh)
-   - Titolo più grande
+   - Titoli/caption più grandi
    - Card non-hero con radius e margini più ampi
    ========================================================================== */
 @media (min-width: 769px) {
   .home-container { padding: 0; }
 
-  /* HERO desktop: 70vh come obiettivo estetico */
+  /* HERO desktop: 70vh per un rapporto estetico bilanciato */
   .flicking-hero { height: 70vh; }
 
-  /* Titolo in scala per desktop */
-  .carousel-title { font-size: 36px; }
+  /* Pannelli non-hero: più respiro e angoli arrotondati */
+  .carosello-panel { margin: 0 10px; border-radius: 12px; }
 
-  /* Pannelli NON-hero su desktop: più respiro e angoli arrotondati */
-  .carosello-panel {
-    margin: 0 10px;
-    border-radius: 12px;
-  }
+  /* Testi */
+  .carousel-title { font-size: clamp(28px, 3.6vw, 56px); }
+  .panel-caption__text { font-size: clamp(16px, 2.2vw, 28px); }
 
+  /* Controlli */
   :host ::ng-deep .flicking-pagination { margin-top: 14px; }
   :host ::ng-deep .flicking-arrow-prev { left: 40px !important; }
   :host ::ng-deep .flicking-arrow-next { right: 40px !important; }
@@ -356,14 +353,21 @@ In breve: il > serve per precisione e per evitare che la regola di altezza venga
 
 /* =============================================================================
    ANIMAZIONI CAROSELLO (classe applicata su cambio slide)
-   - Uso .zoom-enter come classe di animazione riattivabile ad ogni change.
+   - .zoom-enter: re-trigger ad ogni change (remove → reflow → add in TS).
    ========================================================================== */
 @keyframes zoomInReturnLinear {
-  0% { transform: scale(1.1); opacity: 0.7; }
-  100% { transform: scale(1);   opacity: 1; }
+  0% { transform: scale(1.08); opacity: 0.75; }
+  100% { transform: scale(1);    opacity: 1; }
 }
 
 .zoom-enter {
   animation: zoomInReturnLinear 1000ms linear both;
   transform-origin: center center;
 }
+
+/* =============================================================================
+   NOTA DI COMPATIBILITÀ (pulizia classi legacy)
+   - Eventuali vecchie classi come .carousel-panels-name sono state sostituite
+     dalla caption per-pannello: .panel-caption + .panel-caption__text.
+   - Lasciare rimosse per evitare duplicazioni/confusione.
+   ========================================================================== */

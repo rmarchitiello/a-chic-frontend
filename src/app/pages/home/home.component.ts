@@ -271,7 +271,7 @@ Occhio nu ngx-flicking abbiamo anche l evento (ready)="onReadyCarosello($event)"
   1)  Tutte le reference ovvero tutti i ViewChild o ViewChildre, li salvo nell afterviewinit perche prende i riferimenti angular
   2)  Tutti i pannelli figli ecc ecc li devo caricare in un evento (ready) 
   
-  Nel mio caso in after view init converto i miei NgxFlickingComponent per dire guarda ho 4 5 6 caroselli e cosi via..
+  Quindi di solito le reference vengono messe nella after view init ma ora, le metto nell on ready perche la reference e su ngx-flicking carosello dinamico
 
   Se voglio conoscere in ogni carosello quanta roba ce allora nell evento ready inserisco tutto quello che voglio sapere per esempio loggare 
   this.console.log("aaaaaa", this.flickingTagsArray[0]?.panels.length);
@@ -565,10 +565,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
 setArrowSxMap: Record<number, boolean> = {};
 setArrowDxMap: Record<number, boolean> = {};
 
-onReadyCarosello(event: any, car: ImieiCaroselli, i: number) {
+
+
+onReadyCarosello($event: any, car: ImieiCaroselli, i: number) {
+      /* Recupero i NgxFlickingComponent[]*/
+    this.flickingTagsArray = this.flickingTagRefs.toArray();
+    console.log("Count di quanti <ngx-flicking> con ref flickingTags abbiamo: ", this.flickingTagsArray.length);
   // Prendo la ref del carosello corrente dalla mia QueryList.
   const flick = this.flickingTagsArray?.[i];
-
   // Se per qualsiasi motivo non ho la ref, imposto uno stato sicuro e termino.
   if (!flick) {
     this.setArrowSxMap[i] = false; // prev nascosta
@@ -708,7 +712,6 @@ onChangedCarosello(event: any, car: ImieiCaroselli, i: number) {
     if(getMediaCollection){
          displayNames = getMediaCollection.items
           .map(item => item.context.display_name ?? '');
-      console.log("Display name from folder context etsratti: ", displayNames);
     }
 
     return displayNames;
@@ -733,6 +736,7 @@ caricaTuttiICaroselli(): void {
     Ogni carosello ha dei pannelli (che sono i media) per ogni pannello voglio visualizzare il suo display name 
     Esempio nel carosello ho 10 media (sempre di tipo frontale) come sappiamo ogni media frontale ha un suo context
     Di quel media frontale voglio il context da passare alla create perche quando cambio slide voglio visualizzare il nome corrente
+    Quindi nella create passo il metodo this.getDisplaysNameFromFolder(this.carosello.folder) che in base alla folder recupera tutti i display name presenti
   */
 
   this.carousels = [
@@ -801,8 +805,8 @@ caricaTuttiICaroselli(): void {
     })
   ];
 
-  console.log("Caroselli caricati: ", JSON.stringify(this.carousels));
 
+  console.log("Caroselli creati: ", JSON.stringify(this.carousels));
 
 }
 
@@ -852,7 +856,6 @@ saveDataHomeInput: MediaCollection[] = [];
                     if (!Array.isArray(data)) return;
                     if(data.length === 0) return; //evito lazy loading
                     this.saveDataHomeInput = data;
-          console.log("Coll caricata: ", JSON.stringify(this.saveDataHomeInput)); 
           // Funzione locale: trova una collezione la cui folder termina con il tail indicato.
           // Esempio: tail "config/home/carosello" o semplicemente "/carosello".
           const findByTail = (tail: string) =>
@@ -918,9 +921,7 @@ saveDataHomeInput: MediaCollection[] = [];
 
   ngAfterViewInit(): void {
 
-    /* Recupero i NgxFlickingComponent[]*/
-    this.flickingTagsArray = this.flickingTagRefs.toArray();
-    console.log("Count di quanti <ngx-flicking> con ref flickingTags abbiamo: ", this.flickingTagsArray.length);
+
 
     // Avvio silenzioso dei video dopo il rendering, con fallback in caso di policy browser.
     setTimeout(() => {
