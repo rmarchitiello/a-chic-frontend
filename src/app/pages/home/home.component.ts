@@ -523,18 +523,21 @@ import { createCarousel} from '../../shared/factories/manage-carousel/flicking/c
 import { ViewChildren } from '@angular/core';
 import { NgxFlickingComponent } from '@egjs/ngx-flicking';
 
+import { RevealOnScrollDirective } from '../../directives/reveal-on-scroll.directive';
+
 @Component({
   selector: 'app-home',
   standalone: true,
   templateUrl: './home.component.html',
-  styleUrl: './home.component.scss',
+  styleUrls: ['./home.component.scss'],
   imports: [
     CommonModule,
     MatIconModule,
     MatButtonModule,
     MatCardModule,
     MatTooltipModule,
-    NgxFlickingModule
+    NgxFlickingModule,
+    RevealOnScrollDirective   
   ]
 })
 export class HomeComponent implements OnInit, AfterViewInit {
@@ -770,7 +773,7 @@ caricaTuttiICaroselli(): void {
       wrapperTitoloSezioneClass: ['wrapper-titolo'],
       titoloSezioneClass: ['titolo'],
 
-      wrapperClass: grid(3),                 // << by-3 su desktop
+      wrapperClass: grid(2),                 // << by-3 su desktop
       panelClass: ['pannelli-carosello'],
 
       panelsName: this.getDisplaysNameFromFolder(this.modelliInEvidenza.folder),

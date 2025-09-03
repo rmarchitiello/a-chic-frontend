@@ -1,7 +1,7 @@
 /* ============================================================================
    COME USARE LE CLASSI (riassunto operativo)
    ----------------------------------------------------------------------------
-   Nel TS passa le classi così:
+   Nel TS passa le classi così (array per ngClass):
      wrapperTitoloSezioneClass: ['wrapper-titolo']
      titoloSezioneClass:        ['titolo']
      wrapperClass:              ['wrapper-carosello', 'by-3']  // es.: 3 card per viewport
@@ -16,25 +16,32 @@
    Griglie mobile (≤768px):
      'by-1'  → 1 card a viewport (default hero, altezza ~100vh)
      'by-2'  → 2 card per viewport (opzionale su mobile)
-     'by-3/4' sono supportate ma sconsigliate su schermi piccoli.
+     'by-3' e 'by-4'  → supportate ma sconsigliate (spazi molto ridotti)
 
-   Variabili CSS del wrapper (sovrascrivibili per sezione aggiungendo altre classi):
+   Variabili CSS sul wrapper (customizzabili per singola sezione aggiungendo altre classi):
      --gap-x   → spaziatura orizzontale tra pannelli
-     --panel-h → altezza dei pannelli
+     --panel-h → altezza dei pannelli (propagata a viewport/camera e ai pannelli)
    ============================================================================ */
 
 
 /* ============================================================================
    MOBILE (≤ 768px)
-   In questa sezione imposto tutti gli stili per smartphone e piccoli tablet.
-   Replico i selettori necessari, senza definire nulla fuori dai media query.
+   In questa sezione si impostano tutti gli stili per smartphone e piccoli tablet.
+   Si replicano solo i selettori necessari; nessuno stile è definito fuori da
+   questa media query per evitare conflitti.
    ============================================================================ */
 @media (max-width: 768px) {
-  /* Struttura pagina */
+  /* Struttura pagina di base (contenitori principali) */
   :host { display: block; background: #fff; }
-  .home, .home-container { background: #fff; width: 100%; margin: 0 auto; padding: 0; }
+  .home,
+  .home-container {
+    background: #fff;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
 
-  /* Header admin: tengo solo l'icona di modifica */
+  /* Header admin: contiene esclusivamente il pulsante “modifica” */
   .carousel-section-header {
     position: relative;
     display: flex;
@@ -44,15 +51,16 @@
 
     .edit-admin-icon {
       position: absolute;
-      top: 8px; right: 8px;
-      z-index: 10; /* deve stare sopra ai contenuti della sezione */
+      top: 8px;
+      right: 8px;
+      z-index: 10;                 /* sopra ai contenuti della sezione */
       background: rgba(255, 255, 255, 0.9);
 
-      mat-icon { color: #000; }
+      mat-icon { color: #000; }    /* leggibilità su fondo chiaro */
     }
   }
 
-  /* Titolo sezione (sopra al carosello) */
+  /* Titolo sezione (sempre SOPRA al carosello, non overlay) */
   .wrapper-titolo { margin: 0 0 .5rem 0; }
   .titolo {
     margin: 0;
@@ -61,15 +69,45 @@
     line-height: 1.15;
     text-align: left;
     font-size: clamp(20px, 5.2vw, 32px);
-    white-space: normal;        /* faccio andare a capo il testo lungo */
-    overflow-wrap: anywhere;    /* spezzo anche parole lunghe */
-    word-break: break-word;     /* fallback */
-    hyphens: auto;              /* trattini automatici dove supportato */
+    /* gestione testi lunghi e parole senza spazi */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  /* ---------- REVEAL (direttiva appRevealOnScroll) ----------
+     La direttiva aggiunge .is-reveal-init all'inizio e poi .reveal-up
+     quando l'elemento entra in viewport. Qui definisco gli stati:
+     - wrapper del titolo
+     - wrapper del carosello
+     - pannelli interni (stagger opzionale via --stagger) */
+
+  /* Titolo: stato iniziale e stato rivelato */
+  .wrapper-titolo.is-reveal-init { opacity: 0; transform: translateY(16px); }
+  .wrapper-titolo.reveal-up {
+    opacity: 1; transform: none;
+    transition: opacity .55s ease, transform .55s ease;
+  }
+
+  /* Wrapper carosello: fade/translate generale del blocco */
+  .wrapper-carosello.is-reveal-init { opacity: 0; transform: translateY(24px); }
+  .wrapper-carosello.reveal-up {
+    opacity: 1; transform: none;
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  /* Stagger dei pannelli quando è il wrapper a rivelarsi */
+  .wrapper-carosello.is-reveal-init [flicking-panel] { opacity: 0; transform: translateY(16px); }
+  .wrapper-carosello.reveal-up [flicking-panel] {
+    opacity: 1; transform: none;
+    transition: opacity .5s ease, transform .5s ease;
+    transition-delay: var(--stagger, 0ms); /* impostata inline nel template */
   }
 
   /* Wrapper del carosello:
-     - lo uso come ancoraggio per frecce/paginazione
-     - imposto variabili per altezza e gap di default mobile */
+     - è l’ancora per frecce/paginazione (posizionamento assoluto interno)
+     - definisce le variabili di layout mobile (altezza e gap) */
   .wrapper-carosello {
     position: relative;
     overflow: hidden;
@@ -77,23 +115,23 @@
     display: block;
 
     /* default mobile */
-    --gap-x: 12px;
-    --panel-h: 100vh;  /* hero a pieno schermo su mobile */
+    --gap-x: 12px;   /* spazio tra card */
+    --panel-h: 100vh;/* hero a pieno schermo su mobile */
   }
 
-  /* L’istanza Angular e gli interni di Flicking ereditano l’altezza */
+  /* Propagazione dell’altezza nel DOM generato da Flicking */
   .wrapper-carosello > ngx-flicking { display: block; height: var(--panel-h); }
   :host ::ng-deep .wrapper-carosello .flicking-viewport,
   :host ::ng-deep .wrapper-carosello .flicking-camera { height: var(--panel-h); }
 
-  /* Pannelli del carosello (classe passata via [ngClass]) */
+  /* Pannelli del carosello (classe assegnata ai <div flicking-panel>) */
   .pannelli-carosello {
     box-sizing: border-box;
     position: relative;              /* necessario per la caption interna */
     overflow: hidden;
     width: 100%;
-    height: var(--panel-h);          /* seguo l'altezza del wrapper */
-    margin: 0;                       /* nessun gap forzato; lo gestiscono le griglie */
+    height: var(--panel-h);          /* segue l’altezza del wrapper */
+    margin: 0;                       /* nessun gap: lo gestiscono le griglie by-N */
     border-radius: 0;
     display: flex;
     align-items: center;
@@ -101,14 +139,16 @@
     cursor: pointer;
     background: #111;
 
-    img, video {
+    /* Media interni */
+    img,
+    video {
       width: 100%;
       height: 100%;
-      object-fit: cover;             /* riempio senza distorsioni */
+      object-fit: cover;             /* riempie senza distorsioni */
       object-position: center;
       display: block;
       background: #000;
-      -webkit-user-drag: none;       /* evito drag nativo */
+      -webkit-user-drag: none;       /* evita drag nativo su mobile */
       user-select: none;
       -webkit-user-select: none;
     }
@@ -116,23 +156,32 @@
     audio { width: 80%; display: block; }
   }
 
-  /* Griglie mobile: width dei pannelli in base alla classe by-N sul wrapper */
-  .wrapper-carosello.by-1 [flicking-panel] { width: 100%; margin-right: 0; }
+  /* -------- Griglie mobile by-N (applicate sul wrapper) --------
+     Ogni regola imposta la width dei [flicking-panel] in base a --gap-x.
+     NB: Flicking gestisce lo scorrimento; qui si imposta solo la larghezza delle card. */
 
-  .wrapper-carosello.by-2 { --panel-h: 60vh; } /* più compatto quando mostro 2-up */
+  /* 1 card per viewport (hero) */
+  .wrapper-carosello.by-1 [flicking-panel] {
+    width: 100%;
+    margin-right: 0;
+  }
+
+  /* 2 card per viewport (compatta) */
+  .wrapper-carosello.by-2 { --panel-h: 60vh; } /* altezza meno invadente */
   .wrapper-carosello.by-2 [flicking-panel] {
     width: calc((100% - var(--gap-x)) / 2);
     margin-right: var(--gap-x);
   }
 
-  /* Supporto (eventuale) per 3/4 su mobile: altezze più basse */
-  .wrapper-carosello.by-3,
-  .wrapper-carosello.by-4 { --panel-h: 48vh; }
-
+  /* 3 card per viewport (sconsigliata su schermi piccoli, ma supportata) */
+  .wrapper-carosello.by-3 { --panel-h: 48vh; }
   .wrapper-carosello.by-3 [flicking-panel] {
     width: calc((100% - (var(--gap-x) * 2)) / 3);
     margin-right: var(--gap-x);
   }
+
+  /* 4 card per viewport (sconsigliata su schermi piccoli, ma supportata) */
+  .wrapper-carosello.by-4 { --panel-h: 48vh; }
   .wrapper-carosello.by-4 [flicking-panel] {
     width: calc((100% - (var(--gap-x) * 3)) / 4);
     margin-right: var(--gap-x);
@@ -143,8 +192,8 @@
     position: absolute;
     inset: 0;
     display: grid;
-    place-items: center;             /* centro perfetto */
-    pointer-events: none;            /* non blocco swipe/click */
+    place-items: center;             /* centratura orizzontale+verticale */
+    pointer-events: none;            /* non blocca swipe/click */
     z-index: 1;                      /* sotto frecce/paginazione */
   }
   .panel-caption__text {
@@ -160,9 +209,14 @@
   }
 
   /* Placeholder quando non ci sono media */
-  .media-placeholder { font-size: 14px; color: #999; text-align: center; padding: 1rem; }
+  .media-placeholder {
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+    padding: 1rem;
+  }
 
-  /* UI plugin Flicking: frecce e paginazione */
+  /* UI plugin Flicking: utilità/controlli */
   :host ::ng-deep .none { opacity: 0; visibility: hidden; pointer-events: none; }
 
   :host ::ng-deep .flicking-arrow-prev,
@@ -170,7 +224,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 3;                     /* sopra caption */
+    z-index: 3;                     /* sopra la caption */
   }
   :host ::ng-deep .flicking-arrow-prev { left: 16px !important; }
   :host ::ng-deep .flicking-arrow-next { right: 16px !important; }
@@ -180,37 +234,54 @@
     text-align: center;
     z-index: 3;
   }
+  /* Paginazione interna all’hero */
   :host ::ng-deep .wrapper-carosello .flicking-pagination {
-    position: absolute; left: 0; right: 0; bottom: 24px; margin-top: 0; z-index: 3;
+    position: absolute;
+    left: 0; right: 0; bottom: 24px;
+    margin-top: 0;
+    z-index: 3;
   }
+
   :host ::ng-deep .flicking-pagination-bullet {
     display: inline-block;
-    width: 8px; height: 8px; margin: 0 4px; border-radius: 50%;
+    width: 8px; height: 8px;
+    margin: 0 4px;
+    border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.25);
-    cursor: pointer; transition: background-color 0.2s;
+    cursor: pointer;
+    transition: background-color 0.2s;
   }
   :host ::ng-deep .flicking-pagination-bullet-active { background-color: #111; }
 
-  /* Animazione per cambio slide (ri-triggherata in TS) */
+  /* Animazione da applicare al cambio slide (classe aggiunta via TS) */
   @keyframes zoomInReturnLinear {
     0% { transform: scale(1.08); opacity: 0.75; }
     100% { transform: scale(1);    opacity: 1; }
   }
-  .zoom-enter { animation: zoomInReturnLinear 1000ms linear both; transform-origin: center center; }
+  .zoom-enter {
+    animation: zoomInReturnLinear 1000ms linear both;
+    transform-origin: center center;
+  }
 }
 
 
 /* ============================================================================
    DESKTOP (≥ 769px)
-   In questa sezione imposto gli stili per desktop e laptop. Replico i selettori
-   necessari, ottimizzando altezze, spazi e tipografia per schermi ampi.
+   In questa sezione si impostano gli stili per desktop e laptop. Le altezze,
+   le spaziature e la tipografia sono ottimizzate per schermi ampi.
    ============================================================================ */
 @media (min-width: 769px) {
-  /* Struttura pagina */
+  /* Struttura pagina di base (contenitori principali) */
   :host { display: block; background: #fff; }
-  .home, .home-container { background: #fff; width: 100%; margin: 0 auto; padding: 0; }
+  .home,
+  .home-container {
+    background: #fff;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
 
-  /* Header admin */
+  /* Header admin: come mobile ma con margini regolati */
   .carousel-section-header {
     position: relative;
     display: flex;
@@ -220,7 +291,8 @@
 
     .edit-admin-icon {
       position: absolute;
-      top: 16px; right: 16px;
+      top: 16px;
+      right: 16px;
       z-index: 10;
       background: rgba(255, 255, 255, 0.75);
 
@@ -243,7 +315,31 @@
     hyphens: auto;
   }
 
-  /* Wrapper del carosello: ancoraggio per frecce/paginazione + variabili default */
+  /* ---------- REVEAL (direttiva appRevealOnScroll) ----------
+     Duplico anche su desktop, così il comportamento è coerente. */
+
+  .wrapper-titolo.is-reveal-init { opacity: 0; transform: translateY(18px); }
+  .wrapper-titolo.reveal-up {
+    opacity: 1; transform: none;
+    transition: opacity .55s ease, transform .55s ease;
+  }
+
+  .wrapper-carosello.is-reveal-init { opacity: 0; transform: translateY(28px); }
+  .wrapper-carosello.reveal-up {
+    opacity: 1; transform: none;
+    transition: opacity .6s ease, transform .6s ease;
+  }
+
+  .wrapper-carosello.is-reveal-init [flicking-panel] { opacity: 0; transform: translateY(18px); }
+  .wrapper-carosello.reveal-up [flicking-panel] {
+    opacity: 1; transform: none;
+    transition: opacity .5s ease, transform .5s ease;
+    transition-delay: var(--stagger, 0ms);
+  }
+
+  /* Wrapper del carosello:
+     - ancora per frecce/paginazione
+     - default desktop: gap più ampio e altezza standard */
   .wrapper-carosello {
     position: relative;
     overflow: hidden;
@@ -252,10 +348,10 @@
 
     /* default desktop */
     --gap-x: 24px;
-    --panel-h: 480px;
+    --panel-h: 480px;  /* altezza base per griglie multi-carta */
   }
 
-  /* L’istanza Angular e gli interni di Flicking ereditano l’altezza */
+  /* Propagazione dell’altezza nel DOM generato da Flicking */
   .wrapper-carosello > ngx-flicking { display: block; height: var(--panel-h); }
   :host ::ng-deep .wrapper-carosello .flicking-viewport,
   :host ::ng-deep .wrapper-carosello .flicking-camera { height: var(--panel-h); }
@@ -267,15 +363,16 @@
     overflow: hidden;
     width: 100%;
     height: var(--panel-h);
-    margin: 0;                 /* per hero: niente gap tra slide (lo danno le by-N) */
-    border-radius: 0;          /* si può arrotondare in layout “card” */
+    margin: 0;                 /* il “gap” è demandato alla griglia by-N */
+    border-radius: 0;          /* si può arrotondare se si adottano layout “card” */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     background: #111;
 
-    img, video {
+    img,
+    video {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -290,33 +387,37 @@
     audio { width: 70%; display: block; }
   }
 
-  /* ---------------- Griglie desktop by-N ----------------
-     Applico la classe by-N al wrapper per determinare quante card
-     devono stare in viewport. Le larghezze sono calcolate considerando --gap-x.
-  */
-  .wrapper-carosello.by-1 { --panel-h: 70vh; } /* hero */
+  /* ---------------- Griglie desktop by-N (applicate sul wrapper) ---------------
+     Le larghezze pannello sono calcolate con --gap-x. Di default lasciamo un
+     margin-right sul pannello; l’ultimo viene azzerato per evitare “bordo bianco”. */
+
+  /* 1 card per viewport (hero): full bleed, altezza responsiva */
+  .wrapper-carosello.by-1 { --panel-h: 70vh; }
   .wrapper-carosello.by-1 [flicking-panel] { width: 100%; margin-right: 0; }
 
+  /* 2 card per viewport */
   .wrapper-carosello.by-2 [flicking-panel] {
     width: calc((100% - var(--gap-x)) / 2);
     margin-right: var(--gap-x);
   }
 
+  /* 3 card per viewport */
   .wrapper-carosello.by-3 [flicking-panel] {
     width: calc((100% - (var(--gap-x) * 2)) / 3);
     margin-right: var(--gap-x);
   }
 
+  /* 4 card per viewport */
   .wrapper-carosello.by-4 [flicking-panel] {
     width: calc((100% - (var(--gap-x) * 3)) / 4);
     margin-right: var(--gap-x);
   }
 
-  /* Variante più compatta per griglie fitte */
+  /* Variante compatta per griglie fitte (riduce l’altezza) */
   .wrapper-carosello.by-3,
   .wrapper-carosello.by-4 { --panel-h: 420px; }
 
-  /* Togli il gap sull’ultimo pannello per evitare il “bordo bianco” a destra */
+  /* Rimuove il gap sull’ultimo pannello visibile */
   :host ::ng-deep .wrapper-carosello .flicking-camera > [flicking-panel]:last-child {
     margin-right: 0;
   }
@@ -343,9 +444,14 @@
   }
 
   /* Placeholder quando non ci sono media */
-  .media-placeholder { font-size: 14px; color: #999; text-align: center; padding: 1rem; }
+  .media-placeholder {
+    font-size: 14px;
+    color: #999;
+    text-align: center;
+    padding: 1rem;
+  }
 
-  /* UI plugin Flicking: frecce e paginazione */
+  /* UI plugin Flicking: utilità/controlli */
   :host ::ng-deep .none { opacity: 0; visibility: hidden; pointer-events: none; }
 
   :host ::ng-deep .flicking-arrow-prev,
@@ -359,25 +465,35 @@
   :host ::ng-deep .flicking-arrow-next { right: 40px !important; }
 
   :host ::ng-deep .flicking-pagination {
-    margin-top: 14px;          /* per caroselli non hero */
+    margin-top: 14px;          /* usata quando la paginazione è esterna all’hero */
     text-align: center;
     z-index: 3;
   }
+  /* Paginazione interna all’area del carosello (hero) */
   :host ::ng-deep .wrapper-carosello .flicking-pagination {
-    position: absolute; left: 0; right: 0; bottom: 24px; margin-top: 0; z-index: 3;
+    position: absolute;
+    left: 0; right: 0; bottom: 24px;
+    margin-top: 0;
+    z-index: 3;
   }
   :host ::ng-deep .flicking-pagination-bullet {
     display: inline-block;
-    width: 8px; height: 8px; margin: 0 4px; border-radius: 50%;
+    width: 8px; height: 8px;
+    margin: 0 4px;
+    border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.25);
-    cursor: pointer; transition: background-color 0.2s;
+    cursor: pointer;
+    transition: background-color 0.2s;
   }
   :host ::ng-deep .flicking-pagination-bullet-active { background-color: #111; }
 
-  /* Animazione per cambio slide (ri-triggherata in TS) */
+  /* Animazione da applicare al cambio slide (classe aggiunta via TS) */
   @keyframes zoomInReturnLinear {
     0% { transform: scale(1.08); opacity: 0.75; }
     100% { transform: scale(1);    opacity: 1; }
   }
-  .zoom-enter { animation: zoomInReturnLinear 1000ms linear both; transform-origin: center center; }
+  .zoom-enter {
+    animation: zoomInReturnLinear 1000ms linear both;
+    transform-origin: center center;
+  }
 }

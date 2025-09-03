@@ -6,12 +6,19 @@
      2) Il "panel name" (display_name del media) è mostrato al CENTRO di OGNI pannello,
         come caption interna al singolo flicking-panel.
 
+     Direttiva di reveal:
+     - [appRevealOnScroll] applica una transizione quando l’elemento entra in viewport.
+     - Accetta:
+         • una stringa/classe singola (es. "reveal-up"), oppure
+         • un oggetto di opzioni { addClass, threshold, rootMargin, once, initialClass }.
+     - Richiede nel CSS la classe di stato iniziale .is-reveal-init e la/e classe/i finale/i
+       (es. .reveal-up) come da SCSS condiviso.
+
      Note architetturali:
      - Iterazione su `carousels` (factory): ogni voce configura un carosello/sezione.
      - Ogni carosello espone: car.options, car.plugins, car.data.items, car.otherOption.
      - Eventi: (ready) e (changed) gestiscono frecce e animazioni via TS.
-     - Visibilità frecce/pallini: controllata da car.hasArrow / car.hasBullet e dalle mappe
-       setArrowSxMap[i] (true = prev visibile) / setArrowDxMap[i] (true = next nascosta).
+     - Visibilità frecce/pallini: da car.hasArrow / car.hasBullet e mappe setArrowSxMap / setArrowDxMap.
 
      Requisiti lato TS già previsti:
        trackByIndex(index: number, _: any): number
@@ -20,23 +27,22 @@
        onReadyCarosello(event: any, car: ImieiCaroselli, i: number): void
        onChangedCarosello(event: any, car: ImieiCaroselli, i: number): void
        apriPopUpEditorAdmin(key: string): void
-       setArrowSxMap: Record<number, boolean>  // true = freccia sinistra visibile
-       setArrowDxMap: Record<number, boolean>  // true = freccia destra nascosta
+       setArrowSxMap: Record<number, boolean>
+       setArrowDxMap: Record<number, boolean)
 
      Accessibilità:
        - <ngx-flicking> usa aria-roledescription="carousel".
-       - Se è presente il titolo di sezione, il carosello lo referenzia via aria-labelledby.
-       - Le caption per-pannello sono aria-hidden="true" (decorative) e non intercettano tocchi.
-       - Le frecce restano sopra alle caption (z-index superiore) e sono interattive.
+       - Se presente il titolo di sezione, il carosello lo referenzia via aria-labelledby.
+       - Le caption per-pannello sono aria-hidden="true" e non intercettano tocchi.
    ============================================================================ -->
 
 <section class="home" aria-label="Sezione principale Home">
   <div class="home-container">
 
-    <!-- Iterazione dinamica su tutti i caroselli configurati -->
+    <!-- Iterazione dinamica su tutti i caroselli -->
     <ng-container *ngFor="let car of carousels; let i = index; trackBy: trackByIndex">
 
-      <!-- Header sezione esterno al carosello: contiene solo il pulsante admin -->
+      <!-- Header sezione: solo pulsante admin -->
       <div class="carousel-section-header" *ngIf="isAdmin">
         <button
           mat-icon-button
@@ -48,22 +54,31 @@
         </button>
       </div>
 
-      <!-- TITOLO SEZIONE sopra il carosello (introduzione, non overlay) -->
-      <div [ngClass]="car.otherOption.wrapperTitoloSezioneClass" *ngIf="car.otherOption.titoloSezione">
-        <!-- id univoco per l’associazione ARIA -->
-        <h2 [ngClass]="car.otherOption.titoloSezioneClass" [attr.id]="'carousel-title-' + i">
+      <!-- TITOLO SEZIONE (introduzione sopra il carosello)
+           - Direttiva appRevealOnScroll in forma SEMPLICE (stringa):
+             all’entrata in viewport rimuove .is-reveal-init e aggiunge .reveal-up. -->
+      <div
+        *ngIf="car.otherOption.titoloSezione"
+        [ngClass]="car.otherOption.wrapperTitoloSezioneClass"
+        appRevealOnScroll="reveal-up">
+        <h2
+          [ngClass]="car.otherOption.titoloSezioneClass"
+          [attr.id]="'carousel-title-' + i">
           {{ car.otherOption.titoloSezione }}
         </h2>
       </div>
 
-      <!-- WRAPPER CAROSELLO:
-           - Contiene SOLO il carosello e i controlli interni (frecce/paginazione).
-           - Deve essere position: relative (gestito via SCSS sulle classi wrapper). -->
-      <div  [ngClass]="car.otherOption.wrapperClass">
+      <!-- WRAPPER CAROSELLO
+           - Direttiva appRevealOnScroll in forma AVANZATA (oggetto opzioni):
+             once:true → rivela una sola volta
+             threshold:0.15 → innesca quando ~15% è visibile
+             rootMargin:'0px 0px -12% 0px' → anticipa leggermente l’innesco
+           - Nota: la classe finale 'reveal-up' deve esistere nel tuo SCSS. -->
+      <div
+        [ngClass]="car.otherOption.wrapperClass"
+        [appRevealOnScroll]="{ addClass: 'reveal-up', once: true, threshold: 0.15, rootMargin: '0px 0px -12% 0px' }">
 
-        <!-- NGX-FLICKING:
-             - Include i pannelli e l’UI interna (frecce/paginazione).
-             - L’introduzione (titolo sezione) è esterna a <ngx-flicking>. -->
+        <!-- NGX-FLICKING -->
         <ngx-flicking
           #flickingTags
           [options]="car.options"
@@ -75,12 +90,15 @@
           [attr.aria-label]="!car.otherOption.titoloSezione ? 'Carosello' : null">
 
           <!-- PANNELLI DEL CAROSELLO -->
+           <!-- [ngStyle]="{'--stagger': (idx * 80) + 'ms'}" opzionale: sblocco uno “stagger” dei pannelli con una custom property -->
           <div
             flicking-panel
-            *ngFor="let item of car.data.items; trackBy: trackByIndex"
-            [ngClass]="car.otherOption.panelClass">
+            *ngFor="let item of car.data.items; trackBy: trackByIndex; let idx = index"
+            [ngClass]="car.otherOption.panelClass"
+            
+            [ngStyle]="{'--stagger': (idx * 80) + 'ms'}">
 
-            <!-- Render media solo se presenti; in caso contrario mostra placeholder -->
+            <!-- Media -->
             <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">
               <ng-container *ngIf="getMediaFrontale(item.media) as src">
                 <ng-container [ngSwitch]="item.context?.type">
@@ -111,25 +129,20 @@
               </ng-container>
             </ng-container>
 
-            <!-- CAPTION PER-PANNELLO (panel name centrato nel pannello)
-                 - Vive DENTRO il pannello per seguirne il lifecycle.
-                 - Non intercetta input (pointer-events:none).
-                 - Usa item.context?.display_name direttamente dal dato. -->
+            <!-- CAPTION per-pannello -->
             <div class="panel-caption" aria-hidden="true">
               <span class="panel-caption__text">
                 {{ item.context?.display_name }}
               </span>
             </div>
 
-            <!-- Placeholder se non ci sono media -->
+            <!-- Placeholder media mancante -->
             <ng-template #noMediaTpl>
               <div class="media-placeholder">Nessun media disponibile</div>
             </ng-template>
           </div>
 
-          <!-- FRECCE DI NAVIGAZIONE
-               - Non usare *ngIf per non rimuovere i nodi; nascondere via classe .none.
-               - La visibilità è controllata dalle mappe per indice di carosello. -->
+          <!-- FRECCE DI NAVIGAZIONE -->
           <span
             in-viewport
             class="flicking-arrow-prev"
@@ -144,7 +157,7 @@
             aria-label="Slide successiva">
           </span>
 
-          <!-- PAGINAZIONE (bullet) -->
+          <!-- PAGINAZIONE -->
           <div
             in-viewport
             class="flicking-pagination"
@@ -152,7 +165,7 @@
             aria-label="Paginazione carosello">
           </div>
         </ngx-flicking>
-      </div> <!-- /carousel-wrapper -->
+      </div> <!-- /wrapper carosello -->
     </ng-container>
   </div>
 </section>
