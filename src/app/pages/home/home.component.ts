@@ -726,41 +726,107 @@ onChangedCarosello(event: any, car: ImieiCaroselli, i: number) {
 
 
 caricaTuttiICaroselli(): void {
-  // Qui costruisco TUTTI i miei caroselli in modo coerente:
-  // per ognuno passo solo i parametri “semantici” a createCarousel.
-  // Dentro createCarousel verranno chiamate le mie micro-factory
-  // makeOptions(...) e makePlugins(...), così evito boilerplate.
-
-
-  /* MIGLIORIA
-    Ogni carosello ha dei pannelli (che sono i media) per ogni pannello voglio visualizzare il suo display name 
-    Esempio nel carosello ho 10 media (sempre di tipo frontale) come sappiamo ogni media frontale ha un suo context
-    Di quel media frontale voglio il context da passare alla create perche quando cambio slide voglio visualizzare il nome corrente
-    Quindi nella create passo il metodo this.getDisplaysNameFromFolder(this.carosello.folder) che in base alla folder recupera tutti i display name presenti
-  */
+  // Helper per comporre le classi del wrapper carosello:
+  // grid(1) -> ['wrapper-carosello','by-1'], grid(3) -> ['wrapper-carosello','by-3'], ecc.
+  const grid = (n: 1 | 2 | 3 | 4) => ['wrapper-carosello', `by-${n}`];
 
   this.carousels = [
-    // ───────────────────────────────── Hero full-screen ─────────────────────────────────
+    // ──────────────────────────────── HERO (1 per viewport) ────────────────────────────────
     createCarousel({
       data: this.carosello,
-      mode: 'no-scroll', //quando è no scroll è un carosello automatico non funzionano ne tasti e ne niente
+      mode: 'no-scroll',                // autoplay, niente input utente
       circular: true,
-      duration: 0, //durata delle slide piu e corta piu non c e l animazione
-      plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
+      duration: 0,
+      plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 },
+
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
-      titoloSezione: 'Questo sito e belloaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      wrapperTitoloSezioneClass: ['wrapper-titolo'], //contenitore del titolo
-      titoloSezioneClass: ['titolo'],  //qui dico per esempio il titolo del carosello che classe deve avere
-      wrapperClass: 'wrapper-carosello',          //come deve essere il carosello
-      panelClass: 'pannelli-carosello',               //come devono essere le slide
+
+      // Titolo di sezione SOPRA il carosello
+      titoloSezione: 'Hero',
+      wrapperTitoloSezioneClass: ['wrapper-titolo'],
+      titoloSezioneClass: ['titolo'],
+
+      // Classi del wrapper e dei pannelli (vedi SCSS: by-1 = hero full)
+      wrapperClass: grid(1),
+      panelClass: ['pannelli-carosello'],
+
       panelsName: this.getDisplaysNameFromFolder(this.carosello.folder),
-      onChangedCarosello: 'zoom-enter', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
-    })]
+      onChangedCarosello: 'zoom-enter',
+    }),
 
-  console.log("Caroselli creati: ", JSON.stringify(this.carousels));
+    // ─────────────────────────── Modelli in evidenza (3 per viewport) ─────────────────────
+    createCarousel({
+      data: this.modelliInEvidenza,
+      mode: 'freeScroll',
+      circular: false,
+      duration: 600,
+      plugins: { fade: false, arrow: true, pagination: 'bullet' },
 
+      editKey: 'modelliEvidenza',
+      tooltip: 'Modifica Modelli in Evidenza',
+
+      titoloSezione: 'Modelli in evidenza',
+      wrapperTitoloSezioneClass: ['wrapper-titolo'],
+      titoloSezioneClass: ['titolo'],
+
+      wrapperClass: grid(3),                 // << by-3 su desktop
+      panelClass: ['pannelli-carosello'],
+
+      panelsName: this.getDisplaysNameFromFolder(this.modelliInEvidenza.folder),
+      onChangedCarosello: '',
+    }),
+
+    // ──────────────────────────────── Best seller (4 per viewport) ─────────────────────────
+    createCarousel({
+      data: this.creazioni,
+      mode: 'freeScroll',
+      circular: true,
+      duration: 0,
+      plugins: { fade: true, arrow: false, pagination: false },
+
+      editKey: 'creazioni',
+      tooltip: 'Modifica le mie creazioni',
+
+      titoloSezione: 'Best seller',
+      wrapperTitoloSezioneClass: ['wrapper-titolo'],
+      titoloSezioneClass: ['titolo'],
+
+      wrapperClass: grid(4),                 // << by-4 su desktop
+      panelClass: ['pannelli-carosello'],
+
+      panelsName: this.getDisplaysNameFromFolder(this.creazioni.folder),
+      onChangedCarosello: 'zoom-enter',
+    }),
+
+    // ───────────────────────────────── Recensioni (1 per viewport) ─────────────────────────
+    createCarousel({
+      data: this.recensioni,
+      mode: 'snap',
+      circular: false,
+      duration: 400,
+      plugins: { fade: true, arrow: true, pagination: false },
+
+      editKey: 'recensioni',
+      tooltip: 'Modifica recensioni',
+
+      titoloSezione: 'Dicono di noi',
+      wrapperTitoloSezioneClass: ['wrapper-titolo'],
+      titoloSezioneClass: ['titolo'],
+
+      wrapperClass: grid(1),                 // << by-1 (slide singola a viewport)
+      panelClass: ['pannelli-carosello'],
+
+      panelsName: this.getDisplaysNameFromFolder(this.recensioni.folder),
+      onChangedCarosello: '',
+    }),
+  ];
+
+  // Log compatto per controllo classi applicate
+  console.log(
+    'Caroselli creati:', JSON.stringify(this.carousels));
 }
+
 
 saveDataHomeInput: MediaCollection[] = [];
 

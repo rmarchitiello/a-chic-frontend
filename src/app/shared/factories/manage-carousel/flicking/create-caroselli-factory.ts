@@ -39,8 +39,8 @@ export interface OtherOption {
   titoloSezione?: string;     // titolo opzionale sopra il carosello per introdurlo praticamente
   wrapperTitoloSezioneClass: string[]; //contenitore del titolo
   titoloSezioneClass: string[]; // classe CSS per come deve essere fatto il titolo della sezione
-  wrapperClass?: string;      // classe CSS per il <ngx-flicking>
-  panelClass?: string;        // classe CSS per i pannelli interni
+  wrapperClass: string[];      // classe CSS per il <ngx-flicking>
+  panelClass: string[];        // classe CSS per i pannelli interni
   panelsNames: string[]       //Nome dei vari pannelli ovvero slides
 }
 
@@ -94,8 +94,8 @@ export function createCarousel(params: {
   onChangedCarosello?: string;   // stringa: nome classe CSS che applico al cambio slide (es. 'zoom-enter')
   panelsName: string[];     //nome dei pannelli che sarebbero i display name
   // classi CSS
-  wrapperClass?: string;
-  panelClass?: string;
+  wrapperClass: string[];
+  panelClass: string[];
 }): ImieiCaroselli {
   // ───────────────────────────────── 1) OPTIONS  ─────────────────────────────────
   // Creo le options con la mia micro-factory. Qui decido *comportamento* (no-scroll/free/snap),
@@ -167,8 +167,8 @@ export function createCarousel(params: {
     titoloSezione: params.titoloSezione,
     wrapperTitoloSezioneClass: params.wrapperTitoloSezioneClass,
     titoloSezioneClass: params.titoloSezioneClass,
-    wrapperClass,
-    panelClass,
+    wrapperClass: params.wrapperClass,
+    panelClass: params.panelClass,
     panelsNames: params.panelsName
   };
 

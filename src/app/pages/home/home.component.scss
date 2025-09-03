@@ -1,4 +1,30 @@
 /* ============================================================================
+   COME USARE LE CLASSI (riassunto operativo)
+   ----------------------------------------------------------------------------
+   Nel TS passa le classi così:
+     wrapperTitoloSezioneClass: ['wrapper-titolo']
+     titoloSezioneClass:        ['titolo']
+     wrapperClass:              ['wrapper-carosello', 'by-3']  // es.: 3 card per viewport
+     panelClass:                ['pannelli-carosello']
+
+   Griglie desktop (≥769px):
+     'by-1'  → 1 card a viewport (hero full bleed, altezza ~70vh)
+     'by-2'  → 2 card per viewport
+     'by-3'  → 3 card per viewport
+     'by-4'  → 4 card per viewport
+
+   Griglie mobile (≤768px):
+     'by-1'  → 1 card a viewport (default hero, altezza ~100vh)
+     'by-2'  → 2 card per viewport (opzionale su mobile)
+     'by-3/4' sono supportate ma sconsigliate su schermi piccoli.
+
+   Variabili CSS del wrapper (sovrascrivibili per sezione aggiungendo altre classi):
+     --gap-x   → spaziatura orizzontale tra pannelli
+     --panel-h → altezza dei pannelli
+   ============================================================================ */
+
+
+/* ============================================================================
    MOBILE (≤ 768px)
    In questa sezione imposto tutti gli stili per smartphone e piccoli tablet.
    Replico i selettori necessari, senza definire nulla fuori dai media query.
@@ -14,7 +40,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin: 0.75rem 0;
+    margin: 0;
 
     .edit-admin-icon {
       position: absolute;
@@ -41,27 +67,33 @@
     hyphens: auto;              /* trattini automatici dove supportato */
   }
 
-  /* Wrapper del carosello: lo uso come ancoraggio per frecce/paginazione */
+  /* Wrapper del carosello:
+     - lo uso come ancoraggio per frecce/paginazione
+     - imposto variabili per altezza e gap di default mobile */
   .wrapper-carosello {
     position: relative;
     overflow: hidden;
     background: transparent;
     display: block;
-    height: 100vh;             /* su mobile faccio un hero full-screen */
+
+    /* default mobile */
+    --gap-x: 12px;
+    --panel-h: 100vh;  /* hero a pieno schermo su mobile */
   }
-  /* Faccio sì che l'istanza Angular occupi tutta l'altezza del wrapper */
-  .wrapper-carosello > ngx-flicking { display: block; height: 100%; }
-  /* Propago l'altezza all'interno del DOM generato da Flicking */
+
+  /* L’istanza Angular e gli interni di Flicking ereditano l’altezza */
+  .wrapper-carosello > ngx-flicking { display: block; height: var(--panel-h); }
   :host ::ng-deep .wrapper-carosello .flicking-viewport,
-  :host ::ng-deep .wrapper-carosello .flicking-camera { height: 100%; }
+  :host ::ng-deep .wrapper-carosello .flicking-camera { height: var(--panel-h); }
 
   /* Pannelli del carosello (classe passata via [ngClass]) */
   .pannelli-carosello {
+    box-sizing: border-box;
     position: relative;              /* necessario per la caption interna */
     overflow: hidden;
     width: 100%;
-    height: 100%;                    /* seguo l'altezza del wrapper */
-    margin: 0;                       /* nessun gap tra slide hero */
+    height: var(--panel-h);          /* seguo l'altezza del wrapper */
+    margin: 0;                       /* nessun gap forzato; lo gestiscono le griglie */
     border-radius: 0;
     display: flex;
     align-items: center;
@@ -82,6 +114,28 @@
     }
 
     audio { width: 80%; display: block; }
+  }
+
+  /* Griglie mobile: width dei pannelli in base alla classe by-N sul wrapper */
+  .wrapper-carosello.by-1 [flicking-panel] { width: 100%; margin-right: 0; }
+
+  .wrapper-carosello.by-2 { --panel-h: 60vh; } /* più compatto quando mostro 2-up */
+  .wrapper-carosello.by-2 [flicking-panel] {
+    width: calc((100% - var(--gap-x)) / 2);
+    margin-right: var(--gap-x);
+  }
+
+  /* Supporto (eventuale) per 3/4 su mobile: altezze più basse */
+  .wrapper-carosello.by-3,
+  .wrapper-carosello.by-4 { --panel-h: 48vh; }
+
+  .wrapper-carosello.by-3 [flicking-panel] {
+    width: calc((100% - (var(--gap-x) * 2)) / 3);
+    margin-right: var(--gap-x);
+  }
+  .wrapper-carosello.by-4 [flicking-panel] {
+    width: calc((100% - (var(--gap-x) * 3)) / 4);
+    margin-right: var(--gap-x);
   }
 
   /* Caption per slide (panel name centrato) */
@@ -145,6 +199,7 @@
   .zoom-enter { animation: zoomInReturnLinear 1000ms linear both; transform-origin: center center; }
 }
 
+
 /* ============================================================================
    DESKTOP (≥ 769px)
    In questa sezione imposto gli stili per desktop e laptop. Replico i selettori
@@ -161,7 +216,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin: 1rem 0 1.25rem;
+    margin: 0;
 
     .edit-admin-icon {
       position: absolute;
@@ -188,26 +243,32 @@
     hyphens: auto;
   }
 
-  /* Wrapper del carosello: ancoraggio per frecce/paginazione */
+  /* Wrapper del carosello: ancoraggio per frecce/paginazione + variabili default */
   .wrapper-carosello {
     position: relative;
     overflow: hidden;
     background: transparent;
     display: block;
-    height: 70vh;             /* su desktop mantengo un hero più basso e leggibile */
+
+    /* default desktop */
+    --gap-x: 24px;
+    --panel-h: 480px;
   }
-  .wrapper-carosello > ngx-flicking { display: block; height: 100%; }
+
+  /* L’istanza Angular e gli interni di Flicking ereditano l’altezza */
+  .wrapper-carosello > ngx-flicking { display: block; height: var(--panel-h); }
   :host ::ng-deep .wrapper-carosello .flicking-viewport,
-  :host ::ng-deep .wrapper-carosello .flicking-camera { height: 100%; }
+  :host ::ng-deep .wrapper-carosello .flicking-camera { height: var(--panel-h); }
 
   /* Pannelli del carosello */
   .pannelli-carosello {
+    box-sizing: border-box;
     position: relative;
     overflow: hidden;
     width: 100%;
-    height: 100%;
-    margin: 0;                 /* per hero: niente gap tra slide */
-    border-radius: 0;          /* posso arrotondare se usi layout “card” */
+    height: var(--panel-h);
+    margin: 0;                 /* per hero: niente gap tra slide (lo danno le by-N) */
+    border-radius: 0;          /* si può arrotondare in layout “card” */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -227,6 +288,37 @@
     }
 
     audio { width: 70%; display: block; }
+  }
+
+  /* ---------------- Griglie desktop by-N ----------------
+     Applico la classe by-N al wrapper per determinare quante card
+     devono stare in viewport. Le larghezze sono calcolate considerando --gap-x.
+  */
+  .wrapper-carosello.by-1 { --panel-h: 70vh; } /* hero */
+  .wrapper-carosello.by-1 [flicking-panel] { width: 100%; margin-right: 0; }
+
+  .wrapper-carosello.by-2 [flicking-panel] {
+    width: calc((100% - var(--gap-x)) / 2);
+    margin-right: var(--gap-x);
+  }
+
+  .wrapper-carosello.by-3 [flicking-panel] {
+    width: calc((100% - (var(--gap-x) * 2)) / 3);
+    margin-right: var(--gap-x);
+  }
+
+  .wrapper-carosello.by-4 [flicking-panel] {
+    width: calc((100% - (var(--gap-x) * 3)) / 4);
+    margin-right: var(--gap-x);
+  }
+
+  /* Variante più compatta per griglie fitte */
+  .wrapper-carosello.by-3,
+  .wrapper-carosello.by-4 { --panel-h: 420px; }
+
+  /* Togli il gap sull’ultimo pannello per evitare il “bordo bianco” a destra */
+  :host ::ng-deep .wrapper-carosello .flicking-camera > [flicking-panel]:last-child {
+    margin-right: 0;
   }
 
   /* Caption per slide (panel name centrato) */
