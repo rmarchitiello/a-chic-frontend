@@ -37,6 +37,8 @@ export interface OtherOption {
   editKey: string;            // chiave per aprire l'editor admin
   tooltip: string;            // testo tooltip del pulsante admin
   titoloSezione?: string;     // titolo opzionale sopra il carosello per introdurlo praticamente
+  wrapperTitoloSezioneClass: string[]; //contenitore del titolo
+  titoloSezioneClass: string[]; // classe CSS per come deve essere fatto il titolo della sezione
   wrapperClass?: string;      // classe CSS per il <ngx-flicking>
   panelClass?: string;        // classe CSS per i pannelli interni
   panelsNames: string[]       //Nome dei vari pannelli ovvero slides
@@ -87,9 +89,10 @@ export function createCarousel(params: {
   editKey: string;
   tooltip: string;
   titoloSezione?: string;   //titolo da impostare sopra ogni sezione se vogliamo per presentare magari il carosello che poi viene in basso
+  wrapperTitoloSezioneClass: string[]; //imposto il contenitore del titolo del carosello
+  titoloSezioneClass: string[]  //Ogni carosello imposta come deve essere fatto il titolo con quale classe 
   onChangedCarosello?: string;   // stringa: nome classe CSS che applico al cambio slide (es. 'zoom-enter')
   panelsName: string[];     //nome dei pannelli che sarebbero i display name
-
   // classi CSS
   wrapperClass?: string;
   panelClass?: string;
@@ -162,6 +165,8 @@ export function createCarousel(params: {
     editKey: params.editKey,
     tooltip: params.tooltip,
     titoloSezione: params.titoloSezione,
+    wrapperTitoloSezioneClass: params.wrapperTitoloSezioneClass,
+    titoloSezioneClass: params.titoloSezioneClass,
     wrapperClass,
     panelClass,
     panelsNames: params.panelsName

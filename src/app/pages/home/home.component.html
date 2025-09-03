@@ -49,9 +49,9 @@
       </div>
 
       <!-- TITOLO SEZIONE sopra il carosello (introduzione, non overlay) -->
-      <div class="carousel-intro" *ngIf="car.otherOption.titoloSezione">
+      <div [ngClass]="car.otherOption.wrapperTitoloSezioneClass" *ngIf="car.otherOption.titoloSezione">
         <!-- id univoco per l’associazione ARIA -->
-        <h2 class="carousel-intro__title" [attr.id]="'carousel-title-' + i">
+        <h2 [ngClass]="car.otherOption.titoloSezioneClass" [attr.id]="'carousel-title-' + i">
           {{ car.otherOption.titoloSezione }}
         </h2>
       </div>
@@ -59,7 +59,7 @@
       <!-- WRAPPER CAROSELLO:
            - Contiene SOLO il carosello e i controlli interni (frecce/paginazione).
            - Deve essere position: relative (gestito via SCSS sulle classi wrapper). -->
-      <div class="carousel-wrapper" [ngClass]="car.otherOption.wrapperClass">
+      <div  [ngClass]="car.otherOption.wrapperClass">
 
         <!-- NGX-FLICKING:
              - Include i pannelli e l’UI interna (frecce/paginazione).
@@ -78,7 +78,7 @@
           <div
             flicking-panel
             *ngFor="let item of car.data.items; trackBy: trackByIndex"
-            [ngClass]="['carosello-panel', car.otherOption.panelClass]">
+            [ngClass]="car.otherOption.panelClass">
 
             <!-- Render media solo se presenti; in caso contrario mostra placeholder -->
             <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">

@@ -750,61 +750,13 @@ caricaTuttiICaroselli(): void {
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
       titoloSezione: 'Questo sito e belloaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      wrapperClass: 'flicking-hero',
-      panelClass: 'panel-hero',
+      wrapperTitoloSezioneClass: ['wrapper-titolo'], //contenitore del titolo
+      titoloSezioneClass: ['titolo'],  //qui dico per esempio il titolo del carosello che classe deve avere
+      wrapperClass: 'wrapper-carosello',          //come deve essere il carosello
+      panelClass: 'pannelli-carosello',               //come devono essere le slide
       panelsName: this.getDisplaysNameFromFolder(this.carosello.folder),
       onChangedCarosello: 'zoom-enter', // se metto 'zoom-enter' devo avere la classe nel mio SCSS
-    }),
-    // ──────────────────────────────── Modelli in evidenza ───────────────────────────────
-    createCarousel({
-      data: this.modelliInEvidenza,
-      mode: 'freeScroll',
-      circular: false,
-      duration: 1000,
-      plugins: { fade: false, arrow: true, pagination: 'bullet' },
-      // se voglio “spinta a pagina” in freeScroll: arrow: { moveByViewportSize: true }
-      editKey: 'modelliEvidenza',
-      tooltip: 'Modifica Modelli in Evidenza',
-      titoloSezione: 'Modelli in evidenza',
-      wrapperClass: 'flicking-hero',
-      panelClass: 'panel-hero',
-      panelsName: this.getDisplaysNameFromFolder(this.modelliInEvidenza.folder),
-      onChangedCarosello: '',
-    }),
-
-    // ────────────────────────────────── Best Seller ─────────────────────────────────────
-    createCarousel({
-      data: this.creazioni,
-      mode: 'freeScroll',          // niente drag nativo (inputType: [])
-      circular: true,
-      duration: 0,                // transizione istantanea (mantengo il tuo valore)
-      plugins: { fade: true, arrow: false, pagination: false },
-      editKey: 'creazioni',
-      tooltip: 'Modifica le mie creazioni',
-      titoloSezione: 'Best seller',
-      wrapperClass: 'flicking-hero',
-      panelClass: 'panel-hero',
-      panelsName: this.getDisplaysNameFromFolder(this.creazioni.folder),
-      onChangedCarosello: 'zoom-enter', // devo avere .zoom-enter nel mio SCSS locale
-    }),
-
-    // ─────────────────────────────────── Recensioni ─────────────────────────────────────
-    createCarousel({
-      data: this.recensioni,
-      mode: 'snap',
-      circular: false,
-      duration: 400,
-      plugins: { fade: true, arrow: true, pagination: false },
-      editKey: 'recensioni',
-      tooltip: 'Modifica recensioni',
-      titoloSezione: 'Dicono di noi',
-      wrapperClass: 'flicking-hero',
-      panelClass: 'panel-hero',
-      panelsName: this.getDisplaysNameFromFolder(this.recensioni.folder),
-      onChangedCarosello: '',
-    })
-  ];
-
+    })]
 
   console.log("Caroselli creati: ", JSON.stringify(this.carousels));
 
