@@ -2,10 +2,9 @@
      HOME TEMPLATE UNICO (desktop + mobile) — VERSIONE DINAMICA CON NGX-FLICKING
 
      Obiettivi:
-     1) Il titolo (h2) della sezione è un overlay centrato e bianco, visibile su TUTTE
-        le slide del carosello (overlay FRATELLO di <ngx-flicking>, quindi non scorre).
-     2) Il "panel name" (display_name del media corrente) è mostrato al CENTRO
-        di OGNI pannello, come caption interna al singolo flicking-panel.
+     1) Il titolo (h2) della sezione è posizionato SOPRA il carosello (introduzione).
+     2) Il "panel name" (display_name del media) è mostrato al CENTRO di OGNI pannello,
+        come caption interna al singolo flicking-panel.
 
      Note architetturali:
      - Iterazione su `carousels` (factory): ogni voce configura un carosello/sezione.
@@ -24,20 +23,11 @@
        setArrowSxMap: Record<number, boolean>  // true = freccia sinistra visibile
        setArrowDxMap: Record<number, boolean>  // true = freccia destra nascosta
 
-     Accessibilità e layering:
-       - <ngx-flicking> usa aria-roledescription="carousel" e aria-label derivato dal titolo.
-       - L’overlay titolo sezione è aria-hidden="true" (elemento visivo, non interattivo).
+     Accessibilità:
+       - <ngx-flicking> usa aria-roledescription="carousel".
+       - Se è presente il titolo di sezione, il carosello lo referenzia via aria-labelledby.
        - Le caption per-pannello sono aria-hidden="true" (decorative) e non intercettano tocchi.
        - Le frecce restano sopra alle caption (z-index superiore) e sono interattive.
-
-     Stili attesi (da definire nello SCSS del componente):
-       .carousel-wrapper { position: relative; }
-       .carousel-title-overlay { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; z-index:2; }
-       .carousel-title { color:#fff; text-align:center; }
-       .carosello-panel { position:relative; }
-       .panel-caption { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; z-index:1; }
-       .panel-caption__text { color:#fff; text-align:center; /* eventuale text-shadow per leggibilità */ }
-       /* Le frecce/paginazione di Flicking hanno z-index > caption per restare cliccabili */
    ============================================================================ -->
 
 <section class="home" aria-label="Sezione principale Home">
@@ -58,14 +48,22 @@
         </button>
       </div>
 
+      <!-- TITOLO SEZIONE sopra il carosello (introduzione, non overlay) -->
+      <div class="carousel-intro" *ngIf="car.otherOption.titoloSezione">
+        <!-- id univoco per l’associazione ARIA -->
+        <h2 class="carousel-intro__title" [attr.id]="'carousel-title-' + i">
+          {{ car.otherOption.titoloSezione }}
+        </h2>
+      </div>
+
       <!-- WRAPPER CAROSELLO:
-           - Contiene sia il carosello sia l’overlay del titolo sezione.
+           - Contiene SOLO il carosello e i controlli interni (frecce/paginazione).
            - Deve essere position: relative (gestito via SCSS sulle classi wrapper). -->
       <div class="carousel-wrapper" [ngClass]="car.otherOption.wrapperClass">
 
         <!-- NGX-FLICKING:
-             - Include soltanto i pannelli e l’UI interna (frecce/paginazione).
-             - L’overlay titolo sezione NON è figlio di <ngx-flicking>. -->
+             - Include i pannelli e l’UI interna (frecce/paginazione).
+             - L’introduzione (titolo sezione) è esterna a <ngx-flicking>. -->
         <ngx-flicking
           #flickingTags
           [options]="car.options"
@@ -73,7 +71,8 @@
           (ready)="onReadyCarosello($event, car, i)"
           (changed)="onChangedCarosello($event, car, i)"
           aria-roledescription="carousel"
-          [attr.aria-label]="car.otherOption.titoloSezione || 'Carosello'">
+          [attr.aria-labelledby]="car.otherOption.titoloSezione ? ('carousel-title-' + i) : null"
+          [attr.aria-label]="!car.otherOption.titoloSezione ? 'Carosello' : null">
 
           <!-- PANNELLI DEL CAROSELLO -->
           <div
@@ -153,19 +152,6 @@
             aria-label="Paginazione carosello">
           </div>
         </ngx-flicking>
-
-        <!-- OVERLAY TITOLO SEZIONE (FRATELLO DI <ngx-flicking>)
-             - Copre l’area del carosello e resta fermo su tutte le slide.
-             - Deve avere z-index inferiore alle frecce per lasciarle interattive. -->
-        <div
-          *ngIf="car.otherOption.titoloSezione"
-          class="carousel-title-overlay"
-          aria-hidden="true">
-          <h2 class="carousel-title">
-            {{ car.otherOption.titoloSezione }}
-          </h2>
-        </div>
-
       </div> <!-- /carousel-wrapper -->
     </ng-container>
   </div>

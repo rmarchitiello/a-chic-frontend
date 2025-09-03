@@ -749,7 +749,7 @@ caricaTuttiICaroselli(): void {
       plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 }, // niente frecce/pallini //occhio passare arrow true vuol dire non abilitare le frecce (cioe non funzionano perche non c eil plugin) ma nell ui le vedo, lo stesso per i bottoni se pagination è false non mette i pallini
       editKey: 'carosello',
       tooltip: 'Modifica carosello',
-      titoloSezione: '',
+      titoloSezione: 'Questo sito e belloaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
       wrapperClass: 'flicking-hero',
       panelClass: 'panel-hero',
       panelsName: this.getDisplaysNameFromFolder(this.carosello.folder),

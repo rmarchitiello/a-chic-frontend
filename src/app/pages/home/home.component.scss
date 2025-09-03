@@ -1,10 +1,9 @@
 /* =============================================================================
    HOME COMPONENT (unico template per desktop + mobile) — versione NGX-FLICKING
    Obiettivi:
-   1) Titolo di sezione (overlay) centrato e bianco su TUTTE le slide del carosello:
-      è un fratello di <ngx-flicking> dentro un wrapper comune (non scorre).
+   1) Titolo di sezione sopra il carosello (introduzione, non overlay).
    2) Panel name centrato dentro OGNI pannello (caption per-pannello).
-   3) Layering chiaro: frecce/paginazione sopra, overlay titolo sotto, caption pannello sotto.
+   3) Layering chiaro: frecce/paginazione sopra, caption pannello sotto.
    ========================================================================== */
 
 /* Struttura base pagina */
@@ -20,7 +19,7 @@
   margin: 0 auto;
 }
 
-/* Evitare trascinamento/selelezione nativa di immagini e video */
+/* Evitare trascinamento/selezione nativa di immagini e video */
 .carosello-panel img,
 .carosello-panel video {
   -webkit-user-drag: none; /* Safari/Chrome */
@@ -29,7 +28,7 @@
 }
 
 /* =============================================================================
-   HEADER DI SEZIONE (solo pulsante admin; il titolo visivo è overlay nel wrapper)
+   HEADER DI SEZIONE (solo pulsante admin; il titolo visivo è separato)
    ========================================================================== */
 .carousel-section-header {
   position: relative;
@@ -42,7 +41,7 @@
     position: absolute;
     top: 12px;
     right: 12px;
-    z-index: 10; /* sopra al contesto circostante, ma non interferisce con le frecce */
+    z-index: 10; /* sopra al contesto circostante; le frecce del carosello hanno z=3 */
     background: rgba(255, 255, 255, 0.85);
 
     mat-icon { color: #000; }
@@ -50,9 +49,33 @@
 }
 
 /* =============================================================================
+   TITOLO SEZIONE SOPRA IL CAROSELLO (introduzione)
+   - Blocco separato dal carosello per non sovrapporsi alle slide.
+   - Spaziature responsabili della distanza visiva dal carosello.
+   ========================================================================== */
+.carousel-intro {
+  margin: 0 0 .5rem 0;    /* spazio tra titolo e carosello */
+  padding: 0;             /* nessun padding, gestito dalla tipografia del titolo */
+}
+
+.carousel-intro__title {
+  margin: 0;
+  color: #111;
+  line-height: 1.15;
+  font-weight: 700;
+  text-align: left;       /* può essere centrato a seconda del design */
+  font-size: clamp(20px, 3.2vw, 40px);
+
+  white-space: normal;         /* assicura che il testo possa andare a capo */
+  overflow-wrap: anywhere;     /* forza il wrap anche in parole lunghe senza spazi */
+  word-break: break-word;      /* fallback per browser vecchi */
+  hyphens: auto;               /* facoltativo: trattini automatici dove possibile */
+}
+
+/* =============================================================================
    UTILITY FULL-BLEED (per l’hero a larghezza viewport)
    - Spinge il wrapper a 100vw evitando padding orizzontali del container.
-   - Il wrapper controlla overflow ed è l’ancora per overlay/controlli.
+   - Il wrapper controlla overflow ed è l’ancora per i controlli.
    ========================================================================== */
 @mixin full-bleed {
   width: 100vw;
@@ -65,12 +88,12 @@
 }
 
 /* =============================================================================
-   WRAPPER CAROSELLO (padre di <ngx-flicking> e dell’overlay titolo di sezione)
-   - Deve essere position: relative per consentire posizionamenti assoluti interni.
+   WRAPPER CAROSELLO (padre di <ngx-flicking>)
+   - Deve essere position: relative per consentire posizionamenti interni.
    - L’hero eredita il mixin full-bleed; gli altri restano “in pagina”.
    ========================================================================== */
 .carousel-wrapper {
-  position: relative; /* ancora per overlay e controlli */
+  position: relative; /* ancora per eventuali elementi posizionati */
   overflow: hidden;   /* evita sbordamenti del media */
   background: transparent;
 }
@@ -91,33 +114,7 @@
 }
 
 /* =============================================================================
-   OVERLAY TITOLO DI SEZIONE (fratello di <ngx-flicking>, non scorre)
-   - Copre l’intero wrapper e non intercetta input (pointer-events: none).
-   - Z-index 2: le frecce/paginazione restano sopra (z-index 3).
-   ========================================================================== */
-.carousel-title-overlay {
-  position: absolute;
-  inset: 0;                    /* top:0 right:0 bottom:0 left:0 */
-  display: grid;
-  place-items: center;         /* centratura perfetta */
-  pointer-events: none;        /* non blocca swipe/click */
-  z-index: 2;
-}
-
-.carousel-title {
-  margin: 0;
-  padding: 0 1rem;
-  color: #fff;
-  text-align: center;
-  line-height: 1.15;
-  /* dimensione fluida: leggibile su mobile e desktop */
-  font-weight: 700;
-  font-size: clamp(20px, 3.2vw, 48px);
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
-}
-
-/* =============================================================================
-   PANNELLI NGX-FLICKING (stile base) — usati e poi “estesi” dalle varianti
+   PANNELLI NGX-FLICKING (stile base) — estesi dalle varianti
    ========================================================================== */
 .carosello-panel {
   position: relative;      /* necessario per caption per-pannello */
@@ -157,7 +154,7 @@
   display: grid;
   place-items: center;      /* centratura orizzontale+verticale */
   pointer-events: none;     /* non blocca interazioni con media/frecce */
-  z-index: 1;               /* sotto alle frecce/paginazione (z=3) e sotto al titolo sezione (z=2) */
+  z-index: 1;               /* sotto a frecce/paginazione (z=3) */
 }
 
 .panel-caption__text {
@@ -170,7 +167,7 @@
   text-shadow:
     0 2px 8px rgba(0, 0, 0, 0.55),
     0 0 1px rgba(0, 0, 0, 0.6); /* nitidezza su fondi complessi */
-  /* opzionale: lieve backdrop per testi su video molto chiari
+  /* opzionale: lieve backdrop per testi su video chiari
      background: rgba(0,0,0,0.15);
      border-radius: 8px;
   */
@@ -179,7 +176,7 @@
 /* Placeholder quando non ci sono media */
 .media-placeholder {
   font-size: 14px;
-  color: #ccc;
+  color: #999;
   text-align: center;
   padding: 1rem;
 }
@@ -210,8 +207,7 @@
 /* =============================================================================
    FRECCE E PAGINAZIONE NGX-FLICKING
    - Si usa la classe .none per la visibilità (no *ngIf sugli elementi).
-   - In HERO i controlli sono in assoluto dentro il wrapper.
-   - Layering: frecce/paginazione sopra overlay e caption.
+   - Layering: frecce/paginazione sopra caption.
    ========================================================================== */
 
 /* Utility per “nascondere” senza rimuovere dal DOM */
@@ -229,7 +225,7 @@
 :host ::ng-deep .flicking-pagination {
   margin-top: 12px;
   text-align: center;
-  z-index: 3; /* sopra ad overlay/caption */
+  z-index: 3; /* sopra alla caption pannello */
 }
 
 :host ::ng-deep .flicking-pagination-bullet {
@@ -238,13 +234,13 @@
   height: 8px;
   margin: 0 4px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.35);
+  background-color: rgba(0, 0, 0, 0.25);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 :host ::ng-deep .flicking-pagination-bullet-active {
-  background-color: #fff;
+  background-color: #111;
 }
 
 /* HERO: paginazione e frecce assolute dentro il wrapper hero */
@@ -254,7 +250,7 @@
   right: 0;
   bottom: 24px;  /* pallini all’interno dell’hero, verso il fondo */
   margin-top: 0;
-  z-index: 3;    /* sopra a titolo overlay (z=2) e caption (z=1) */
+  z-index: 3;    /* sopra alla caption (z=1) */
 }
 
 :host ::ng-deep .flicking-hero .flicking-arrow-prev,
@@ -267,9 +263,7 @@
 
 /* =============================================================================
    ALTEZZE: propagare 100% dal wrapper hero al contenuto Flicking
-   Perché usare il combinatore '>' tra .flicking-hero e ngx-flicking:
-   - Precisione: colpisce SOLO l’elemento figlio diretto <ngx-flicking>.
-   - Evita effetti collaterali su eventuali discendenti/nidificazioni future.
+   - Il combinatore '>' tra .flicking-hero e ngx-flicking garantisce precisione.
    ========================================================================== */
 
 /* 1) L’istanza <ngx-flicking> occupa tutta l’altezza del wrapper hero */
@@ -299,8 +293,8 @@
   .carosello-panel { margin: 0 6px; border-radius: 0; }
 
   /* Testi */
-  .carousel-title { font-size: clamp(20px, 5.2vw, 36px); }
-  .panel-caption__text { font-size: clamp(14px, 3.8vw, 22px); }
+  .carousel-intro__title { font-size: clamp(20px, 5.2vw, 32px); }
+  .panel-caption__text   { font-size: clamp(14px, 3.8vw, 22px); }
 
   /* Controlli */
   :host ::ng-deep .flicking-pagination { margin-top: 8px; }
@@ -333,8 +327,8 @@
   .carosello-panel { margin: 0 10px; border-radius: 12px; }
 
   /* Testi */
-  .carousel-title { font-size: clamp(28px, 3.6vw, 56px); }
-  .panel-caption__text { font-size: clamp(16px, 2.2vw, 28px); }
+  .carousel-intro__title { font-size: clamp(24px, 3.2vw, 44px); }
+  .panel-caption__text   { font-size: clamp(16px, 2.2vw, 28px); }
 
   /* Controlli */
   :host ::ng-deep .flicking-pagination { margin-top: 14px; }
@@ -366,8 +360,7 @@
 }
 
 /* =============================================================================
-   NOTA DI COMPATIBILITÀ (pulizia classi legacy)
-   - Eventuali vecchie classi come .carousel-panels-name sono state sostituite
-     dalla caption per-pannello: .panel-caption + .panel-caption__text.
-   - Lasciare rimosse per evitare duplicazioni/confusione.
+   NOTE FINALI
+   - Le vecchie classi per l’overlay del titolo di sezione non sono più necessarie.
+   - Il titolo di sezione è ora gestito dal blocco .carousel-intro sopra al carosello.
    ========================================================================== */
