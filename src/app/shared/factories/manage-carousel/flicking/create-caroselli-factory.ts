@@ -19,7 +19,7 @@ import type { FlickingOptions } from '@egjs/flicking';   // tipo per le options
 import type { Plugin } from '@egjs/ngx-flicking';        // tipo per l'array di plugin
 import { MediaCollection } from '../../../../app.component';
 // Importo le mie micro-factory (le uso QUI dentro)
-import { makeOptions } from './options.factory';
+import { AlignType, makeOptions } from './options.factory';
 import { makePlugins } from './plugins.factory';
 import { CarouselMode } from './options.factory';
 import { MakePluginsOpts } from './plugins.factory';
@@ -79,6 +79,7 @@ export function createCarousel(params: {
   // options (semantiche)
   mode: CarouselMode;            // 'no-scroll' | 'freeScroll' | 'snap'
   circular: boolean;
+  align: AlignType
   duration: number;
   optionsOverrides?: Partial<FlickingOptions>;
 
@@ -102,6 +103,7 @@ export function createCarousel(params: {
   // e imposto i parametri base `circular` e `duration`. Gli override vincono sempre.
   const options = makeOptions(
     params.mode,
+    params.align,
     params.circular,
     params.duration,
     params.optionsOverrides ?? {}

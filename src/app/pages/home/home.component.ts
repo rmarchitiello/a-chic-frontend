@@ -739,6 +739,7 @@ caricaTuttiICaroselli(): void {
       data: this.carosello,
       mode: 'no-scroll',                // autoplay, niente input utente
       circular: true,
+      align: 'next',
       duration: 0,
       plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 },
 
@@ -761,8 +762,9 @@ caricaTuttiICaroselli(): void {
     // ─────────────────────────── Modelli in evidenza (3 per viewport) ─────────────────────
     createCarousel({
       data: this.modelliInEvidenza,
-      mode: 'freeScroll',
+      mode: 'snap',
       circular: false,
+      align: 'prev',
       duration: 600,
       plugins: { fade: false, arrow: true, pagination: 'bullet' },
 
@@ -784,7 +786,8 @@ caricaTuttiICaroselli(): void {
     createCarousel({
       data: this.creazioni,
       mode: 'freeScroll',
-      circular: true,
+      circular: false,
+      align: 'prev',
       duration: 0,
       plugins: { fade: true, arrow: false, pagination: false },
 
@@ -795,7 +798,7 @@ caricaTuttiICaroselli(): void {
       wrapperTitoloSezioneClass: ['wrapper-titolo'],
       titoloSezioneClass: ['titolo'],
 
-      wrapperClass: grid(4),                 // << by-4 su desktop
+      wrapperClass: grid(2),                 // << by-4 su desktop
       panelClass: ['pannelli-carosello'],
 
       panelsName: this.getDisplaysNameFromFolder(this.creazioni.folder),
@@ -807,6 +810,7 @@ caricaTuttiICaroselli(): void {
       data: this.recensioni,
       mode: 'snap',
       circular: false,
+      align: 'prev',
       duration: 400,
       plugins: { fade: true, arrow: true, pagination: false },
 

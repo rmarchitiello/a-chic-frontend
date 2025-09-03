@@ -22,16 +22,42 @@ import type { FlickingOptions } from '@egjs/flicking';
 // - 'freeScroll' → scorrimento libero
 // - 'snap'       → scatto a pannello
 export type CarouselMode = 'no-scroll' | 'freeScroll' | 'snap';
+/* 
+
+Valori possibili di align
+
+align può essere:
+
+"prev" → allinea il pannello attivo al bordo iniziale del viewport
+(a sinistra in orizzontale, in alto in verticale).
+È quello giusto per le griglie “by-2/3/4”.
+
+"center" → allinea il pannello al centro del viewport.
+Perfetto per l’hero a 1-up (by-1).
+
+"next" → allinea il pannello al bordo finale del viewport
+(a destra / in basso).
+
+Numero in px → posizione fissa dal bordo iniziale del viewport.
+Esempio: align: 40 → 40px dal bordo sinistro.
+
+Percentuale (stringa) → posizione relativa alla larghezza/altezza del viewport.
+Esempio: align: "20%" → al 20% della larghezza (quasi come un “left: 20%”).
+
+Nota: align decide dove si “aggancia” il pannello quando lo snap avviene; non è uno stile CSS.
+*/
+export type AlignType = 'prev' | 'center' | 'next' 
 
 export function makeOptions(
   mode: CarouselMode,
+  align: AlignType,
   circular: boolean,
   duration: number,
   overrides: Partial<FlickingOptions> = {}
 ): Partial<FlickingOptions> {
   // Default comuni: se un domani voglio cambiare l’allineamento base,
   // lo faccio qui e si riflette su tutti i caroselli.
-  const common: Partial<FlickingOptions> = { align: 'center' };
+  const common: Partial<FlickingOptions> = { align: align };
 
   // Scelgo una base in funzione della modalità che passo.
   let base: Partial<FlickingOptions>;
