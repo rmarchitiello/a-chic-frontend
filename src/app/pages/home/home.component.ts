@@ -771,7 +771,7 @@ caricaTuttiICaroselli(): void {
     // ────────────────────────────────── Best Seller ─────────────────────────────────────
     createCarousel({
       data: this.creazioni,
-      mode: 'no-scroll',          // niente drag nativo (inputType: [])
+      mode: 'freeScroll',          // niente drag nativo (inputType: [])
       circular: true,
       duration: 0,                // transizione istantanea (mantengo il tuo valore)
       plugins: { fade: true, arrow: false, pagination: false },
@@ -787,10 +787,10 @@ caricaTuttiICaroselli(): void {
     // ─────────────────────────────────── Recensioni ─────────────────────────────────────
     createCarousel({
       data: this.recensioni,
-      mode: 'freeScroll',
+      mode: 'snap',
       circular: false,
       duration: 400,
-      plugins: { fade: true, arrow: true, pagination: 'bullet' },
+      plugins: { fade: true, arrow: true, pagination: false },
       editKey: 'recensioni',
       tooltip: 'Modifica recensioni',
       titoloSezione: 'Dicono di noi',
