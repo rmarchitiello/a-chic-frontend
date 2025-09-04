@@ -1,76 +1,143 @@
+  ::ng-deep .cdk-overlay-pane{ //faccio scrollare solo y 
+    overflow-y: auto;
+  }
 /* =========================================================
-   FORM CAROSELLO — PALETTE BLU/VERDE (BASICO)
-   Io uso:
-   - Blu accento: #1f6feb (testi/azioni principali)
-   - Blu soft:    #eef5ff (pannelli chiari)
-   - Verde accento: #22a86a (azioni positive)
-   - Grigi neutri per testo/bordi
+   FORM CAROSELLO — STILI BASE (PALETTE BLU/VERDE)
+   Io punto a codice semplice e ripetitivo, senza scorciatoie.
    ========================================================= */
 
-/* Card del form: fondo chiaro, bordo sottile, ombra leggera */
+/* Contenitore principale del form: occupo tutta la larghezza,
+   sfondo bianco, angoli arrotondati, niente ombre extra. */
 .form-carosello {
   background: #ffffff;
-  border: 1px solid #e7e9ee;
+  border: 0;
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
+  overflow: auto;
+  box-shadow: none;
+  width: 100%;
+  /* evito barre orizzontali se qualcosa dentro sfora */
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
-/* Titolo principale: blu accento per evidenza */
+/* Variante per usare tutta la larghezza del dialog (così non vedo grigio ai lati) */
+.form-carosello--full {
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Per sicurezza, dico a tutti i figli di rispettare la larghezza del contenitore */
+.form-carosello * {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Titolo e sottotitolo: colori e allineamenti semplici */
 .form-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1f6feb;
+  color: #1f6feb; /* blu accento */
 }
 
-/* Sottotitolo: grigio medio, non invadente */
 .form-subtitle {
-  color: #667085;
+  color: #667085; /* grigio medio */
 }
 
-/* Divider come blocco per gestire i margini verticali */
+/* Se uso mat-divider, lo tratto come blocco */
 mat-divider {
   display: block;
 }
 
-/* Titoli di sezione “statici”: testo scuro con sfondo blu soft */
+/* Titoli di sezione statici (se servono) */
 .section-title {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #2b2f36;
   font-weight: 600;
-  background: #eef5ff;
+  background: #eef5ff;            /* blu soft */
   border: 1px solid #e7eefc;
   padding: 8px 10px;
   border-radius: 8px;
 }
 
-/* Campi full-width di base */
+/* I campi occupano sempre il 100% dello spazio disponibile */
 .form-carosello mat-form-field {
+  display: block;
   width: 100%;
 }
 
 /* =========================================================
-   SEZIONE UNICA DEI TOGGLE (se la usi)
-   Io la rendo riconoscibile con uno sfondo soft e bordo leggero.
+   RIGA CAMPO + ICONA INFO (per i mat-form-field)
+   Io metto il campo a sinistra e un'icona info a destra.
    ========================================================= */
-
-.toggles-section {
-  margin: 8px 0 12px 0;
-  padding: 10px 12px;
-  background: #f7fbff;        /* azzurrino coerente col tema */
-  border: 1px solid #e3eefc;  /* bordo morbido */
-  border-radius: 10px;
+.field-with-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 12px;
 }
 
-/* Toggle: riga dedicata con spaziatura uniforme */
-.form-carosello mat-slide-toggle {
-  display: block;
+.field-with-info mat-form-field {
+  flex: 1 1 auto;
+  margin: 0;
+}
+
+/* Icona info: piccola, discreta, cliccabile */
+.info-label {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.info-label mat-icon {
+  font-size: 18px;
+  color: #667085;
+  line-height: 1;
+}
+
+.info-label:hover mat-icon,
+.info-label:focus-visible mat-icon {
+  color: #1f6feb; /* blu accento al passaggio/focus */
+}
+
+.info-label:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.18);
+}
+
+/* Tooltip personalizzato (se uso [matTooltipClass]="'tooltip-custom'") */
+.tooltip-custom {
+  background: #1f2937; /* grigio molto scuro */
+  color: #ffffff;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+/* =========================================================
+   TOGGLE + ICONA INFO (per i mat-slide-toggle)
+   Io metto il toggle a sinistra e l’icona info a destra.
+   ========================================================= */
+.toggle-with-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
   margin: 8px 0;
 }
 
-/* Testo del toggle: un filo più marcato e scuro */
+/* Rendo il testo dei toggle un po' più marcato */
 .form-carosello mat-slide-toggle .mdc-label,
 .form-carosello mat-slide-toggle .mat-slide-toggle-content {
   font-weight: 500;
@@ -78,10 +145,9 @@ mat-divider {
 }
 
 /* =========================================================
-   RITOCCHI MINIMI MATERIAL (MDC) PER I CAMPI
-   Io aumento contrasto e allineo i colori all’accento blu.
+   RITOCCHI SEMPLICI SU ANGULAR MATERIAL (MDC)
+   Io aumento il contrasto e allineo i colori al blu accento.
    ========================================================= */
-
 .mat-mdc-form-field .mdc-floating-label,
 .mat-mdc-form-field .mdc-floating-label--float-above {
   color: #1b1f24;
@@ -97,170 +163,153 @@ mat-divider {
   font-weight: 600;
 }
 
+/* Bordi dell'outline più visibili */
 .mdc-notched-outline__leading,
 .mdc-notched-outline__notch,
 .mdc-notched-outline__trailing {
   border-color: #d7dbe3;
 }
 
-/* Stato focus: bordo blu accento */
+/* Bordo blu in focus */
 .mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
 .mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
 .mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
   border-color: #1f6feb;
 }
 
-/* Icone prefix/suffix tono neutro */
+/* Icone prefix/suffix in grigio neutro */
 .mat-mdc-form-field-icon-prefix,
 .mat-mdc-form-field-icon-suffix {
   color: #475569;
 }
 
-/* Pulsanti area azioni */
+/* =========================================================
+   AZIONI — pulsanti in basso a destra
+   ========================================================= */
 .actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
+
 .actions button[mat-stroked-button] {
   border-color: #d5d9e3;
   color: #1b1f24;
   background: #f6f8fc;
 }
+
 .actions button[mat-raised-button] {
-  background: #1f6feb; /* blu accento */
+  background: #1f6feb;
   color: #ffffff;
 }
+
 .actions button[mat-raised-button][disabled] {
-  background: #9fc2ff; /* blu schiarito */
+  background: #9fc2ff;
   color: #f1f5f9;
 }
-/* Utility per azioni “positive” in verde */
+
+/* Variante verde opzionale (se la usi sul bottone) */
 .actions .btn-success[mat-raised-button] {
   background: #22a86a;
   color: #ffffff;
 }
 
 /* =========================================================
-   MAT ACCORDION & EXPANSION PANEL — LOOK BLU/SOFT
-   Qui rendo i pannelli più leggibili e coerenti col tema.
-   Io applico gli stili dentro al form per non “sporcare” altrove.
+   ACCORDION / EXPANSION PANEL — stile semplice blu/soft
    ========================================================= */
-
-/* Contenitore accordion: creo uno spacing uniforme */
 .form-carosello .mat-accordion {
   display: block;
   margin: 6px 0 10px 0;
 }
 
-/* Pannello: bordo morbido, raggio e ombra leggera */
 .form-carosello .mat-expansion-panel {
-  border: 1px solid #e7eefc;     /* blu very soft */
+  border: 1px solid #e7eefc;
   border-radius: 10px;
   background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
-  overflow: hidden;               /* rispetto gli angoli anche sull’header */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
   margin: 10px 0;
+  width: 100%;
 }
 
-/* Header del pannello: compatto, sfondo soft e icone visibili */
 .form-carosello .mat-expansion-panel-header {
-  min-height: 44px;               /* altezza comoda anche su mobile */
+  min-height: 44px;
   padding: 8px 12px;
-  background: #f9fbff;            /* blu molto chiaro */
+  background: #f9fbff;
   color: #2b2f36;
   border-bottom: 1px solid #e7eefc;
-  transition: background .15s ease, border-color .15s ease;
 }
 
-/* Icona a sinistra nel titolo (se la usi nel template) */
 .form-carosello .mat-expansion-panel-header mat-icon {
-  color: #1f6feb;                 /* accento blu */
+  color: #1f6feb;
   font-size: 20px;
   margin-right: 8px;
 }
 
-/* Titolo del pannello più marcato */
 .form-carosello .mat-expansion-panel-header .mat-expansion-panel-header-title {
   font-weight: 600;
-  letter-spacing: .1px;
+  letter-spacing: 0.1px;
 }
 
-/* Indicatore (freccia) del pannello: colore coerente col tema */
 .form-carosello .mat-expansion-indicator::after {
   color: #1f6feb;
 }
 
-/* Hover del header: fondo più evidente e bordo appena più scuro */
 .form-carosello .mat-expansion-panel-header:hover {
-  background: #eef5ff;            /* blu soft */
+  background: #eef5ff;
   border-bottom-color: #dae6fd;
 }
 
-/* Focus tastiera: anello blu morbido */
-.form-carosello .mat-expansion-panel-header.mat-focus-indicator:focus,
-.form-carosello .mat-expansion-panel-header.cdk-keyboard-focused {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(31, 111, 235, .18);
-}
-
-/* Stato aperto: bordo/ombra più decisi e barra sinistra di accento */
 .form-carosello .mat-expansion-panel.mat-expanded {
   border-color: #bed4ff;
-  box-shadow: 0 4px 14px rgba(31, 111, 235, .08);
+  box-shadow: 0 4px 14px rgba(31, 111, 235, 0.08);
   position: relative;
 }
+
 .form-carosello .mat-expansion-panel.mat-expanded::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  width: 3px;                     /* barra di accento */
+  width: 3px;
   background: #1f6feb;
 }
 
-/* Header quando il pannello è aperto */
 .form-carosello .mat-expansion-panel.mat-expanded .mat-expansion-panel-header {
   background: #f2f7ff;
   border-bottom-color: #d7e4ff;
 }
 
-/* Corpo del pannello: padding comodo e fondo bianco */
 .form-carosello .mat-expansion-panel-body {
-  padding: 12px;                  /* mobile-first; aumento su desktop */
+  padding: 12px;
   background: #ffffff;
 }
 
-/* Campi e toggle dentro ai pannelli: spaziatura regolare */
 .form-carosello .mat-expansion-panel-body mat-form-field {
   display: block;
   width: 100%;
   margin-bottom: 12px;
 }
+
 .form-carosello .mat-expansion-panel-body mat-slide-toggle {
-  display: block;
   margin: 8px 0;
 }
 
-/* Pannello disabilitato: aspetto inattivo evidente */
 .form-carosello .mat-expansion-panel.mat-expansion-panel-disabled {
-  opacity: .6;
+  opacity: 0.6;
   filter: grayscale(10%);
   cursor: not-allowed;
 }
 
-/* Variante “flat”: rimuovo ombra e conservo lo spacing */
+/* Versione flat dell’accordion (se impostata) */
 .form-carosello .mat-accordion[displaymode="flat"] .mat-expansion-panel,
 .form-carosello .mat-accordion[displayMode="flat"] .mat-expansion-panel {
   box-shadow: none;
   border-color: #e7eefc;
 }
-.form-carosello .mat-accordion .mat-expansion-panel.mat-expansion-panel-spacing {
-  margin: 10px 0;
-}
 
-/* Badge opzionale vicino al titolo panel (se lo aggiungi nel template) */
+/* Badge semplice vicino al titolo (se lo usi) */
 .form-carosello .mat-expansion-panel-header .badge {
   display: inline-block;
   padding: 2px 8px;
@@ -272,55 +321,37 @@ mat-divider {
 }
 
 /* =========================================================
-   MOBILE (≤ 768px)
-   Io tengo header compatti e padding stretti.
+   MOBILE (≤ 768px) — misure più compatte
    ========================================================= */
 @media (max-width: 768px) {
   .form-carosello {
     padding: 16px;
-    margin: 0 auto;
-    max-width: 100%;
+    margin: 0;
     position: relative;
-    
   }
 
-  /* btn chiudi: in alto a destra, touch-friendly */
+  /* Pulsante chiudi in alto a destra, senza hover invasivo */
   .form-carosello .chiudi-btn {
     position: absolute;
     top: 8px;
     right: 8px;
-
-    width: 32px;   /* più piccolo su mobile */
+    width: 32px;
     height: 32px;
-
     background: transparent;
     border: none;
     padding: 0;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-
     border-radius: 8px;
-    z-index: 2;    /* mi assicuro che stia sopra ai contenuti */
+    z-index: 2;
   }
 
   .form-carosello .chiudi-btn mat-icon {
     color: #1b1f24;
     font-size: 20px;
     line-height: 1;
-  }
-
-  /* niente effetto hover su mobile */
-  .form-carosello .chiudi-btn:hover {
-    background: transparent;
-  }
-
-  /* niente alone focus visibile */
-  .form-carosello .chiudi-btn:focus-visible {
-    outline: none;
-    box-shadow: none;
   }
 
   .form-title {
@@ -334,46 +365,26 @@ mat-divider {
     font-size: 14px;
   }
 
-  mat-divider {
-    margin: 12px 0;
-  }
+  mat-divider { margin: 12px 0; }
+  .section-title { margin: 16px 0 8px 0; font-size: 16px; }
 
-  .section-title {
-    margin: 16px 0 8px 0;
-    font-size: 16px;
-  }
+  .field-with-info { margin-bottom: 12px; }
+  .toggle-with-info { margin: 8px 0; }
 
-  .form-carosello mat-form-field {
-    margin-bottom: 12px;
-  }
+  .actions { margin-top: 16px; }
 
-  .form-carosello mat-slide-toggle {
-    margin: 8px 0;
-  }
-
-  .actions {
-    margin-top: 16px;
-  }
-
-  /* Accordion/pannelli: header compatti e margini ridotti */
-  .form-carosello .mat-expansion-panel-header {
-    min-height: 42px;
-    padding: 8px 10px;
-  }
-  .form-carosello .mat-expansion-panel-body {
-    padding: 12px;
-  }
-  .form-carosello .mat-expansion-panel {
-    margin: 8px 0;
-  }
+  .form-carosello .mat-expansion-panel-header { min-height: 42px; padding: 8px 10px; }
+  .form-carosello .mat-expansion-panel-body { padding: 12px; }
+  .form-carosello .mat-expansion-panel { margin: 8px 0; }
 }
 
 /* =========================================================
-   DESKTOP (≥ 769px)
-   Io aumento spazi e respiro tra pannelli.
+   DESKTOP (≥ 769px) — un po’ più aria
    ========================================================= */
 @media (min-width: 769px) {
   .form-carosello {
+    /* Se vuoi una form più stretta, lascia max-width.
+       Se vuoi piena larghezza del dialog, usa anche .form-carosello--full nel template. */
     max-width: 900px;
     padding: 24px 28px;
     border-radius: 14px;
@@ -381,25 +392,20 @@ mat-divider {
     position: relative;
   }
 
-  /* bottone chiudi: in alto a destra, senza hover */
   .form-carosello .chiudi-btn {
     position: absolute;
     top: 12px;
     right: 12px;
-
     width: 36px;
     height: 36px;
-
     background: transparent;
     border: none;
     padding: 0;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-
-    border-radius: 8px; /* raggio coerente con il resto */
+    border-radius: 8px;
   }
 
   .form-carosello .chiudi-btn mat-icon {
@@ -408,59 +414,17 @@ mat-divider {
     line-height: 1;
   }
 
-  /* niente effetto hover */
-  .form-carosello .chiudi-btn:hover {
-    background: transparent;
-  }
+  .form-title { font-size: 22px; margin-bottom: 8px; }
+  .form-subtitle { font-size: 15px; margin-bottom: 16px; }
+  mat-divider { margin: 16px 0; }
+  .section-title { margin-top: 24px; margin-bottom: 10px; font-size: 18px; }
 
-  /* se non vuoi alcun alone focus, lascio così */
-  .form-carosello .chiudi-btn:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
-  
+  .field-with-info { margin-bottom: 14px; }
+  .toggle-with-info { margin: 10px 0 14px 0; }
 
-  .form-title {
-    font-size: 22px;
-    margin-bottom: 8px;
-  }
+  .actions { margin-top: 20px; }
 
-  .form-subtitle {
-    font-size: 15px;
-    margin-bottom: 16px;
-  }
-
-  mat-divider {
-    margin: 16px 0;
-  }
-
-  .section-title {
-    margin-top: 24px;
-    margin-bottom: 10px;
-    font-size: 18px;
-  }
-
-  .form-carosello mat-form-field {
-    margin-bottom: 14px;
-  }
-
-  .form-carosello mat-slide-toggle {
-    margin: 10px 0 14px 0;
-  }
-
-  .actions {
-    margin-top: 20px;
-  }
-
-  /* Accordion/pannelli: più aria su desktop */
-  .form-carosello .mat-expansion-panel-header {
-    min-height: 48px;
-    padding: 10px 14px;
-  }
-  .form-carosello .mat-expansion-panel-body {
-    padding: 16px;
-  }
-  .form-carosello .mat-expansion-panel {
-    margin: 12px 0;
-  }
+  .form-carosello .mat-expansion-panel-header { min-height: 48px; padding: 10px 14px; }
+  .form-carosello .mat-expansion-panel-body { padding: 16px; }
+  .form-carosello .mat-expansion-panel { margin: 12px 0; }
 }
