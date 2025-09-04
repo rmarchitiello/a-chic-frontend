@@ -280,6 +280,47 @@ mat-divider {
     padding: 16px;
     margin: 0 auto;
     max-width: 100%;
+    position: relative;
+    
+  }
+
+  /* btn chiudi: in alto a destra, touch-friendly */
+  .form-carosello .chiudi-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+
+    width: 32px;   /* più piccolo su mobile */
+    height: 32px;
+
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    border-radius: 8px;
+    z-index: 2;    /* mi assicuro che stia sopra ai contenuti */
+  }
+
+  .form-carosello .chiudi-btn mat-icon {
+    color: #1b1f24;
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  /* niente effetto hover su mobile */
+  .form-carosello .chiudi-btn:hover {
+    background: transparent;
+  }
+
+  /* niente alone focus visibile */
+  .form-carosello .chiudi-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
   }
 
   .form-title {
@@ -337,7 +378,47 @@ mat-divider {
     padding: 24px 28px;
     border-radius: 14px;
     margin: 0 auto;
+    position: relative;
   }
+
+  /* bottone chiudi: in alto a destra, senza hover */
+  .form-carosello .chiudi-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    width: 36px;
+    height: 36px;
+
+    background: transparent;
+    border: none;
+    padding: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    border-radius: 8px; /* raggio coerente con il resto */
+  }
+
+  .form-carosello .chiudi-btn mat-icon {
+    color: #1b1f24;
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  /* niente effetto hover */
+  .form-carosello .chiudi-btn:hover {
+    background: transparent;
+  }
+
+  /* se non vuoi alcun alone focus, lascio così */
+  .form-carosello .chiudi-btn:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+  
 
   .form-title {
     font-size: 22px;

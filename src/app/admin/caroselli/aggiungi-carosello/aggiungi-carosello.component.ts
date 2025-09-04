@@ -8,7 +8,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -20,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 // Questi tipi li prendo dalla tua codebase (li importi da dove li hai definiti)
 import { AlignType, CarouselMode } from '../../../shared/factories/manage-carousel/flicking/options.factory';
-
+import { MatDialogRef } from '@angular/material/dialog';
 // L'interfaccia MakePluginsOpts la usi per capire la forma "di dominio" dei plugin.
 // Per la FORM, però, ho bisogno di una mappa di CONTROLLI.
 // Creo quindi un tipo molto semplice per i controlli della sezione plugins.
@@ -70,12 +70,19 @@ type SettingCarouselForm = {
     MatSlideToggleModule,
     MatDividerModule,
     MatButtonModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatTooltipModule
     ],
   templateUrl: './aggiungi-carosello.component.html',
   styleUrls: ['./aggiungi-carosello.component.scss']
 })
 export class AggiungiCaroselloComponent {
+
+
+
+  constructor(private dialogRef: MatDialogRef<AggiungiCaroselloComponent>){
+
+  }
 
   // 1) Creo prima il gruppo dei plugin, così è chiaro e riusabile.
   //    Metto default sensati: fade ON, arrow OFF, bullet OFF, autoplay 0 (disattivo).
@@ -197,6 +204,10 @@ export class AggiungiCaroselloComponent {
     // - chiamare direttamente createCarousel({ data: X, ...config })
     // - loggare per test
     console.log('CONFIG PER createCarousel (senza data):', config);
+  }
+
+  chiudiDialog(){
+      this.dialogRef.close();
   }
 
 }

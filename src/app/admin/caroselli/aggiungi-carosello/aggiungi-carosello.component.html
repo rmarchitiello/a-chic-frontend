@@ -13,7 +13,9 @@
 -->
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-carosello">
-
+    <button class="chiudi-btn" matTooltip="Chiudi" [matTooltipClass]="'tooltip-custom'" (click)="chiudiDialog()">
+      <mat-icon>close</mat-icon>
+    </button>
   <!-- HEADER -->
   <h2 class="form-title">
     <mat-icon color="primary" aria-hidden="true">add_to_photos</mat-icon>
