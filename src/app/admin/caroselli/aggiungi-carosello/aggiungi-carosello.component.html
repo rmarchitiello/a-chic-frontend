@@ -1,9 +1,15 @@
 <!--
-  In questo template porto TUTTI i mat-slide-toggle in un’unica sezione dedicata
-  per migliorare la leggibilità. Non cambio la struttura dei FormGroup:
-  - i toggle arrow/fade/bullet restano dentro formGroupName="plugins"
-  - i toggle circular e zoomMediaCarosello restano nel gruppo principale
-  Mantengo floatLabel="always" su tutti i mat-form-field.
+  Struttura:
+  - Header con titolo e sottotitolo
+  - Campi sempre visibili: Nome carosello, Titolo carosello
+  - Sezioni espandibili (tutte chiuse di default):
+      • Opzioni → align, mode, duration
+      • Opzioni avanzate → toggle circular, toggle zoomMediaCarosello
+      • Plugin → toggle arrow/fade/bullet + autoplay (formGroupName="plugins")
+      • Stile e animazioni → wrapperClass, panelClass
+  Note:
+  - Mantengo floatLabel="always" su tutti i mat-form-field.
+  - Non uso <mat-dialog-content>; la gestione scroll rimane come già impostata nel CSS del pane/surface.
 -->
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-carosello">
@@ -13,18 +19,9 @@
     <mat-icon color="primary" aria-hidden="true">add_to_photos</mat-icon>
     <span>Crea il tuo carosello</span>
   </h2>
-  <p class="form-subtitle">Imposta nome, opzioni, plugin e stile del carosello.</p>
+  <p class="form-subtitle">Imposta i campi principali e apri le sezioni per configurare il resto.</p>
 
-  <mat-divider></mat-divider>
-
-  <!-- =======================
-       SEZIONE: IMPOSTAZIONI DI BASE
-       ======================= -->
-  <div class="section-title">
-    <mat-icon color="primary" aria-hidden="true">settings</mat-icon>
-    <span>Impostazioni di base</span>
-  </div>
-
+  <!-- CAMPi SEMPRE VISIBILI -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Nome carosello</mat-label>
     <mat-icon matPrefix aria-hidden="true">drive_file_rename_outline</mat-icon>
@@ -36,125 +33,131 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Titolo sezione</mat-label>
+    <mat-label>Titolo carosello</mat-label>
     <mat-icon matPrefix aria-hidden="true">title</mat-icon>
     <input matInput type="text" formControlName="titoloSezione" placeholder="Es. Best seller" />
   </mat-form-field>
 
-  <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Allineamento (align)</mat-label>
-    <mat-icon matPrefix aria-hidden="true">format_align_center</mat-icon>
-    <mat-select formControlName="align" required>
-      <mat-option value="center">center</mat-option>
-      <mat-option value="prev">prev</mat-option>
-      <mat-option value="next">next</mat-option>
-    </mat-select>
-    <mat-error *ngIf="form.get('align')?.hasError('required')">Obbligatorio</mat-error>
-  </mat-form-field>
+  <!-- SEZIONI ESPANDIBILI -->
+  <mat-accordion multi="true" displayMode="flat">
 
-  <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Modalità (mode)</mat-label>
-    <mat-icon matPrefix aria-hidden="true">tune</mat-icon>
-    <mat-select formControlName="mode" required>
-      <mat-option value="no-scroll">no-scroll</mat-option>
-      <mat-option value="snap">snap</mat-option>
-      <mat-option value="freeScroll">freeScroll</mat-option>
-    </mat-select>
-    <mat-error *ngIf="form.get('mode')?.hasError('required')">Obbligatorio</mat-error>
-  </mat-form-field>
+    <!-- Opzioni -->
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon aria-hidden="true">tune</mat-icon>
+          <span style="margin-left:8px">Opzioni</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
 
-  <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Durata</mat-label>
-    <mat-icon matPrefix aria-hidden="true">speed</mat-icon>
-    <input matInput type="number" formControlName="duration" required />
-    <span matSuffix>ms</span>
-    <mat-hint align="end">0 = istantaneo (senza animazione)</mat-hint>
-    <mat-error *ngIf="form.get('duration')?.hasError('required')">Obbligatorio</mat-error>
-  </mat-form-field>
+      <mat-form-field appearance="outline" floatLabel="always">
+        <mat-label>Allineamento (align)</mat-label>
+        <mat-icon matPrefix aria-hidden="true">format_align_center</mat-icon>
+        <mat-select formControlName="align" required>
+          <mat-option value="center">center</mat-option>
+          <mat-option value="prev">prev</mat-option>
+          <mat-option value="next">next</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('align')?.hasError('required')">Obbligatorio</mat-error>
+      </mat-form-field>
 
-  <mat-divider></mat-divider>
+      <mat-form-field appearance="outline" floatLabel="always">
+        <mat-label>Modalità (mode)</mat-label>
+        <mat-icon matPrefix aria-hidden="true">tune</mat-icon>
+        <mat-select formControlName="mode" required>
+          <mat-option value="no-scroll">no-scroll</mat-option>
+          <mat-option value="snap">snap</mat-option>
+          <mat-option value="freeScroll">freeScroll</mat-option>
+        </mat-select>
+        <mat-error *ngIf="form.get('mode')?.hasError('required')">Obbligatorio</mat-error>
+      </mat-form-field>
 
-  <!-- =======================
-       SEZIONE: INTERRUTTORI (TUTTI I TOGGLE)
-       Metto qui ogni mat-slide-toggle per avere una sola area coerente.
-       ======================= -->
-  <div class="section-title">
-    <mat-icon color="primary" aria-hidden="true">toggle_on</mat-icon>
-    <span>Interruttori</span>
-  </div>
+      <mat-form-field appearance="outline" floatLabel="always">
+        <mat-label>Durata</mat-label>
+        <mat-icon matPrefix aria-hidden="true">speed</mat-icon>
+        <input matInput type="number" formControlName="duration" required />
+        <span matSuffix>ms</span>
+        <mat-hint align="end">0 = istantaneo (senza animazione)</mat-hint>
+        <mat-error *ngIf="form.get('duration')?.hasError('required')">Obbligatorio</mat-error>
+      </mat-form-field>
+    </mat-expansion-panel>
 
-  <!-- Toggle root: circular -->
-  <mat-slide-toggle color="primary" formControlName="circular">
-    Scorrimento infinito (circular)
-  </mat-slide-toggle>
+    <!-- Opzioni avanzate (interruttori non-plugin) -->
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon aria-hidden="true">toggle_on</mat-icon>
+          <span style="margin-left:8px">Opzioni avanzate</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
 
-  <!-- Toggle dei plugin: li lascio nel loro formGroup ma VISIVAMENTE fanno parte della stessa sezione -->
-  <div formGroupName="plugins">
-    <mat-slide-toggle color="primary" formControlName="arrow">
-      Frecce di navigazione (prev/next)
-    </mat-slide-toggle>
+      <mat-slide-toggle color="primary" formControlName="circular">
+        Scorrimento infinito (circular)
+      </mat-slide-toggle>
 
-    <mat-slide-toggle color="primary" formControlName="fade">
-      Transizione in dissolvenza (fade)
-    </mat-slide-toggle>
+      <mat-slide-toggle color="primary" formControlName="zoomMediaCarosello">
+        Effetto zoom sul media al cambio slide
+      </mat-slide-toggle>
+    </mat-expansion-panel>
 
-    <mat-slide-toggle color="primary" formControlName="bullet">
-      Indicatori di pagina (pallini)
-    </mat-slide-toggle>
-  </div>
+    <!-- Plugin -->
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon aria-hidden="true">extension</mat-icon>
+          <span style="margin-left:8px">Plugin</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
 
-  <!-- Toggle root: zoom animazione -->
-  <mat-slide-toggle color="primary" formControlName="zoomMediaCarosello">
-    Effetto zoom sul media al cambio slide
-  </mat-slide-toggle>
+      <div formGroupName="plugins">
+        <mat-slide-toggle color="primary" formControlName="arrow">
+          Frecce di navigazione (prev/next)
+        </mat-slide-toggle>
 
-  <mat-divider></mat-divider>
+        <mat-slide-toggle color="primary" formControlName="fade">
+          Transizione in dissolvenza (fade)
+        </mat-slide-toggle>
 
-  <!-- =======================
-       SEZIONE: PLUGIN (SOLO AUTOPLAY)
-       Tengo qui il campo numerico; i toggle li ho già raccolti sopra.
-       ======================= -->
-  <div class="section-title">
-    <mat-icon color="primary" aria-hidden="true">extension</mat-icon>
-    <span>Plugin</span>
-  </div>
+        <mat-slide-toggle color="primary" formControlName="bullet">
+          Indicatori di pagina (pallini)
+        </mat-slide-toggle>
 
-  <div formGroupName="plugins">
-    <mat-form-field appearance="outline" floatLabel="always">
-      <mat-label>Autoplay</mat-label>
-      <mat-icon matPrefix aria-hidden="true">av_timer</mat-icon>
-      <input matInput type="number" formControlName="autoplay" />
-      <span matSuffix>ms</span>
-      <mat-hint align="end">0 = disattivo</mat-hint>
-    </mat-form-field>
-  </div>
+        <mat-form-field appearance="outline" floatLabel="always">
+          <mat-label>Autoplay</mat-label>
+          <mat-icon matPrefix aria-hidden="true">av_timer</mat-icon>
+          <input matInput type="number" formControlName="autoplay" />
+          <span matSuffix>ms</span>
+          <mat-hint align="end">0 = disattivo</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-expansion-panel>
 
-  <mat-divider></mat-divider>
+    <!-- Stile e animazioni -->
+    <mat-expansion-panel>
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon aria-hidden="true">brush</mat-icon>
+          <span style="margin-left:8px">Stile e animazioni</span>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
 
-  <!-- =======================
-       SEZIONE: STILE E ANIMAZIONI
-       ======================= -->
-  <div class="section-title">
-    <mat-icon color="primary" aria-hidden="true">brush</mat-icon>
-    <span>Stile e animazioni</span>
-  </div>
+      <mat-form-field appearance="outline" floatLabel="always">
+        <mat-label>Classi wrapper</mat-label>
+        <mat-icon matPrefix aria-hidden="true">view_carousel</mat-icon>
+        <input matInput formControlName="wrapperClass" placeholder="Es. wrapper-carosello by-2" required />
+        <mat-hint align="end">Separale con spazio o virgola</mat-hint>
+        <mat-error *ngIf="form.get('wrapperClass')?.hasError('required')">Obbligatorio</mat-error>
+      </mat-form-field>
 
-  <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Classi wrapper</mat-label>
-    <mat-icon matPrefix aria-hidden="true">view_carousel</mat-icon>
-    <input matInput formControlName="wrapperClass" placeholder="Es. wrapper-carosello by-2" required />
-    <mat-hint align="end">Separale con spazio o virgola</mat-hint>
-    <mat-error *ngIf="form.get('wrapperClass')?.hasError('required')">Obbligatorio</mat-error>
-  </mat-form-field>
+      <mat-form-field appearance="outline" floatLabel="always">
+        <mat-label>Classi pannello</mat-label>
+        <mat-icon matPrefix aria-hidden="true">layers</mat-icon>
+        <input matInput formControlName="panelClass" placeholder="Es. pannelli-carosello" required />
+        <mat-error *ngIf="form.get('panelClass')?.hasError('required')">Obbligatorio</mat-error>
+      </mat-form-field>
+    </mat-expansion-panel>
 
-  <mat-form-field appearance="outline" floatLabel="always">
-    <mat-label>Classi pannello</mat-label>
-    <mat-icon matPrefix aria-hidden="true">layers</mat-icon>
-    <input matInput formControlName="panelClass" placeholder="Es. pannelli-carosello" required />
-    <mat-error *ngIf="form.get('panelClass')?.hasError('required')">Obbligatorio</mat-error>
-  </mat-form-field>
-
-  <mat-divider></mat-divider>
+  </mat-accordion>
 
   <!-- AZIONI -->
   <div class="actions">

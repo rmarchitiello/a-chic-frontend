@@ -17,7 +17,7 @@ import { MatOptionModule } from '@angular/material/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
-
+import { MatExpansionModule } from '@angular/material/expansion';
 // Questi tipi li prendo dalla tua codebase (li importi da dove li hai definiti)
 import { AlignType, CarouselMode } from '../../../shared/factories/manage-carousel/flicking/options.factory';
 
@@ -70,6 +70,7 @@ type SettingCarouselForm = {
     MatSlideToggleModule,
     MatDividerModule,
     MatButtonModule,
+    MatExpansionModule
     ],
   templateUrl: './aggiungi-carosello.component.html',
   styleUrls: ['./aggiungi-carosello.component.scss']

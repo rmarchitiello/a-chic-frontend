@@ -33,7 +33,7 @@ mat-divider {
   display: block;
 }
 
-/* Titoli di sezione: testo scuro con sfondo blu soft */
+/* Titoli di sezione “statici”: testo scuro con sfondo blu soft */
 .section-title {
   display: flex;
   align-items: center;
@@ -52,29 +52,25 @@ mat-divider {
 }
 
 /* =========================================================
-   SEZIONE UNICA DEI TOGGLE
-   Qui raggruppo visivamente tutti i mat-slide-toggle.
-   Se nel template aggiungo un wrapper .toggles-section,
-   lo rendo più evidente e ordinato. Altrimenti valgono
-   comunque gli spazi generici sui toggle.
+   SEZIONE UNICA DEI TOGGLE (se la usi)
+   Io la rendo riconoscibile con uno sfondo soft e bordo leggero.
    ========================================================= */
 
-/* Wrapper opzionale consigliato per i toggle */
 .toggles-section {
   margin: 8px 0 12px 0;
   padding: 10px 12px;
-  background: #f7fbff;        /* leggero azzurrino coerente col tema */
+  background: #f7fbff;        /* azzurrino coerente col tema */
   border: 1px solid #e3eefc;  /* bordo morbido */
   border-radius: 10px;
 }
 
-/* Toggle: li metto su riga dedicata con spaziatura uniforme */
+/* Toggle: riga dedicata con spaziatura uniforme */
 .form-carosello mat-slide-toggle {
   display: block;
-  margin: 8px 0;              /* spaziatura verticale regolare */
+  margin: 8px 0;
 }
 
-/* Testo del toggle: leggermente più marcato e scuro */
+/* Testo del toggle: un filo più marcato e scuro */
 .form-carosello mat-slide-toggle .mdc-label,
 .form-carosello mat-slide-toggle .mat-slide-toggle-content {
   font-weight: 500;
@@ -82,29 +78,25 @@ mat-divider {
 }
 
 /* =========================================================
-   RITOCCHI MINIMI MATERIAL (MDC)
-   Io aumento contrasto e allineo i colori all’accento blu/verde.
+   RITOCCHI MINIMI MATERIAL (MDC) PER I CAMPI
+   Io aumento contrasto e allineo i colori all’accento blu.
    ========================================================= */
 
-/* Label sempre leggibili (evito opacità basse) */
 .mat-mdc-form-field .mdc-floating-label,
 .mat-mdc-form-field .mdc-floating-label--float-above {
   color: #1b1f24;
   opacity: 1;
 }
 
-/* Hint in grigio medio */
 .mat-mdc-form-field-hint {
   color: #6b7280;
 }
 
-/* Errori in rosso visibile ma non eccessivo */
 .mat-mdc-form-field-error {
   color: #cc2b2b;
   font-weight: 600;
 }
 
-/* Outline dei campi più netto */
 .mdc-notched-outline__leading,
 .mdc-notched-outline__notch,
 .mdc-notched-outline__trailing {
@@ -150,8 +142,138 @@ mat-divider {
 }
 
 /* =========================================================
+   MAT ACCORDION & EXPANSION PANEL — LOOK BLU/SOFT
+   Qui rendo i pannelli più leggibili e coerenti col tema.
+   Io applico gli stili dentro al form per non “sporcare” altrove.
+   ========================================================= */
+
+/* Contenitore accordion: creo uno spacing uniforme */
+.form-carosello .mat-accordion {
+  display: block;
+  margin: 6px 0 10px 0;
+}
+
+/* Pannello: bordo morbido, raggio e ombra leggera */
+.form-carosello .mat-expansion-panel {
+  border: 1px solid #e7eefc;     /* blu very soft */
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  overflow: hidden;               /* rispetto gli angoli anche sull’header */
+  margin: 10px 0;
+}
+
+/* Header del pannello: compatto, sfondo soft e icone visibili */
+.form-carosello .mat-expansion-panel-header {
+  min-height: 44px;               /* altezza comoda anche su mobile */
+  padding: 8px 12px;
+  background: #f9fbff;            /* blu molto chiaro */
+  color: #2b2f36;
+  border-bottom: 1px solid #e7eefc;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+/* Icona a sinistra nel titolo (se la usi nel template) */
+.form-carosello .mat-expansion-panel-header mat-icon {
+  color: #1f6feb;                 /* accento blu */
+  font-size: 20px;
+  margin-right: 8px;
+}
+
+/* Titolo del pannello più marcato */
+.form-carosello .mat-expansion-panel-header .mat-expansion-panel-header-title {
+  font-weight: 600;
+  letter-spacing: .1px;
+}
+
+/* Indicatore (freccia) del pannello: colore coerente col tema */
+.form-carosello .mat-expansion-indicator::after {
+  color: #1f6feb;
+}
+
+/* Hover del header: fondo più evidente e bordo appena più scuro */
+.form-carosello .mat-expansion-panel-header:hover {
+  background: #eef5ff;            /* blu soft */
+  border-bottom-color: #dae6fd;
+}
+
+/* Focus tastiera: anello blu morbido */
+.form-carosello .mat-expansion-panel-header.mat-focus-indicator:focus,
+.form-carosello .mat-expansion-panel-header.cdk-keyboard-focused {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 111, 235, .18);
+}
+
+/* Stato aperto: bordo/ombra più decisi e barra sinistra di accento */
+.form-carosello .mat-expansion-panel.mat-expanded {
+  border-color: #bed4ff;
+  box-shadow: 0 4px 14px rgba(31, 111, 235, .08);
+  position: relative;
+}
+.form-carosello .mat-expansion-panel.mat-expanded::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;                     /* barra di accento */
+  background: #1f6feb;
+}
+
+/* Header quando il pannello è aperto */
+.form-carosello .mat-expansion-panel.mat-expanded .mat-expansion-panel-header {
+  background: #f2f7ff;
+  border-bottom-color: #d7e4ff;
+}
+
+/* Corpo del pannello: padding comodo e fondo bianco */
+.form-carosello .mat-expansion-panel-body {
+  padding: 12px;                  /* mobile-first; aumento su desktop */
+  background: #ffffff;
+}
+
+/* Campi e toggle dentro ai pannelli: spaziatura regolare */
+.form-carosello .mat-expansion-panel-body mat-form-field {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.form-carosello .mat-expansion-panel-body mat-slide-toggle {
+  display: block;
+  margin: 8px 0;
+}
+
+/* Pannello disabilitato: aspetto inattivo evidente */
+.form-carosello .mat-expansion-panel.mat-expansion-panel-disabled {
+  opacity: .6;
+  filter: grayscale(10%);
+  cursor: not-allowed;
+}
+
+/* Variante “flat”: rimuovo ombra e conservo lo spacing */
+.form-carosello .mat-accordion[displaymode="flat"] .mat-expansion-panel,
+.form-carosello .mat-accordion[displayMode="flat"] .mat-expansion-panel {
+  box-shadow: none;
+  border-color: #e7eefc;
+}
+.form-carosello .mat-accordion .mat-expansion-panel.mat-expansion-panel-spacing {
+  margin: 10px 0;
+}
+
+/* Badge opzionale vicino al titolo panel (se lo aggiungi nel template) */
+.form-carosello .mat-expansion-panel-header .badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e8f2ff;
+  color: #1f6feb;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* =========================================================
    MOBILE (≤ 768px)
-   Io tengo layout compatto e leggibile.
+   Io tengo header compatti e padding stretti.
    ========================================================= */
 @media (max-width: 768px) {
   .form-carosello {
@@ -159,36 +281,55 @@ mat-divider {
     margin: 0 auto;
     max-width: 100%;
   }
+
   .form-title {
     margin: 0 0 6px 0;
     font-size: 20px;
     line-height: 1.2;
   }
+
   .form-subtitle {
     margin: 0 0 12px 0;
     font-size: 14px;
   }
+
   mat-divider {
     margin: 12px 0;
   }
+
   .section-title {
     margin: 16px 0 8px 0;
     font-size: 16px;
   }
+
   .form-carosello mat-form-field {
     margin-bottom: 12px;
   }
+
   .form-carosello mat-slide-toggle {
     margin: 8px 0;
   }
+
   .actions {
     margin-top: 16px;
+  }
+
+  /* Accordion/pannelli: header compatti e margini ridotti */
+  .form-carosello .mat-expansion-panel-header {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+  .form-carosello .mat-expansion-panel-body {
+    padding: 12px;
+  }
+  .form-carosello .mat-expansion-panel {
+    margin: 8px 0;
   }
 }
 
 /* =========================================================
    DESKTOP (≥ 769px)
-   Io aumento spazi in modo sobrio e coerente.
+   Io aumento spazi e respiro tra pannelli.
    ========================================================= */
 @media (min-width: 769px) {
   .form-carosello {
@@ -197,29 +338,48 @@ mat-divider {
     border-radius: 14px;
     margin: 0 auto;
   }
+
   .form-title {
     font-size: 22px;
     margin-bottom: 8px;
   }
+
   .form-subtitle {
     font-size: 15px;
     margin-bottom: 16px;
   }
+
   mat-divider {
     margin: 16px 0;
   }
+
   .section-title {
     margin-top: 24px;
     margin-bottom: 10px;
     font-size: 18px;
   }
+
   .form-carosello mat-form-field {
     margin-bottom: 14px;
   }
+
   .form-carosello mat-slide-toggle {
     margin: 10px 0 14px 0;
   }
+
   .actions {
     margin-top: 20px;
+  }
+
+  /* Accordion/pannelli: più aria su desktop */
+  .form-carosello .mat-expansion-panel-header {
+    min-height: 48px;
+    padding: 10px 14px;
+  }
+  .form-carosello .mat-expansion-panel-body {
+    padding: 16px;
+  }
+  .form-carosello .mat-expansion-panel {
+    margin: 12px 0;
   }
 }
