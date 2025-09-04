@@ -39,26 +39,47 @@
     width: 100%;
     margin: 0 auto;
     padding: 0;
+    .carousel-add-global {
+      display: flex;
+      justify-content: center;
+
+      button {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 9999px;
+
+        mat-icon { color: #000; }
+      }
+    }
+
   }
 
   /* Header admin: contiene esclusivamente il pulsante “modifica” */
-  .carousel-section-header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin: 0;
+  /* =======================
+   HEADER SEZIONE (ADMIN)
+   ======================= */
+.carousel-section-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
 
-    .edit-admin-icon {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 10;                 /* sopra ai contenuti della sezione */
-      background: rgba(255, 255, 255, 0.9);
+  /* EDIT: in alto a destra */
+  .edit-admin-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
 
-      mat-icon { color: #000; }    /* leggibilità su fondo chiaro */
-    }
+    mat-icon { color: #000; }
   }
+}
+
+
+
+
+
 
   /* Titolo sezione (sempre SOPRA al carosello, non overlay) */
   .wrapper-titolo { margin: 0 0 .5rem 0; }
@@ -279,6 +300,17 @@
     width: 100%;
     margin: 0 auto;
     padding: 0;
+    .carousel-add-global {
+      display: flex;
+      justify-content: center;
+
+      button {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 9999px;
+
+        mat-icon { color: #000; }
+      }
+    }
   }
 
   /* Header admin: come mobile ma con margini regolati */

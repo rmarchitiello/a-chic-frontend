@@ -71,6 +71,17 @@ export interface ImieiCaroselli {
  *     { fade: true, arrow: { moveByViewportSize: true }, pagination: 'bullet', autoplay: 2500 }
  */
 
+/* Interfaccia che viene utilizzata per pre-settare un carosello dove
+vogliamo venga utilizzato. */
+export interface SettingCarousel {
+  arrow:  boolean,
+  circular: boolean,
+  align: AlignType,
+  duration: number,
+  mode: CarouselMode,
+  wrapperClassHero: string,
+  panelHero: string
+}
 
 export function createCarousel(params: {
   // dati

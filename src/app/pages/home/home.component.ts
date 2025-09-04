@@ -510,7 +510,7 @@ import { takeUntil } from 'rxjs/operators';
   Poi ci pensano le factory plugins/options e create-caroselli-factory a creare un semplice carosello
 */
 import { NgxFlickingModule } from '@egjs/ngx-flicking';
-import { ImieiCaroselli } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
+import { ImieiCaroselli, SettingCarousel } from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 import { createCarousel} from '../../shared/factories/manage-carousel/flicking/create-caroselli-factory';
 
 /* 
@@ -727,6 +727,16 @@ onChangedCarosello(event: any, car: ImieiCaroselli, i: number) {
     //array dove salviamo tutti i caroselli cosi cicliamo questi nel template
   carousels: ImieiCaroselli[] = [];
 
+/* Carosello hero non scrolla è circolare allineato al centro dura 0ms ogni slide  */
+readonly classHeroCarousel: SettingCarousel = {
+  arrow:  false,
+  circular: true,
+  align: 'center',
+  duration: 0,
+  mode: 'no-scroll',
+  wrapperClassHero: 'wrapper-hero',
+  panelHero: 'panel-hero'
+}
 
 caricaTuttiICaroselli(): void {
   // Helper per comporre le classi del wrapper carosello:
@@ -739,7 +749,7 @@ caricaTuttiICaroselli(): void {
       data: this.carosello,
       mode: 'no-scroll',                // autoplay, niente input utente
       circular: true,
-      align: 'next',
+      align: 'center',
       duration: 0,
       plugins: { fade: true, arrow: true, pagination: false, autoplay: 3500 },
 
@@ -1030,6 +1040,11 @@ saveDataHomeInput: MediaCollection[] = [];
     };
 
     return estensioni[tipo].some(ext => lowerUrl.endsWith(ext));
+  }
+
+
+  apriPopUpAddCaroselloAdmin(){
+    
   }
 
 }

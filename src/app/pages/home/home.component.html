@@ -44,26 +44,21 @@
 
       <!-- Header sezione: solo pulsante admin -->
       <div class="carousel-section-header" *ngIf="isAdmin">
-        <button
-          mat-icon-button
-          class="edit-admin-icon"
-          (click)="apriPopUpEditorAdmin(car.otherOption.editKey)"
-          [matTooltip]="car.otherOption.tooltip"
+        <!-- EDIT: solo se la sezione ha dati -->
+        <button *ngIf="car.data.items.length > 0" mat-icon-button class="edit-admin-icon"
+          (click)="apriPopUpEditorAdmin(car.otherOption.editKey)" [matTooltip]="car.otherOption.tooltip"
           [matTooltipClass]="'tooltip-custom'">
           <mat-icon>edit</mat-icon>
         </button>
       </div>
 
+
       <!-- TITOLO SEZIONE (introduzione sopra il carosello)
            - Direttiva appRevealOnScroll in forma SEMPLICE (stringa):
              all’entrata in viewport rimuove .is-reveal-init e aggiunge .reveal-up. -->
-      <div
-        *ngIf="car.otherOption.titoloSezione"
-        [ngClass]="car.otherOption.wrapperTitoloSezioneClass"
+      <div *ngIf="car.otherOption.titoloSezione" [ngClass]="car.otherOption.wrapperTitoloSezioneClass"
         appRevealOnScroll="reveal-up">
-        <h2
-          [ngClass]="car.otherOption.titoloSezioneClass"
-          [attr.id]="'carousel-title-' + i">
+        <h2 [ngClass]="car.otherOption.titoloSezioneClass" [attr.id]="'carousel-title-' + i">
           {{ car.otherOption.titoloSezione }}
         </h2>
       </div>
@@ -74,29 +69,20 @@
              threshold:0.15 → innesca quando ~15% è visibile
              rootMargin:'0px 0px -12% 0px' → anticipa leggermente l’innesco
            - Nota: la classe finale 'reveal-up' deve esistere nel tuo SCSS. -->
-      <div
-        [ngClass]="car.otherOption.wrapperClass"
+      <div [ngClass]="car.otherOption.wrapperClass"
         [appRevealOnScroll]="{ addClass: 'reveal-up', once: true, threshold: 0.15, rootMargin: '0px 0px -12% 0px' }">
 
         <!-- NGX-FLICKING -->
-        <ngx-flicking
-          #flickingTags
-          [options]="car.options"
-          [plugins]="car.plugins"
-          (ready)="onReadyCarosello($event, car, i)"
-          (changed)="onChangedCarosello($event, car, i)"
+        <ngx-flicking #flickingTags [options]="car.options" [plugins]="car.plugins"
+          (ready)="onReadyCarosello($event, car, i)" (changed)="onChangedCarosello($event, car, i)"
           aria-roledescription="carousel"
           [attr.aria-labelledby]="car.otherOption.titoloSezione ? ('carousel-title-' + i) : null"
           [attr.aria-label]="!car.otherOption.titoloSezione ? 'Carosello' : null">
 
           <!-- PANNELLI DEL CAROSELLO -->
-           <!-- [ngStyle]="{'--stagger': (idx * 80) + 'ms'}" opzionale: sblocco uno “stagger” dei pannelli con una custom property -->
-          <div
-            flicking-panel
-            *ngFor="let item of car.data.items; trackBy: trackByIndex; let idx = index"
-            [ngClass]="car.otherOption.panelClass"
-            
-            [ngStyle]="{'--stagger': (idx * 80) + 'ms'}">
+          <!-- [ngStyle]="{'--stagger': (idx * 80) + 'ms'}" opzionale: sblocco uno “stagger” dei pannelli con una custom property -->
+          <div flicking-panel *ngFor="let item of car.data.items; trackBy: trackByIndex; let idx = index"
+            [ngClass]="car.otherOption.panelClass" [ngStyle]="{'--stagger': (idx * 80) + 'ms'}">
 
             <!-- Media -->
             <ng-container *ngIf="hasMedia(item.media); else noMediaTpl">
@@ -104,26 +90,16 @@
                 <ng-container [ngSwitch]="item.context?.type">
 
                   <!-- Immagine -->
-                  <img *ngSwitchCase="'image'"
-                       [src]="src"
-                       [alt]="item.context?.display_name || ''" />
+                  <img *ngSwitchCase="'image'" [src]="src" [alt]="item.context?.display_name || ''" />
 
                   <!-- Video -->
-                  <video *ngSwitchCase="'video'"
-                         [src]="src"
-                         playsinline
-                         muted
-                         preload="auto"></video>
+                  <video *ngSwitchCase="'video'" [src]="src" playsinline muted preload="auto"></video>
 
                   <!-- Audio -->
-                  <audio *ngSwitchCase="'audio'"
-                         [src]="src"
-                         controls></audio>
+                  <audio *ngSwitchCase="'audio'" [src]="src" controls></audio>
 
                   <!-- Fallback: immagine -->
-                  <img *ngSwitchDefault
-                       [src]="src"
-                       [alt]="item.context?.display_name || ''" />
+                  <img *ngSwitchDefault [src]="src" [alt]="item.context?.display_name || ''" />
 
                 </ng-container>
               </ng-container>
@@ -143,29 +119,28 @@
           </div>
 
           <!-- FRECCE DI NAVIGAZIONE -->
-          <span
-            in-viewport
-            class="flicking-arrow-prev"
-            [class.none]="(!car.hasArrow || !setArrowSxMap[i])"
+          <span in-viewport class="flicking-arrow-prev" [class.none]="(!car.hasArrow || !setArrowSxMap[i])"
             aria-label="Slide precedente">
           </span>
 
-          <span
-            in-viewport
-            class="flicking-arrow-next"
-            [class.none]="(!car.hasArrow || setArrowDxMap[i])"
+          <span in-viewport class="flicking-arrow-next" [class.none]="(!car.hasArrow || setArrowDxMap[i])"
             aria-label="Slide successiva">
           </span>
 
           <!-- PAGINAZIONE -->
-          <div
-            in-viewport
-            class="flicking-pagination"
-            [class.none]="!car.hasBullet"
-            aria-label="Paginazione carosello">
+          <div in-viewport class="flicking-pagination" [class.none]="!car.hasBullet" aria-label="Paginazione carosello">
           </div>
         </ngx-flicking>
       </div> <!-- /wrapper carosello -->
     </ng-container>
+    <!-- ADD GLOBALE: sempre dopo l’ultima sezione -->
+    <!-- ADD GLOBALE: sempre dopo l’ultima sezione -->
+    <div class="carousel-add-global" *ngIf="isAdmin">
+      <button mat-icon-button (click)="apriPopUpAddCaroselloAdmin()" matTooltip="Aggiungi nuova sezione"
+        [matTooltipClass]="'tooltip-custom'">
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+
   </div>
 </section>
