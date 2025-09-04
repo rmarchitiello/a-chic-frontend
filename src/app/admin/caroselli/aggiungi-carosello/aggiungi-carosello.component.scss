@@ -2,8 +2,8 @@
    FORM CAROSELLO — PALETTE BLU/VERDE (BASICO)
    Io uso:
    - Blu accento: #1f6feb (testi/azioni principali)
-   - Blu soft:   #eef5ff (pannelli chiari, sfondi soffici)
-   - Verde accento: #22a86a (azioni “positive”)
+   - Blu soft:    #eef5ff (pannelli chiari)
+   - Verde accento: #22a86a (azioni positive)
    - Grigi neutri per testo/bordi
    ========================================================= */
 
@@ -15,32 +15,32 @@
   box-shadow: 0 6px 18px rgba(0, 0, 0, .06);
 }
 
-/* Titolo principale: blu accento */
+/* Titolo principale: blu accento per evidenza */
 .form-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1f6feb; /* blu accento */
+  color: #1f6feb;
 }
 
-/* Sottotitolo: grigio medio */
+/* Sottotitolo: grigio medio, non invadente */
 .form-subtitle {
   color: #667085;
 }
 
-/* Divider come blocco per gestire il margine verticalmente */
+/* Divider come blocco per gestire i margini verticali */
 mat-divider {
   display: block;
 }
 
-/* Titoli di sezione: testo scuro, puntino blu “soft” dietro */
+/* Titoli di sezione: testo scuro con sfondo blu soft */
 .section-title {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #2b2f36;
   font-weight: 600;
-  background: #eef5ff;     /* blu soft */
+  background: #eef5ff;
   border: 1px solid #e7eefc;
   padding: 8px 10px;
   border-radius: 8px;
@@ -51,24 +51,42 @@ mat-divider {
   width: 100%;
 }
 
-/* Toggle su riga dedicata */
+/* =========================================================
+   SEZIONE UNICA DEI TOGGLE
+   Qui raggruppo visivamente tutti i mat-slide-toggle.
+   Se nel template aggiungo un wrapper .toggles-section,
+   lo rendo più evidente e ordinato. Altrimenti valgono
+   comunque gli spazi generici sui toggle.
+   ========================================================= */
+
+/* Wrapper opzionale consigliato per i toggle */
+.toggles-section {
+  margin: 8px 0 12px 0;
+  padding: 10px 12px;
+  background: #f7fbff;        /* leggero azzurrino coerente col tema */
+  border: 1px solid #e3eefc;  /* bordo morbido */
+  border-radius: 10px;
+}
+
+/* Toggle: li metto su riga dedicata con spaziatura uniforme */
 .form-carosello mat-slide-toggle {
   display: block;
+  margin: 8px 0;              /* spaziatura verticale regolare */
 }
 
-/* Area azioni a destra */
-.actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+/* Testo del toggle: leggermente più marcato e scuro */
+.form-carosello mat-slide-toggle .mdc-label,
+.form-carosello mat-slide-toggle .mat-slide-toggle-content {
+  font-weight: 500;
+  color: #2b2f36;
 }
 
-/* ---------------------------------------------------------
+/* =========================================================
    RITOCCHI MINIMI MATERIAL (MDC)
    Io aumento contrasto e allineo i colori all’accento blu/verde.
-   --------------------------------------------------------- */
+   ========================================================= */
 
-/* Label sempre leggibili */
+/* Label sempre leggibili (evito opacità basse) */
 .mat-mdc-form-field .mdc-floating-label,
 .mat-mdc-form-field .mdc-floating-label--float-above {
   color: #1b1f24;
@@ -106,7 +124,12 @@ mat-divider {
   color: #475569;
 }
 
-/* Bottoni azioni */
+/* Pulsanti area azioni */
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
 .actions button[mat-stroked-button] {
   border-color: #d5d9e3;
   color: #1b1f24;
@@ -120,53 +143,10 @@ mat-divider {
   background: #9fc2ff; /* blu schiarito */
   color: #f1f5f9;
 }
-
-/* Se vuoi usare il verde per un’azione positiva specifica:
-   aggiungo una utility semplice che posso applicare al bottone */
+/* Utility per azioni “positive” in verde */
 .actions .btn-success[mat-raised-button] {
-  background: #22a86a; /* verde accento */
+  background: #22a86a;
   color: #ffffff;
-}
-
-/* =========================================================
-   SCROLL VERTICALE NEL POPUP (MAT DIALOG)
-   Io rendo il dialog SEMPRE scrollabile in Y dentro la viewport.
-   Questa soluzione non richiede HTML speciale.
-   ========================================================= */
-
-/* Variante “sicura” (component SCSS): raggiungo l’overlay con ::ng-deep.
-   Se usi panelClass: 'popup-admin-editor', questi selettori la sfruttano.
-   Puoi tenere sia le regole generiche sia quelle con la panelClass. */
-:host ::ng-deep .cdk-overlay-pane {
-  display: flex;         /* così la surface può adattarsi */
-  align-items: stretch;
-  max-height: 100vh;     /* limito alla finestra */
-  overflow: hidden;      /* lo scroller sarà la surface */
-}
-:host ::ng-deep .cdk-overlay-pane .mat-mdc-dialog-surface {
-  display: block;
-  max-height: 100%;
-  overflow-y: auto;      /* scroller verticale del popup */
-}
-
-/* Se usi una panelClass specifica, applico le stesse regole (ridondanza utile) */
-:host ::ng-deep .cdk-overlay-pane.popup-admin-editor {
-  display: flex;
-  align-items: stretch;
-  max-height: 100vh;
-  overflow: hidden;
-}
-:host ::ng-deep .cdk-overlay-pane.popup-admin-editor .mat-mdc-dialog-surface {
-  max-height: 100%;
-  overflow-y: auto;
-}
-
-/* Se nel template usi <mat-dialog-content>, io rimuovo i limiti interni
-   perché voglio che scrolli la surface di cui sopra. */
-:host ::ng-deep .mat-mdc-dialog-content {
-  max-height: none;
-  overflow: visible;
-  padding: 0;
 }
 
 /* =========================================================
@@ -199,15 +179,10 @@ mat-divider {
     margin-bottom: 12px;
   }
   .form-carosello mat-slide-toggle {
-    margin: 8px 0 12px 0;
+    margin: 8px 0;
   }
   .actions {
     margin-top: 16px;
-  }
-
-  /* Popup: lascio spazio alla UI di sistema */
-  :host ::ng-deep .cdk-overlay-pane {
-    max-height: 90vh;
   }
 }
 
@@ -246,10 +221,5 @@ mat-divider {
   }
   .actions {
     margin-top: 20px;
-  }
-
-  /* Popup: posso usare un po’ più viewport su desktop */
-  :host ::ng-deep .cdk-overlay-pane {
-    max-height: 92vh;
   }
 }

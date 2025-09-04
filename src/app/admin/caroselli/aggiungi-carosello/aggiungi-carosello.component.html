@@ -1,20 +1,14 @@
 <!--
-  In questo template imposto i label dei campi di Angular Material sempre “flottanti” sopra ai campi.
-  Lo faccio aggiungendo floatLabel="always" su TUTTI i <mat-form-field>.
-  In questo modo il comportamento del label è coerente tra input e select: il testo del label resta fuori dal campo,
-  come nell’esempio “Allineamento (align)”. Mantengo appearance="outline" e non modifico la struttura del form.
-
-  Struttura generale:
-  - Header: titolo e sottotitolo esplicativi.
-  - Sezione "Impostazioni di base": nome, titolo sezione, switch circular, select align/mode, durata.
-  - Sezione "Plugin": tre toggle e un numero per l’autoplay.
-  - Sezione "Stile e animazioni": classi wrapper/pannello e toggle per lo zoom.
-  - Azioni: annulla (chiude il dialog se usato in MatDialog) e salva (submit del form).
+  In questo template porto TUTTI i mat-slide-toggle in un’unica sezione dedicata
+  per migliorare la leggibilità. Non cambio la struttura dei FormGroup:
+  - i toggle arrow/fade/bullet restano dentro formGroupName="plugins"
+  - i toggle circular e zoomMediaCarosello restano nel gruppo principale
+  Mantengo floatLabel="always" su tutti i mat-form-field.
 -->
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-carosello">
 
-  <!-- HEADER: qui presento lo scopo del form con un titolo iconico e un sottotitolo breve -->
+  <!-- HEADER -->
   <h2 class="form-title">
     <mat-icon color="primary" aria-hidden="true">add_to_photos</mat-icon>
     <span>Crea il tuo carosello</span>
@@ -25,14 +19,12 @@
 
   <!-- =======================
        SEZIONE: IMPOSTAZIONI DI BASE
-       Qui raccolgo i campi fondamentali per istanziare il carosello.
        ======================= -->
   <div class="section-title">
     <mat-icon color="primary" aria-hidden="true">settings</mat-icon>
     <span>Impostazioni di base</span>
   </div>
 
-  <!-- Nome (UI): imposto il label sempre visibile sopra al campo -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Nome carosello</mat-label>
     <mat-icon matPrefix aria-hidden="true">drive_file_rename_outline</mat-icon>
@@ -43,17 +35,12 @@
     </mat-error>
   </mat-form-field>
 
-  <!-- Titolo sezione (h2): anche qui forzo il label flottante per coerenza visiva -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Titolo sezione</mat-label>
     <mat-icon matPrefix aria-hidden="true">title</mat-icon>
     <input matInput type="text" formControlName="titoloSezione" placeholder="Es. Best seller" />
   </mat-form-field>
 
-  <!-- Circular: uso uno slide-toggle per indicare la modalità infinita del carosello -->
-  <mat-slide-toggle color="primary" formControlName="circular">Carosello infinito (circular)</mat-slide-toggle>
-
-  <!-- Align: select con label sempre sopra e validazione richiesta -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Allineamento (align)</mat-label>
     <mat-icon matPrefix aria-hidden="true">format_align_center</mat-icon>
@@ -65,7 +52,6 @@
     <mat-error *ngIf="form.get('align')?.hasError('required')">Obbligatorio</mat-error>
   </mat-form-field>
 
-  <!-- Mode: select per la modalità di scorrimento; label forzato in alto -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Modalità (mode)</mat-label>
     <mat-icon matPrefix aria-hidden="true">tune</mat-icon>
@@ -77,7 +63,6 @@
     <mat-error *ngIf="form.get('mode')?.hasError('required')">Obbligatorio</mat-error>
   </mat-form-field>
 
-  <!-- Duration: numero in millisecondi; mantengo il suffisso “ms” come aiuto visivo -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Durata</mat-label>
     <mat-icon matPrefix aria-hidden="true">speed</mat-icon>
@@ -90,27 +75,51 @@
   <mat-divider></mat-divider>
 
   <!-- =======================
-       SEZIONE: PLUGIN
-       Qui raccolgo le opzioni dei plugin del carosello.
+       SEZIONE: INTERRUTTORI (TUTTI I TOGGLE)
+       Metto qui ogni mat-slide-toggle per avere una sola area coerente.
+       ======================= -->
+  <div class="section-title">
+    <mat-icon color="primary" aria-hidden="true">toggle_on</mat-icon>
+    <span>Interruttori</span>
+  </div>
+
+  <!-- Toggle root: circular -->
+  <mat-slide-toggle color="primary" formControlName="circular">
+    Scorrimento infinito (circular)
+  </mat-slide-toggle>
+
+  <!-- Toggle dei plugin: li lascio nel loro formGroup ma VISIVAMENTE fanno parte della stessa sezione -->
+  <div formGroupName="plugins">
+    <mat-slide-toggle color="primary" formControlName="arrow">
+      Frecce di navigazione (prev/next)
+    </mat-slide-toggle>
+
+    <mat-slide-toggle color="primary" formControlName="fade">
+      Transizione in dissolvenza (fade)
+    </mat-slide-toggle>
+
+    <mat-slide-toggle color="primary" formControlName="bullet">
+      Indicatori di pagina (pallini)
+    </mat-slide-toggle>
+  </div>
+
+  <!-- Toggle root: zoom animazione -->
+  <mat-slide-toggle color="primary" formControlName="zoomMediaCarosello">
+    Effetto zoom sul media al cambio slide
+  </mat-slide-toggle>
+
+  <mat-divider></mat-divider>
+
+  <!-- =======================
+       SEZIONE: PLUGIN (SOLO AUTOPLAY)
+       Tengo qui il campo numerico; i toggle li ho già raccolti sopra.
        ======================= -->
   <div class="section-title">
     <mat-icon color="primary" aria-hidden="true">extension</mat-icon>
     <span>Plugin</span>
   </div>
 
-  <!-- Gruppo annidato: plugins. Mantengo i toggle e aggiungo il campo numerico per l’autoplay. -->
   <div formGroupName="plugins">
-
-    <!-- Attivo/disattivo frecce di navigazione -->
-    <mat-slide-toggle color="primary" formControlName="arrow">Freccia (arrow)</mat-slide-toggle>
-
-    <!-- Attivo/disattivo transizione in dissolvenza -->
-    <mat-slide-toggle color="primary" formControlName="fade">Transizione fade</mat-slide-toggle>
-
-    <!-- Attivo/disattivo la paginazione a pallini -->
-    <mat-slide-toggle color="primary" formControlName="bullet">Pallini (pagination: bullet)</mat-slide-toggle>
-
-    <!-- Autoplay: numero in ms; label flottante sempre in alto -->
     <mat-form-field appearance="outline" floatLabel="always">
       <mat-label>Autoplay</mat-label>
       <mat-icon matPrefix aria-hidden="true">av_timer</mat-icon>
@@ -118,21 +127,18 @@
       <span matSuffix>ms</span>
       <mat-hint align="end">0 = disattivo</mat-hint>
     </mat-form-field>
-
   </div>
 
   <mat-divider></mat-divider>
 
   <!-- =======================
        SEZIONE: STILE E ANIMAZIONI
-       Qui definisco classi CSS e l’animazione di zoom.
        ======================= -->
   <div class="section-title">
     <mat-icon color="primary" aria-hidden="true">brush</mat-icon>
     <span>Stile e animazioni</span>
   </div>
 
-  <!-- Classi wrapper: suggerisco come separare più classi e forzo label in alto -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Classi wrapper</mat-label>
     <mat-icon matPrefix aria-hidden="true">view_carousel</mat-icon>
@@ -141,7 +147,6 @@
     <mat-error *ngIf="form.get('wrapperClass')?.hasError('required')">Obbligatorio</mat-error>
   </mat-form-field>
 
-  <!-- Classi pannello: label flottante in alto e validazione richiesta -->
   <mat-form-field appearance="outline" floatLabel="always">
     <mat-label>Classi pannello</mat-label>
     <mat-icon matPrefix aria-hidden="true">layers</mat-icon>
@@ -149,14 +154,9 @@
     <mat-error *ngIf="form.get('panelClass')?.hasError('required')">Obbligatorio</mat-error>
   </mat-form-field>
 
-  <!-- Toggle per animazione zoom: lo mantengo semplice e chiaro -->
-  <mat-slide-toggle color="primary" formControlName="zoomMediaCarosello">
-    Animazione zoom al cambio slide
-  </mat-slide-toggle>
-
   <mat-divider></mat-divider>
 
-  <!-- AZIONI: annulla (chiude il dialog se presente) e salva (submit del form) -->
+  <!-- AZIONI -->
   <div class="actions">
     <button mat-stroked-button type="button" mat-dialog-close>Annulla</button>
     <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">
