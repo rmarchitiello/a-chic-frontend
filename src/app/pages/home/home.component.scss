@@ -274,15 +274,7 @@
   }
   :host ::ng-deep .flicking-pagination-bullet-active { background-color: #111; }
 
-  /* Animazione da applicare al cambio slide (classe aggiunta via TS) */
-  @keyframes zoomInReturnLinear {
-    0% { transform: scale(1.08); opacity: 0.75; }
-    100% { transform: scale(1);    opacity: 1; }
-  }
-  .zoom-enter {
-    animation: zoomInReturnLinear 1000ms linear both;
-    transform-origin: center center;
-  }
+
 }
 
 
@@ -519,15 +511,7 @@
   }
   :host ::ng-deep .flicking-pagination-bullet-active { background-color: #111; }
 
-  /* Animazione da applicare al cambio slide (classe aggiunta via TS) */
-  @keyframes zoomInReturnLinear {
-    0% { transform: scale(1.08); opacity: 0.75; }
-    100% { transform: scale(1);    opacity: 1; }
-  }
-  .zoom-enter {
-    animation: zoomInReturnLinear 1000ms linear both;
-    transform-origin: center center;
-  }
+
 }
 
 
