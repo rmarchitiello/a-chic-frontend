@@ -139,72 +139,15 @@ export class AggiungiCaroselloComponent {
     zoomMediaCarosello: new FormControl<boolean>(false, { nonNullable: true }),
   });
 
-  // 3) Questo metodo mostra come leggere i valori della form in modo pulito.
-  //    Qui preparo il JSON "pronto per createCarousel", ESCLUDENDO "data".
-  //    Tengo la logica semplice, senza casi avanzati.
-  buildConfigPerCreateCarousel() {
-    // Estraggo TUTTI i valori (compresi quelli del gruppo plugins).
-    const raw = this.form.getRawValue();
-
-    // Converto le stringhe di classi in array (split su spazi o virgole).
-    const toClassArray = (s: string) =>
-      s.split(/[\s,]+/).map(x => x.trim()).filter(Boolean);
-
-    // Mappo "bullet" e "autoplay" ai tipi attesi da createCarousel.
-    // - bullet: boolean → pagination: 'bullet' | false
-    // - autoplay: number (0 = off) → false | number
-    const pagination = raw.plugins.bullet ? 'bullet' : false;
-    const autoplay = raw.plugins.autoplay > 0 ? raw.plugins.autoplay : false;
-
-    // Se zoomMediaCarosello è true, uso 'zoom-enter' come classe animazione.
-    const onChangedCarosello = raw.zoomMediaCarosello ? 'zoom-enter' : '';
-
-    // Preparo l'oggetto CONFIG (senza data).
-    // Questo oggetto è pronto per: createCarousel({ data: QUALCOSA, ...config })
-    const config = {
-      mode: raw.mode,
-      circular: raw.circular,
-      align: raw.align,
-      duration: raw.duration,
-
-      plugins: {
-        fade: raw.plugins.fade,
-        arrow: raw.plugins.arrow,
-        pagination,   // 'bullet' oppure false
-        autoplay,     // number oppure false
-      },
-
-      // Metadati UI e classi
-      titoloSezione: raw.titoloSezione,
-      wrapperTitoloSezioneClass: ['wrapper-titolo'],
-      titoloSezioneClass: ['titolo'],
-      wrapperClass: toClassArray(raw.wrapperClass),
-      panelClass: toClassArray(raw.panelClass),
-
-      // Animazione al cambio slide
-      onChangedCarosello,
-    };
-
-    return config;
-  }
+  
 
   // 4) Esempio di submit minimalista:
   //    - Se la form è invalida, marco come touched e mi fermo.
   //    - Altrimenti costruisco il config e lo uso come voglio.
   onSubmit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const config = this.buildConfigPerCreateCarousel();
-
-    // Qui decidi tu cosa farne:
-    // - chiudere un dialog e restituire config
-    // - chiamare direttamente createCarousel({ data: X, ...config })
-    // - loggare per test
-    console.log('CONFIG PER createCarousel (senza data):', config);
+      console.log("Form value: ", JSON.stringify(this.form.getRawValue()));
   }
+
 
   chiudiDialog(){
       this.dialogRef.close();
