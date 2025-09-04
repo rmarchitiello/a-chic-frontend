@@ -1,0 +1,119 @@
+/* ================
+   FORM CAROSELLO — MOBILE FIRST
+   ================ */
+.form-carosello {
+  max-width: 100%;
+  padding: 16px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb; /* grigio chiaro */
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+/* Titolo e sottotitolo */
+.form-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px 0;
+  font-size: 20px;
+  line-height: 1.2;
+  color: #1f2937; /* grigio scuro */
+}
+
+.form-title mat-icon {
+  vertical-align: middle;
+}
+
+.form-subtitle {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  color: #6b7280; /* grigio medio */
+}
+
+/* Sezioni */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px 0;
+  font-weight: 600;
+  font-size: 16px;
+  color: #374151;
+}
+
+.section-title mat-icon {
+  vertical-align: middle;
+}
+
+/* Divider */
+mat-divider {
+  display: block;
+  margin: 12px 0;
+}
+
+/* Campi */
+.form-carosello mat-form-field {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* Toggle */
+.form-carosello mat-slide-toggle {
+  display: block;
+  margin: 8px 0 12px 0;
+}
+
+/* Azioni */
+.actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ================
+   DESKTOP ≥ 769px
+   ================ */
+@media (min-width: 769px) {
+  .form-carosello {
+    max-width: 920px;
+    padding: 24px 28px;
+  }
+
+  .form-title {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+
+  .form-subtitle {
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    margin-top: 24px;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  /* Due colonne per i mat-form-field che sono figli diretti del form.
+     (Quelli annidati in contenitori restano full-width, va bene così.) */
+  .form-carosello > mat-form-field {
+    width: calc(50% - 10px);
+    margin-right: 20px;
+  }
+
+  .form-carosello > mat-form-field:nth-of-type(2n) {
+    margin-right: 0;
+  }
+
+  .form-carosello mat-slide-toggle {
+    margin: 10px 0 14px 0;
+  }
+
+  .actions {
+    margin-top: 24px;
+  }
+}
