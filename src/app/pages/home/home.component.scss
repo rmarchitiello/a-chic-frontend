@@ -529,3 +529,123 @@
     transform-origin: center center;
   }
 }
+
+
+
+
+
+/* Rendo il pop up per editare i caroselli scrollabile, cosi gli do uno stile */
+/* =========================================================
+   POPUP — 'popup-admin-editor' (HOME)
+   In questo blocco imposto dimensioni e scroll senza usare
+   <mat-dialog-content>. Faccio scorrere la dialog surface.
+   ========================================================= */
+
+/* Base: raggiungo l'overlay del dialog con la sua panelClass */
+:host ::ng-deep .cdk-overlay-pane.popup-admin-editor {
+  /* Rendo il pane flessibile così la surface può occupare lo spazio
+     e ricevere un'altezza limitata dalla viewport */
+  display: flex;
+  align-items: stretch;
+
+  /* Di base mi tengo dentro la finestra */
+  max-height: 100vh;
+  overflow: hidden;  /* lo scroll lo gestisce la surface */
+
+  /* Dimensioni "mobile-first" (affino sotto con media query) */
+  width: 96vw;
+  max-width: 960px;
+}
+
+/* La superficie del dialog: qui abilito lo scroll verticale */
+:host ::ng-deep .cdk-overlay-pane.popup-admin-editor .mat-mdc-dialog-surface {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;       /* qui scorre il popup */
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18), 0 6px 20px rgba(0,0,0,.10);
+  padding: 0;            /* tengo i padding dentro al contenuto del dialog */
+}
+
+/* =========================================================
+   MOBILE (≤ 768px)
+   Qui occupo quasi tutta la larghezza e lascio aria in altezza
+   per la UI di sistema. Lo scroll resta sulla surface.
+   ========================================================= */
+@media (max-width: 768px) {
+  :host ::ng-deep .cdk-overlay-pane.popup-admin-editor {
+    width: 96vw;
+    max-width: 96vw;
+    max-height: 90vh;     /* lascio margine alto/basso */
+  }
+}
+
+/* =========================================================
+   DESKTOP (≥ 769px)
+   Qui scelgo una larghezza comoda e sfrutto più viewport
+   mantenendo lo scroll sulla surface.
+   ========================================================= */
+@media (min-width: 769px) {
+  :host ::ng-deep .cdk-overlay-pane.popup-admin-editor {
+    width: 920px;         /* larghezza tipica per form */
+    max-width: 92vw;      /* non oltre la viewport in schermi piccoli */
+    max-height: 92vh;     /* uso più altezza su desktop */
+  }
+}
+
+
+/* =========================================================
+   POPUP — 'popup-caroselli-editor' (HOME)
+   In questo blocco rendo scrollabile il PANE e limito le dimensioni.
+   Non uso <mat-dialog-content>. Tengo il CSS semplice.
+   ========================================================= */
+
+/* BASE: regole comuni */
+::ng-deep .cdk-overlay-pane.popup-caroselli-editor {
+  display: flex;              /* do un contesto di altezza al figlio */
+  align-items: stretch;
+  width: 96vw;                /* base mobile-first */
+  max-width: 960px;           /* limite orizzontale ragionevole */
+
+  /* qui rendo il pannello visivamente PIÙ CORTO e scrollabile */
+  max-height: 80vh;           /* limite verticale più basso */
+  overflow-y: auto;           /* lo scroll vive sul pane */
+}
+
+/* La surface resta solo estetica (niente scroll qui) */
+::ng-deep .cdk-overlay-pane.popup-caroselli-editor .mat-mdc-dialog-surface {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18), 0 6px 20px rgba(0,0,0,.10);
+  padding: 0;                 /* i padding li gestisco nel contenuto */
+}
+
+/* =========================================================
+   MOBILE (≤ 768px)
+   Tengo quasi piena larghezza e un pannello un po’ più alto.
+   ========================================================= */
+@media (max-width: 768px) {
+  ::ng-deep .cdk-overlay-pane.popup-caroselli-editor {
+    width: 96vw;
+    max-width: 96vw;
+
+    /* su mobile lascio più respiro perché la tastiera può ridurre lo spazio */
+    max-height: 82vh;         /* puoi alzare/abbassare tra 80–86vh */
+  }
+}
+
+/* =========================================================
+   DESKTOP (≥ 769px)
+   Scelgo una larghezza comoda e un pannello più “corto”.
+   ========================================================= */
+@media (min-width: 769px) {
+  ::ng-deep .cdk-overlay-pane.popup-caroselli-editor {
+    width: 760px;             /* 720–840px a gusto tuo */
+    max-width: 92vw;          /* non oltre la viewport in schermi piccoli */
+
+    /* qui rendo il pannello più basso rispetto al mobile */
+    max-height: 74vh;         /* 70–78vh va bene; prova 74vh come base */
+  }
+}

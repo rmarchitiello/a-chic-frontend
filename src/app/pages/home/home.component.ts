@@ -1036,6 +1036,7 @@ saveDataHomeInput: MediaCollection[] = [];
   apriPopUpAddCaroselloAdmin(){
       const ref = this.dialog.open(AggiungiCaroselloComponent, {
         autoFocus: false, // quando apro il pop up non c e nessun focus su nessun elemento
+        panelClass: 'popup-caroselli-editor'
       });
   }
 

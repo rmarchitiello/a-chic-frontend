@@ -91,7 +91,7 @@ export class AggiungiCaroselloComponent {
     // Metadati UI
     name: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(2)],
+      validators: [Validators.required],
     }),
     titoloSezione: new FormControl<string>('', {
       nonNullable: true,
