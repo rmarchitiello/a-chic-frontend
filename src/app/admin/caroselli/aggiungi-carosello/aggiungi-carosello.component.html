@@ -30,6 +30,9 @@
     <mat-error *ngIf="form.get('name')?.hasError('required') && form.get('name')?.touched">
       Obbligatorio
     </mat-error>
+    <mat-error *ngIf="form.get('name')?.hasError('pattern') && form.get('name')?.touched">
+      Non puoi inserire caratteri speciali
+    </mat-error>
   </mat-form-field>
 
   <mat-form-field appearance="outline" floatLabel="always">

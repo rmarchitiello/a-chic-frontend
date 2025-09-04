@@ -80,7 +80,7 @@ export class AggiungiCaroselloComponent {
   // 1) Creo prima il gruppo dei plugin, così è chiaro e riusabile.
   //    Metto default sensati: fade ON, arrow OFF, bullet OFF, autoplay 0 (disattivo).
   pluginsGroup: FormGroup<PluginsForm> = new FormGroup<PluginsForm>({
-    fade: new FormControl<boolean>(true, { nonNullable: true }),
+    fade: new FormControl<boolean>(false, { nonNullable: true }),
     arrow: new FormControl<boolean>(false, { nonNullable: true }),
     bullet: new FormControl<boolean>(false, { nonNullable: true }),
     autoplay: new FormControl<number>(0, { nonNullable: true, validators: [Validators.min(0)] }),
@@ -92,7 +92,8 @@ export class AggiungiCaroselloComponent {
     // Metadati UI
     name: new FormControl<string>('', {
       nonNullable: true,
-      validators: [Validators.required],
+      validators: [Validators.required, Validators.pattern(/^[\p{L}\p{N}\s_-]+$/u)],
+      
     }),
     titoloSezione: new FormControl<string>('', {
       nonNullable: true,
@@ -104,7 +105,7 @@ export class AggiungiCaroselloComponent {
       nonNullable: true,
       validators: [Validators.required],
     }),
-    circular: new FormControl<boolean>(true, { nonNullable: true }),
+    circular: new FormControl<boolean>(false, { nonNullable: true }),
     align: new FormControl<AlignType>('center', {
       nonNullable: true,
       validators: [Validators.required],
@@ -128,7 +129,7 @@ export class AggiungiCaroselloComponent {
     }),
 
     // Flag per animazione zoom: ON = userò 'zoom-enter' in mapping
-    zoomMediaCarosello: new FormControl<boolean>(true, { nonNullable: true }),
+    zoomMediaCarosello: new FormControl<boolean>(false, { nonNullable: true }),
   });
 
   // 3) Questo metodo mostra come leggere i valori della form in modo pulito.
