@@ -1,76 +1,66 @@
-  ::ng-deep .cdk-overlay-pane{ //faccio scrollare solo y 
-    overflow-y: auto;
-  }
 /* =========================================================
-   FORM CAROSELLO — STILI BASE (PALETTE BLU/VERDE)
-   Io punto a codice semplice e ripetitivo, senza scorciatoie.
+   OVERLAY (MatDialog) — scroll SOLO su Y
    ========================================================= */
-
-/* Contenitore principale del form: occupo tutta la larghezza,
-   sfondo bianco, angoli arrotondati, niente ombre extra. */
-.form-carosello {
-  background: #ffffff;
-  border: 0;
-  border-radius: 12px;
-  overflow: auto;
-  box-shadow: none;
-  width: 100%;
-  /* evito barre orizzontali se qualcosa dentro sfora */
-  overflow-x: hidden;
-  box-sizing: border-box;
+::ng-deep .cdk-overlay-pane.popup-caroselli-editor {
+  overflow-y: auto;
 }
 
-/* Variante per usare tutta la larghezza del dialog (così non vedo grigio ai lati) */
+//sovrascrive i mat prefix 
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-icon-prefix > .mat-icon,
+:host ::ng-deep .mat-mdc-form-field .mat-mdc-form-field-icon-suffix > .mat-icon {
+  padding: 0 !important;  /* rimuove il 0 12px di Material */
+}
+
+
+/* =========================================================
+   FORM CAROSELLO — BASE
+   ========================================================= */
+.form-carosello {
+  background: #fff;
+  border: 0;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: none;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
 .form-carosello--full {
   max-width: 100%;
   margin: 0;
 }
-
-/* Per sicurezza, dico a tutti i figli di rispettare la larghezza del contenitore */
 .form-carosello * {
   box-sizing: border-box;
   max-width: 100%;
 }
 
-/* Titolo e sottotitolo: colori e allineamenti semplici */
 .form-title {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #1f6feb; /* blu accento */
+  color: #1f6feb;
 }
+.form-subtitle { color: #667085; }
+mat-divider { display: block; }
 
-.form-subtitle {
-  color: #667085; /* grigio medio */
-}
-
-/* Se uso mat-divider, lo tratto come blocco */
-mat-divider {
-  display: block;
-}
-
-/* Titoli di sezione statici (se servono) */
 .section-title {
   display: flex;
   align-items: center;
   gap: 8px;
   color: #2b2f36;
   font-weight: 600;
-  background: #eef5ff;            /* blu soft */
+  background: #eef5ff;
   border: 1px solid #e7eefc;
   padding: 8px 10px;
   border-radius: 8px;
 }
 
-/* I campi occupano sempre il 100% dello spazio disponibile */
 .form-carosello mat-form-field {
   display: block;
   width: 100%;
 }
 
 /* =========================================================
-   RIGA CAMPO + ICONA INFO (per i mat-form-field)
-   Io metto il campo a sinistra e un'icona info a destra.
+   CAMPO + ICONA INFO (per i mat-form-field)
    ========================================================= */
 .field-with-info {
   display: flex;
@@ -79,13 +69,11 @@ mat-divider {
   width: 100%;
   margin-bottom: 12px;
 }
-
 .field-with-info mat-form-field {
   flex: 1 1 auto;
   margin: 0;
 }
 
-/* Icona info: piccola, discreta, cliccabile */
 .info-label {
   width: 32px;
   height: 32px;
@@ -98,35 +86,122 @@ mat-divider {
   justify-content: center;
   cursor: pointer;
 }
-
 .info-label mat-icon {
   font-size: 18px;
   color: #667085;
   line-height: 1;
 }
-
 .info-label:hover mat-icon,
-.info-label:focus-visible mat-icon {
-  color: #1f6feb; /* blu accento al passaggio/focus */
-}
-
+.info-label:focus-visible mat-icon { color: #1f6feb; }
 .info-label:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(31, 111, 235, 0.18);
+  box-shadow: 0 0 0 2px rgba(31,111,235,.18);
 }
 
-/* Tooltip personalizzato (se uso [matTooltipClass]="'tooltip-custom'") */
+/* Tooltip custom (se usi [matTooltipClass]="'tooltip-custom'") */
 .tooltip-custom {
-  background: #1f2937; /* grigio molto scuro */
-  color: #ffffff;
+  background: #1f2937;
+  color: #fff;
   font-size: 12px;
   padding: 6px 8px;
   border-radius: 6px;
 }
 
 /* =========================================================
-   TOGGLE + ICONA INFO (per i mat-slide-toggle)
-   Io metto il toggle a sinistra e l’icona info a destra.
+   FIX VISIVO DELLE ICONE NEI CAMPI (prefix/suffix/arrow)
+   —> qui creo PIÙ SPAZIO tra icona e testo del campo
+   ========================================================= */
+
+/* centro verticalmente tutto il blocco input/select */
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-flex {
+  display: flex;
+  align-items: center;
+}
+
+/* contenitore icon-prefix: lo centro e aggiungo GAP a destra */
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-icon-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;       /* <<< gap extra tra icona e valore */
+  padding: 0;               /* niente padding, solo margine */
+  color: #475569;
+}
+
+/* contenitore icon-suffix: simile, ma con gap a sinistra */
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-icon-suffix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  padding: 0;
+  color: #475569;
+}
+
+/* dimensiono le icone (nitide e allineate) */
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-icon-prefix mat-icon,
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-icon-suffix mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 1;
+  transform: translateY(1px); /* micro correzione */
+}
+
+/* un filo di padding interno all’infix per respirare */
+.form-carosello .mat-mdc-form-field .mat-mdc-form-field-infix {
+  padding-left: 6px;        /* <<< aiuta anche su input senza prefix */
+  padding-right: 6px;
+}
+
+/* testo input/select con line-height regolare */
+.form-carosello .mat-mdc-form-field .mdc-text-field__input {
+  line-height: 1.4;
+}
+
+/* select: trigger centrato e freccia un pelo più visibile */
+.form-carosello .mat-mdc-select-trigger {
+  display: flex;
+  align-items: center;
+  min-height: 56px;         /* “comfortable” */
+}
+.form-carosello .mat-mdc-select-arrow {
+  transform: scale(1.05);
+  color: #475569;
+}
+
+/* suffissi testuali (es. “ms”) */
+.form-carosello .mat-mdc-form-field span[matSuffix] {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px 0 4px;
+  font-size: 13px;
+  color: #667085;
+}
+
+/* =========================================================
+   RITOCCHI MATERIAL (etichette, hint, errori, bordi)
+   ========================================================= */
+.mat-mdc-form-field .mdc-floating-label,
+.mat-mdc-form-field .mdc-floating-label--float-above {
+  color: #1b1f24;
+  opacity: 1;
+}
+.mat-mdc-form-field-hint { color: #6b7280; }
+.mat-mdc-form-field-error {
+  color: #cc2b2b;
+  font-weight: 600;
+}
+
+.mdc-notched-outline__leading,
+.mdc-notched-outline__notch,
+.mdc-notched-outline__trailing { border-color: #d7dbe3; }
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing { border-color: #1f6feb; }
+
+/* =========================================================
+   TOGGLE + ICONA INFO
    ========================================================= */
 .toggle-with-info {
   display: flex;
@@ -136,8 +211,6 @@ mat-divider {
   width: 100%;
   margin: 8px 0;
 }
-
-/* Rendo il testo dei toggle un po' più marcato */
 .form-carosello mat-slide-toggle .mdc-label,
 .form-carosello mat-slide-toggle .mat-slide-toggle-content {
   font-weight: 500;
@@ -145,93 +218,44 @@ mat-divider {
 }
 
 /* =========================================================
-   RITOCCHI SEMPLICI SU ANGULAR MATERIAL (MDC)
-   Io aumento il contrasto e allineo i colori al blu accento.
-   ========================================================= */
-.mat-mdc-form-field .mdc-floating-label,
-.mat-mdc-form-field .mdc-floating-label--float-above {
-  color: #1b1f24;
-  opacity: 1;
-}
-
-.mat-mdc-form-field-hint {
-  color: #6b7280;
-}
-
-.mat-mdc-form-field-error {
-  color: #cc2b2b;
-  font-weight: 600;
-}
-
-/* Bordi dell'outline più visibili */
-.mdc-notched-outline__leading,
-.mdc-notched-outline__notch,
-.mdc-notched-outline__trailing {
-  border-color: #d7dbe3;
-}
-
-/* Bordo blu in focus */
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
-.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
-  border-color: #1f6feb;
-}
-
-/* Icone prefix/suffix in grigio neutro */
-.mat-mdc-form-field-icon-prefix,
-.mat-mdc-form-field-icon-suffix {
-  color: #475569;
-}
-
-/* =========================================================
-   AZIONI — pulsanti in basso a destra
+   AZIONI (pulsanti)
    ========================================================= */
 .actions {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
 }
-
 .actions button[mat-stroked-button] {
   border-color: #d5d9e3;
   color: #1b1f24;
   background: #f6f8fc;
 }
-
 .actions button[mat-raised-button] {
   background: #1f6feb;
-  color: #ffffff;
+  color: #fff;
 }
-
 .actions button[mat-raised-button][disabled] {
   background: #9fc2ff;
   color: #f1f5f9;
 }
-
-/* Variante verde opzionale (se la usi sul bottone) */
 .actions .btn-success[mat-raised-button] {
   background: #22a86a;
-  color: #ffffff;
+  color: #fff;
 }
 
 /* =========================================================
-   ACCORDION / EXPANSION PANEL — stile semplice blu/soft
+   ACCORDION / EXPANSION PANEL
    ========================================================= */
-.form-carosello .mat-accordion {
-  display: block;
-  margin: 6px 0 10px 0;
-}
-
+.form-carosello .mat-accordion { display: block; margin: 6px 0 10px 0; }
 .form-carosello .mat-expansion-panel {
   border: 1px solid #e7eefc;
   border-radius: 10px;
-  background: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
   overflow: hidden;
   margin: 10px 0;
   width: 100%;
 }
-
 .form-carosello .mat-expansion-panel-header {
   min-height: 44px;
   padding: 8px 12px;
@@ -239,77 +263,49 @@ mat-divider {
   color: #2b2f36;
   border-bottom: 1px solid #e7eefc;
 }
-
 .form-carosello .mat-expansion-panel-header mat-icon {
   color: #1f6feb;
   font-size: 20px;
   margin-right: 8px;
 }
-
 .form-carosello .mat-expansion-panel-header .mat-expansion-panel-header-title {
   font-weight: 600;
-  letter-spacing: 0.1px;
+  letter-spacing: .1px;
 }
-
-.form-carosello .mat-expansion-indicator::after {
-  color: #1f6feb;
-}
-
+.form-carosello .mat-expansion-indicator::after { color: #1f6feb; }
 .form-carosello .mat-expansion-panel-header:hover {
   background: #eef5ff;
   border-bottom-color: #dae6fd;
 }
-
 .form-carosello .mat-expansion-panel.mat-expanded {
   border-color: #bed4ff;
-  box-shadow: 0 4px 14px rgba(31, 111, 235, 0.08);
+  box-shadow: 0 4px 14px rgba(31,111,235,.08);
   position: relative;
 }
-
 .form-carosello .mat-expansion-panel.mat-expanded::before {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
+  left: 0; top: 0; bottom: 0;
   width: 3px;
   background: #1f6feb;
 }
-
 .form-carosello .mat-expansion-panel.mat-expanded .mat-expansion-panel-header {
   background: #f2f7ff;
   border-bottom-color: #d7e4ff;
 }
-
 .form-carosello .mat-expansion-panel-body {
   padding: 12px;
-  background: #ffffff;
+  background: #fff;
 }
-
-.form-carosello .mat-expansion-panel-body mat-form-field {
-  display: block;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.form-carosello .mat-expansion-panel-body mat-slide-toggle {
-  margin: 8px 0;
-}
-
+.form-carosello .mat-expansion-panel-body mat-form-field { margin-bottom: 12px; }
+.form-carosello .mat-expansion-panel-body mat-slide-toggle { margin: 8px 0; }
 .form-carosello .mat-expansion-panel.mat-expansion-panel-disabled {
-  opacity: 0.6;
-  filter: grayscale(10%);
-  cursor: not-allowed;
+  opacity: .6; filter: grayscale(10%); cursor: not-allowed;
 }
-
-/* Versione flat dell’accordion (se impostata) */
 .form-carosello .mat-accordion[displaymode="flat"] .mat-expansion-panel,
 .form-carosello .mat-accordion[displayMode="flat"] .mat-expansion-panel {
-  box-shadow: none;
-  border-color: #e7eefc;
+  box-shadow: none; border-color: #e7eefc;
 }
-
-/* Badge semplice vicino al titolo (se lo usi) */
 .form-carosello .mat-expansion-panel-header .badge {
   display: inline-block;
   padding: 2px 8px;
@@ -321,7 +317,7 @@ mat-divider {
 }
 
 /* =========================================================
-   MOBILE (≤ 768px) — misure più compatte
+   MOBILE (≤ 768px)
    ========================================================= */
 @media (max-width: 768px) {
   .form-carosello {
@@ -330,43 +326,18 @@ mat-divider {
     position: relative;
   }
 
-  /* Pulsante chiudi in alto a destra, senza hover invasivo */
   .form-carosello .chiudi-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
-    background: transparent;
-    border: none;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 8px;
-    z-index: 2;
+    top: 8px; right: 8px;
+    width: 32px; height: 32px;
+    background: transparent; border: none; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius: 8px; z-index: 2;
   }
+  .form-carosello .chiudi-btn mat-icon { color: #1b1f24; font-size: 20px; line-height: 1; }
 
-  .form-carosello .chiudi-btn mat-icon {
-    color: #1b1f24;
-    font-size: 20px;
-    line-height: 1;
-  }
-
-  .form-title {
-    margin: 0 0 6px 0;
-    font-size: 20px;
-    line-height: 1.2;
-  }
-
-  .form-subtitle {
-    margin: 0 0 12px 0;
-    font-size: 14px;
-  }
-
-  mat-divider { margin: 12px 0; }
-  .section-title { margin: 16px 0 8px 0; font-size: 16px; }
+  .form-title { margin: 0 0 6px 0; font-size: 20px; line-height: 1.2; }
+  .form-subtitle { margin: 0 0 12px 0; font-size: 14px; }
 
   .field-with-info { margin-bottom: 12px; }
   .toggle-with-info { margin: 8px 0; }
@@ -379,12 +350,10 @@ mat-divider {
 }
 
 /* =========================================================
-   DESKTOP (≥ 769px) — un po’ più aria
+   DESKTOP (≥ 769px)
    ========================================================= */
 @media (min-width: 769px) {
   .form-carosello {
-    /* Se vuoi una form più stretta, lascia max-width.
-       Se vuoi piena larghezza del dialog, usa anche .form-carosello--full nel template. */
     max-width: 900px;
     padding: 24px 28px;
     border-radius: 14px;
@@ -394,30 +363,16 @@ mat-divider {
 
   .form-carosello .chiudi-btn {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
-    background: transparent;
-    border: none;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 8px;
+    top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    background: transparent; border: none; padding: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; border-radius: 8px;
   }
-
-  .form-carosello .chiudi-btn mat-icon {
-    color: #1b1f24;
-    font-size: 22px;
-    line-height: 1;
-  }
+  .form-carosello .chiudi-btn mat-icon { color: #1b1f24; font-size: 22px; line-height: 1; }
 
   .form-title { font-size: 22px; margin-bottom: 8px; }
   .form-subtitle { font-size: 15px; margin-bottom: 16px; }
-  mat-divider { margin: 16px 0; }
-  .section-title { margin-top: 24px; margin-bottom: 10px; font-size: 18px; }
 
   .field-with-info { margin-bottom: 14px; }
   .toggle-with-info { margin: 10px 0 14px 0; }
@@ -428,3 +383,4 @@ mat-divider {
   .form-carosello .mat-expansion-panel-body { padding: 16px; }
   .form-carosello .mat-expansion-panel { margin: 12px 0; }
 }
+

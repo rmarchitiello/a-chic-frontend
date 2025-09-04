@@ -282,7 +282,7 @@
 
   <!-- AZIONI -->
   <div class="actions">
-    <button mat-stroked-button type="button" mat-dialog-close>Annulla</button>
+    <button mat-stroked-button type="button" mat-dialog-close (click)="chiudiDialog()">Annulla</button>
     <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Salva</button>
   </div>
 </form>

@@ -146,6 +146,7 @@ export class AggiungiCaroselloComponent {
   //    - Altrimenti costruisco il config e lo uso come voglio.
   onSubmit() {
       console.log("Form value: ", JSON.stringify(this.form.getRawValue()));
+      this.chiudiDialog();
   }
 
 
